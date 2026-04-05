@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simswelt</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:sans-serif;background:#0a1420;color:#fff;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+#topnav{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;background:rgba(0,0,0,0.75);border-bottom:0.5px solid rgba(255,255,255,0.08);flex-shrink:0}
+#topnav .logo{display:flex;align-items:center;gap:10px}
+#topnav .logo-icon{width:26px;height:26px;background:#2a5a3a;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px}
+#topnav .title{font-size:13px;font-weight:500;letter-spacing:3px}
+#topnav .subtitle{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-left:6px}
+#topnav .btns{display:flex;gap:8px}
+#topnav button{border:none;border-radius:6px;font-size:11px;padding:5px 14px;cursor:pointer}
+#btn-back{background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.15)!important;color:rgba(255,255,255,0.7);display:none}
+#btn-login{background:#2a5a3a;color:#fff}
+#btn-register{background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.12)!important;color:rgba(255,255,255,0.6)}
+#main{flex:1;display:flex;min-height:0}
+#left{width:170px;flex-shrink:0;background:rgba(0,0,0,0.55);border-right:0.5px solid rgba(255,255,255,0.06);padding:14px 12px;display:flex;flex-direction:column;gap:5px;overflow-y:auto}
+#right{width:170px;flex-shrink:0;background:rgba(0,0,0,0.55);border-left:0.5px solid rgba(255,255,255,0.06);padding:14px 12px;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+#center{flex:1;position:relative;overflow:hidden}
+.sec-label{font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.nav-item{padding:7px 9px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.07);border-radius:7px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:11px;color:#fff;text-decoration:none}
+.nav-item:hover{background:rgba(255,255,255,0.08)}
+.activity-item{padding:6px 8px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.07);border-radius:6px;display:flex;align-items:center;gap:8px;margin-bottom:5px;cursor:pointer}
+.activity-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.activity-name{font-size:11px;font-weight:500}
+.activity-world{font-size:10px;color:rgba(255,255,255,0.35)}
+.online-item{display:flex;align-items:center;gap:7px;font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:5px}
+.stat-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px}
+.stat-key{color:rgba(255,255,255,0.4)}
+#discord-btn{margin-top:auto;padding:9px 10px;background:rgba(88,101,242,0.15);border:0.5px solid rgba(88,101,242,0.3);border-radius:7px;cursor:pointer;display:flex;align-items:center;gap:8px}
+
+/* Map */
+#map-container{position:absolute;inset:0}
+#map-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(0.7) saturate(0.85)}
+#map-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at 55% 50%,transparent 35%,rgba(0,0,0,0.55) 100%);pointer-events:none}
+#map-legend{position:absolute;bottom:14px;left:12px;background:rgba(0,0,0,0.55);border:0.5px solid rgba(255,255,255,0.07);border-radius:7px;padding:6px 12px;font-size:10px;color:rgba(255,255,255,0.35);pointer-events:none}
+.world-dot{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:5}
+.dot-inner{width:8px;height:8px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.45);transition:all 0.15s;position:relative;z-index:1}
+.world-dot:hover .dot-inner{width:12px;height:12px}
+.dot-pulse{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:50%;opacity:0.5;animation:pulse 1.4s infinite;pointer-events:none;display:none}
+.world-dot:hover .dot-pulse{display:block}
+.hover-card{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);background:rgba(5,12,22,0.97);border-radius:10px;overflow:hidden;z-index:30;pointer-events:none;width:170px;display:none}
+.world-dot:hover .hover-card{display:block}
+.hover-img{width:100%;height:100px;object-fit:cover}
+.hover-img-fallback{width:100%;height:100px;display:flex;align-items:center;justify-content:center;font-size:28px}
+.hover-gradient{position:absolute;bottom:0;left:0;right:0;height:45px;background:linear-gradient(transparent,rgba(5,12,22,0.97));pointer-events:none}
+.hover-name{position:absolute;bottom:32px;left:10px;font-size:12px;font-weight:500}
+.hover-footer{padding:7px 10px;display:flex;justify-content:space-between}
+.hover-type{font-size:10px;color:rgba(255,255,255,0.45)}
+.hover-action{font-size:10px;font-weight:500}
+
+/* World view */
+#world-container{position:absolute;inset:0;display:none;flex-direction:column}
+#world-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(0.65) saturate(0.9)}
+#world-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 30%,rgba(0,0,0,0.5) 100%);pointer-events:none}
+#world-lots-bar{position:absolute;bottom:0;left:0;right:0;border-top:0.5px solid rgba(255,255,255,0.07);padding:10px 14px;background:rgba(0,0,0,0.75);display:flex;gap:7px;flex-wrap:wrap;z-index:10}
+#world-empty{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;display:none}
+.lot-dot{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:5}
+.lot-inner{width:9px;height:9px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.7);transition:all 0.15s;position:relative;z-index:1}
+.lot-dot:hover .lot-inner{width:13px;height:13px}
+.lot-pulse{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:50%;border:1.5px solid #4aaa6a;animation:pulse 1.4s infinite;pointer-events:none;display:none}
+.lot-dot.active .lot-pulse{display:block}
+.lot-tooltip{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.95);border-radius:7px;padding:7px 11px;font-size:11px;white-space:nowrap;z-index:20;pointer-events:none;display:none;box-shadow:0 4px 14px rgba(0,0,0,0.6)}
+.lot-dot:hover .lot-tooltip{display:block}
+.lot-pill{padding:5px 10px;border-radius:6px;font-size:10px;cursor:pointer;display:flex;align-items:center;gap:5px;border:0.5px solid transparent}
+.lot-pill:hover{opacity:0.8}
+.lot-pip{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+
+@keyframes pulse{0%{transform:translate(-50%,-50%) scale(1);opacity:.5}50%{transform:translate(-50%,-50%) scale(2);opacity:.1}100%{transform:translate(-50%,-50%) scale(1);opacity:.5}}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<div id="topnav">
+  <div class="logo">
+    <button id="btn-back" onclick="goBack()">← Karte</button>
+    <div class="logo-icon">🌍</div>
+    <span class="title">SIMSWELT</span>
+    <span class="subtitle" id="world-subtitle"></span>
+  </div>
+  <div class="btns">
+    <button id="btn-login" onclick="window.open('https://www.simsforumrpg.de/anmeldung.php','_blank')">Anmelden</button>
+    <button id="btn-register" onclick="window.open('https://www.simsforumrpg.de/anmeldung.php','_blank')">Registrieren</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- LEFT -->
+  <div id="left">
+    <div class="sec-label">Navigation</div>
+    <a class="nav-item" href="https://www.simsforumrpg.de/f51849-Hauptcharaktere.html" target="_blank">👤 Hauptcharaktere</a>
+    <a class="nav-item" href="https://www.simsforumrpg.de/f51850-Nebencharaktere.html" target="_blank">👥 Nebencharaktere</a>
+    <a class="nav-item" href="https://www.simsforumrpg.de/f58642-Kreationen-und-Geschichten.html" target="_blank">🎨 Kreativ-Ecke</a>
+    <a class="nav-item" href="https://www.simsforumrpg.de/f15070-Forenspiele.html" target="_blank">🎲 Forenspiele</a>
+    <a class="nav-item" href="https://www.simsforumrpg.de/f57699-Schreibuebungen.html" target="_blank">✍️ Schreibübungen</a>
+    <a class="nav-item" href="https://www.simsforumrpg.de/blog-c1386-Simstagram.html" target="_blank">📸 Simstagram</a>
+    <a class="nav-item" href="https://www.simsforumrpg.de/blog-c1375-Metaverse.html" target="_blank">🌐 Metaverse</a>
+    <a class="nav-item" href="https://www.simsforumrpg.de/f15063-Foren-Hub-Neulinge-starten-hier.html" target="_blank">📖 RPG Hub</a>
+    <a class="nav-item" href="https://www.simsforumrpg.de/page-simsweltnews.html" target="_blank">📰 SimsWelt News</a>
+    <a class="nav-item" href="https://www.simsforumrpg.de/gallery.php" target="_blank">🖼️ Bildergalerie</a>
+    <div class="sec-label" style="margin-top:10px">Ausserhalb</div>
+    <a class="nav-item" href="https://www.simsforumrpg.de/f51855-Orte-ausserhalb-von-Simswelt.html" target="_blank">🌑 Andere Welten</a>
+  </div>
+
+  <!-- CENTER -->
+  <div id="center">
+
+    <!-- MAP -->
+    <div id="map-container">
+      <div id="map-bg" style="background-image:url('https://files.homepagemodules.de/b855163/resize/550x550/pictures_u1169_VsxXqBbZ.jpg')"></div>
+      <div id="map-vignette"></div>
+      <div id="map-legend">29 Welten · Hover = Vorschau · Klick = Betreten</div>
+    </div>
+
+    <!-- WORLD -->
+    <div id="world-container">
+      <div id="world-bg"></div>
+      <div id="world-vignette"></div>
+      <div id="world-lots-bar"></div>
+      <div id="world-empty">
+        <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:12px">Grundstücke noch nicht eingetragen</div>
+        <button id="world-open-btn" style="background:#3a6a5a;border:none;border-radius:7px;color:#fff;font-size:13px;padding:9px 20px;cursor:pointer;font-weight:500">Forum-Bereich öffnen →</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT -->
+  <div id="right">
+    <div>
+      <div class="sec-label">Zuletzt aktiv</div>
+      <div class="activity-item"><div class="activity-dot" style="background:#5a6a7a;box-shadow:0 0 5px #5a6a7a"></div><div><div class="activity-name">Blaze</div><div class="activity-world">Windenburg</div></div></div>
+      <div class="activity-item"><div class="activity-dot" style="background:#c8a02a;box-shadow:0 0 5px #c8a02a"></div><div><div class="activity-name">Vaas</div><div class="activity-world">Del Sol Valley</div></div></div>
+      <div class="activity-item"><div class="activity-dot" style="background:#3a4a7a;box-shadow:0 0 5px #3a4a7a"></div><div><div class="activity-name">Artjom</div><div class="activity-world">San Myshuno</div></div></div>
+      <div class="activity-item"><div class="activity-dot" style="background:#4a8a3a;box-shadow:0 0 5px #4a8a3a"></div><div><div class="activity-name">Alma</div><div class="activity-world">Willow Creek</div></div></div>
+      <div class="activity-item"><div class="activity-dot" style="background:#c87a2a;box-shadow:0 0 5px #c87a2a"></div><div><div class="activity-name">Chase</div><div class="activity-world">Oasis Springs</div></div></div>
+    </div>
+    <div>
+      <div class="sec-label">Online</div>
+      <div class="online-item"><div style="width:6px;height:6px;border-radius:50%;background:#4aaa6a"></div>Ripzha</div>
+      <div class="online-item"><div style="width:6px;height:6px;border-radius:50%;background:#4aaa6a"></div>Murloc</div>
+    </div>
+    <div>
+      <div class="sec-label">Stats</div>
+      <div class="stat-row"><span class="stat-key">Posts</span><span>7262</span></div>
+      <div class="stat-row"><span class="stat-key">Themen</span><span>721</span></div>
+      <div class="stat-row"><span class="stat-key">Mitglieder</span><span>39</span></div>
+      <div class="stat-row"><span class="stat-key">Welten</span><span>29</span></div>
+    </div>
+    <div id="discord-btn" onclick="window.open('https://discord.gg/FGB8Mfj','_blank')">
+      <span style="font-size:14px">💬</span>
+      <div><div style="font-size:11px;font-weight:500">Discord</div><div style="font-size:10px;color:rgba(255,255,255,0.35)">Community beitreten</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const worlds = [
+  {name:"Innisgreen",x:8,y:18,color:"#4a8a5a",type:"Feen-Insel",url:"https://www.simsforumrpg.de/f59907-Innisgreen.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f59907t701p6857n6_GhgTkzIe.png"},
+  {name:"Nordhaven",x:32,y:22,color:"#4a8aaa",type:"Fjordstadt",url:"https://www.simsforumrpg.de/f59567-Nordhaven.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51848t674p6442n2_KpoqhcPI.png"},
+  {name:"Ravenwood",x:45,y:24,color:"#5a5a3a",type:"Nebelhochland",url:"https://www.simsforumrpg.de/f59271-Ravenwood.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f59271t650p5999n7_rDMbUQwt.png"},
+  {name:"San Sequoia",x:26,y:33,color:"#3a6a5a",type:"Pazifik",url:"https://www.simsforumrpg.de/f51797-San-Sequoia.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51797t246p3097n2_IcEpQsxW.png"},
+  {name:"Britechester",x:42,y:33,color:"#7a8a5a",type:"Universität",url:"https://www.simsforumrpg.de/f51790-Britechester.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51790t35p233n2_BAkTRtjw.png"},
+  {name:"Granite Falls",x:52,y:22,color:"#3a6a3a",type:"Nationalpark",url:"https://www.simsforumrpg.de/f51798-Granite-Falls.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51798t245p3096n42_IrNAYjfx.png"},
+  {name:"Forgotten Hollow",x:62,y:32,color:"#6a3a8a",type:"Vampire",url:"https://www.simsforumrpg.de/f51784-Forgotten-Hollow.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51784t120p1370n28_ZBEYwHqf.png"},
+  {name:"Chestnut Ridge",x:72,y:18,color:"#aa7a2a",type:"Ranch",url:"https://www.simsforumrpg.de/f55177-Chestnut-Ridge.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f55177t466p3785n32_rOXCxANG.png"},
+  {name:"Strangerville",x:80,y:28,color:"#8a3a5a",type:"Mysteriös",url:"https://www.simsforumrpg.de/f51787-Strangerville.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51787t181p2466n2_gfRrAMHE.png"},
+  {name:"Evergreen Harbor",x:88,y:32,color:"#3a5a5a",type:"Hafen",url:"https://www.simsforumrpg.de/f51791-Evergreen-Harbor.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51791t234p2910n2_oKurUAPW.png"},
+  {name:"Copperdale",x:50,y:38,color:"#5a7a5a",type:"Kleinstadt",url:"https://www.simsforumrpg.de/f51796-Copperdale.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51796t221p2770n2_IpAVFBvk.png"},
+  {name:"Henford-on-Bagley",x:62,y:38,color:"#6a8a3a",type:"England",url:"https://www.simsforumrpg.de/f51793-Henford-on-Bagley.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51793t157p2223n105_OYrMHvJZ.png"},
+  {name:"Mt. Komorebi",x:58,y:44,color:"#9aaabb",type:"Gebirge",url:"https://www.simsforumrpg.de/f51792-Mt-Komorebi.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51792t216p2710n2_wULZCEnk.png"},
+  {name:"Moonwood Mill",x:72,y:44,color:"#2a4a5a",type:"Werwölfe",url:"https://www.simsforumrpg.de/f51795-Moonwood-Mill.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51795t251p3100n2_MianYHlj.png"},
+  {name:"Brindleton Bay",x:80,y:46,color:"#3a7a7a",type:"Küste",url:"https://www.simsforumrpg.de/f51785-Brindleton-Bay.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51785t137p1856n68_teKkqyYo.png"},
+  {name:"San Myshuno",x:50,y:50,color:"#3a4a7a",type:"Grossstadt",url:"https://www.simsforumrpg.de/f51783-San-Myshuno.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51783t169p2426n2_dSGVIUFa.png"},
+  {name:"Magnolia Promenade",x:60,y:52,color:"#7a6a5a",type:"Promenade",url:"https://www.simsforumrpg.de/f51781-Magnolia-Promenade.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51781t225p2839n2_ETxPDFyw.png"},
+  {name:"Willow Creek",x:72,y:52,color:"#4a8a3a",type:"Südstaaten",url:"https://www.simsforumrpg.de/f51778-Willow-Creek.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51778t29p202n77_JrnKhSxv.png"},
+  {name:"Glimmerbrook",x:44,y:46,color:"#7a3a9a",type:"Magie",url:"https://www.simsforumrpg.de/f51789-Glimmerbrook.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51789t243p3090n21_dypBDxZG.png"},
+  {name:"Windenburg",x:74,y:62,color:"#5a6a7a",type:"Altstadt",url:"https://www.simsforumrpg.de/f51782-Windenburg.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51782t167p2402n2_JBPzskhI.png"},
+  {name:"Del Sol Valley",x:54,y:60,color:"#c8a02a",type:"Hollywood",url:"https://www.simsforumrpg.de/f51786-Del-Sol-Valley.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51786t83p767n15_KcbvhHqF.png"},
+  {name:"Newcrest",x:56,y:50,color:"#7a8a5a",type:"Vorstadt",url:"https://www.simsforumrpg.de/f51780-Newcrest.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51780t88p965n2_RqOoeKZy.png"},
+  {name:"Oasis Springs",x:62,y:64,color:"#c87a2a",type:"Wüste",url:"https://www.simsforumrpg.de/f51779-Oasis-Springs.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51779t166p1754n2_yLnFXfhm.png"},
+  {name:"Sulani",x:88,y:60,color:"#2a9a8a",type:"Tropeninsel",url:"https://www.simsforumrpg.de/f51788-Sulani.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51788t170p2427n2_XDLcAuVK.png"},
+  {name:"Tartosa",x:62,y:78,color:"#b06a3a",type:"Mittelmeer",url:"https://www.simsforumrpg.de/f51794-Tartosa.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51794t252p3104n2_spbMdixK.png"},
+  {name:"Selvadorada",x:20,y:65,color:"#2a5a2a",type:"Dschungel",url:"https://www.simsforumrpg.de/f51799-Selvadorada.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51799t188p2490n2_gyTPfLHp.png"},
+  {name:"Tomarang",x:46,y:56,color:"#2a7a5a",type:"Südostasien",url:"https://www.simsforumrpg.de/f58300-Tomarang.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f58300t555p4823n18_xhRAIYaO.png"},
+  {name:"Ciudad Enamorada",x:58,y:70,color:"#aa4a3a",type:"Latein",url:"https://www.simsforumrpg.de/f58925-Ciudad-Enamorada.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f58925t630p5729n2_SlKGjfbm.png"},
+  {name:"Ondarion",x:70,y:72,color:"#8a7a3a",type:"Königreich",url:"https://www.simsforumrpg.de/f51848-Orte.html",img:""},
+];
+
+// Grundstücke pro Welt — hier werden nach und nach alle eingetragen
+const worldLots = {
+  "San Sequoia": [
+    {name:"San Sequoia (Hauptplatz)",x:45,y:45,url:"https://www.simsforumrpg.de/t246f51797-San-Sequoia.html",active:true},
+    {name:"Nr. 3 - Veronikas Boutique",x:35,y:30,url:"https://www.simsforumrpg.de/t686f51797-San-Sequoia-Nr-Veronikas-Boutique.html",active:true},
+    {name:"Haus S. Schmidt",x:60,y:35,url:"https://www.simsforumrpg.de/t559f51797-San-Sequoia-Haus-S-Schmidt.html",active:false},
+    {name:"Greenridge Correctional",x:75,y:55,url:"https://www.simsforumrpg.de/t694f51797-San-Sequoia-Greenridge-Correctional-Institution.html",active:false},
+    {name:"Familie Janko",x:55,y:65,url:"https://www.simsforumrpg.de/t638f51797-San-Sequoia-Doppelhaushaelfte-der-Familie-Janko.html",active:false},
+    {name:"Familie Delany",x:30,y:60,url:"https://www.simsforumrpg.de/t550f51797-San-Sequoia-Haus-Familie-Delany.html",active:false},
+    {name:"Nr. 7 - Old Factory Live Club",x:65,y:25,url:"https://www.simsforumrpg.de/t410f51797-San-Sequoia-Nr-Old-Factory-Live-Club.html",active:false},
+  ],
+};
+
+// Welt-Dots auf Karte rendern
+const mapContainer = document.getElementById('map-container');
+worlds.forEach(w => {
+  const dot = document.createElement('div');
+  dot.className = 'world-dot';
+  dot.style.left = w.x + '%';
+  dot.style.top = w.y + '%';
+  dot.innerHTML = `
+    <div class="dot-pulse" style="border-color:${w.color}"></div>
+    <div class="dot-inner" style="background:${w.color};box-shadow:0 0 5px ${w.color}"></div>
+    <div class="hover-card" style="border:1px solid ${w.color}88;box-shadow:0 6px 28px ${w.color}44">
+      ${w.img
+        ? `<div style="position:relative"><img class="hover-img" src="${w.img}" onerror="this.parentNode.innerHTML='<div class=\\'hover-img-fallback\\' style=\\'background:${w.color}33\\'></div>'"><div class="hover-gradient"></div><div class="hover-name">${w.name}</div></div>`
+        : `<div class="hover-img-fallback" style="background:${w.color}33;position:relative"><div class="hover-gradient"></div><div class="hover-name">${w.name}</div></div>`
+      }
+      <div class="hover-footer"><span class="hover-type">${w.type}</span><span class="hover-action" style="color:${w.color}">Klicken →</span></div>
+    </div>
+  `;
+  dot.addEventListener('click', () => enterWorld(w));
+  mapContainer.appendChild(dot);
+});
+
+function enterWorld(w) {
+  document.getElementById('map-container').style.display = 'none';
+  const wc = document.getElementById('world-container');
+  wc.style.display = 'flex';
+  document.getElementById('world-bg').style.backgroundImage = w.img ? `url('${w.img}')` : 'none';
+  document.getElementById('world-bg').style.background = w.img ? '' : `linear-gradient(135deg,${w.color}33,#0a1420)`;
+  document.getElementById('world-subtitle').textContent = '/ ' + w.name;
+  document.getElementById('btn-back').style.display = 'inline-block';
+
+  // Lots
+  const bar = document.getElementById('world-lots-bar');
+  bar.innerHTML = '';
+  const lots = worldLots[w.name] || [];
+
+  // Bestehende Lot-Dots entfernen
+  wc.querySelectorAll('.lot-dot').forEach(d => d.remove());
+
+  if (lots.length === 0) {
+    document.getElementById('world-empty').style.display = 'block';
+    document.getElementById('world-open-btn').onclick = () => window.open(w.url, '_blank');
+    document.getElementById('world-open-btn').style.background = w.color;
+  } else {
+    document.getElementById('world-empty').style.display = 'none';
+    lots.forEach(lot => {
+      // Dot auf Karte
+      const ld = document.createElement('div');
+      ld.className = 'lot-dot' + (lot.active ? ' active' : '');
+      ld.style.left = lot.x + '%';
+      ld.style.top = lot.y + '%';
+      ld.innerHTML = `
+        <div class="lot-pulse"></div>
+        <div class="lot-inner" style="background:${lot.active?'#4aaa6a':'rgba(255,255,255,0.5)'};box-shadow:${lot.active?'0 0 10px #4aaa6a':'none'}"></div>
+        <div class="lot-tooltip" style="border:0.5px solid ${lot.active?'#4aaa6a':'rgba(255,255,255,0.2)'}">
+          <div style="font-weight:500;margin-bottom:2px">${lot.name}</div>
+          <div style="font-size:10px;color:${lot.active?'#4aaa6a':'rgba(255,255,255,0.4)'}">${lot.active?'● Aktiv':'○ Zum Thread'}</div>
+        </div>
+      `;
+      ld.addEventListener('click', () => window.open(lot.url, '_blank'));
+      wc.appendChild(ld);
+
+      // Pill in Bar
+      const pill = document.createElement('div');
+      pill.className = 'lot-pill';
+      pill.style.background = lot.active ? 'rgba(74,170,106,0.15)' : 'rgba(255,255,255,0.05)';
+      pill.style.borderColor = lot.active ? '#4aaa6a55' : 'rgba(255,255,255,0.1)';
+      pill.style.color = lot.active ? '#4aaa6a' : 'rgba(255,255,255,0.5)';
+      pill.innerHTML = `<div class="lot-pip" style="background:${lot.active?'#4aaa6a':'rgba(255,255,255,0.3)'}"></div>${lot.name}`;
+      pill.addEventListener('click', () => window.open(lot.url, '_blank'));
+      bar.appendChild(pill);
+    });
+  }
+}
+
+function goBack() {
+  document.getElementById('map-container').style.display = 'block';
+  document.getElementById('world-container').style.display = 'none';
+  document.getElementById('world-subtitle').textContent = '';
+  document.getElementById('btn-back').style.display = 'none';
+}
+</script>
+</body>
+</html>
