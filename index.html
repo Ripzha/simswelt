@@ -35,7 +35,9 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100vh;display:f
 
 /* Map */
 #map-container{position:absolute;inset:0}
-#map-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(0.7) saturate(0.85)}
+#map-bg{position:absolute;inset:0;overflow:hidden}
+#map-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(0.7) saturate(0.85)}
+#world-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(0.65) saturate(0.9)}
 #map-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at 55% 50%,transparent 35%,rgba(0,0,0,0.55) 100%);pointer-events:none}
 #map-legend{position:absolute;bottom:14px;left:12px;background:rgba(0,0,0,0.55);border:0.5px solid rgba(255,255,255,0.07);border-radius:7px;padding:6px 12px;font-size:10px;color:rgba(255,255,255,0.35);pointer-events:none}
 .world-dot{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:5}
@@ -114,7 +116,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100vh;display:f
 
     <!-- MAP -->
     <div id="map-container">
-      <div id="map-bg" style="background-image:url('https://files.homepagemodules.de/b855163/resize/550x550/pictures_u1169_VsxXqBbZ.jpg')"></div>
+      <div id="map-bg"><img src="https://files.homepagemodules.de/b855163/resize/550x550/pictures_u1169_VsxXqBbZ.jpg" alt="Simswelt Karte"></div>
       <div id="map-vignette"></div>
       <div id="map-legend">29 Welten · Hover = Vorschau · Klick = Betreten</div>
     </div>
@@ -163,35 +165,35 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100vh;display:f
 
 <script>
 const worlds = [
-  {name:"Innisgreen",x:8,y:18,color:"#4a8a5a",type:"Feen-Insel",url:"https://www.simsforumrpg.de/f59907-Innisgreen.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f59907t701p6857n6_GhgTkzIe.png"},
-  {name:"Nordhaven",x:32,y:22,color:"#4a8aaa",type:"Fjordstadt",url:"https://www.simsforumrpg.de/f59567-Nordhaven.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51848t674p6442n2_KpoqhcPI.png"},
-  {name:"Ravenwood",x:45,y:24,color:"#5a5a3a",type:"Nebelhochland",url:"https://www.simsforumrpg.de/f59271-Ravenwood.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f59271t650p5999n7_rDMbUQwt.png"},
-  {name:"San Sequoia",x:26,y:33,color:"#3a6a5a",type:"Pazifik",url:"https://www.simsforumrpg.de/f51797-San-Sequoia.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51797t246p3097n2_IcEpQsxW.png"},
-  {name:"Britechester",x:42,y:33,color:"#7a8a5a",type:"Universität",url:"https://www.simsforumrpg.de/f51790-Britechester.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51790t35p233n2_BAkTRtjw.png"},
-  {name:"Granite Falls",x:52,y:22,color:"#3a6a3a",type:"Nationalpark",url:"https://www.simsforumrpg.de/f51798-Granite-Falls.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51798t245p3096n42_IrNAYjfx.png"},
-  {name:"Forgotten Hollow",x:62,y:32,color:"#6a3a8a",type:"Vampire",url:"https://www.simsforumrpg.de/f51784-Forgotten-Hollow.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51784t120p1370n28_ZBEYwHqf.png"},
-  {name:"Chestnut Ridge",x:72,y:18,color:"#aa7a2a",type:"Ranch",url:"https://www.simsforumrpg.de/f55177-Chestnut-Ridge.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f55177t466p3785n32_rOXCxANG.png"},
-  {name:"Strangerville",x:80,y:28,color:"#8a3a5a",type:"Mysteriös",url:"https://www.simsforumrpg.de/f51787-Strangerville.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51787t181p2466n2_gfRrAMHE.png"},
-  {name:"Evergreen Harbor",x:88,y:32,color:"#3a5a5a",type:"Hafen",url:"https://www.simsforumrpg.de/f51791-Evergreen-Harbor.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51791t234p2910n2_oKurUAPW.png"},
-  {name:"Copperdale",x:50,y:38,color:"#5a7a5a",type:"Kleinstadt",url:"https://www.simsforumrpg.de/f51796-Copperdale.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51796t221p2770n2_IpAVFBvk.png"},
-  {name:"Henford-on-Bagley",x:62,y:38,color:"#6a8a3a",type:"England",url:"https://www.simsforumrpg.de/f51793-Henford-on-Bagley.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51793t157p2223n105_OYrMHvJZ.png"},
-  {name:"Mt. Komorebi",x:58,y:44,color:"#9aaabb",type:"Gebirge",url:"https://www.simsforumrpg.de/f51792-Mt-Komorebi.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51792t216p2710n2_wULZCEnk.png"},
-  {name:"Moonwood Mill",x:72,y:44,color:"#2a4a5a",type:"Werwölfe",url:"https://www.simsforumrpg.de/f51795-Moonwood-Mill.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51795t251p3100n2_MianYHlj.png"},
-  {name:"Brindleton Bay",x:80,y:46,color:"#3a7a7a",type:"Küste",url:"https://www.simsforumrpg.de/f51785-Brindleton-Bay.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51785t137p1856n68_teKkqyYo.png"},
-  {name:"San Myshuno",x:50,y:50,color:"#3a4a7a",type:"Grossstadt",url:"https://www.simsforumrpg.de/f51783-San-Myshuno.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51783t169p2426n2_dSGVIUFa.png"},
-  {name:"Magnolia Promenade",x:60,y:52,color:"#7a6a5a",type:"Promenade",url:"https://www.simsforumrpg.de/f51781-Magnolia-Promenade.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51781t225p2839n2_ETxPDFyw.png"},
+  {name:"Innisgreen",x:5,y:17,color:"#4a8a5a",type:"Feen-Insel",url:"https://www.simsforumrpg.de/f59907-Innisgreen.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f59907t701p6857n6_GhgTkzIe.png"},
+  {name:"Nordhaven",x:28,y:25,color:"#4a8aaa",type:"Fjordstadt",url:"https://www.simsforumrpg.de/f59567-Nordhaven.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51848t674p6442n2_KpoqhcPI.png"},
+  {name:"Ravenwood",x:44,y:23,color:"#5a5a3a",type:"Nebelhochland",url:"https://www.simsforumrpg.de/f59271-Ravenwood.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f59271t650p5999n7_rDMbUQwt.png"},
+  {name:"Granite Falls",x:52,y:20,color:"#3a6a3a",type:"Nationalpark",url:"https://www.simsforumrpg.de/f51798-Granite-Falls.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51798t245p3096n42_IrNAYjfx.png"},
+  {name:"Chestnut Ridge",x:73,y:17,color:"#aa7a2a",type:"Ranch",url:"https://www.simsforumrpg.de/f55177-Chestnut-Ridge.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f55177t466p3785n32_rOXCxANG.png"},
+  {name:"Strangerville",x:83,y:26,color:"#8a3a5a",type:"Mysteriös",url:"https://www.simsforumrpg.de/f51787-Strangerville.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51787t181p2466n2_gfRrAMHE.png"},
+  {name:"Evergreen Harbor",x:92,y:33,color:"#3a5a5a",type:"Hafen",url:"https://www.simsforumrpg.de/f51791-Evergreen-Harbor.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51791t234p2910n2_oKurUAPW.png"},
+  {name:"San Sequoia",x:30,y:36,color:"#3a6a5a",type:"Pazifik",url:"https://www.simsforumrpg.de/f51797-San-Sequoia.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51797t246p3097n2_IcEpQsxW.png"},
+  {name:"Britechester",x:44,y:34,color:"#7a8a5a",type:"Universität",url:"https://www.simsforumrpg.de/f51790-Britechester.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51790t35p233n2_BAkTRtjw.png"},
+  {name:"Forgotten Hollow",x:60,y:32,color:"#6a3a8a",type:"Vampire",url:"https://www.simsforumrpg.de/f51784-Forgotten-Hollow.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51784t120p1370n28_ZBEYwHqf.png"},
+  {name:"Copperdale",x:50,y:40,color:"#5a7a5a",type:"Kleinstadt",url:"https://www.simsforumrpg.de/f51796-Copperdale.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51796t221p2770n2_IpAVFBvk.png"},
+  {name:"Henford-on-Bagley",x:63,y:38,color:"#6a8a3a",type:"England",url:"https://www.simsforumrpg.de/f51793-Henford-on-Bagley.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51793t157p2223n105_OYrMHvJZ.png"},
+  {name:"Glimmerbrook",x:56,y:48,color:"#7a3a9a",type:"Magie",url:"https://www.simsforumrpg.de/f51789-Glimmerbrook.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51789t243p3090n21_dypBDxZG.png"},
+  {name:"Mt. Komorebi",x:60,y:44,color:"#9aaabb",type:"Gebirge",url:"https://www.simsforumrpg.de/f51792-Mt-Komorebi.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51792t216p2710n2_wULZCEnk.png"},
+  {name:"Moonwood Mill",x:74,y:43,color:"#2a4a5a",type:"Werwölfe",url:"https://www.simsforumrpg.de/f51795-Moonwood-Mill.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51795t251p3100n2_MianYHlj.png"},
+  {name:"Brindleton Bay",x:82,y:46,color:"#3a7a7a",type:"Küste",url:"https://www.simsforumrpg.de/f51785-Brindleton-Bay.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51785t137p1856n68_teKkqyYo.png"},
+  {name:"San Myshuno",x:55,y:53,color:"#3a4a7a",type:"Grossstadt",url:"https://www.simsforumrpg.de/f51783-San-Myshuno.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51783t169p2426n2_dSGVIUFa.png"},
+  {name:"Magnolia Promenade",x:61,y:53,color:"#7a6a5a",type:"Promenade",url:"https://www.simsforumrpg.de/f51781-Magnolia-Promenade.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51781t225p2839n2_ETxPDFyw.png"},
   {name:"Willow Creek",x:72,y:52,color:"#4a8a3a",type:"Südstaaten",url:"https://www.simsforumrpg.de/f51778-Willow-Creek.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51778t29p202n77_JrnKhSxv.png"},
-  {name:"Glimmerbrook",x:44,y:46,color:"#7a3a9a",type:"Magie",url:"https://www.simsforumrpg.de/f51789-Glimmerbrook.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51789t243p3090n21_dypBDxZG.png"},
-  {name:"Windenburg",x:74,y:62,color:"#5a6a7a",type:"Altstadt",url:"https://www.simsforumrpg.de/f51782-Windenburg.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51782t167p2402n2_JBPzskhI.png"},
-  {name:"Del Sol Valley",x:54,y:60,color:"#c8a02a",type:"Hollywood",url:"https://www.simsforumrpg.de/f51786-Del-Sol-Valley.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51786t83p767n15_KcbvhHqF.png"},
-  {name:"Newcrest",x:56,y:50,color:"#7a8a5a",type:"Vorstadt",url:"https://www.simsforumrpg.de/f51780-Newcrest.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51780t88p965n2_RqOoeKZy.png"},
-  {name:"Oasis Springs",x:62,y:64,color:"#c87a2a",type:"Wüste",url:"https://www.simsforumrpg.de/f51779-Oasis-Springs.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51779t166p1754n2_yLnFXfhm.png"},
-  {name:"Sulani",x:88,y:60,color:"#2a9a8a",type:"Tropeninsel",url:"https://www.simsforumrpg.de/f51788-Sulani.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51788t170p2427n2_XDLcAuVK.png"},
-  {name:"Tartosa",x:62,y:78,color:"#b06a3a",type:"Mittelmeer",url:"https://www.simsforumrpg.de/f51794-Tartosa.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51794t252p3104n2_spbMdixK.png"},
-  {name:"Selvadorada",x:20,y:65,color:"#2a5a2a",type:"Dschungel",url:"https://www.simsforumrpg.de/f51799-Selvadorada.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51799t188p2490n2_gyTPfLHp.png"},
-  {name:"Tomarang",x:46,y:56,color:"#2a7a5a",type:"Südostasien",url:"https://www.simsforumrpg.de/f58300-Tomarang.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f58300t555p4823n18_xhRAIYaO.png"},
-  {name:"Ciudad Enamorada",x:58,y:70,color:"#aa4a3a",type:"Latein",url:"https://www.simsforumrpg.de/f58925-Ciudad-Enamorada.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f58925t630p5729n2_SlKGjfbm.png"},
-  {name:"Ondarion",x:70,y:72,color:"#8a7a3a",type:"Königreich",url:"https://www.simsforumrpg.de/f51848-Orte.html",img:""},
+  {name:"Newcrest",x:64,y:58,color:"#7a8a5a",type:"Vorstadt",url:"https://www.simsforumrpg.de/f51780-Newcrest.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51780t88p965n2_RqOoeKZy.png"},
+  {name:"Windenburg",x:76,y:62,color:"#5a6a7a",type:"Altstadt",url:"https://www.simsforumrpg.de/f51782-Windenburg.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51782t167p2402n2_JBPzskhI.png"},
+  {name:"Del Sol Valley",x:54,y:62,color:"#c8a02a",type:"Hollywood",url:"https://www.simsforumrpg.de/f51786-Del-Sol-Valley.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51786t83p767n15_KcbvhHqF.png"},
+  {name:"Oasis Springs",x:63,y:67,color:"#c87a2a",type:"Wüste",url:"https://www.simsforumrpg.de/f51779-Oasis-Springs.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51779t166p1754n2_yLnFXfhm.png"},
+  {name:"Sulani",x:89,y:60,color:"#2a9a8a",type:"Tropeninsel",url:"https://www.simsforumrpg.de/f51788-Sulani.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51788t170p2427n2_XDLcAuVK.png"},
+  {name:"Selvadorada",x:16,y:67,color:"#2a5a2a",type:"Dschungel",url:"https://www.simsforumrpg.de/f51799-Selvadorada.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51799t188p2490n2_gyTPfLHp.png"},
+  {name:"Tomarang",x:48,y:57,color:"#2a7a5a",type:"Südostasien",url:"https://www.simsforumrpg.de/f58300-Tomarang.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f58300t555p4823n18_xhRAIYaO.png"},
+  {name:"Ciudad Enamorada",x:60,y:73,color:"#aa4a3a",type:"Latein",url:"https://www.simsforumrpg.de/f58925-Ciudad-Enamorada.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f58925t630p5729n2_SlKGjfbm.png"},
+  {name:"Tartosa",x:65,y:80,color:"#b06a3a",type:"Mittelmeer",url:"https://www.simsforumrpg.de/f51794-Tartosa.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51794t252p3104n2_spbMdixK.png"},
+  {name:"Ondarion",x:72,y:75,color:"#8a7a3a",type:"Königreich",url:"https://www.simsforumrpg.de/f51848-Orte.html",img:""},
 ];
 
 // Grundstücke pro Welt — hier werden nach und nach alle eingetragen
@@ -233,8 +235,7 @@ function enterWorld(w) {
   document.getElementById('map-container').style.display = 'none';
   const wc = document.getElementById('world-container');
   wc.style.display = 'flex';
-  document.getElementById('world-bg').style.backgroundImage = w.img ? `url('${w.img}')` : 'none';
-  document.getElementById('world-bg').style.background = w.img ? '' : `linear-gradient(135deg,${w.color}33,#0a1420)`;
+  document.getElementById('world-bg').innerHTML = w.img ? `<img src="${w.img}" alt="${w.name}">` : '';
   document.getElementById('world-subtitle').textContent = '/ ' + w.name;
   document.getElementById('btn-back').style.display = 'inline-block';
 
