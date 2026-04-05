@@ -119,6 +119,14 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100vh;display:f
       <div id="map-bg"><img src="https://files.homepagemodules.de/b855163/resize/550x550/pictures_u1169_VsxXqBbZ.jpg" alt="Simswelt Karte"></div>
       <div id="map-vignette"></div>
       <div id="map-legend">29 Welten · Hover = Vorschau · Klick = Betreten</div>
+      <div id="calibrate-toggle" onclick="toggleCalibrate('map')">⚙ Kalibrieren</div>
+      <div id="calibrate-panel">
+        <h4>⚙ Kalibrierungs-Modus</h4>
+        <div style="font-size:10px;color:#aaa;line-height:1.5">Klick auf die Karte um Koordinaten zu erfassen. Der Name des nächsten Punktes wird automatisch erkannt.</div>
+        <div id="calibrate-log"></div>
+        <button id="calibrate-copy" onclick="copyCalibration()">📋 Koordinaten kopieren</button>
+        <button onclick="clearCalibration()" style="margin-top:4px;background:rgba(255,80,80,0.2);border:0.5px solid rgba(255,80,80,0.3);border-radius:5px;padding:5px 10px;cursor:pointer;font-size:11px;color:#ff8888;width:100%">🗑 Zurücksetzen</button>
+      </div>
     </div>
 
     <!-- WORLD -->
@@ -126,8 +134,16 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100vh;display:f
       <div id="world-bg"></div>
       <div id="world-vignette"></div>
       <div id="world-header"><div class="wh-name" id="world-name-display"></div><div class="wh-sub" id="world-type-display"></div></div>
+      <div id="calibrate-toggle-world" style="position:absolute;bottom:60px;right:14px;background:rgba(255,200,0,0.15);border:0.5px solid rgba(255,200,0,0.3);border-radius:6px;padding:5px 10px;font-size:10px;color:#ffcc44;cursor:pointer;z-index:20" onclick="toggleCalibrate('world')">⚙ Kalibrieren</div>
+      <div id="calibrate-panel-world" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.92);border:1px solid rgba(255,200,0,0.4);border-radius:8px;padding:10px 14px;z-index:50;font-size:11px;color:#fff;min-width:220px;display:none">
+        <h4 style="font-size:12px;color:#ffcc44;margin-bottom:8px;font-weight:500">⚙ Orte kalibrieren</h4>
+        <div style="font-size:10px;color:#aaa;line-height:1.5">Klick auf das Weltbild um Koordinaten zu erfassen.</div>
+        <div id="calibrate-log-world" style="font-size:10px;color:#aaa;max-height:200px;overflow-y:auto;margin-top:8px;font-family:monospace"></div>
+        <button onclick="copyCalibrationWorld()" style="margin-top:8px;background:#ffcc44;color:#000;border:none;border-radius:5px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:500;width:100%">📋 Koordinaten kopieren</button>
+        <button onclick="clearCalibrationWorld()" style="margin-top:4px;background:rgba(255,80,80,0.2);border:0.5px solid rgba(255,80,80,0.3);border-radius:5px;padding:5px 10px;cursor:pointer;font-size:11px;color:#ff8888;width:100%">🗑 Zurücksetzen</button>
+      </div>
       <div id="world-lots-bar"></div>
-      <div id="world-empty">
+      <div id="world-empty" style="display:none">
         <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:12px">Grundstücke noch nicht eingetragen</div>
         <button id="world-open-btn" style="background:#3a6a5a;border:none;border-radius:7px;color:#fff;font-size:13px;padding:9px 20px;cursor:pointer;font-weight:500">Forum-Bereich öffnen →</button>
       </div>
@@ -240,7 +256,87 @@ const worldLots = {
   ],
 };
 
-// Welt-Dots auf Karte rendern
+// ===== KALIBRIERUNGS-TOOL =====
+let calibrateMode = false;
+let calibrateWorldMode = false;
+let calibrateData = [];
+let calibrateWorldData = [];
+let calibrateWorldName = '';
+let calibrateIndex = 0;
+
+function toggleCalibrate(mode) {
+  if (mode === 'map') {
+    calibrateMode = !calibrateMode;
+    document.getElementById('calibrate-panel').style.display = calibrateMode ? 'block' : 'none';
+    document.getElementById('map-container').style.cursor = calibrateMode ? 'crosshair' : 'default';
+    calibrateIndex = 0;
+    calibrateData = [];
+    updateCalibrateLog();
+  } else {
+    calibrateWorldMode = !calibrateWorldMode;
+    document.getElementById('calibrate-panel-world').style.display = calibrateWorldMode ? 'block' : 'none';
+    document.getElementById('world-container').style.cursor = calibrateWorldMode ? 'crosshair' : 'default';
+    calibrateWorldData = [];
+    updateCalibrateWorldLog();
+  }
+}
+
+function updateCalibrateLog() {
+  const log = document.getElementById('calibrate-log');
+  if (calibrateData.length === 0) { log.textContent = 'Noch keine Klicks...'; return; }
+  log.innerHTML = calibrateData.map(d => `<div style="margin-bottom:3px;color:#ffcc44">${d.name}</div><div style="color:#888">x:${d.x} y:${d.y}</div>`).join('');
+  log.scrollTop = log.scrollHeight;
+}
+
+function updateCalibrateWorldLog() {
+  const log = document.getElementById('calibrate-log-world');
+  if (calibrateWorldData.length === 0) { log.textContent = 'Noch keine Klicks...'; return; }
+  log.innerHTML = calibrateWorldData.map(d => `<div style="margin-bottom:3px;color:#ffcc44">${d.name}</div><div style="color:#888">x:${d.x} y:${d.y}</div>`).join('');
+  log.scrollTop = log.scrollHeight;
+}
+
+function copyCalibration() {
+  const txt = calibrateData.map(d => `{name:"${d.name}",x:${d.x},y:${d.y}}`).join(',\n');
+  navigator.clipboard.writeText(txt).then(() => alert('Koordinaten kopiert!'));
+}
+
+function copyCalibrationWorld() {
+  const txt = calibrateWorldData.map(d => `{name:"${d.name}",x:${d.x},y:${d.y}}`).join(',\n');
+  navigator.clipboard.writeText(txt).then(() => alert('Koordinaten kopiert!'));
+}
+
+function clearCalibration() { calibrateData = []; calibrateIndex = 0; updateCalibrateLog(); }
+function clearCalibrationWorld() { calibrateWorldData = []; updateCalibrateWorldLog(); }
+
+// Klick auf Kontinentkarte
+document.getElementById('map-container').addEventListener('click', function(e) {
+  if (!calibrateMode) return;
+  if (e.target.closest('.world-dot') || e.target.closest('#calibrate-panel') || e.target.closest('#calibrate-toggle')) return;
+  const rect = this.getBoundingClientRect();
+  const x = Math.round((e.clientX - rect.left) / rect.width * 100);
+  const y = Math.round((e.clientY - rect.top) / rect.height * 100);
+  const w = worlds[calibrateIndex % worlds.length];
+  calibrateData.push({name: w ? w.name : 'Punkt ' + calibrateIndex, x, y});
+  calibrateIndex++;
+  updateCalibrateLog();
+});
+
+// Klick auf Weltbild
+document.getElementById('world-container').addEventListener('click', function(e) {
+  if (!calibrateWorldMode) return;
+  if (e.target.closest('.lot-dot') || e.target.closest('#calibrate-panel-world') || e.target.closest('#calibrate-toggle-world') || e.target.closest('#world-lots-bar')) return;
+  const rect = this.getBoundingClientRect();
+  const x = Math.round((e.clientX - rect.left) / rect.width * 100);
+  const y = Math.round((e.clientY - rect.top) / rect.height * 100);
+  const lots = worldLots[calibrateWorldName] || [];
+  const lot = lots[calibrateWorldData.length];
+  calibrateWorldData.push({name: lot ? lot.name : 'Ort ' + calibrateWorldData.length, x, y});
+  updateCalibrateWorldLog();
+});
+
+// Welt-Name für Kalibrierung merken
+const _origEnterWorld = enterWorld;
+
 const mapContainer = document.getElementById('map-container');
 worlds.forEach(w => {
   const dot = document.createElement('div');
@@ -264,6 +360,9 @@ worlds.forEach(w => {
 });
 
 function enterWorld(w) {
+  calibrateWorldName = w.name;
+  calibrateWorldData = [];
+  updateCalibrateWorldLog();
   document.getElementById('map-container').style.display = 'none';
   const wc = document.getElementById('world-container');
   wc.style.display = 'flex';
