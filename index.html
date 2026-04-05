@@ -125,6 +125,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100vh;display:f
     <div id="world-container">
       <div id="world-bg"></div>
       <div id="world-vignette"></div>
+      <div id="world-header"><div class="wh-name" id="world-name-display"></div><div class="wh-sub" id="world-type-display"></div></div>
       <div id="world-lots-bar"></div>
       <div id="world-empty">
         <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:12px">Grundstücke noch nicht eingetragen</div>
@@ -196,16 +197,27 @@ const worlds = [
   {name:"Ondarion",x:72,y:75,color:"#8a7a3a",type:"Königreich",url:"https://www.simsforumrpg.de/f51848-Orte.html",img:""},
 ];
 
-// Grundstücke pro Welt — hier werden nach und nach alle eingetragen
+// Grundstücke pro Welt — vorerst random platziert, werden später kalibriert
+function makeRandomLots(worldUrl) {
+  return [
+    {name:"Ort 1",x:25,y:30,url:worldUrl,active:true},
+    {name:"Ort 2",x:45,y:25,url:worldUrl,active:false},
+    {name:"Ort 3",x:60,y:40,url:worldUrl,active:true},
+    {name:"Ort 4",x:35,y:55,url:worldUrl,active:false},
+    {name:"Ort 5",x:70,y:60,url:worldUrl,active:false},
+    {name:"Ort 6",x:50,y:70,url:worldUrl,active:false},
+  ];
+}
+
 const worldLots = {
   "San Sequoia": [
-    {name:"San Sequoia (Hauptplatz)",x:45,y:45,url:"https://www.simsforumrpg.de/t246f51797-San-Sequoia.html",active:true},
-    {name:"Nr. 3 - Veronikas Boutique",x:35,y:30,url:"https://www.simsforumrpg.de/t686f51797-San-Sequoia-Nr-Veronikas-Boutique.html",active:true},
+    {name:"Hauptplatz",x:45,y:45,url:"https://www.simsforumrpg.de/t246f51797-San-Sequoia.html",active:true},
+    {name:"Veronikas Boutique",x:35,y:30,url:"https://www.simsforumrpg.de/t686f51797-San-Sequoia-Nr-Veronikas-Boutique.html",active:true},
     {name:"Haus S. Schmidt",x:60,y:35,url:"https://www.simsforumrpg.de/t559f51797-San-Sequoia-Haus-S-Schmidt.html",active:false},
     {name:"Greenridge Correctional",x:75,y:55,url:"https://www.simsforumrpg.de/t694f51797-San-Sequoia-Greenridge-Correctional-Institution.html",active:false},
     {name:"Familie Janko",x:55,y:65,url:"https://www.simsforumrpg.de/t638f51797-San-Sequoia-Doppelhaushaelfte-der-Familie-Janko.html",active:false},
     {name:"Familie Delany",x:30,y:60,url:"https://www.simsforumrpg.de/t550f51797-San-Sequoia-Haus-Familie-Delany.html",active:false},
-    {name:"Nr. 7 - Old Factory Live Club",x:65,y:25,url:"https://www.simsforumrpg.de/t410f51797-San-Sequoia-Nr-Old-Factory-Live-Club.html",active:false},
+    {name:"Old Factory Live Club",x:65,y:25,url:"https://www.simsforumrpg.de/t410f51797-San-Sequoia-Nr-Old-Factory-Live-Club.html",active:false},
   ],
 };
 
@@ -219,6 +231,7 @@ worlds.forEach(w => {
   dot.innerHTML = `
     <div class="dot-pulse" style="border-color:${w.color}"></div>
     <div class="dot-inner" style="background:${w.color};box-shadow:0 0 5px ${w.color}"></div>
+    <div class="dot-label">${w.name}</div>
     <div class="hover-card" style="border:1px solid ${w.color}88;box-shadow:0 6px 28px ${w.color}44">
       ${w.img
         ? `<div style="position:relative"><img class="hover-img" src="${w.img}" onerror="this.parentNode.innerHTML='<div class=\\'hover-img-fallback\\' style=\\'background:${w.color}33\\'></div>'"><div class="hover-gradient"></div><div class="hover-name">${w.name}</div></div>`
