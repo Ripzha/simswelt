@@ -560,13 +560,13 @@ const worldLots={
     {name:"Nr. 28 - Luxusallee",x:10,y:40,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Luxusallee-21"},
   ],
   "Forgotten Hollow":[
-    {name:"Forgotten Hollow (Strassen)",x:55,y:40,url:BASE+"t120f51784-Forgotten-Hollow.html",active:true,outdoor:true},
-    {name:"Nr. 1 - Pablo Garcia-Lopez",x:33,y:37,url:BASE+"t69f51784-Forgotten-Hollow-Nr-Haus-von-Pablo-Garcia-Lopez.html",active:false},
-    {name:"Nr. 2 - Vampir Bar",x:46,y:25,url:BASE+"t52f51784-Forgotten-Hollow-Nr-Vampir-Bar.html",active:false},
-    {name:"Nr. 3 - Villa Victoria",x:67,y:20,url:BASE+"t54f51784-Forgotten-Hollow-Nr-Villa-Victoria.html",active:false},
-    {name:"Nr. 4 - Villa Blutrose",x:59,y:38,url:BASE+"t19f51784-Forgotten-Hollow-Nr-Villa-Blutrose.html",active:true},
-    {name:"Nr. 5 - Shanes Höhle",x:43,y:52,url:BASE+"t65f51784-Forgotten-Hollow-Shanes-Hoehle.html",active:false},
-    {name:"Blutzahn-Familienhaus",x:50,y:45,url:BASE+"t487f51784-Forgotten-Hollow-Blutzahn-Familienhaus.html",active:false},
+    {name:"Forgotten Hollow (Strassen)",x:44.1,y:48.9,url:BASE+"t120f51784-Forgotten-Hollow.html",active:true,outdoor:true},
+    {name:"Nr. 1 - Pablo Garcia-Lopez",x:30.5,y:46.8,url:BASE+"t69f51784-Forgotten-Hollow-Nr-Haus-von-Pablo-Garcia-Lopez.html",active:false},
+    {name:"Nr. 2 - Vampir Bar",x:45.9,y:32.5,url:BASE+"t52f51784-Forgotten-Hollow-Nr-Vampir-Bar.html",active:false},
+    {name:"Nr. 3 - Villa Victoria",x:70,y:27,url:BASE+"t54f51784-Forgotten-Hollow-Nr-Villa-Victoria.html",active:false},
+    {name:"Nr. 4 - Villa Blutrose",x:60.1,y:50.5,url:BASE+"t19f51784-Forgotten-Hollow-Nr-Villa-Blutrose.html",active:true},
+    {name:"Nr. 5 - Shanes Höhle",x:9.5,y:17.3,url:BASE+"t65f51784-Forgotten-Hollow-Shanes-Hoehle.html",active:false},
+    {name:"Blutzahn-Familienhaus",x:43,y:66,url:BASE+"t487f51784-Forgotten-Hollow-Blutzahn-Familienhaus.html",active:false},
   ],
   "Brindleton Bay":[
     {name:"Brindleton Bay (Strassen)",x:48,y:40,url:BASE+"t137f51785-Brindleton-Bay.html",active:true,outdoor:true},
@@ -767,19 +767,9 @@ const worldLots={
   ],
   // ── NEU: 7 Welten mit Koordinaten ──────────────────────────────────────
   "Chestnut Ridge":[
-    {name:"Nr. 1",x:34,y:11,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 2",x:27,y:17,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 3",x:21,y:23,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 4",x:36,y:37,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 5",x:46,y:29,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 6",x:57,y:24,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 7",x:63,y:36,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 8",x:77,y:45,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 9",x:80,y:58,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 10",x:65,y:57,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 11",x:72,y:69,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 12",x:60,y:66,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 13",x:43,y:47,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Chestnut Ridge",x:50,y:50,url:BASE+"f55177-Chestnut-Ridge.html",active:true,outdoor:true},
+    {name:"Pferderanch",x:81.5,y:57.8,url:BASE+"f55177-Chestnut-Ridge.html",active:true,img:IMG+"f55177t470p3808n2_wfPDvTYH.png"},
+    {name:"Phönix Bright 'Canyon Retreat'",x:57.2,y:32.5,url:BASE+"f55177-Chestnut-Ridge.html",active:true,img:IMG+"f55177t519p4326n2_LBtnixkg.png"},
   ],
   "Tomarang":[
     {name:"Nr. 1",x:22,y:15,url:BASE+"f58300-Tomarang.html",active:false},
@@ -1113,7 +1103,29 @@ function renderLotsTab(){
   return `<div class="a-form-row"><div class="a-label">Welt</div><select class="a-select" onchange="adminWorldFilter=this.value;renderAdminContent()">${worldOpts}</select></div><div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:8px">${hardLots.length-hidden.length} sichtbar · ${hidden.length} versteckt · ${custLots.length} custom</div>${hardHtml}${custHtml}<div style="border-top:0.5px solid rgba(255,255,255,0.08);margin:14px 0 12px"></div><div style="font-size:11px;color:#ffcc44;font-weight:500;margin-bottom:10px">+ Ort hinzufügen</div><div class="a-form-row"><div class="a-label">Name</div><input class="a-input" id="a-new-name" placeholder="z.B. Nr. 5 - Meine Wohnung"></div><div class="a-form-row"><div class="a-label">Thread-URL</div><input class="a-input" id="a-new-url" placeholder="https://www.simsforumrpg.de/t..."></div><div class="a-form-row" style="display:flex;gap:8px;align-items:center"><div style="flex:1"><div class="a-label">Position</div><div id="a-pos-display" style="font-size:10px;color:rgba(255,255,255,0.4)">${pendingPos?`x:${pendingPos.x}, y:${pendingPos.y} ✓`:'Noch nicht gesetzt'}</div></div><button class="a-btn a-btn-pos" onclick="startPosMode()" style="margin-top:14px">${currentWorld?'📍 Setzen':'Erst Welt betreten'}</button></div><div class="a-form-row" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="a-new-active"><label for="a-new-active" style="font-size:11px;color:rgba(255,255,255,0.6)">Als aktiv markieren</label></div><button class="a-btn a-btn-primary" style="width:100%;margin-top:4px" onclick="addCustomLot()">Ort hinzufügen</button>`;
 }
 function renderSuggestTab(){const pending=suggestions.filter(s=>s.status==='pending');if(!pending.length)return`<div style="font-size:11px;color:rgba(255,255,255,0.3);text-align:center;padding:30px 0">Keine Vorschläge</div>`;return pending.map((s,i)=>`<div class="suggest-entry" style="background:rgba(255,255,255,0.04);border:0.5px solid rgba(74,170,106,0.2);border-radius:6px;padding:10px;margin-bottom:8px"><div style="font-size:12px;font-weight:500;margin-bottom:3px">${s.name}</div><div style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:8px">🌍 ${s.world} · ${new Date(s.ts).toLocaleDateString('de-CH')}</div><div style="font-size:10px;color:rgba(100,180,255,0.7);word-break:break-all;margin-bottom:10px">${s.url}</div><div style="display:flex;gap:8px"><button class="a-btn a-btn-primary" style="flex:1" onclick="approveSuggestion(${i})">✓</button><button class="a-btn a-btn-danger" onclick="rejectSuggestion(${i})">✕</button></div></div>`).join('');}
-function renderExportTab(){const combined={};[...Object.keys(worldLots),...Object.keys(customLots)].forEach(k=>{combined[k]=[...(worldLots[k]||[]),...(customLots[k]||[]).map(l=>{const c={...l};delete c._src;delete c._needsCalib;return c;})];});const code='const worldLots = '+JSON.stringify(combined,null,2);return `<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:10px">Ersetze <code style="background:rgba(255,255,255,0.06);padding:1px 4px;border-radius:3px">const worldLots</code> in index.html.</div><div style="background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px;font-size:9px;font-family:monospace;color:#aaa;max-height:280px;overflow-y:auto;white-space:pre;line-height:1.5">${code.substring(0,2000)}${code.length>2000?'\n...[gekürzt]':''}</div><button class="a-btn a-btn-primary" style="width:100%;margin-top:10px" onclick="copyExport()">📋 Ganzen Code kopieren</button><button class="a-btn a-btn-danger" style="width:100%;margin-top:6px" onclick="clearAllCustom()">🗑 Alle Custom-Lots löschen</button>`;}
+function renderExportTab(){
+  const combined={};
+  [...Object.keys(worldLots),...Object.keys(customLots)].forEach(k=>{
+    combined[k]=[
+      ...(worldLots[k]||[]).filter(l=>!(hiddenLots[k]||[]).includes(l.name)),
+      ...(customLots[k]||[]).map(l=>{const c={...l};delete c._src;delete c._needsCalib;return c;})
+    ];
+  });
+  const code='const worldLots='+JSON.stringify(combined,null,2)+';';
+  return `
+    <div style="background:rgba(255,200,0,0.08);border:0.5px solid rgba(255,200,0,0.3);border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:11px;line-height:1.7">
+      <div style="color:#ffcc44;font-weight:500;margin-bottom:4px">📋 So verwendest du den Export:</div>
+      <div style="color:rgba(255,255,255,0.6)">1. Unten auf „Kopieren" klicken</div>
+      <div style="color:rgba(255,255,255,0.6)">2. GitHub → <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px">index.html</code> öffnen → ✏️ Edit</div>
+      <div style="color:rgba(255,255,255,0.6)">3. Im Code <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px">const worldLots=</code> suchen (Ctrl+F)</div>
+      <div style="color:rgba(255,255,255,0.6)">4. Alles von <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px">const worldLots=</code> bis zum abschliessenden <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px">};</code> markieren und ersetzen</div>
+      <div style="color:rgba(255,255,255,0.6)">5. Commit → fertig ✓</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px;font-size:9px;font-family:monospace;color:#aaa;max-height:220px;overflow-y:auto;white-space:pre;line-height:1.5">${code.replace(/</g,'&lt;')}</div>
+    <button class="a-btn a-btn-primary" style="width:100%;margin-top:10px" onclick="copyExport()">📋 worldLots kopieren</button>
+    <div style="border-top:0.5px solid rgba(255,255,255,0.08);margin:14px 0 10px"></div>
+    <button class="a-btn a-btn-danger" style="width:100%" onclick="clearAllCustom()">🗑 Alle Custom-Lots löschen</button>`;
+}
 function startPosMode(){if(!currentWorld){alert('Zuerst eine Welt betreten.');return;}posMode=true;worldC.style.cursor='crosshair';document.getElementById('calib-mode-bar').style.display='block';posModeCallback=(x,y)=>{pendingPos={x,y};const el=document.getElementById('a-pos-display');if(el)el.textContent=`x:${x}, y:${y} ✓`;};}
 function cancelPosMode(){posMode=false;worldC.style.cursor='default';document.getElementById('calib-mode-bar').style.display='none';posModeCallback=null;}
 function addCustomLot(){const name=document.getElementById('a-new-name')?.value?.trim();const url=document.getElementById('a-new-url')?.value?.trim();const active=document.getElementById('a-new-active')?.checked||false;if(!name){alert('Name eingeben.');return;}if(!url){alert('URL eingeben.');return;}if(!pendingPos){alert('Position setzen.');return;}const wname=adminWorldFilter;if(!customLots[wname])customLots[wname]=[];customLots[wname].push({name,url,x:pendingPos.x,y:pendingPos.y,active});pendingPos=null;saveLots();if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();}
@@ -1121,7 +1133,7 @@ function removeCustomLot(wname,idx){if(!confirm(`"${customLots[wname][idx].name}
 function toggleCustomActive(wname,idx){customLots[wname][idx].active=!customLots[wname][idx].active;saveLots();if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();}
 function approveSuggestion(i){const pending=suggestions.filter(s=>s.status==='pending');const s=pending[i];const wname=s.world;if(!customLots[wname])customLots[wname]=[];customLots[wname].push({name:s.name,url:s.url,x:50,y:50,active:false,_needsCalib:true});s.status='approved';saveLots();saveSugs();updateSuggestBadge();if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();alert(`✓ "${s.name}" hinzugefügt.\n\nPosition setzen:\n1. Welt "${wname}" betreten\n2. Admin-Panel öffnen → Ort in Liste finden\n3. Den 📍-Button klicken\n4. Auf die richtige Stelle im Weltbild klicken`);}
 function rejectSuggestion(i){suggestions.filter(s=>s.status==='pending')[i].status='rejected';saveSugs();updateSuggestBadge();renderAdminContent();}
-function copyExport(){const combined={};[...Object.keys(worldLots),...Object.keys(customLots)].forEach(k=>{combined[k]=[...(worldLots[k]||[]),...(customLots[k]||[]).map(l=>{const c={...l};delete c._src;delete c._needsCalib;return c;})];});navigator.clipboard.writeText('const worldLots = '+JSON.stringify(combined,null,2)).then(()=>alert('✓ Kopiert!'));}
+function copyExport(){const combined={};[...Object.keys(worldLots),...Object.keys(customLots)].forEach(k=>{combined[k]=[...(worldLots[k]||[]).filter(l=>!(hiddenLots[k]||[]).includes(l.name)),...(customLots[k]||[]).map(l=>{const c={...l};delete c._src;delete c._needsCalib;return c;})];});navigator.clipboard.writeText('const worldLots='+JSON.stringify(combined,null,2)+';').then(()=>alert('✓ Kopiert! Jetzt in GitHub einfügen.'));}
 function clearAllCustom(){if(!confirm('Alle custom Lots löschen?'))return;customLots={};localStorage.removeItem('sw_custom_lots');if(currentWorld)renderLots(currentWorld);renderAdminContent();}
 
 // ═══════════════════════════════════════════
