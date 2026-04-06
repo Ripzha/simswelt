@@ -60,7 +60,7 @@ var SYS="Du bist ein kreativer Autor-Assistent für das Forum-RPG auf simsforumr
 var state={
   step:0,
   char:(function(){var o={};FIELDS.forEach(function(f){o[f.key]="";});return o;}()),
-  imgPreview:null,imgB64:null,imgMime:null,
+  imgPreview:null,imgB64:null,imgMime:null,imgUrl:"",showUrlPopup:false,urlPopupInput:"",
   ai:{},
   importText:"",importing:false,showImport:false,
   ctxEntries:[],ctxLabel:"",ctxText:"",showCtx:false,
@@ -70,7 +70,7 @@ var state={
 
 // ── localStorage Persistenz ──
 function saveLocalDraft(){
-  try{localStorage.setItem('sw_charbogen',JSON.stringify({char:state.char,step:state.step,imgPreview:state.imgPreview,postType:state.postType}));}catch(e){}
+  try{localStorage.setItem('sw_charbogen',JSON.stringify({char:state.char,step:state.step,imgPreview:state.imgPreview,postType:state.postType,imgUrl:state.imgUrl}));}catch(e){}
 }
 function loadLocalDraft(){
   try{
@@ -82,6 +82,7 @@ function loadLocalDraft(){
       FIELDS.forEach(function(f){if(d.char[f.key])state.char[f.key]=d.char[f.key];});
       if(d.step)state.step=d.step;
       if(d.imgPreview)state.imgPreview=d.imgPreview;
+      if(d.imgUrl)state.imgUrl=d.imgUrl;
       if(d.postType)state.postType=d.postType;
       return true;
     }
@@ -94,6 +95,11 @@ var FORUM_IDS={haupt:"51849",neben:"51850",randfigur:"51851",passant:"52617"};
 function generateBBCode(){
   var c=state.char;
   var lines=[];
+  // Bild ganz oben
+  if(state.imgUrl&&state.imgUrl.trim()){
+    lines.push("[center][img]"+state.imgUrl.trim()+"[/img][/center]");
+    lines.push("");
+  }
   lines.push("[center][size=5][b][color=#4d7a4d]"+(c.name||"???")+"[/color][/b][/size]");
   var sub=[c.age&&c.age+" Jahre",c.gender,c.occult].filter(Boolean).join(" · ");
   if(sub)lines.push("[i]"+sub+"[/i]");
@@ -326,19 +332,25 @@ function mkField(f){
   wrap.appendChild(div({fontSize:"12px",color:C.muted,marginBottom:"6px",fontStyle:"italic"},[f.hint]));
   if(f.key==="appearance"){
     var iw=div({marginBottom:"8px"});
+    // Lokale Vorschau
     if(state.imgPreview){
       var img=document.createElement("img");
-      img.src=state.imgPreview;
-      img.style.maxHeight="150px";
-      img.style.borderRadius="8px";
-      img.style.display="block";
-      img.style.marginBottom="8px";
-      img.style.border="2px solid "+C.border;
+      img.src=state.imgPreview;img.style.maxHeight="150px";img.style.borderRadius="8px";img.style.display="block";img.style.marginBottom="8px";img.style.border="2px solid "+C.border;
       iw.appendChild(img);
       iw.appendChild(btn("🔄 Anderes Bild",C.teal,function(){qs("imgInput").click();},true,true,false));
     } else {
-      iw.appendChild(btn("📷 Bild hochladen",C.teal,function(){qs("imgInput").click();},true,true,false));
+      iw.appendChild(btn("📷 Vorschau hochladen",C.teal,function(){qs("imgInput").click();},true,true,false));
     }
+    // Bild-URL für Forum
+    var urlBox=div({marginTop:"10px",padding:"10px 12px",background:"rgba(61,111,138,0.08)",border:"1px solid rgba(61,111,138,0.25)",borderRadius:"8px"});
+    urlBox.appendChild(div({fontSize:"11px",fontWeight:"700",color:C.teal,marginBottom:"4px"},["🔗 Bild-URL für Forum-Post (wichtig!)"]));
+    urlBox.appendChild(div({fontSize:"11px",color:C.muted,marginBottom:"6px",lineHeight:"1.5"},["Lade dein Bild zuerst im Forum hoch (in einem beliebigen Post → Bild einfügen → URL kopieren), dann hier einfügen. Das Bild erscheint dann ganz oben im Charakterbogen-Post."]));
+    var urlInp=mk("input",Object.assign({},INP,{marginBottom:"0"}));
+    urlInp.placeholder="https://files.homepagemodules.de/...";
+    urlInp.value=state.imgUrl||"";
+    urlInp.addEventListener("input",function(){state.imgUrl=urlInp.value;saveLocalDraft();});
+    urlBox.appendChild(urlInp);
+    iw.appendChild(urlBox);
     wrap.appendChild(iw);
   }
   var inp=document.createElement(f.multi?"textarea":"input");
@@ -574,11 +586,25 @@ function mkPostModal(){
   box.appendChild(div({fontSize:"14px",fontWeight:"800",color:C.accent,marginBottom:"12px"},["📤 Im Forum posten"]));
 
   if(state.postCopied){
-    box.appendChild(div({background:"rgba(77,122,77,0.15)",border:"1px solid rgba(77,122,77,0.4)",borderRadius:"8px",padding:"14px",marginBottom:"14px",fontSize:"13px",color:C.accent,lineHeight:"1.8"},
-      ["✅ Das Forum wurde geöffnet.\n\nNur noch: Titel eingeben und Absenden klicken.\n\nDanach kannst du deinen Charakter optional in ATLAS registrieren."]));
+    box.appendChild(div({background:"rgba(77,122,77,0.15)",border:"1px solid rgba(77,122,77,0.4)",borderRadius:"8px",padding:"12px 14px",marginBottom:"14px",fontSize:"13px",color:C.accent},
+      ["✅ Forum geöffnet — Titel eingeben und Absenden klicken."]));
+    box.appendChild(div({fontSize:"12px",fontWeight:"700",color:C.accent,marginBottom:"6px"},["Thread-URL nach dem Posten hier einfügen:"]));
+    box.appendChild(div({fontSize:"11px",color:C.muted,marginBottom:"8px"},["(Aus der Adresszeile des Browsers kopieren, nachdem du gepostet hast)"]));
+    var urlInp=mk("input",Object.assign({},INP,{marginBottom:"10px",display:"block"}));
+    urlInp.placeholder="https://www.simsforumrpg.de/t...";
+    urlInp.value=state.atlasThread||"";
+    urlInp.addEventListener("input",function(){state.atlasThread=urlInp.value;});
+    box.appendChild(urlInp);
     var row=div({display:"flex",gap:"8px",flexWrap:"wrap"});
-    row.appendChild(btn("🗺 In ATLAS registrieren (optional)",C.teal,function(){state.showPost=false;state.showAtlas=true;state.postCopied=false;draw();},false,true,false));
-    row.appendChild(btn("Fertig ✓",C.accent,function(){state.showPost=false;state.postCopied=false;draw();},false,false,false));
+    row.appendChild(btn("In ATLAS speichern ✓",C.accent,function(){
+      if(!state.atlasThread.trim()){alert("Bitte erst im Forum posten und dann die Thread-URL einfügen.");return;}
+      if(!state.atlasPlayer.trim()){state.atlasPlayer=state.char.name||"";}
+      state.atlasPortrait=state.imgUrl||"";
+      state.atlasType=state.postType;
+      saveToAtlas();
+      state.showPost=false;state.postCopied=false;
+    },false,false,false));
+    row.appendChild(btn("Später",C.muted,function(){state.showPost=false;state.postCopied=false;draw();},false,true,false));
     box.appendChild(row);
   } else {
     // Schritt 1: Typ wählen und posten
