@@ -201,18 +201,47 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 #char-reload:hover{color:#fff;border-color:rgba(255,255,255,0.4)}
 #char-close{background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:18px;cursor:pointer;padding:4px 8px;line-height:1}
 #char-close:hover{color:#fff}
-#char-grid{flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;align-content:start}
-.char-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.2s}
-.char-card:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);transform:translateY(-2px)}
+/* ── CHARACTER VIEW ── */
+#char-container{position:fixed;inset:0;z-index:300;background:#050d18;display:none;flex-direction:column;overflow:hidden}
+#char-container.open{display:flex}
+#char-header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:0.5px solid rgba(255,255,255,0.08);flex-shrink:0;flex-wrap:wrap}
+#char-tabs{display:flex;gap:4px;flex-shrink:0}
+.char-tab{background:transparent;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s}
+.char-tab.active{background:rgba(100,180,120,0.15);border-color:#4aaa6a;color:#4aaa6a}
+#char-subtitle{font-size:10px;color:rgba(255,255,255,0.25);white-space:nowrap}
+#char-filter-bar{display:flex;gap:5px;flex-wrap:wrap;flex:1;justify-content:flex-end}
+.char-filter{padding:3px 9px;border-radius:20px;font-size:10px;cursor:pointer;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);background:transparent;transition:all 0.15s}
+.char-filter.active{background:rgba(100,180,120,0.15);border-color:#4aaa6a;color:#4aaa6a}
+#char-create-btn{padding:5px 12px;background:rgba(100,180,120,0.15);border:0.5px solid #4aaa6a;border-radius:6px;color:#4aaa6a;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;flex-shrink:0}
+#char-create-btn:hover{background:rgba(100,180,120,0.3)}
+#char-sort-btn{background:transparent;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:11px;font-weight:600;flex-shrink:0}
+#char-sort-btn.active{border-color:#4aaa6a;color:#4aaa6a}
+#char-reload{background:transparent;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:13px;flex-shrink:0}
+#char-reload:hover{color:#fff}
+#char-close{background:transparent;border:none;color:rgba(255,255,255,0.35);font-size:18px;cursor:pointer;padding:2px 6px;flex-shrink:0}
+#char-close:hover{color:#fff}
+#char-grid{flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;align-content:start}
+.char-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative}
+.char-card:hover{background:rgba(255,255,255,0.08);border-color:rgba(100,180,120,0.4);transform:translateY(-2px)}
 .char-portrait-wrap{width:100%;aspect-ratio:3/4;overflow:hidden;background:#0a1520}
 .char-portrait{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
 .char-portrait-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;color:rgba(255,255,255,0.08)}
 .char-info{padding:7px 9px}
 .char-name{font-size:11px;font-weight:600;color:#fff;margin-bottom:2px;line-height:1.3}
-.char-player{font-size:9px;color:rgba(255,255,255,0.35);margin-bottom:3px}
+.char-player{font-size:9px;color:rgba(255,255,255,0.35);margin-bottom:2px}
 .char-location{font-size:9px;color:#4aaa6a}
-.char-activity{font-size:8px;color:rgba(255,255,255,0.22);margin-top:2px}
-@media(max-width:600px){#char-grid{grid-template-columns:repeat(3,1fr);gap:8px;padding:10px}}
+/* Hover card */
+#char-hover-card{position:fixed;z-index:400;background:#0d1f2d;border:0.5px solid rgba(100,180,120,0.3);border-radius:10px;width:220px;box-shadow:0 8px 32px rgba(0,0,0,0.6);pointer-events:none;opacity:0;transition:opacity 0.15s;display:flex;gap:0;overflow:hidden}
+#char-hover-card.visible{opacity:1}
+#chc-portrait-wrap{width:80px;flex-shrink:0;background:#0a1520;position:relative}
+#chc-portrait-wrap img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+#chc-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:24px;color:rgba(255,255,255,0.1)}
+#chc-body{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:4px;min-height:120px}
+#chc-name{font-size:12px;font-weight:700;color:#fff;line-height:1.3}
+#chc-player{font-size:10px;color:#4aaa6a}
+#chc-details{font-size:10px;color:rgba(255,255,255,0.45);line-height:1.6;flex:1}
+#chc-link{font-size:9px;color:rgba(100,180,120,0.6);margin-top:auto}
+@media(max-width:600px){#char-grid{grid-template-columns:repeat(3,1fr);gap:8px;padding:10px}#char-header{gap:6px}#char-create-btn{display:none}}
 </style>
 </head>
 <body>
@@ -410,15 +439,30 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 </div>
     <div id="char-container">
       <div id="char-header">
-        <div>
-          <div id="char-title">👤 Hauptcharaktere</div>
+        <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+          <div id="char-tabs">
+            <button class="char-tab active" onclick="switchCharTab('haupt',this)">Hauptcharaktere</button>
+            <button class="char-tab" onclick="switchCharTab('neben',this)">Nebencharaktere</button>
+            <button class="char-tab" onclick="switchCharTab('statist',this)">Statisten</button>
+          </div>
           <div id="char-subtitle"></div>
         </div>
-        <div id="char-filters"></div>
-        <button id="char-reload" onclick="loadCharacters(true)" title="Aktualisieren">↺</button>
+        <div id="char-filter-bar"></div>
+        <a id="char-create-btn" href="https://ripzha.github.io/simswelt/rpg_char.html" target="_blank">✚ Charakter erstellen</a>
+        <button id="char-sort-btn" onclick="toggleCharSort()" title="Alphabetisch sortieren">A–Z</button>
+        <button id="char-reload" onclick="reloadChars()" title="Aktualisieren">↺</button>
         <button id="char-close" onclick="closeCharView()">✕</button>
       </div>
       <div id="char-grid"></div>
+      <div id="char-hover-card">
+        <div id="chc-portrait-wrap"><img id="chc-img" src="" alt=""><div id="chc-ph">👤</div></div>
+        <div id="chc-body">
+          <div id="chc-name"></div>
+          <div id="chc-player"></div>
+          <div id="chc-details"></div>
+          <div id="chc-link">Bogen öffnen →</div>
+        </div>
+      </div>
     </div>
 <div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
     <div id="mobile-dot-bar">
@@ -1510,37 +1554,124 @@ document.addEventListener('touchstart',e=>{
 // ═══════════════════════════════════════════
 // CHARAKTER-VIEW
 // ═══════════════════════════════════════════
+var SCRIPT_URL='https://script.google.com/macros/s/AKfycbw2QtXNxsvSaD4xzwZcX3U5EebauDQjxfX4LtSHhLViR9RB2jBsmvJWEqhM9Agdqvvo/exec';
 var CHARS=[
-  {n:"Sullivan 'Blaze' Blaisdell",p:"Ripzha",u:"https://www.simsforumrpg.de/t78f51849-Sullivan-Blaze-Blaisdell.html",h:"Newcrest"},
-  {n:"Artjom Komarow",p:"Ripzha",u:"https://www.simsforumrpg.de/t266f51849-Artjom-Komarow.html",h:"Willow Creek"},
-  {n:"Vaas Del Toro",p:"Ripzha",u:"https://www.simsforumrpg.de/t654f51849-Vaas-Del-Toro.html",h:""},
-  {n:"David Janko",p:"RivaBabylon",u:"https://www.simsforumrpg.de/t583f51849-David-Janko.html",h:"Britechester"},
-  {n:"Viola Nebeljaeger",p:"Murloc",u:"https://www.simsforumrpg.de/t86f51849-Viola-Nebeljaeger.html",h:"Ravenwood"},
-  {n:"Bea Greentail",p:"Murloc",u:"https://www.simsforumrpg.de/t117f51849-Bea-Greentail.html",h:""},
-  {n:"Ellie Hawk",p:"Murloc",u:"https://www.simsforumrpg.de/t87f51849-Ellie-Hawk.html",h:""},
-  {n:"Gerda Karlotta Simmer",p:"S.Bin.",u:"https://www.simsforumrpg.de/t647f51849-Gerda-Karlotta-Simmer.html",h:""},
-  {n:"JackJack",p:"S.Bin.",u:"https://www.simsforumrpg.de/t682f51849-Jack.html",h:""}
+  {n:"Sullivan 'Blaze' Blaisdell",p:"Ripzha",type:"haupt",u:"https://www.simsforumrpg.de/t78f51849-Sullivan-Blaze-Blaisdell.html",h:"Newcrest",img:"",age:"18",job:""},
+  {n:"Artjom Komarow",p:"Ripzha",type:"haupt",u:"https://www.simsforumrpg.de/t266f51849-Artjom-Komarow.html",h:"Willow Creek",img:"",age:"18",job:""},
+  {n:"Vaas Del Toro",p:"Ripzha",type:"haupt",u:"https://www.simsforumrpg.de/t654f51849-Vaas-Del-Toro.html",h:"",img:"",age:"21",job:""},
+  {n:"David Janko",p:"RivaBabylon",type:"haupt",u:"https://www.simsforumrpg.de/t583f51849-David-Janko.html",h:"Britechester",img:"",age:"",job:""},
+  {n:"Viola Nebeljäger",p:"Murloc",type:"haupt",u:"https://www.simsforumrpg.de/t86f51849-Viola-Nebeljaeger.html",h:"Ravenwood",img:"",age:"",job:""},
+  {n:"Bea Greentail",p:"Murloc",type:"haupt",u:"https://www.simsforumrpg.de/t117f51849-Bea-Greentail.html",h:"",img:"",age:"",job:""},
+  {n:"Ellie Hawk",p:"Murloc",type:"haupt",u:"https://www.simsforumrpg.de/t87f51849-Ellie-Hawk.html",h:"",img:"",age:"",job:""},
+  {n:"Gerda Karlotta Simmer",p:"S.Bin.",type:"haupt",u:"https://www.simsforumrpg.de/t647f51849-Gerda-Karlotta-Simmer.html",h:"",img:"",age:"",job:""},
+  {n:"Jack Elliot",p:"S.Bin.",type:"haupt",u:"https://www.simsforumrpg.de/t682f51849-Jack.html",h:"Del Sol Valley",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51850t682p6595n6_FCvJRagV.png",age:"20",job:"Studentin"}
 ];
+var charActiveType='haupt';
+var charPlayerFilter='alle';
+var charSortAZ=false;
+var charFetched=false;
 
-function openCharView(){
-  var el=document.getElementById('char-container');
-  if(el)el.classList.add('open');
+function openCharView(type){
+  charActiveType=type||'haupt';
+  location.hash='chars-'+charActiveType;
+  document.getElementById('char-container').classList.add('open');
+  // Tab aktiv setzen
+  document.querySelectorAll('.char-tab').forEach(function(t){
+    var map={'haupt':'Haupt','neben':'Neben','statist':'Stat'}; t.classList.toggle('active',t.textContent.indexOf(map[charActiveType]||charActiveType)>-1);
+  });
+  charPlayerFilter='alle';
+  // Ladeanzeige
   var grid=document.getElementById('char-grid');
   var sub=document.getElementById('char-subtitle');
-  if(grid)grid.innerHTML='<div style="color:rgba(255,255,255,0.35);font-size:13px;padding:60px;grid-column:1/-1;text-align:center">⏳</div>';
+  if(grid)grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:22px;padding:60px;grid-column:1/-1;text-align:center">⏳</div>';
   if(sub)sub.textContent='Lade...';
-  // Timeout: falls Sheet nicht antwortet, Fallback zeigen
-  var fallbackTimer=setTimeout(function(){
-    if(grid&&grid.children.length<=1&&grid.innerHTML.indexOf('⏳')>-1){
-      charRender(CHARS);
-    }
-  },5000);
-  fetchCharSheet(fallbackTimer);
+  // Fallback nach 5s falls fetch hängt
+  var fb=setTimeout(function(){charRenderFiltered();},5000);
+  fetchCharsFromScript(fb);
 }
 
 function closeCharView(){
-  var el=document.getElementById('char-container');
-  if(el)el.classList.remove('open');
+  document.getElementById('char-container').classList.remove('open');
+  location.hash='';
+}
+
+function switchCharTab(type,btn){
+  charActiveType=type;
+  location.hash='chars-'+type;
+  document.querySelectorAll('.char-tab').forEach(function(t){t.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  charPlayerFilter='alle';
+  charRenderFiltered();
+  buildPlayerFilter();
+}
+
+function reloadChars(){
+  charFetched=false;
+  var grid=document.getElementById('char-grid');
+  if(grid)grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:22px;padding:60px;grid-column:1/-1;text-align:center">⏳</div>';
+  fetchCharsFromScript(null);
+}
+
+async function fetchCharsFromScript(fallbackTimer){
+  try{
+    var r=await fetch(SCRIPT_URL);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    var data=await r.json();
+    if(fallbackTimer)clearTimeout(fallbackTimer);
+    if(!Array.isArray(data)||!data.length)throw new Error('leer');
+    // Mapping
+    var fresh=data.filter(function(c){return c.name;}).map(function(c){
+      var t=(c.type||'').toLowerCase();
+      if(t.indexOf('neben')>-1)t='neben';
+      else if(t.indexOf('statist')>-1||t.indexOf('rand')>-1||t.indexOf('passant')>-1)t='statist';
+      else t='haupt';
+      return{n:c.name||'',p:c.player||'',type:t,u:c.threadUrl||'',h:c.home||'',img:c.portraitUrl||'',age:c.age||'',job:c.job||''};
+    });
+    if(fresh.length>0){
+      CHARS.length=0;
+      fresh.forEach(function(c){CHARS.push(c);});
+      charFetched=true;
+    }
+  }catch(e){
+    if(fallbackTimer)clearTimeout(fallbackTimer);
+  }
+  charRenderFiltered();
+  buildPlayerFilter();
+}
+
+function toggleCharSort(){
+  charSortAZ=!charSortAZ;
+  var btn=document.getElementById('char-sort-btn');
+  if(btn)btn.classList.toggle('active',charSortAZ);
+  charRenderFiltered();
+}
+
+function charRenderFiltered(){
+  var list=CHARS.filter(function(c){return c.type===charActiveType;});
+  if(charPlayerFilter&&charPlayerFilter!=='alle')list=list.filter(function(c){return c.p===charPlayerFilter;});
+  if(charSortAZ)list=list.slice().sort(function(a,b){return a.n.localeCompare(b.n,'de');});
+  charRender(list);
+}
+
+function buildPlayerFilter(){
+  var list=CHARS.filter(function(c){return c.type===charActiveType;});
+  var players=['alle'];
+  list.forEach(function(c){if(c.p&&players.indexOf(c.p)===-1)players.push(c.p);});
+  var bar=document.getElementById('char-filter-bar');
+  if(!bar)return;
+  var btns='';
+  players.forEach(function(p){
+    var active=p===charPlayerFilter?' active':'';
+    var label=p==='alle'?'Alle':p;
+    btns+='<button class="char-filter'+active+'" onclick="setCharPlayerFilter(this)">'+label+'</button>';
+  });
+  bar.innerHTML=btns;
+}
+
+function setCharPlayerFilter(btn){
+  charPlayerFilter=btn.textContent==='Alle'?'alle':btn.textContent;
+  buildPlayerFilter();
+  charRenderFiltered();
 }
 
 function charRender(list){
@@ -1549,14 +1680,17 @@ function charRender(list){
   if(!grid||!sub)return;
   sub.textContent=list.length+' Charaktere';
   grid.innerHTML='';
-  for(var i=0;i<list.length;i++){
-    var c=list[i];
+  if(!list.length){
+    grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:12px;padding:40px;grid-column:1/-1;text-align:center">Keine Charaktere gefunden.</div>';
+    return;
+  }
+  list.forEach(function(c){
     var card=document.createElement('div');
     card.className='char-card';
     card.setAttribute('data-url',c.u);
     card.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
     var portrait=c.img
-      ?'<img class="char-portrait" src="'+c.img+'" alt="'+c.n+'" onerror="this.parentNode.innerHTML=\'<div class=&quot;char-portrait-ph&quot;>&#128100;</div>\'">'
+      ?'<img class="char-portrait" src="'+c.img+'" alt="'+c.n+'">'
       :'<div class="char-portrait-ph">&#128100;</div>';
     card.innerHTML='<div class="char-portrait-wrap">'+portrait+'</div>'
       +'<div class="char-info">'
@@ -1564,34 +1698,55 @@ function charRender(list){
       +'<div class="char-player">von '+c.p+'</div>'
       +(c.h?'<div class="char-location">'+c.h+'</div>':'')
       +'</div>';
+    // Hover card
+    card.addEventListener('mouseenter',function(e){showCharHover(c,e.currentTarget);});
+    card.addEventListener('mouseleave',hideCharHover);
     grid.appendChild(card);
-  }
+  });
 }
 
-async function fetchCharSheet(fallbackTimer){
-  var SCRIPT_URL='https://script.google.com/macros/s/AKfycbw2QtXNxsvSaD4xzwZcX3U5EebauDQjxfX4LtSHhLViR9RB2jBsmvJWEqhM9Agdqvvo/exec';
-  try{
-    var r=await fetch(SCRIPT_URL);
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    var data=await r.json();
-    if(fallbackTimer)clearTimeout(fallbackTimer);
-    if(!Array.isArray(data)||!data.length)throw new Error('leer');
-    var fresh=data.filter(function(c){return c.name;}).map(function(c){return{
-      n:c.name||'',
-      p:c.player||'',
-      u:c.threadUrl||'',
-      h:c.home||'',
-      img:c.portraitUrl||''
-    };});
-    if(fresh.length>0){
-      CHARS.length=0;
-      fresh.forEach(function(c){CHARS.push(c);});
-      charRender(CHARS);
-    }
-  }catch(e){
-    if(fallbackTimer)clearTimeout(fallbackTimer);
-    charRender(CHARS); // Fallback
-  }
+// Hover card
+var _hoverTimeout=null;
+function showCharHover(c,card){
+  clearTimeout(_hoverTimeout);
+  var hc=document.getElementById('char-hover-card');
+  var img=document.getElementById('chc-img');
+  var ph=document.getElementById('chc-ph');
+  document.getElementById('chc-name').textContent=c.n;
+  document.getElementById('chc-player').textContent='gespielt von '+c.p;
+  var details=[];
+  if(c.age)details.push(c.age+' Jahre');
+  if(c.h)details.push('📍 '+c.h);
+  if(c.job)details.push('💼 '+c.job);
+  document.getElementById('chc-details').innerHTML=details.join('<br>');
+  if(c.img){img.src=c.img;img.style.display='block';ph.style.display='none';}
+  else{img.style.display='none';ph.style.display='flex';}
+  // Position
+  var rect=card.getBoundingClientRect();
+  var hcw=220,pad=8;
+  var left=rect.right+pad;
+  if(left+hcw>window.innerWidth)left=rect.left-hcw-pad;
+  var top=rect.top;
+  if(top+200>window.innerHeight)top=window.innerHeight-210;
+  hc.style.left=left+'px';hc.style.top=top+'px';
+  hc.classList.add('visible');
+}
+function hideCharHover(){
+  _hoverTimeout=setTimeout(function(){
+    document.getElementById('char-hover-card').classList.remove('visible');
+  },150);
+}
+
+// URL-Hash: Refresh behält die Ansicht
+window.addEventListener('hashchange',function(){
+  var h=location.hash;
+  if(h==='#chars-haupt')openCharView('haupt');
+  else if(h==='#chars-neben')openCharView('neben');
+  else if(h==='#chars-statist')openCharView('statist');
+  else if(!h&&document.getElementById('char-container').classList.contains('open'))closeCharView();
+});
+if(location.hash==='#chars-haupt'||location.hash==='#chars-neben'||location.hash==='#chars-statist'){
+  window.addEventListener('load',function(){openCharView(location.hash.replace('#chars-',''));});
 }
 
 
