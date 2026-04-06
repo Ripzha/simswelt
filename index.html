@@ -1560,12 +1560,13 @@ function charRender(list){
 }
 
 async function fetchCharSheet(){
+  var SCRIPT_URL='https://script.google.com/macros/s/AKfycbw2QtXNxsvSaD4xzwZcX3U5EebauDQjxfX4LtSHhLViR9RB2jBsmvJWEqhM9Agdqvvo/exec';
   try{
-    const r=await fetch('./chars.json?t='+Date.now());
+    var r=await fetch(SCRIPT_URL);
     if(!r.ok)return;
-    const data=await r.json();
-    if(!data||!data.length)return;
-    const fresh=data.filter(function(c){return c.name;}).map(function(c){return{
+    var data=await r.json();
+    if(!Array.isArray(data)||!data.length)return;
+    var fresh=data.filter(function(c){return c.name;}).map(function(c){return{
       n:c.name||'',
       p:c.player||c.Spieler||'',
       u:c.threadUrl||c['Thread-URL']||'',
@@ -1576,6 +1577,7 @@ async function fetchCharSheet(){
       CHARS.length=0;
       fresh.forEach(function(c){CHARS.push(c);});
       charRender(CHARS);
+      document.getElementById('char-subtitle').textContent=CHARS.length+' Charaktere';
     }
   }catch(e){/* fallback bleibt */}
 }
