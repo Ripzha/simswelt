@@ -372,7 +372,8 @@ const BUILDINGS = {
   "Landgraab-Apartments":  {imgs:[IMG+"pictures_u1175_bPvqCfdS.png",IMG+"pictures_u1174_eIzqUPZL.png"],lots:[{name:"Wohnung 17",x:40,y:35,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 18",x:55,y:72,url:BASE+'f51783-San-Myshuno.html',active:false}]},
   "Alto-Apartments":       {imgs:[IMG+"pictures_u1171_CbejBpJu.png"],lots:[{name:"Wohnung 21",x:40,y:40,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 22",x:55,y:78,url:BASE+'f51783-San-Myshuno.html',active:false}]},
   "ZenView-Apartments":    {imgs:[IMG+"pictures_u1181_hVjZGEkW.png",IMG+"pictures_u1180_LhvsFNlx.png"],lots:[{name:"Wohnung 24",x:50,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 25",x:50,y:72,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Spitzen-Apartments":    {imgs:[IMG+"pictures_u1178_odPXQNxE.png",IMG+"pictures_u1179_KecVnlEU.png"],lots:[{name:"Wohnung 16",x:50,y:50,url:BASE+'f51783-San-Myshuno.html',active:false}]},lots:[{name:"Wohnung 26",x:60,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 27",x:30,y:60,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 28",x:55,y:80,url:BASE+'f51783-San-Myshuno.html',active:false}]},
+  "Spitzen-Apartments":    {imgs:[IMG+"pictures_u1178_odPXQNxE.png",IMG+"pictures_u1179_KecVnlEU.png"],lots:[{name:"Wohnung 16",x:50,y:50,url:BASE+'f51783-San-Myshuno.html',active:false}]},
+  "Luxusallee-21":         {imgs:[IMG+"pictures_u1177_mzbSxfyX.png"],lots:[{name:"Wohnung 26",x:60,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 27",x:30,y:60,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 28",x:55,y:80,url:BASE+'f51783-San-Myshuno.html',active:false}]},
   "Kieferhügel-Apartments":{imgs:[''],lots:[
     {name:"Nr. 12 - Jarred Cunningham",x:35,y:45,url:BASE+'t621f51791-Evergreen-Harbor-Nr-Wohnung-Jarred-Cunningham.html',active:false},
     {name:"Nr. 13 - WG Tom & Valentin",x:65,y:70,url:BASE+'t233f51791-Evergreen-Harbor-Nr-WG-Tom-Valentin.html',active:false},
@@ -875,7 +876,7 @@ function restoreHardLot(wname,lotName){
 }
 function startPosForLot(wname,idx){
   if(!currentWorld||currentWorld.name!==wname){alert('Zuerst die Welt "'+wname+'" betreten.');return;}
-  posMode=true;worldC.style.cursor='crosshair';document.getElementById('calib-mode-bar').style.display='block';
+  posMode=true;document.getElementById('world-container').style.cursor='crosshair';document.getElementById('calib-mode-bar').style.display='block';
   posModeCallback=(x,y)=>{customLots[wname][idx].x=x;customLots[wname][idx].y=y;saveLots();renderLots(currentWorld);renderAdminContent();};
 }
 function groupLots(lots){
