@@ -360,11 +360,10 @@ function mkSheet(){
   var guide=div({background:"rgba(61,111,138,0.12)",border:"1px solid rgba(61,111,138,0.35)",borderRadius:"10px",padding:"16px 18px",marginBottom:"20px"});
   guide.appendChild(div({fontSize:"11px",fontWeight:"800",letterSpacing:"2px",color:C.teal,marginBottom:"10px"},["SO GEHT'S — LIES DAS ZUERST"]));
   var steps=[
-    ["1","Bogen prüfen","Schau deinen Charakterbogen unten durch. Alles vollständig? Dann weiter."],
-    ["2","Im Forum posten","Klicke auf \"📤 Im Forum posten\", wähle den Typ deines Charakters, und klicke \"BBCode kopieren & Forum öffnen\"."],
-    ["3","Einloggen falls nötig","Falls du noch nicht eingeloggt bist, logge dich zuerst im Forum ein. Dein Bogen bleibt hier gespeichert."],
-    ["4","Bogen einfügen","Im Forum: Titel eingeben (z.B. den Namen deines Charakters), dann Ctrl+V (oder Cmd+V auf Mac) um den Bogen einzufügen. Auf Absenden klicken."],
-    ["5","In ATLAS registrieren","Nach dem Posten: kopiere die URL deines neuen Threads, komm zurück hier, klicke \"🗺 In ATLAS registrieren\" und füge die URL ein."]
+    ["1","Bogen prüfen","Schau deinen Charakterbogen unten durch. Alles vollständig?"],
+    ["2","Typ wählen & posten","Klicke auf \"📤 Im Forum posten\", wähle Haupt/Neben/Randfigur/Passant. Der Bogen öffnet sich automatisch im Forum zum Absenden."],
+    ["3","Einloggen falls nötig","Falls du noch nicht eingeloggt bist, logge dich im Forum ein. Dein Bogen bleibt hier gespeichert und wartet auf dich."],
+    ["4","Absenden","Im Forum: Titel eingeben (Name deines Charakters), dann Absenden klicken. Fertig!"]
   ];
   steps.forEach(function(s){
     var row=div({display:"flex",gap:"10px",marginBottom:"8px",alignItems:"flex-start"});
@@ -575,12 +574,11 @@ function mkPostModal(){
   box.appendChild(div({fontSize:"14px",fontWeight:"800",color:C.accent,marginBottom:"12px"},["📤 Im Forum posten"]));
 
   if(state.postCopied){
-    // Schritt 2: BBCode wurde kopiert
-    box.appendChild(div({background:"rgba(77,122,77,0.15)",border:"1px solid rgba(77,122,77,0.4)",borderRadius:"8px",padding:"12px 14px",marginBottom:"14px",fontSize:"13px",color:C.accent,lineHeight:"1.7"},
-      ["✅ BBCode wurde kopiert!\n\n1. Im Forum-Tab: Titel eingeben\n2. Inhalt einfügen (Ctrl+V / Cmd+V)\n3. Absenden\n4. Thread-URL kopieren\n5. Zurück hier → In ATLAS registrieren"]));
+    box.appendChild(div({background:"rgba(77,122,77,0.15)",border:"1px solid rgba(77,122,77,0.4)",borderRadius:"8px",padding:"14px",marginBottom:"14px",fontSize:"13px",color:C.accent,lineHeight:"1.8"},
+      ["✅ Das Forum wurde geöffnet.\n\nNur noch: Titel eingeben und Absenden klicken.\n\nDanach kannst du deinen Charakter optional in ATLAS registrieren."]));
     var row=div({display:"flex",gap:"8px",flexWrap:"wrap"});
-    row.appendChild(btn("🗺 In ATLAS registrieren",C.accent,function(){state.showPost=false;state.showAtlas=true;state.postCopied=false;draw();},false,false,false));
-    row.appendChild(btn("Schliessen",C.muted,function(){state.showPost=false;state.postCopied=false;draw();},false,true,false));
+    row.appendChild(btn("🗺 In ATLAS registrieren (optional)",C.teal,function(){state.showPost=false;state.showAtlas=true;state.postCopied=false;draw();},false,true,false));
+    row.appendChild(btn("Fertig ✓",C.accent,function(){state.showPost=false;state.postCopied=false;draw();},false,false,false));
     box.appendChild(row);
   } else {
     // Schritt 1: Typ wählen und posten
@@ -603,16 +601,25 @@ function mkPostModal(){
     box.appendChild(loginBox);
     var row=div({display:"flex",gap:"8px",justifyContent:"flex-end"});
     row.appendChild(btn("Abbrechen",C.muted,function(){state.showPost=false;draw();},false,true,false));
-    row.appendChild(btn("BBCode kopieren & Forum öffnen",C.accent,function(){
+    row.appendChild(btn("📤 Im Forum posten",C.accent,function(){
       var bb=generateBBCode();
       var fid=FORUM_IDS[state.postType]||"51849";
+      var name=state.char.name||"";
       saveLocalDraft();
-      // Kopieren
-      if(navigator.clipboard){navigator.clipboard.writeText(bb);}
-      else{var ta=document.createElement("textarea");ta.value=bb;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);}
-      // Forum öffnen
-      window.open("https://www.simsforumrpg.de/new.php?forum="+fid,"_blank");
-      state.postCopied=true;draw();
+      // Versuche BBCode direkt per URL einzufügen
+      var baseUrl="https://www.simsforumrpg.de/new.php?forum="+fid;
+      var fullUrl=baseUrl+"&topic="+encodeURIComponent(name)+"&message="+encodeURIComponent(bb);
+      // URL-Längenlimit: wenn zu lang, nur Clipboard
+      if(fullUrl.length>2000){
+        if(navigator.clipboard){navigator.clipboard.writeText(bb);}
+        else{var ta=document.createElement("textarea");ta.value=bb;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);}
+        window.open(baseUrl,"_blank");
+        state.postCopied=true;
+      } else {
+        window.open(fullUrl,"_blank");
+        state.postCopied=true;
+      }
+      draw();
     },false,false,false));
     box.appendChild(row);
   }
