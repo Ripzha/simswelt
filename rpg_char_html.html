@@ -64,8 +64,51 @@ var state={
   ai:{},
   importText:"",importing:false,showImport:false,
   ctxEntries:[],ctxLabel:"",ctxText:"",showCtx:false,
-  showAtlas:false,atlasPlayer:"",atlasThread:"",atlasPortrait:"",atlasType:"haupt",atlasSaving:false,atlasSaved:false
+  showAtlas:false,atlasPlayer:"",atlasThread:"",atlasPortrait:"",atlasType:"haupt",atlasSaving:false,atlasSaved:false,
+  showPost:false,postType:"haupt",postCopied:false
 };
+
+// ── localStorage Persistenz ──
+function saveLocalDraft(){
+  try{localStorage.setItem('sw_charbogen',JSON.stringify({char:state.char,step:state.step,imgPreview:state.imgPreview,postType:state.postType}));}catch(e){}
+}
+function loadLocalDraft(){
+  try{
+    var s=localStorage.getItem('sw_charbogen');
+    if(!s)return false;
+    var d=JSON.parse(s);
+    if(!d.char||!Object.keys(d.char).some(function(k){return d.char[k];}))return false;
+    if(confirm("Es gibt einen gespeicherten Entwurf. Weiterarbeiten?")){
+      FIELDS.forEach(function(f){if(d.char[f.key])state.char[f.key]=d.char[f.key];});
+      if(d.step)state.step=d.step;
+      if(d.imgPreview)state.imgPreview=d.imgPreview;
+      if(d.postType)state.postType=d.postType;
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+// ── BBCode Generator ──
+var FORUM_IDS={haupt:"51849",neben:"51850",randfigur:"51851",passant:"52617"};
+function generateBBCode(){
+  var c=state.char;
+  var lines=[];
+  lines.push("[center][size=5][b][color=#4d7a4d]"+(c.name||"???")+"[/color][/b][/size]");
+  var sub=[c.age&&c.age+" Jahre",c.gender,c.occult].filter(Boolean).join(" · ");
+  if(sub)lines.push("[i]"+sub+"[/i]");
+  if(c.job)lines.push("[color=#3d6f8a]"+c.job+"[/color]");
+  if(c.origin)lines.push("aus "+c.origin);
+  lines.push("[/center][hr]");
+  var skip=["name","age","gender","occult","job","origin"];
+  SECTIONS.slice(0,-1).forEach(function(sec){
+    var sf=sec.fields.map(function(k){return FIELDS.find(function(f){return f.key===k;});}).filter(function(f){return f&&c[f.key]&&skip.indexOf(f.key)===-1;});
+    if(!sf.length)return;
+    lines.push("\n[b][color=#3d6f8a]— "+sec.title.toUpperCase()+" —[/color][/b]");
+    sf.forEach(function(f){lines.push("[b]"+f.label+":[/b]\n"+c[f.key]);});
+  });
+  return lines.join("\n");
+}
 
 // ── helpers ──
 function qs(id){return document.getElementById(id);}
@@ -303,7 +346,7 @@ function mkField(f){
   if(f.multi){inp.style.resize="vertical";inp.rows=3;}
   inp.value=state.char[f.key]||"";
   inp.placeholder=f.hint;
-  inp.addEventListener("input",function(){state.char[f.key]=inp.value;});
+  inp.addEventListener("input",function(){state.char[f.key]=inp.value;saveLocalDraft();});
   wrap.appendChild(inp);
   wrap.appendChild(mkAI(f.key,f.label,state.char[f.key]));
   return wrap;
@@ -350,17 +393,15 @@ function mkSheet(){
   });
   sheet.appendChild(body);wrap.appendChild(sheet);
   var btns=div({marginTop:"12px",display:"flex",gap:"8px",flexWrap:"wrap"});
-  btns.appendChild(btn("⬇ Als Word herunterladen",C.accent,downloadDoc,false,false,false));
-  btns.appendChild(btn("📋 Text kopieren",C.teal,function(){
-    var t=FIELDS.filter(function(f){return state.char[f.key];}).map(function(f){return f.label.toUpperCase()+":\n"+state.char[f.key];}).join("\n\n");
-    navigator.clipboard?navigator.clipboard.writeText(t):(function(){var e=mk("textarea");e.value=t;document.body.appendChild(e);e.select();document.execCommand("copy");document.body.removeChild(e);})();
-    alert("Kopiert!");
-  },false,true,false));
-  btns.appendChild(btn("🗺 In ATLAS registrieren",C.teal,function(){state.showAtlas=true;draw();},false,false,false));
+  btns.appendChild(btn("📤 Im Forum posten",C.accent,function(){state.showPost=true;draw();},false,false,false));
+  btns.appendChild(btn("⬇ Als Word herunterladen",C.teal,downloadDoc,false,true,false));
+  btns.appendChild(btn("🗺 In ATLAS registrieren",C.muted,function(){state.showAtlas=true;draw();},false,true,false));
   btns.appendChild(btn("↺ Neu starten",C.muted,function(){
     if(!confirm("Neuen Charakter erstellen? Alle Eingaben werden gelöscht."))return;
     FIELDS.forEach(function(f){state.char[f.key]="";});
-    state.imgPreview=null;state.imgB64=null;state.imgMime=null;state.ai={};state.step=0;draw();
+    state.imgPreview=null;state.imgB64=null;state.imgMime=null;state.ai={};state.step=0;
+    try{localStorage.removeItem('sw_charbogen');}catch(e){}
+    draw();
   },false,true,false));
   wrap.appendChild(btns);
   return wrap;
@@ -505,6 +546,57 @@ function saveToAtlas(){
   });
 }
 
+function mkPostModal(){
+  var ov=div({position:"fixed",inset:"0",background:"rgba(0,0,0,0.6)",zIndex:"200",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"});
+  var box=div({background:C.card,border:"1px solid "+C.border,borderRadius:"14px",padding:"24px",width:"100%",maxWidth:"500px"});
+  box.appendChild(div({fontSize:"14px",fontWeight:"800",color:C.accent,marginBottom:"12px"},["📤 Im Forum posten"]));
+
+  if(state.postCopied){
+    // Schritt 2: BBCode wurde kopiert
+    box.appendChild(div({background:"rgba(77,122,77,0.15)",border:"1px solid rgba(77,122,77,0.4)",borderRadius:"8px",padding:"12px 14px",marginBottom:"14px",fontSize:"13px",color:C.accent,lineHeight:"1.7"},
+      ["✅ BBCode wurde kopiert!\n\n1. Im Forum-Tab: Titel eingeben\n2. Inhalt einfügen (Ctrl+V / Cmd+V)\n3. Absenden\n4. Thread-URL kopieren\n5. Zurück hier → In ATLAS registrieren"]));
+    var row=div({display:"flex",gap:"8px",flexWrap:"wrap"});
+    row.appendChild(btn("🗺 In ATLAS registrieren",C.accent,function(){state.showPost=false;state.showAtlas=true;state.postCopied=false;draw();},false,false,false));
+    row.appendChild(btn("Schliessen",C.muted,function(){state.showPost=false;state.postCopied=false;draw();},false,true,false));
+    box.appendChild(row);
+  } else {
+    // Schritt 1: Typ wählen und posten
+    box.appendChild(div({fontSize:"12px",color:C.muted,marginBottom:"14px",lineHeight:"1.6"},
+      ["Wähle den Charaktertyp. Du wirst danach automatisch zur richtigen Forenseite weitergeleitet.\n⚠ Du musst im Forum eingeloggt sein."]));
+    var tw=div({marginBottom:"16px"});
+    tw.appendChild(div({fontSize:"12px",fontWeight:"700",color:C.accent,marginBottom:"8px"},["Typ"]));
+    var trow=div({display:"flex",gap:"6px",flexWrap:"wrap"});
+    [{id:"haupt",label:"Hauptcharakter"},{id:"neben",label:"Nebencharakter"},{id:"randfigur",label:"Randfigur"},{id:"passant",label:"Passant"}].forEach(function(t){
+      trow.appendChild(btn(t.label,state.postType===t.id?C.accent:C.muted,function(){state.postType=t.id;draw();},true,state.postType!==t.id,false));
+    });
+    tw.appendChild(trow);box.appendChild(tw);
+    // Login-Hinweis
+    var loginBox=div({background:"rgba(61,111,138,0.1)",border:"1px solid rgba(61,111,138,0.3)",borderRadius:"8px",padding:"10px 12px",marginBottom:"14px",fontSize:"12px",color:C.muted,lineHeight:"1.6"});
+    var loginLink=mk("a",{href:"https://www.simsforumrpg.de/login.php",target:"_blank",style:"color:#3d6f8a;font-weight:700"});
+    loginLink.textContent="Jetzt einloggen";
+    loginBox.appendChild(document.createTextNode("Noch nicht eingeloggt? "));
+    loginBox.appendChild(loginLink);
+    loginBox.appendChild(document.createTextNode(" — dein Entwurf bleibt gespeichert."));
+    box.appendChild(loginBox);
+    var row=div({display:"flex",gap:"8px",justifyContent:"flex-end"});
+    row.appendChild(btn("Abbrechen",C.muted,function(){state.showPost=false;draw();},false,true,false));
+    row.appendChild(btn("BBCode kopieren & Forum öffnen",C.accent,function(){
+      var bb=generateBBCode();
+      var fid=FORUM_IDS[state.postType]||"51849";
+      saveLocalDraft();
+      // Kopieren
+      if(navigator.clipboard){navigator.clipboard.writeText(bb);}
+      else{var ta=document.createElement("textarea");ta.value=bb;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);}
+      // Forum öffnen
+      window.open("https://www.simsforumrpg.de/new.php?forum="+fid,"_blank");
+      state.postCopied=true;draw();
+    },false,false,false));
+    box.appendChild(row);
+  }
+  ov.addEventListener("click",function(e){if(e.target===ov){state.showPost=false;state.postCopied=false;draw();}});
+  ov.appendChild(box);return ov;
+}
+
 // ── Main draw ──
 function draw(){
   // ── App shell (only once) ──
@@ -560,9 +652,11 @@ function draw(){
   if(state.showImport)modals.appendChild(mkImportModal());
   if(state.showCtx)modals.appendChild(mkCtxModal());
   if(state.showAtlas)modals.appendChild(mkAtlasModal());
+  if(state.showPost)modals.appendChild(mkPostModal());
 }
 
 setupImgInput();
+loadLocalDraft();
 draw();
 </script>
 </body>
