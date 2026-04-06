@@ -1513,24 +1513,52 @@ document.addEventListener('touchstart',e=>{
 // CHARAKTER-VIEW
 // ═══════════════════════════════════════════
 const CHAR_FORUMS={haupt:'https://www.simsforumrpg.de/f51849-Hauptcharaktere.html'};
+// Fallback-Charaktere (werden aktualisiert wenn Sheet erreichbar)
+const CHAR_FALLBACK=[
+  {name:"Sullivan 'Blaze' Blaisdell",player:"Ripzha",type:"haupt",threadUrl:"https://www.simsforumrpg.de/t78f51849-Sullivan-Blaze-Blaisdell.html",portrait:"",home:"Newcrest",job:"",age:""},
+  {name:"Artjom Komarow",player:"Ripzha",type:"haupt",threadUrl:"https://www.simsforumrpg.de/t266f51849-Artjom-Komarow.html",portrait:"",home:"Willow Creek",job:"",age:""},
+  {name:"Vaas Del Toro",player:"Ripzha",type:"haupt",threadUrl:"https://www.simsforumrpg.de/t654f51849-Vaas-Del-Toro.html",portrait:"",home:"",job:"",age:""},
+  {name:"David Janko",player:"RivaBabylon",type:"haupt",threadUrl:"https://www.simsforumrpg.de/t583f51849-David-Janko.html",portrait:"",home:"Britechester",job:"",age:""},
+  {name:"Viola Nebeljäger",player:"Murloc",type:"haupt",threadUrl:"https://www.simsforumrpg.de/t86f51849-Viola-Nebeljaeger.html",portrait:"",home:"Ravenwood",job:"",age:""},
+  {name:"Bea Greentail",player:"Murloc",type:"haupt",threadUrl:"https://www.simsforumrpg.de/t117f51849-Bea-Greentail.html",portrait:"",home:"",job:"",age:""},
+  {name:"Ellie Hawk",player:"Murloc",type:"haupt",threadUrl:"https://www.simsforumrpg.de/t87f51849-Ellie-Hawk.html",portrait:"",home:"",job:"",age:""},
+  {name:"Gerda Karlotta Simmer",player:"S.Bin.",type:"haupt",threadUrl:"https://www.simsforumrpg.de/t647f51849-Gerda-Karlotta-Simmer.html",portrait:"",home:"",job:"",age:""},
+  {name:"JackJack",player:"S.Bin.",type:"haupt",threadUrl:"https://www.simsforumrpg.de/t682f51849-Jack.html",portrait:"",home:"",job:"",age:""},
+];
 const CHAR_SHEET_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vRRllRkwaCacdM0WZZT0cVQflhxJ9Fw5mgId-v615_kE2GdKdbwHMUYCG03HC8gUXfg7lucTs1Mqhg1/pub?output=csv';
 let charData=null,charFilter='alle',charCacheTs=0;
 const CHAR_TTL=30*60*1000;
 
 function openCharView(){
   document.getElementById('char-container').classList.add('open');
-  // Set loading state immediately so user sees something
-  document.getElementById('char-grid').innerHTML='<div style="color:rgba(255,255,255,0.4);font-size:13px;padding:40px;grid-column:1/-1;text-align:center">⏳ Lade Charaktere...</div>';
-  document.getElementById('char-subtitle').textContent='Verbinde...';
-  if(!charData||Date.now()-charCacheTs>CHAR_TTL){
-    loadCharacters().catch(e=>{
-      document.getElementById('char-grid').innerHTML=`<div style="color:rgba(255,100,100,0.7);font-size:12px;padding:40px;grid-column:1/-1;text-align:center">
-        ❌ Fehler: ${e.message}<br><br>
-        <a href="https://www.simsforumrpg.de/f51849-Hauptcharaktere.html" target="_blank" style="color:#4aaa6a">→ Forum öffnen</a>
-      </div>`;
-      document.getElementById('char-subtitle').textContent='Fehler';
-    });
-  } else renderCharGrid();
+  // Show fallback immediately
+  if(!charData){
+    charData=CHAR_FALLBACK.map(c=>({...c}));
+    buildCharFilters(charData);
+    renderCharGrid();
+    document.getElementById('char-subtitle').textContent='Basis-Daten · versuche Sheet zu laden…';
+  } else {
+    renderCharGrid();
+  }
+  // Try to load fresh data from sheet in background
+  fetchCharSheet();
+}
+
+async function fetchCharSheet(){
+  try{
+    const r=await fetch(CHAR_SHEET_CSV+'&t='+Date.now());
+    if(!r.ok)return;
+    const csv=await r.text();
+    if(!csv||csv.trim().length<10)return;
+    const fresh=parseCharCSV(csv);
+    if(fresh.length>0){
+      charData=fresh;
+      charCacheTs=Date.now();
+      buildCharFilters(charData);
+      renderCharGrid();
+      document.getElementById('char-subtitle').textContent=charData.length+' Charaktere (Sheet)';
+    }
+  }catch(e){/* silent fail, fallback already showing */}
 }
 function closeCharView(){document.getElementById('char-container').classList.remove('open');}
 
