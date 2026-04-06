@@ -44,7 +44,6 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 #world-header{position:absolute;top:0;left:0;right:0;padding:10px 14px;background:linear-gradient(rgba(0,0,0,0.7),transparent);z-index:5;pointer-events:none}
 #world-header .wh-name{font-size:16px;font-weight:500}
 #world-header .wh-sub{font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px}
-/* Legende */
 .legend-btn{position:absolute;top:50px;left:12px;background:rgba(0,0,0,0.55);border:0.5px solid rgba(255,255,255,0.12);border-radius:6px;padding:4px 10px;font-size:10px;color:rgba(255,255,255,0.45);cursor:pointer;z-index:15;user-select:none}
 .legend-btn:hover{color:#fff}
 .legend-box{position:absolute;top:78px;left:12px;background:rgba(0,0,0,0.9);border:0.5px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 13px;z-index:15;display:none;min-width:185px}
@@ -53,7 +52,6 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .leg-row:last-child{margin-bottom:0}
 .leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .leg-cluster{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0}
-/* Gebäude-Ebene */
 #building-container{position:absolute;inset:0;z-index:25;display:none}
 #building-bg{position:absolute;inset:0;overflow:hidden}
 #building-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(0.65)}
@@ -174,6 +172,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
     <span class="subtitle" id="world-subtitle"></span>
   </div>
   <div style="display:flex;gap:7px;align-items:center">
+    <button id="btn-close-atlas" onclick="closeAtlas()" style="background:rgba(255,80,80,0.12);border:0.5px solid rgba(255,80,80,0.25);border-radius:5px;color:rgba(255,130,130,0.85);font-size:10px;padding:5px 10px;cursor:pointer" title="Zur normalen Forenansicht">✕ Forum</button>
     <a href="https://www.simsforumrpg.de/forum.php" target="_blank" id="btn-forum">📋 Forum</a>
     <button class="btn-auth" id="btn-login" onclick="window.open('https://www.simsforumrpg.de/anmeldung.php','_blank')">Anmelden</button>
     <button class="btn-auth" id="btn-register" onclick="window.open('https://www.simsforumrpg.de/anmeldung.php','_blank')">Registrieren</button>
@@ -361,7 +360,6 @@ const IMG='https://files.homepagemodules.de/b855163/resize/1920x1200/';
 // GEBÄUDE-DATEN (SM + EH)
 // ═══════════════════════════════════════════
 const BUILDINGS = {
-  // San Myshuno
   "Culpepper-Apartments":  {img:'',lots:[{name:"Wohnung 1",x:30,y:75,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 2",x:50,y:25,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 3",x:70,y:65,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 4",x:50,y:88,url:BASE+'f51783-San-Myshuno.html',active:false}]},
   "Jasmin-Studios":        {img:'',lots:[{name:"Studio 5",x:35,y:35,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Studio 6",x:60,y:75,url:BASE+'f51783-San-Myshuno.html',active:false}]},
   "Medina-Studios":        {img:'',lots:[{name:"Studio 9",x:30,y:60,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Studio 10",x:60,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Studio 11",x:55,y:75,url:BASE+'f51783-San-Myshuno.html',active:false}]},
@@ -370,7 +368,6 @@ const BUILDINGS = {
   "Alto-Apartments":       {img:'',lots:[{name:"Wohnung 21",x:40,y:40,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 22",x:55,y:78,url:BASE+'f51783-San-Myshuno.html',active:false}]},
   "ZenView-Apartments":    {img:'',lots:[{name:"Wohnung 24",x:50,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 25",x:50,y:72,url:BASE+'f51783-San-Myshuno.html',active:false}]},
   "Luxusallee-21":         {img:'',lots:[{name:"Wohnung 26",x:60,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 27",x:30,y:60,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 28",x:55,y:80,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  // Evergreen Harbor
   "Kieferhügel-Apartments":{img:'',lots:[
     {name:"Nr. 12 - Jarred Cunningham",x:35,y:45,url:BASE+'t621f51791-Evergreen-Harbor-Nr-Wohnung-Jarred-Cunningham.html',active:false},
     {name:"Nr. 13 - WG Tom & Valentin",x:65,y:70,url:BASE+'t233f51791-Evergreen-Harbor-Nr-WG-Tom-Valentin.html',active:false},
@@ -386,20 +383,20 @@ const BUILDINGS = {
 // ═══════════════════════════════════════════
 const worlds=[
   {name:"Innisgreen",x:5,y:17,color:"#4a8a5a",type:"Feen-Insel",url:BASE+"f59907-Innisgreen.html",img:IMG+"f59907t701p6857n6_GhgTkzIe.png"},
-  {name:"Nordhaven",x:28,y:25,color:"#4a8aaa",type:"Fjordstadt",url:BASE+"f59567-Nordhaven.html",img:IMG+"f51848t674p6442n2_KpoqhcPI.png"},
-  {name:"Ravenwood",x:44,y:23,color:"#5a5a3a",type:"Nebelhochland",url:BASE+"f59271-Ravenwood.html",img:IMG+"f59271t650p5999n7_rDMbUQwt.png"},
-  {name:"Granite Falls",x:52,y:20,color:"#3a6a3a",type:"Nationalpark",url:BASE+"f51798-Granite-Falls.html",img:IMG+"f51798t245p3096n42_IrNAYjfx.png"},
-  {name:"Chestnut Ridge",x:73,y:17,color:"#aa7a2a",type:"Ranch",url:BASE+"f55177-Chestnut-Ridge.html",img:IMG+"f55177t466p3785n32_rOXCxANG.png"},
+  {name:"Nordhaven",x:28,y:25,color:"#4a8aaa",type:"Fjordstadt",url:BASE+"f59567-Nordhaven.html",img:IMG+"f51848t204p5730n2_bcapNnET.png"},
+  {name:"Ravenwood",x:44,y:23,color:"#5a5a3a",type:"Nebelhochland",url:BASE+"f59271-Ravenwood.html",img:IMG+"f51848t204p4824n2_TWBoOluh.png"},
+  {name:"Granite Falls",x:52,y:20,color:"#3a6a3a",type:"Nationalpark",url:BASE+"f51798-Granite-Falls.html",img:IMG+"f51848t204p6440n4_YVXgMSor.png"},
+  {name:"Chestnut Ridge",x:73,y:17,color:"#aa7a2a",type:"Ranch",url:BASE+"f55177-Chestnut-Ridge.html",img:IMG+"f51848t204p3080n2_UHnYvhOE.png"},
   {name:"Strangerville",x:83,y:26,color:"#8a3a5a",type:"Mysteriös",url:BASE+"f51787-Strangerville.html",img:IMG+"f51848t204p3069n2_YGvixVsh.png"},
   {name:"Evergreen Harbor",x:92,y:33,color:"#3a5a5a",type:"Hafen",url:BASE+"f51791-Evergreen-Harbor.html",img:IMG+"f51848t204p3073n2_DfshroRW.png"},
-  {name:"San Sequoia",x:30,y:36,color:"#3a6a5a",type:"Pazifik",url:BASE+"f51797-San-Sequoia.html",img:IMG+"f51797t246p3097n2_IcEpQsxW.png"},
+  {name:"San Sequoia",x:30,y:36,color:"#3a6a5a",type:"Pazifik",url:BASE+"f51797-San-Sequoia.html",img:IMG+"f51848t204p3079n2_uJtqbMOr.png"},
   {name:"Britechester",x:44,y:34,color:"#7a8a5a",type:"Universität",url:BASE+"f51790-Britechester.html",img:IMG+"f51848t204p3072n2_YRsCbFjy.png"},
   {name:"Forgotten Hollow",x:60,y:32,color:"#6a3a8a",type:"Vampire",url:BASE+"f51784-Forgotten-Hollow.html",img:IMG+"f51848t204p3066n2_JXpWTELe.png"},
-  {name:"Copperdale",x:50,y:40,color:"#5a7a5a",type:"Kleinstadt",url:BASE+"f51796-Copperdale.html",img:IMG+"f51796t221p2770n2_IpAVFBvk.png"},
-  {name:"Henford-on-Bagley",x:63,y:38,color:"#6a8a3a",type:"England",url:BASE+"f51793-Henford-on-Bagley.html",img:IMG+"f51793t157p2223n105_OYrMHvJZ.png"},
+  {name:"Copperdale",x:50,y:40,color:"#5a7a5a",type:"Kleinstadt",url:BASE+"f51796-Copperdale.html",img:IMG+"f51848t204p3078n2_kPwgBqFU.png"},
+  {name:"Henford-on-Bagley",x:63,y:38,color:"#6a8a3a",type:"England",url:BASE+"f51793-Henford-on-Bagley.html",img:IMG+"f51848t204p3075n2_YXNhtBrg.png"},
   {name:"Glimmerbrook",x:56,y:48,color:"#7a3a9a",type:"Magie",url:BASE+"f51789-Glimmerbrook.html",img:IMG+"f51848t204p3071n2_fiXwYNJL.png"},
-  {name:"Mt. Komorebi",x:60,y:44,color:"#9aaabb",type:"Gebirge",url:BASE+"f51792-Mt-Komorebi.html",img:IMG+"f51792t216p2710n2_wULZCEnk.png"},
-  {name:"Moonwood Mill",x:74,y:43,color:"#2a4a5a",type:"Werwölfe",url:BASE+"f51795-Moonwood-Mill.html",img:IMG+"f51795t251p3100n2_MianYHlj.png"},
+  {name:"Mt. Komorebi",x:60,y:44,color:"#9aaabb",type:"Gebirge",url:BASE+"f51792-Mt-Komorebi.html",img:IMG+"f51848t204p3074n2_jCIcfQSW.png"},
+  {name:"Moonwood Mill",x:74,y:43,color:"#2a4a5a",type:"Werwölfe",url:BASE+"f51795-Moonwood-Mill.html",img:IMG+"f51848t204p3077n2_ycbLHtnP.png"},
   {name:"Brindleton Bay",x:82,y:46,color:"#3a7a7a",type:"Küste",url:BASE+"f51785-Brindleton-Bay.html",img:IMG+"f51848t204p3067n2_lgSCqfRT.png"},
   {name:"San Myshuno",x:55,y:53,color:"#3a4a7a",type:"Grossstadt",url:BASE+"f51783-San-Myshuno.html",img:IMG+"f51848t204p3065n2_bDAZuVYK.png"},
   {name:"Magnolia Promenade",x:61,y:53,color:"#7a6a5a",type:"Promenade",url:BASE+"f51781-Magnolia-Promenade.html",img:IMG+"f51848t204p3063n2_adLzKDsI.png"},
@@ -409,10 +406,10 @@ const worlds=[
   {name:"Del Sol Valley",x:54,y:62,color:"#c8a02a",type:"Hollywood",url:BASE+"f51786-Del-Sol-Valley.html",img:IMG+"f51848t204p3068n2_ubDiGjJP.png"},
   {name:"Oasis Springs",x:63,y:67,color:"#c87a2a",type:"Wüste",url:BASE+"f51779-Oasis-Springs.html",img:IMG+"f51848t204p3061n2_zxcBGyYe.png"},
   {name:"Sulani",x:89,y:60,color:"#2a9a8a",type:"Tropeninsel",url:BASE+"f51788-Sulani.html",img:IMG+"f51848t204p3070n2_zlTJqYjA.png"},
-  {name:"Selvadorada",x:16,y:67,color:"#2a5a2a",type:"Dschungel",url:BASE+"f51799-Selvadorada.html",img:IMG+"f51799t188p2490n2_gyTPfLHp.png"},
-  {name:"Tomarang",x:48,y:57,color:"#2a7a5a",type:"Südostasien",url:BASE+"f58300-Tomarang.html",img:IMG+"f58300t555p4823n18_xhRAIYaO.png"},
-  {name:"Ciudad Enamorada",x:60,y:73,color:"#aa4a3a",type:"Latein",url:BASE+"f58925-Ciudad-Enamorada.html",img:IMG+"f58925t630p5729n2_SlKGjfbm.png"},
-  {name:"Tartosa",x:65,y:80,color:"#b06a3a",type:"Mittelmeer",url:BASE+"f51794-Tartosa.html",img:IMG+"f51794t252p3104n2_spbMdixK.png"},
+  {name:"Selvadorada",x:16,y:67,color:"#2a5a2a",type:"Dschungel",url:BASE+"f51799-Selvadorada.html",img:IMG+"f51848t204p6856n2_kZxrGtah.png"},
+  {name:"Tomarang",x:48,y:57,color:"#2a7a5a",type:"Südostasien",url:BASE+"f58300-Tomarang.html",img:IMG+"f51848t204p3081n2_oltrqfsx.png"},
+  {name:"Ciudad Enamorada",x:60,y:73,color:"#aa4a3a",type:"Latein",url:BASE+"f58925-Ciudad-Enamorada.html",img:IMG+"f51848t204p3786n2_wXzDyWOT.png"},
+  {name:"Tartosa",x:65,y:80,color:"#b06a3a",type:"Mittelmeer",url:BASE+"f51794-Tartosa.html",img:IMG+"f51848t204p3076n2_nNWxrUDc.png"},
   {name:"Ondarion",x:72,y:75,color:"#8a7a3a",type:"Königreich",url:BASE+"f51848-Orte.html",img:""},
 ];
 
@@ -585,7 +582,6 @@ const worldLots={
     {name:"Nr. 13 - Tierauffangstation",x:37,y:50,url:BASE+"t31f51785-Brindleton-Bay-Nr-Tierauffangstation.html",active:false},
     {name:"Nr. 14 - Booze & Bass",x:36,y:55,url:BASE+"t95f51785-Brindleton-Bay-Nr-Booze-amp-Bass-Fischrestaurant.html",active:false},
     {name:"Nr. 15 - Altersheim",x:25,y:55,url:BASE+"t53f51785-Brindleton-Bay-Nr-Altersheim-Shady-Pines.html",active:false},
-    // Nr. 15 Wohnkomplex
     {name:"Nr. 15A - Jim & Billie",x:52,y:50,url:BASE+"t737f51785-Brindleton-Bay-Nr-A-Wohnung-von-Jim-und-Billie.html",active:false},
     {name:"Nr. 15C - Aurelia Blutzahn",x:52,y:50,url:BASE+"t709f51785-Brindleton-Bay-Nr-C-Wohnung-von-Aurelia-Blutzahn.html",active:false},
     {name:"Nr. 15E - Marina Winter",x:52,y:50,url:BASE+"t693f51785-Brindleton-Bay-Nr-E-Wohnung-von-Marina-Winter.html",active:false},
@@ -650,21 +646,17 @@ const worldLots={
   ],
   "Britechester":[
     {name:"Campus (Strassen)",x:50,y:38,url:BASE+"t35f51790-Britechester.html",active:true,outdoor:true},
-    // Foxbury (linke Uni)
     {name:"Nr. 1",x:22,y:44,url:BASE+"f51790-Britechester.html",active:false},
     {name:"Nr. 2",x:26,y:43,url:BASE+"f51790-Britechester.html",active:false},
     {name:"Nr. 3",x:22,y:33,url:BASE+"f51790-Britechester.html",active:false},
     {name:"Nr. 4",x:29,y:31,url:BASE+"f51790-Britechester.html",active:false},
-    // Hauptinsel
     {name:"Nr. 5 - Tanzschule",x:52,y:37,url:BASE+"t27f51790-Britechester-Nr-Tanzschule.html",active:false},
     {name:"Nr. 6",x:53,y:26,url:BASE+"f51790-Britechester.html",active:false},
     {name:"Nr. 7 - Violas Hütte",x:64,y:36,url:BASE+"t659f51790-Britechester-Nr-Violas-kleine-Huette.html",active:false},
     {name:"Nr. 8",x:55,y:47,url:BASE+"f51790-Britechester.html",active:false},
     {name:"Nr. 9 - Ol' Stues Café",x:62,y:46,url:BASE+"t401f51790-Britechester-Ol-Stues-Caf-eacute.html",active:false},
-    // Foxbury rechts
     {name:"Nr. 10",x:72,y:10,url:BASE+"f51790-Britechester.html",active:false},
     {name:"Nr. 11 - Pine Hill University",x:79,y:15,url:BASE+"t235f51790-Britechester-Pine-Hill-University.html",active:false},
-    // Nr. 11 Wohnkomplex → Cluster
     {name:"Nr. 11A - Jenna & Delaila",x:75,y:19,url:BASE+"t656f51790-Britechester-Nr-A-Neue-Wohnung-von-Jenna-und-Delaila.html",active:false},
     {name:"Nr. 11C - Evas Wohnung",x:75,y:19,url:BASE+"t660f51790-Britechester-Nr-C-Evas-Wohnung-im-Wohnkomplex.html",active:false},
     {name:"Nr. 11D - Kitty, Felix, Abs",x:75,y:19,url:BASE+"t689f51790-Britechester-Nr-D-Wohnung-Kitty-Felix-Abs.html",active:true},
@@ -688,21 +680,181 @@ const worldLots={
     {name:"Nr. 9",x:64,y:25,url:BASE+"f51791-Evergreen-Harbor.html",active:false},
     {name:"Nr. 10",x:77,y:28,url:BASE+"f51791-Evergreen-Harbor.html",active:false},
     {name:"Nr. 11 - Bio Gemüseladen",x:73,y:43,url:BASE+"t25f51791-Evergreen-Harbor-Nr-Bio-Gemueseladen.html",active:false},
-    // Kieferhügel (12-13) → Gebäude-Ebene
     {name:"Nr. 12 - Jarred Cunningham",x:65,y:35,url:BASE+"t621f51791-Evergreen-Harbor-Nr-Wohnung-Jarred-Cunningham.html",active:false,building:"Kieferhügel-Apartments"},
     {name:"Nr. 13 - WG Tom & Valentin",x:65,y:35,url:BASE+"t233f51791-Evergreen-Harbor-Nr-WG-Tom-Valentin.html",active:false,building:"Kieferhügel-Apartments"},
-    // Steinweg (14-15) → Gebäude-Ebene
     {name:"Nr. 14 - Familie Engel",x:25,y:22,url:BASE+"t55f51791-Evergreen-Harbor-Nr-Familie-Engel.html",active:false,building:"Steinweg-Apartments"},
     {name:"Nr. 15",x:25,y:22,url:BASE+"f51791-Evergreen-Harbor.html",active:false,building:"Steinweg-Apartments"},
   ],
+  "Mt. Komorebi":[
+    {name:"Mt. Komorebi (Strassen)",x:50,y:38,url:BASE+"t216f51792-Mt-Komorebi.html",active:true,outdoor:true},
+    {name:"Nr. 1",x:38,y:17,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 2",x:46,y:17,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 3",x:55,y:17,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 4",x:63,y:14,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 5",x:37,y:30,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 6",x:46,y:28,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 7",x:37,y:37,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 8",x:47,y:37,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 9",x:34,y:43,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 10",x:54,y:55,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 11",x:62,y:52,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 12",x:71,y:48,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 13",x:58,y:66,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 14",x:75,y:60,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+  ],
+  "Henford-on-Bagley":[
+    {name:"Henford-on-Bagley (Dorf)",x:60,y:60,url:BASE+"t157f51793-Henford-on-Bagley.html",active:true,outdoor:true},
+    {name:"Bestattungsinstitut Peerscheid-Kalim",x:55,y:60,url:BASE+"t748f51793-Bestattungsinstitut-Peerscheid-Kalim.html",active:true},
+    {name:"Nr. 1",x:41,y:8,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+    {name:"Nr. 2",x:45,y:16,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+    {name:"Nr. 3",x:45,y:23,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+    {name:"Nr. 4",x:20,y:29,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+    {name:"Nr. 5",x:48,y:37,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+    {name:"Nr. 6",x:62,y:27,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+    {name:"Nr. 7",x:74,y:28,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+    {name:"Nr. 8",x:79,y:36,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+    {name:"Nr. 9",x:53,y:58,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+    {name:"Nr. 10",x:60,y:68,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+    {name:"Nr. 11",x:66,y:63,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+    {name:"Nr. 12",x:79,y:60,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+  ],
+  "Tartosa":[
+    {name:"Tartosa (Piazza)",x:50,y:50,url:BASE+"t252f51794-Tartosa.html",active:true,outdoor:true},
+    {name:"Nr. 1",x:46,y:12,url:BASE+"f51794-Tartosa.html",active:false},
+    {name:"Nr. 2",x:76,y:26,url:BASE+"f51794-Tartosa.html",active:false},
+    {name:"Nr. 3",x:51,y:29,url:BASE+"f51794-Tartosa.html",active:false},
+    {name:"Nr. 4",x:60,y:30,url:BASE+"f51794-Tartosa.html",active:false},
+    {name:"Nr. 5",x:19,y:47,url:BASE+"f51794-Tartosa.html",active:false},
+    {name:"Nr. 6",x:31,y:43,url:BASE+"f51794-Tartosa.html",active:false},
+    {name:"Nr. 7",x:51,y:43,url:BASE+"f51794-Tartosa.html",active:false},
+    {name:"Nr. 8",x:60,y:63,url:BASE+"f51794-Tartosa.html",active:false},
+    {name:"Nr. 9",x:47,y:68,url:BASE+"f51794-Tartosa.html",active:false},
+  ],
+  "Moonwood Mill":[
+    {name:"Moonwood Mill (Strassen)",x:58,y:42,url:BASE+"t251f51795-Moonwood-Mill.html",active:true,outdoor:true},
+    {name:"Drakes Hütte",x:44,y:30,url:BASE+"t716f51795-Moonwood-Mill-Huette-von-Dexter-und-Rose.html",active:true},
+    {name:"Nr. 1",x:56,y:17,url:BASE+"f51795-Moonwood-Mill.html",active:false},
+    {name:"Nr. 2",x:54,y:28,url:BASE+"f51795-Moonwood-Mill.html",active:false},
+    {name:"Nr. 3",x:57,y:42,url:BASE+"f51795-Moonwood-Mill.html",active:false},
+    {name:"Nr. 4",x:71,y:47,url:BASE+"f51795-Moonwood-Mill.html",active:false},
+    {name:"Nr. 5",x:58,y:57,url:BASE+"f51795-Moonwood-Mill.html",active:false},
+  ],
+  "Copperdale":[
+    {name:"Copperdale (Strassen)",x:40,y:40,url:BASE+"t221f51796-Copperdale.html",active:true,outdoor:true},
+    {name:"A - Schule",x:43,y:15,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"B - Schule",x:49,y:13,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Nr. 1",x:33,y:28,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Nr. 2",x:24,y:34,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Nr. 3",x:36,y:33,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Nr. 4",x:28,y:41,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Nr. 5",x:26,y:48,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Nr. 6",x:63,y:46,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Nr. 7",x:72,y:44,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Nr. 8",x:78,y:49,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Nr. 9",x:54,y:62,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Nr. 10",x:61,y:66,url:BASE+"f51796-Copperdale.html",active:false},
+  ],
   "San Sequoia":[
-    {name:"Hauptplatz",x:45,y:45,url:BASE+"t246f51797-San-Sequoia.html",active:true,outdoor:true},
-    {name:"Nr. 3 - Veronikas Boutique",x:35,y:30,url:BASE+"t686f51797-San-Sequoia-Nr-Veronikas-Boutique.html",active:true},
-    {name:"Haus S. Schmidt",x:60,y:35,url:BASE+"t559f51797-San-Sequoia-Haus-S-Schmidt.html",active:false},
-    {name:"Greenridge Correctional",x:75,y:55,url:BASE+"t694f51797-San-Sequoia-Greenridge-Correctional-Institution.html",active:false},
-    {name:"Familie Janko",x:55,y:65,url:BASE+"t638f51797-San-Sequoia-Doppelhaushaelfte-der-Familie-Janko.html",active:false},
-    {name:"Familie Delany",x:30,y:60,url:BASE+"t550f51797-San-Sequoia-Haus-Familie-Delany.html",active:false},
-    {name:"Old Factory Live Club",x:65,y:25,url:BASE+"t410f51797-San-Sequoia-Nr-Old-Factory-Live-Club.html",active:false},
+    {name:"San Sequoia (Strassen)",x:35,y:22,url:BASE+"t246f51797-San-Sequoia.html",active:true,outdoor:true},
+    {name:"Nr. 2",x:21,y:15,url:BASE+"f51797-San-Sequoia.html",active:false},
+    {name:"Nr. 3 - Veronikas Boutique",x:32,y:22,url:BASE+"t686f51797-San-Sequoia-Nr-Veronikas-Boutique.html",active:true},
+    {name:"Nr. 4",x:37,y:26,url:BASE+"f51797-San-Sequoia.html",active:false},
+    {name:"Nr. 5",x:70,y:8,url:BASE+"f51797-San-Sequoia.html",active:false},
+    {name:"Nr. 6 - Gilbert Gardens",x:64,y:14,url:BASE+"f51797-San-Sequoia.html",active:false,outdoor:true},
+    {name:"Nr. 7 - Old Factory Live Club",x:84,y:14,url:BASE+"t410f51797-San-Sequoia-Nr-Old-Factory-Live-Club.html",active:false},
+    {name:"Nr. 8",x:78,y:20,url:BASE+"f51797-San-Sequoia.html",active:false},
+    {name:"Nr. 9 - Familie Delany",x:43,y:53,url:BASE+"t550f51797-San-Sequoia-Haus-Familie-Delany.html",active:false},
+    {name:"Nr. 10 - Familie Janko",x:50,y:53,url:BASE+"t638f51797-San-Sequoia-Doppelhaushaelfte-der-Familie-Janko.html",active:false},
+    {name:"Nr. 10 - Haus S. Schmidt",x:50,y:53,url:BASE+"t559f51797-San-Sequoia-Haus-S-Schmidt.html",active:false},
+    {name:"Nr. 11 - Greenridge Correctional",x:64,y:58,url:BASE+"t694f51797-San-Sequoia-Greenridge-Correctional-Institution.html",active:false},
+    {name:"Nr. 12",x:50,y:67,url:BASE+"f51797-San-Sequoia.html",active:false},
+    {name:"Nr. 1",x:19,y:8,url:BASE+"f51797-San-Sequoia.html",active:false},
+  ],
+  // ── NEU: 7 Welten mit Koordinaten ──────────────────────────────────────
+  "Chestnut Ridge":[
+    {name:"Nr. 1",x:34,y:11,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 2",x:27,y:17,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 3",x:21,y:23,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 4",x:36,y:37,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 5",x:46,y:29,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 6",x:57,y:24,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 7",x:63,y:36,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 8",x:77,y:45,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 9",x:80,y:58,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 10",x:65,y:57,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 11",x:72,y:69,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 12",x:60,y:66,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 13",x:43,y:47,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+  ],
+  "Tomarang":[
+    {name:"Nr. 1",x:22,y:15,url:BASE+"f58300-Tomarang.html",active:false},
+    {name:"Nr. 2",x:35,y:13,url:BASE+"f58300-Tomarang.html",active:false},
+    {name:"Nr. 3",x:32,y:19,url:BASE+"f58300-Tomarang.html",active:false},
+    {name:"Nr. 4",x:54,y:21,url:BASE+"f58300-Tomarang.html",active:false},
+    {name:"Nr. 5",x:57,y:41,url:BASE+"f58300-Tomarang.html",active:false},
+    {name:"Nr. 6",x:46,y:49,url:BASE+"f58300-Tomarang.html",active:false},
+    {name:"Nr. 7",x:53,y:57,url:BASE+"f58300-Tomarang.html",active:false},
+    {name:"Nr. 8",x:73,y:55,url:BASE+"f58300-Tomarang.html",active:false},
+    {name:"Nr. 9",x:71,y:44,url:BASE+"f58300-Tomarang.html",active:false},
+  ],
+  "Ciudad Enamorada":[
+    {name:"Nr. 1",x:18,y:49,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 2",x:30,y:33,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 3",x:40,y:32,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 4",x:31,y:44,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 5",x:40,y:55,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 6",x:61,y:55,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 7",x:68,y:57,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 8",x:62,y:68,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 9",x:77,y:70,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 10",x:67,y:27,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 11",x:78,y:22,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+  ],
+  "Ravenwood":[
+    {name:"Nr. 1",x:12,y:14,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 2",x:20,y:16,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 3",x:27,y:12,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 4",x:36,y:10,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 5",x:56,y:23,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 6",x:72,y:25,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 7",x:66,y:30,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 8",x:46,y:30,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 9",x:43,y:37,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 10",x:36,y:44,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 11",x:38,y:52,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 12",x:51,y:43,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 13",x:62,y:46,url:BASE+"f59271-Ravenwood.html",active:false},
+  ],
+  "Nordhaven":[
+    {name:"Nr. 1",x:14,y:27,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 2",x:22,y:22,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 3",x:21,y:14,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 4",x:32,y:23,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 5",x:36,y:12,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 6",x:41,y:17,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 7",x:59,y:25,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 8",x:58,y:34,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 9",x:64,y:35,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 10",x:70,y:33,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 11",x:62,y:44,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 12",x:68,y:44,url:BASE+"f59567-Nordhaven.html",active:false},
+  ],
+  "Granite Falls":[
+    {name:"Nr. 1",x:28,y:38,url:BASE+"f51798-Granite-Falls.html",active:false},
+    {name:"Nr. 2",x:36,y:56,url:BASE+"f51798-Granite-Falls.html",active:false},
+    {name:"Nr. 3",x:48,y:57,url:BASE+"f51798-Granite-Falls.html",active:false},
+    {name:"Nr. 4",x:57,y:49,url:BASE+"f51798-Granite-Falls.html",active:false},
+    {name:"Nr. 5",x:57,y:38,url:BASE+"f51798-Granite-Falls.html",active:false},
+    {name:"Nr. 6",x:73,y:18,url:BASE+"f51798-Granite-Falls.html",active:false},
+  ],
+  "Selvadorada":[
+    {name:"Nr. 1",x:26,y:48,url:BASE+"f51799-Selvadorada.html",active:false},
+    {name:"Nr. 2",x:34,y:42,url:BASE+"f51799-Selvadorada.html",active:false},
+    {name:"Nr. 3",x:44,y:33,url:BASE+"f51799-Selvadorada.html",active:false},
+    {name:"Nr. 4",x:59,y:54,url:BASE+"f51799-Selvadorada.html",active:false},
+    {name:"Nr. 5",x:64,y:47,url:BASE+"f51799-Selvadorada.html",active:false},
+    {name:"Nr. 6",x:73,y:53,url:BASE+"f51799-Selvadorada.html",active:false},
+    {name:"Nr. 7",x:67,y:66,url:BASE+"f51799-Selvadorada.html",active:false},
   ],
 };
 
@@ -927,6 +1079,10 @@ function clearCalib(mode){if(mode==='map'){calibMapData=[];calibMapIdx=0;documen
 // ═══════════════════════════════════════════
 // LEGENDE
 // ═══════════════════════════════════════════
+function closeAtlas(){
+  localStorage.setItem('atlas_open','0');
+  window.parent.postMessage({action:'atlas-close'},'*');
+}
 function toggleLegend(btn){btn.nextElementSibling.classList.toggle('open');}
 document.addEventListener('click',e=>{document.querySelectorAll('.legend-box.open').forEach(b=>{if(!b.previousElementSibling.contains(e.target)&&!b.contains(e.target))b.classList.remove('open');});});
 
