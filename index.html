@@ -1512,172 +1512,51 @@ document.addEventListener('touchstart',e=>{
 // ═══════════════════════════════════════════
 // CHARAKTER-VIEW
 // ═══════════════════════════════════════════
-const CHAR_FORUMS={haupt:'https://www.simsforumrpg.de/f51849-Hauptcharaktere.html'};
-// Fallback-Charaktere (werden aktualisiert wenn Sheet erreichbar)
-const CHAR_FALLBACK=[
-  {name:"Sullivan 'Blaze' Blaisdell",player:"Ripzha",type:"haupt",threadUrl:"https://www.simsforumrpg.de/t78f51849-Sullivan-Blaze-Blaisdell.html",portrait:"",home:"Newcrest",job:"",age:""},
-  {name:"Artjom Komarow",player:"Ripzha",type:"haupt",threadUrl:"https://www.simsforumrpg.de/t266f51849-Artjom-Komarow.html",portrait:"",home:"Willow Creek",job:"",age:""},
-  {name:"Vaas Del Toro",player:"Ripzha",type:"haupt",threadUrl:"https://www.simsforumrpg.de/t654f51849-Vaas-Del-Toro.html",portrait:"",home:"",job:"",age:""},
-  {name:"David Janko",player:"RivaBabylon",type:"haupt",threadUrl:"https://www.simsforumrpg.de/t583f51849-David-Janko.html",portrait:"",home:"Britechester",job:"",age:""},
-  {name:"Viola Nebeljäger",player:"Murloc",type:"haupt",threadUrl:"https://www.simsforumrpg.de/t86f51849-Viola-Nebeljaeger.html",portrait:"",home:"Ravenwood",job:"",age:""},
-  {name:"Bea Greentail",player:"Murloc",type:"haupt",threadUrl:"https://www.simsforumrpg.de/t117f51849-Bea-Greentail.html",portrait:"",home:"",job:"",age:""},
-  {name:"Ellie Hawk",player:"Murloc",type:"haupt",threadUrl:"https://www.simsforumrpg.de/t87f51849-Ellie-Hawk.html",portrait:"",home:"",job:"",age:""},
-  {name:"Gerda Karlotta Simmer",player:"S.Bin.",type:"haupt",threadUrl:"https://www.simsforumrpg.de/t647f51849-Gerda-Karlotta-Simmer.html",portrait:"",home:"",job:"",age:""},
-  {name:"JackJack",player:"S.Bin.",type:"haupt",threadUrl:"https://www.simsforumrpg.de/t682f51849-Jack.html",portrait:"",home:"",job:"",age:""},
+var CHARS=[
+  {n:"Sullivan 'Blaze' Blaisdell",p:"Ripzha",u:"https://www.simsforumrpg.de/t78f51849-Sullivan-Blaze-Blaisdell.html",h:"Newcrest"},
+  {n:"Artjom Komarow",p:"Ripzha",u:"https://www.simsforumrpg.de/t266f51849-Artjom-Komarow.html",h:"Willow Creek"},
+  {n:"Vaas Del Toro",p:"Ripzha",u:"https://www.simsforumrpg.de/t654f51849-Vaas-Del-Toro.html",h:""},
+  {n:"David Janko",p:"RivaBabylon",u:"https://www.simsforumrpg.de/t583f51849-David-Janko.html",h:"Britechester"},
+  {n:"Viola Nebeljaeger",p:"Murloc",u:"https://www.simsforumrpg.de/t86f51849-Viola-Nebeljaeger.html",h:"Ravenwood"},
+  {n:"Bea Greentail",p:"Murloc",u:"https://www.simsforumrpg.de/t117f51849-Bea-Greentail.html",h:""},
+  {n:"Ellie Hawk",p:"Murloc",u:"https://www.simsforumrpg.de/t87f51849-Ellie-Hawk.html",h:""},
+  {n:"Gerda Karlotta Simmer",p:"S.Bin.",u:"https://www.simsforumrpg.de/t647f51849-Gerda-Karlotta-Simmer.html",h:""},
+  {n:"JackJack",p:"S.Bin.",u:"https://www.simsforumrpg.de/t682f51849-Jack.html",h:""}
 ];
-const CHAR_SHEET_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vRRllRkwaCacdM0WZZT0cVQflhxJ9Fw5mgId-v615_kE2GdKdbwHMUYCG03HC8gUXfg7lucTs1Mqhg1/pub?output=csv';
-let charData=null,charFilter='alle',charCacheTs=0;
-const CHAR_TTL=30*60*1000;
 
 function openCharView(){
-  document.getElementById('char-container').classList.add('open');
-  // Show fallback immediately
-  if(!charData){
-    charData=CHAR_FALLBACK.map(c=>({...c}));
-    buildCharFilters(charData);
-    renderCharGrid();
-    document.getElementById('char-subtitle').textContent='Basis-Daten · versuche Sheet zu laden…';
-  } else {
-    renderCharGrid();
-  }
-  // Try to load fresh data from sheet in background
-  fetchCharSheet();
+  var el=document.getElementById('char-container');
+  if(el)el.classList.add('open');
+  charRender(CHARS);
 }
 
-async function fetchCharSheet(){
-  try{
-    const r=await fetch(CHAR_SHEET_CSV+'&t='+Date.now());
-    if(!r.ok)return;
-    const csv=await r.text();
-    if(!csv||csv.trim().length<10)return;
-    const fresh=parseCharCSV(csv);
-    if(fresh.length>0){
-      charData=fresh;
-      charCacheTs=Date.now();
-      buildCharFilters(charData);
-      renderCharGrid();
-      document.getElementById('char-subtitle').textContent=charData.length+' Charaktere (Sheet)';
-    }
-  }catch(e){/* silent fail, fallback already showing */}
+function closeCharView(){
+  var el=document.getElementById('char-container');
+  if(el)el.classList.remove('open');
 }
-function closeCharView(){document.getElementById('char-container').classList.remove('open');}
 
-async function loadCharacters(force=false){
-  if(charData&&!force&&Date.now()-charCacheTs<CHAR_TTL){renderCharGrid();return;}
-  const grid=document.getElementById('char-grid');
-  const sub=document.getElementById('char-subtitle');
-  if(!grid||!sub){console.error('ATLAS: char elements not found');return;}
-  sub.textContent='Lade...';
-  grid.innerHTML='<div style="color:rgba(255,255,255,0.4);font-size:13px;padding:40px;grid-column:1/-1;text-align:center">⏳ Lade Charaktere...</div>';
-
-  // Try fetch with 8s timeout
-  let csv=null;
-  try{
-    const ctrl=new AbortController();
-    const t=setTimeout(()=>ctrl.abort(),8000);
-    const r=await fetch(CHAR_SHEET_CSV+'&t='+Date.now(),{signal:ctrl.signal});
-    clearTimeout(t);
-    if(r.ok)csv=await r.text();
-  }catch(e){
-    console.warn('ATLAS fetch failed:',e.message);
-  }
-
-  // If fetch failed, show fallback with forum link
-  if(!csv||csv.trim().length<10){
-    sub.textContent='Sheet nicht erreichbar';
-    grid.innerHTML=`<div style="color:rgba(255,200,100,0.7);font-size:13px;padding:40px;grid-column:1/-1;text-align:center">
-      ⚠️ Google Sheet konnte nicht geladen werden.<br><br>
-      <a href="https://www.simsforumrpg.de/f51849-Hauptcharaktere.html" target="_blank"
-         style="color:#4aaa6a;font-size:14px;font-weight:600">→ Charaktere im Forum anzeigen</a>
-      <br><br>
-      <button onclick="loadCharacters(true)"
-        style="padding:7px 16px;background:#1a2a1a;border:0.5px solid #4aaa6a;border-radius:6px;color:#4aaa6a;cursor:pointer;font-size:12px">
-        ↺ Nochmal versuchen
-      </button>
-    </div>`;
-    return;
-  }
-
-  // Parse and render
-  try{
-    charData=parseCharCSV(csv);
-    charCacheTs=Date.now();
-    if(charData.length===0){
-      sub.textContent='Sheet leer';
-      grid.innerHTML='<div style="color:rgba(255,200,100,0.7);font-size:12px;padding:40px;grid-column:1/-1;text-align:center">⚠️ Keine Charaktere im Sheet gefunden.<br><span style="font-size:10px;color:rgba(255,255,255,0.3)">Bitte karaktere_sheet.csv importieren.</span></div>';
-      return;
-    }
-    sub.textContent=charData.length+' Charaktere';
-    buildCharFilters(charData);
-    renderCharGrid();
-  }catch(e){
-    sub.textContent='Parse-Fehler';
-    grid.innerHTML=`<div style="color:rgba(255,100,100,0.7);font-size:12px;padding:40px;grid-column:1/-1;text-align:center">❌ Parse-Fehler: ${e.message}</div>`;
+function charRender(list){
+  var grid=document.getElementById('char-grid');
+  var sub=document.getElementById('char-subtitle');
+  if(!grid||!sub)return;
+  sub.textContent=list.length+' Charaktere';
+  var html='';
+  for(var i=0;i<list.length;i++){
+    var c=list[i];
+    var card=document.createElement('div');
+    card.className='char-card';
+    card.setAttribute('data-url',c.u);
+    card.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
+    card.innerHTML='<div class="char-portrait-wrap"><div class="char-portrait-ph">&#128100;</div></div>'
+      +'<div class="char-info">'
+      +'<div class="char-name">'+c.n+'</div>'
+      +'<div class="char-player">von '+c.p+'</div>'
+      +(c.h?'<div class="char-location">'+c.h+'</div>':'')
+      +'</div>';
+    grid.appendChild(card);
   }
 }
 
-function parseCharCSV(csv){
-  const lines=csv.trim().split('\n');
-  if(lines.length<2)return[];
-  const headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
-  return lines.slice(1).map(line=>{
-    // Handle quoted CSV fields
-    const fields=[];let cur='',inQ=false;
-    for(let i=0;i<line.length;i++){
-      const c=line[i];
-      if(c==='"'){inQ=!inQ;}
-      else if(c===','&&!inQ){fields.push(cur.trim());cur='';}
-      else cur+=c;
-    }
-    fields.push(cur.trim());
-    const obj={};
-    headers.forEach((h,i)=>obj[h]=fields[i]||'');
-    return{
-      name:obj.name||obj.Name||'',
-      player:obj.player||obj.Spieler||'',
-      type:obj.type||obj.Typ||'haupt',
-      threadUrl:obj.threadUrl||obj['Thread-URL']||'',
-      portrait:obj.portraitUrl||obj.Portrait||'',
-      home:obj.home||obj.Wohnort||'',
-      job:obj.job||obj.Beruf||'',
-      age:obj.age||obj.Alter||'',
-      lastActivity:obj.lastActivity||obj.Timestamp||''
-    };
-  }).filter(c=>c.name);
-}
-
-function buildCharFilters(list){
-  const players=['alle',...new Set(list.map(c=>c.player))].filter(Boolean);
-  const bar=document.getElementById('char-filters');
-  bar.innerHTML=players.map(p=>`<button class="char-filter${p===charFilter?' active':''}" onclick="setCharFilter('${p}')">${p==='alle'?'Alle':p}</button>`).join('');
-}
-
-function setCharFilter(p){
-  charFilter=p;
-  document.querySelectorAll('.char-filter').forEach(b=>b.classList.toggle('active',b.textContent===(p==='alle'?'Alle':p)));
-  renderCharGrid();
-}
-
-function renderCharGrid(){
-  if(!charData)return;
-  const list=charFilter==='alle'?charData:charData.filter(c=>c.player===charFilter);
-  const grid=document.getElementById('char-grid');
-  if(!list.length){grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:12px;padding:30px;grid-column:1/-1;text-align:center">Keine Charaktere gefunden.</div>';return;}
-  grid.innerHTML=list.map(c=>`
-    <div class="char-card" onclick="window.open('${c.threadUrl}','_blank')">
-      <div class="char-portrait-wrap">
-        ${c.portrait
-          ?`<img class="char-portrait" src="${c.portrait}" alt="${c.name}" onerror="this.parentElement.innerHTML='<div class=\\'char-portrait-ph\\'>👤</div>'">`
-          :`<div class="char-portrait-ph">👤</div>`}
-      </div>
-      <div class="char-info">
-        <div class="char-name">${c.name}</div>
-        <div class="char-player">von ${c.player||'—'}${c.type&&c.type!=='haupt'?' · '+c.type:''}</div>
-        ${c.home?`<div class="char-location">${c.home}</div>`:''}
-        ${c.age||c.job?`<div class="char-activity">${[c.age&&c.age+' J.',c.job].filter(Boolean).join(' · ')}</div>`:''}
-      </div>
-    </div>`).join('');
-}
 
 document.querySelectorAll('.sheet').forEach(sheet=>{
 let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive:true});sheet.addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-sy>60)closeSheet();},{passive:true});});
