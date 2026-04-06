@@ -97,8 +97,8 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .building-dot .cluster-inner{background:rgba(100,160,255,0.2)!important;border-color:rgba(100,160,255,0.6)!important}
 .calib-btn{position:absolute;background:rgba(255,200,0,0.15);border:0.5px solid rgba(255,200,0,0.4);border-radius:5px;padding:4px 9px;font-size:10px;color:#ffcc44;cursor:pointer;z-index:20}
 #calib-map-btn{bottom:12px;right:12px}
-#calib-world-btn{right:12px;bottom:75px}
-.calib-panel{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.96);border:1px solid rgba(255,200,0,0.4);border-radius:8px;padding:11px 13px;z-index:50;font-size:11px;width:230px;display:none}
+#calib-world-btn{left:12px;bottom:75px}
+.calib-panel{position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,0.96);border:1px solid rgba(255,200,0,0.4);border-radius:8px;padding:11px 13px;z-index:50;font-size:11px;width:230px;display:none}
 .calib-panel h4{font-size:11px;color:#ffcc44;margin-bottom:5px;font-weight:500}
 .calib-info{font-size:10px;color:#999;line-height:1.5}
 .calib-next-line{margin-top:8px;font-size:11px;color:#ffcc44}
@@ -153,7 +153,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
   #world-lots-bar::-webkit-scrollbar{display:none}
   #map-legend{bottom:calc(60px + env(safe-area-inset-bottom))}
   #calib-map-btn{bottom:calc(60px + env(safe-area-inset-bottom))}
-  #calib-world-btn{bottom:calc(118px + env(safe-area-inset-bottom))}
+  #calib-world-btn{left:8px;bottom:calc(118px + env(safe-area-inset-bottom))}
   .calib-panel{top:auto;bottom:calc(50px + env(safe-area-inset-bottom) + 34px);right:8px;left:8px;width:auto}
   .hover-card{display:none!important}
   #admin-panel{width:100vw}
@@ -758,20 +758,20 @@ const worldLots={
     {name:"Nr. 10",x:61,y:66,url:BASE+"f51796-Copperdale.html",active:false},
   ],
   "San Sequoia":[
-    {name:"San Sequoia (Strassen)",x:35,y:22,url:BASE+"t246f51797-San-Sequoia.html",active:true,outdoor:true},
-    {name:"Nr. 2",x:21,y:15,url:BASE+"f51797-San-Sequoia.html",active:false},
-    {name:"Nr. 3 - Veronikas Boutique",x:32,y:22,url:BASE+"t686f51797-San-Sequoia-Nr-Veronikas-Boutique.html",active:true},
-    {name:"Nr. 4",x:37,y:26,url:BASE+"f51797-San-Sequoia.html",active:false},
-    {name:"Nr. 5",x:70,y:8,url:BASE+"f51797-San-Sequoia.html",active:false},
-    {name:"Nr. 6 - Gilbert Gardens",x:64,y:14,url:BASE+"f51797-San-Sequoia.html",active:false,outdoor:true},
-    {name:"Nr. 7 - Old Factory Live Club",x:84,y:14,url:BASE+"t410f51797-San-Sequoia-Nr-Old-Factory-Live-Club.html",active:false},
-    {name:"Nr. 8",x:78,y:20,url:BASE+"f51797-San-Sequoia.html",active:false},
-    {name:"Nr. 9 - Familie Delany",x:43,y:53,url:BASE+"t550f51797-San-Sequoia-Haus-Familie-Delany.html",active:false},
-    {name:"Nr. 10 - Familie Janko",x:50,y:53,url:BASE+"t638f51797-San-Sequoia-Doppelhaushaelfte-der-Familie-Janko.html",active:false},
-    {name:"Nr. 10 - Haus S. Schmidt",x:50,y:53,url:BASE+"t559f51797-San-Sequoia-Haus-S-Schmidt.html",active:false},
-    {name:"Nr. 11 - Greenridge Correctional",x:64,y:58,url:BASE+"t694f51797-San-Sequoia-Greenridge-Correctional-Institution.html",active:false},
-    {name:"Nr. 12",x:50,y:67,url:BASE+"f51797-San-Sequoia.html",active:false},
-    {name:"Nr. 1",x:19,y:8,url:BASE+"f51797-San-Sequoia.html",active:false},
+    {name:"San Sequoia (Strassen)",x:47.5,y:41.9,url:BASE+"t246f51797-San-Sequoia.html",active:true,outdoor:true},
+    {name:"Nr. 2",x:16.2,y:22.9,url:BASE+"f51797-San-Sequoia.html",active:false},
+    {name:"Nr. 3 - Veronikas Boutique",x:28.8,y:28.4,url:BASE+"t686f51797-San-Sequoia-Nr-Veronikas-Boutique.html",active:true},
+    {name:"Nr. 4",x:36.4,y:34.1,url:BASE+"f51797-San-Sequoia.html",active:false},
+    {name:"Nr. 5",x:72.5,y:8.6,url:BASE+"f51797-San-Sequoia.html",active:false},
+    {name:"Nr. 6 - Gilbert Gardens",x:68.5,y:27.5,url:BASE+"f51797-San-Sequoia.html",active:false,outdoor:true},
+    {name:"Nr. 7 - Old Factory Live Club",x:82.9,y:13.4,url:BASE+"t410f51797-San-Sequoia-Nr-Old-Factory-Live-Club.html",active:false},
+    {name:"Nr. 8",x:82.5,y:32.5,url:BASE+"f51797-San-Sequoia.html",active:false},
+    {name:"Nr. 9 - Familie Delany",x:41.4,y:68.1,url:BASE+"t550f51797-San-Sequoia-Haus-Familie-Delany.html",active:false},
+    {name:"Nr. 10 - Familie Janko",x:50.2,y:70,url:BASE+"t638f51797-San-Sequoia-Doppelhaushaelfte-der-Familie-Janko.html",active:false},
+    {name:"Nr. 10 - Haus S. Schmidt",x:50,y:70.3,url:BASE+"t559f51797-San-Sequoia-Haus-S-Schmidt.html",active:false},
+    {name:"Nr. 11 - Greenridge Correctional",x:66.2,y:76.1,url:BASE+"t694f51797-San-Sequoia-Greenridge-Correctional-Institution.html",active:false},
+    {name:"Nr. 12",x:58.1,y:90.1,url:BASE+"f51797-San-Sequoia.html",active:false},
+    {name:"Nr. 1",x:15.1,y:12.4,url:BASE+"f51797-San-Sequoia.html",active:false},
   ],
   // ── NEU: 7 Welten mit Koordinaten ──────────────────────────────────────
   "Chestnut Ridge":[
@@ -829,18 +829,18 @@ const worldLots={
     {name:"Nr. 13",x:62,y:46,url:BASE+"f59271-Ravenwood.html",active:false},
   ],
   "Nordhaven":[
-    {name:"Nr. 1",x:14,y:27,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 2",x:22,y:22,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 3",x:21,y:14,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 4",x:32,y:23,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 5",x:36,y:12,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 6",x:41,y:17,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 7",x:59,y:25,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 8",x:58,y:34,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 9",x:64,y:35,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 10",x:70,y:33,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 11",x:62,y:44,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 12",x:68,y:44,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 1",x:17.5,y:46,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 2",x:24.6,y:38.3,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 3",x:23.2,y:26.7,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 4",x:33.9,y:43.8,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 5",x:37.9,y:21.6,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 6",x:42.7,y:32.7,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 7",x:71.1,y:43.3,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 8",x:65.8,y:56.1,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 9",x:73.7,y:60.2,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 10",x:81.5,y:56.1,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 11",x:69.5,y:71.6,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 12",x:79.1,y:72.6,url:BASE+"f59567-Nordhaven.html",active:false},
   ],
   "Granite Falls":[
     {name:"Nr. 1",x:28,y:38,url:BASE+"f51798-Granite-Falls.html",active:false},
