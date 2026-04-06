@@ -188,6 +188,33 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
   #mobile-dot-btn{background:#2a5a3a;color:#fff;border:none;border-radius:7px;padding:8px 14px;font-size:12px;font-weight:500;cursor:pointer;flex-shrink:0}
 }
 @keyframes pulse{0%{transform:translate(-50%,-50%) scale(1);opacity:.5}50%{transform:translate(-50%,-50%) scale(2.2);opacity:.1}100%{transform:translate(-50%,-50%) scale(1);opacity:.5}}
+/* ── CHARACTER VIEW ── */
+#char-container{position:fixed;inset:0;z-index:300;background:#050d18;display:none;flex-direction:column;overflow:hidden}
+#char-container.open{display:flex}
+#char-header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:0.5px solid rgba(255,255,255,0.08);flex-shrink:0;flex-wrap:wrap}
+#char-title{font-size:16px;font-weight:600;color:#fff}
+#char-subtitle{font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px}
+#char-filters{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.char-filter{padding:4px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:0.5px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);background:transparent;transition:all 0.15s}
+.char-filter.active{background:rgba(100,180,120,0.2);border-color:#4aaa6a;color:#4aaa6a}
+#char-reload{background:transparent;border:0.5px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:14px}
+#char-reload:hover{color:#fff;border-color:rgba(255,255,255,0.4)}
+#char-close{background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:18px;cursor:pointer;padding:4px 8px;line-height:1}
+#char-close:hover{color:#fff}
+#char-grid{flex:1;overflow-y:auto;padding:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;align-content:start}
+.char-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative}
+.char-card:hover{background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.18);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+.char-portrait-wrap{width:100%;aspect-ratio:3/4;overflow:hidden;background:#0a1520}
+.char-portrait{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
+.char-portrait-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px;color:rgba(255,255,255,0.08)}
+.char-info{padding:10px 12px}
+.char-name{font-size:12px;font-weight:600;color:#fff;margin-bottom:3px;line-height:1.3}
+.char-player{font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:5px}
+.char-location{font-size:10px;color:#4aaa6a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.char-activity{font-size:9px;color:rgba(255,255,255,0.22);margin-top:4px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.char-skel{background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:3px;height:11px}
+@media(max-width:600px){#char-grid{grid-template-columns:repeat(2,1fr);gap:10px;padding:12px}}
 </style>
 </head>
 <body>
@@ -216,8 +243,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
   <div id="left">
     <div class="sec-label">Navigation</div>
     <a class="nav-item" href="https://www.simsforumrpg.de/forum.php" target="_blank">📋 Forum</a>
-    <a class="nav-item" href="https://www.simsforumrpg.de/f51849-Hauptcharaktere.html" target="_blank">👤 Hauptcharaktere</a>
-    <a class="nav-item" href="https://www.simsforumrpg.de/f51850-Nebencharaktere.html" target="_blank">👥 Nebencharaktere</a>
+    <a class="nav-item" onclick="openCharView()" style="cursor:pointer">👤 Hauptcharaktere</a>    <a class="nav-item" href="https://www.simsforumrpg.de/f51850-Nebencharaktere.html" target="_blank">👥 Nebencharaktere</a>
     <a class="nav-item" href="https://www.simsforumrpg.de/f58642-Kreationen-und-Geschichten.html" target="_blank">🎨 Kreativ-Ecke</a>
     <a class="nav-item" href="https://www.simsforumrpg.de/f15070-Forenspiele.html" target="_blank">🎲 Forenspiele</a>
     <a class="nav-item" href="https://www.simsforumrpg.de/blog-c1386-Simstagram.html" target="_blank">📸 Simstagram</a>
@@ -384,6 +410,18 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
   <button class="mob-btn" onclick="openSheet('info')"><span class="mob-icon">📊</span><span>Stats</span></button>
   <button class="mob-btn" onclick="window.open('https://discord.gg/FGB8Mfj','_blank')"><span class="mob-icon">💬</span><span>Discord</span></button>
 </div>
+    <div id="char-container">
+      <div id="char-header">
+        <div>
+          <div id="char-title">👤 Hauptcharaktere</div>
+          <div id="char-subtitle"></div>
+        </div>
+        <div id="char-filters"></div>
+        <button id="char-reload" onclick="loadCharacters(true)" title="Aktualisieren">↺</button>
+        <button id="char-close" onclick="closeCharView()">✕</button>
+      </div>
+      <div id="char-grid"></div>
+    </div>
 <div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
     <div id="mobile-dot-bar">
       <div id="mobile-dot-info">
@@ -395,7 +433,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 <div class="sheet" id="sheet-nav">
   <div class="sheet-handle"></div><div class="sheet-title">Navigation</div>
   <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/forum.php" target="_blank">📋 Forum</a>
-  <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/f51849-Hauptcharaktere.html" target="_blank">👤 Hauptcharaktere</a>
+  <a class="nav-item" style="margin-bottom:6px;cursor:pointer" onclick="openCharView();closeSheet()">👤 Hauptcharaktere</a>
   <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/f51850-Nebencharaktere.html" target="_blank">👥 Nebencharaktere</a>
   <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/page-simsweltnews.html" target="_blank">📰 SimsWelt News</a>
   <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/gallery.php" target="_blank">🖼️ Bildergalerie</a>
@@ -1471,7 +1509,110 @@ document.addEventListener('touchstart',e=>{
   else{hideMobileDotBar();}
 },{passive:true});
 
-document.querySelectorAll('.sheet').forEach(sheet=>{let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive:true});sheet.addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-sy>60)closeSheet();},{passive:true});});
+// ═══════════════════════════════════════════
+// CHARAKTER-VIEW
+// ═══════════════════════════════════════════
+const CHAR_FORUMS={haupt:'https://www.simsforumrpg.de/f51849-Hauptcharaktere.html'};
+const CHAR_SHEET_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vRRllRkwaCacdM0WZZT0cVQflhxJ9Fw5mgId-v615_kE2GdKdbwHMUYCG03HC8gUXfg7lucTs1Mqhg1/pub?output=csv';
+let charData=null,charFilter='alle',charCacheTs=0;
+const CHAR_TTL=30*60*1000;
+
+function openCharView(){
+  document.getElementById('char-container').classList.add('open');
+  if(!charData||Date.now()-charCacheTs>CHAR_TTL)loadCharacters();
+  else renderCharGrid();
+}
+function closeCharView(){document.getElementById('char-container').classList.remove('open');}
+
+async function loadCharacters(force=false){
+  if(charData&&!force&&Date.now()-charCacheTs<CHAR_TTL){renderCharGrid();return;}
+  const grid=document.getElementById('char-grid');
+  const sub=document.getElementById('char-subtitle');
+  sub.textContent='Lade...';
+  grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:12px;padding:30px;grid-column:1/-1;text-align:center">⏳ Lade Charaktere...</div>';
+  try{
+    const r=await fetch(CHAR_SHEET_CSV+'&t='+Date.now());
+    const csv=await r.text();
+    charData=parseCharCSV(csv);
+    charCacheTs=Date.now();
+    sub.textContent=charData.length+' Charaktere · '+new Date().toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+    buildCharFilters(charData);
+    renderCharGrid();
+  }catch(e){
+    grid.innerHTML=`<div style="color:rgba(255,100,100,0.7);font-size:12px;padding:30px;grid-column:1/-1;text-align:center">
+      Keine Verbindung zum Sheet.<br><br>
+      <a href="https://www.simsforumrpg.de/f51849-Hauptcharaktere.html" target="_blank" style="color:#4aaa6a">→ Direkt im Forum öffnen</a>
+      <br><br><button onclick="loadCharacters(true)" style="margin-top:4px;padding:5px 12px;background:#2a3a2a;border:0.5px solid #4aaa6a;border-radius:5px;color:#4aaa6a;cursor:pointer;font-size:11px">Nochmal versuchen</button>
+    </div>`;
+    sub.textContent='Fehler';
+  }
+}
+
+function parseCharCSV(csv){
+  const lines=csv.trim().split('\n');
+  if(lines.length<2)return[];
+  const headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
+  return lines.slice(1).map(line=>{
+    // Handle quoted CSV fields
+    const fields=[];let cur='',inQ=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='"'){inQ=!inQ;}
+      else if(c===','&&!inQ){fields.push(cur.trim());cur='';}
+      else cur+=c;
+    }
+    fields.push(cur.trim());
+    const obj={};
+    headers.forEach((h,i)=>obj[h]=fields[i]||'');
+    return{
+      name:obj.name||obj.Name||'',
+      player:obj.player||obj.Spieler||'',
+      type:obj.type||obj.Typ||'haupt',
+      threadUrl:obj.threadUrl||obj['Thread-URL']||'',
+      portrait:obj.portraitUrl||obj.Portrait||'',
+      home:obj.home||obj.Wohnort||'',
+      job:obj.job||obj.Beruf||'',
+      age:obj.age||obj.Alter||'',
+      lastActivity:obj.lastActivity||obj.Timestamp||''
+    };
+  }).filter(c=>c.name);
+}
+
+function buildCharFilters(list){
+  const players=['alle',...new Set(list.map(c=>c.player))].filter(Boolean);
+  const bar=document.getElementById('char-filters');
+  bar.innerHTML=players.map(p=>`<button class="char-filter${p===charFilter?' active':''}" onclick="setCharFilter('${p}')">${p==='alle'?'Alle':p}</button>`).join('');
+}
+
+function setCharFilter(p){
+  charFilter=p;
+  document.querySelectorAll('.char-filter').forEach(b=>b.classList.toggle('active',b.textContent===(p==='alle'?'Alle':p)));
+  renderCharGrid();
+}
+
+function renderCharGrid(){
+  if(!charData)return;
+  const list=charFilter==='alle'?charData:charData.filter(c=>c.player===charFilter);
+  const grid=document.getElementById('char-grid');
+  if(!list.length){grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:12px;padding:30px;grid-column:1/-1;text-align:center">Keine Charaktere gefunden.</div>';return;}
+  grid.innerHTML=list.map(c=>`
+    <div class="char-card" onclick="window.open('${c.threadUrl}','_blank')">
+      <div class="char-portrait-wrap">
+        ${c.portrait
+          ?`<img class="char-portrait" src="${c.portrait}" alt="${c.name}" onerror="this.parentElement.innerHTML='<div class=\\'char-portrait-ph\\'>👤</div>'">`
+          :`<div class="char-portrait-ph">👤</div>`}
+      </div>
+      <div class="char-info">
+        <div class="char-name">${c.name}</div>
+        <div class="char-player">von ${c.player||'—'}${c.type&&c.type!=='haupt'?' · '+c.type:''}</div>
+        ${c.home?`<div class="char-location">${c.home}</div>`:''}
+        ${c.age||c.job?`<div class="char-activity">${[c.age&&c.age+' J.',c.job].filter(Boolean).join(' · ')}</div>`:''}
+      </div>
+    </div>`).join('');
+}
+
+document.querySelectorAll('.sheet').forEach(sheet=>{
+let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive:true});sheet.addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-sy>60)closeSheet();},{passive:true});});
 </script>
 </body>
 </html>
