@@ -1529,22 +1529,39 @@ async function loadCharacters(force=false){
   const grid=document.getElementById('char-grid');
   const sub=document.getElementById('char-subtitle');
   sub.textContent='Lade...';
-  grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:12px;padding:30px;grid-column:1/-1;text-align:center">⏳ Lade Charaktere...</div>';
+  grid.innerHTML='<div style="color:rgba(255,255,255,0.4);font-size:13px;padding:40px;grid-column:1/-1;text-align:center">⏳ Lade Charaktere...</div>';
   try{
-    const r=await fetch(CHAR_SHEET_CSV+'&t='+Date.now());
+    const url=CHAR_SHEET_CSV+'&t='+Date.now();
+    const r=await fetch(url);
+    if(!r.ok)throw new Error('HTTP '+r.status);
     const csv=await r.text();
+    if(!csv||csv.trim().length<10)throw new Error('Sheet ist leer oder nicht erreichbar');
     charData=parseCharCSV(csv);
     charCacheTs=Date.now();
+    if(charData.length===0){
+      sub.textContent='Sheet geladen aber keine Charaktere gefunden';
+      grid.innerHTML=`<div style="color:rgba(255,200,100,0.7);font-size:12px;padding:40px;grid-column:1/-1;text-align:center">
+        ⚠️ Das Sheet ist erreichbar aber enthält keine Charaktere.<br><br>
+        <span style="color:rgba(255,255,255,0.4);font-size:11px">Bitte importiere die karaktere_sheet.csv ins Sheet<br>oder füge Charaktere manuell ein.</span>
+      </div>`;
+      return;
+    }
     sub.textContent=charData.length+' Charaktere · '+new Date().toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
     buildCharFilters(charData);
     renderCharGrid();
   }catch(e){
-    grid.innerHTML=`<div style="color:rgba(255,100,100,0.7);font-size:12px;padding:30px;grid-column:1/-1;text-align:center">
-      Keine Verbindung zum Sheet.<br><br>
-      <a href="https://www.simsforumrpg.de/f51849-Hauptcharaktere.html" target="_blank" style="color:#4aaa6a">→ Direkt im Forum öffnen</a>
-      <br><br><button onclick="loadCharacters(true)" style="margin-top:4px;padding:5px 12px;background:#2a3a2a;border:0.5px solid #4aaa6a;border-radius:5px;color:#4aaa6a;cursor:pointer;font-size:11px">Nochmal versuchen</button>
-    </div>`;
     sub.textContent='Fehler';
+    grid.innerHTML=`<div style="color:rgba(255,100,100,0.7);font-size:12px;padding:40px;grid-column:1/-1;text-align:center">
+      ❌ ${e.message}<br><br>
+      <span style="color:rgba(255,255,255,0.3);font-size:10px">Sheet-URL konfiguriert: ${CHAR_SHEET_CSV?'✓':'✗'}</span><br><br>
+      <a href="https://www.simsforumrpg.de/f51849-Hauptcharaktere.html" target="_blank" 
+         style="color:#4aaa6a;font-size:11px">→ Direkt im Forum öffnen</a>
+      &nbsp;&nbsp;
+      <button onclick="loadCharacters(true)" 
+              style="margin-left:8px;padding:5px 12px;background:#1a2a1a;border:0.5px solid #4aaa6a;border-radius:5px;color:#4aaa6a;cursor:pointer;font-size:11px">
+        ↺ Nochmal
+      </button>
+    </div>`;
   }
 }
 
