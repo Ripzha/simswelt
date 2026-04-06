@@ -43,7 +43,13 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 #world-image-area{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(100%,100vh * 1920/1200);height:min(100%,100vw * 1200/1920);aspect-ratio:1920/1200;overflow:hidden}
 #map-image-area{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);overflow:hidden}
 #world-bg,#world-container,#map-container{background:#040d14}
-@media(max-width:768px){.lot-label{display:none}.lot-dot.tapped .lot-label,.cluster-dot.tapped .cluster-label{display:block}}
+@media(max-width:768px){
+  .lot-label,.dot-label,.cluster-label{display:none}
+  .zoom-labels .lot-label,.zoom-labels .dot-label,.zoom-labels .cluster-label{display:block}
+  .world-dot .dot-pulse{width:18px!important;height:18px!important}
+  .world-dot .dot-inner{width:6px!important;height:6px!important}
+  .hover-card{display:none!important}
+}
 .vignette{position:absolute;inset:0;background:radial-gradient(ellipse at 55% 50%,transparent 35%,rgba(0,0,0,0.55) 100%);pointer-events:none}
 #map-legend{position:absolute;bottom:14px;left:12px;background:rgba(0,0,0,0.55);border:0.5px solid rgba(255,255,255,0.07);border-radius:6px;padding:5px 10px;font-size:10px;color:rgba(255,255,255,0.35);pointer-events:none;z-index:5}
 #world-header{position:absolute;top:0;left:0;right:0;padding:10px 14px;background:linear-gradient(rgba(0,0,0,0.7),transparent);z-index:5;pointer-events:none}
@@ -168,7 +174,15 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
   .hover-card{display:none!important}
   #admin-panel{width:100vw}
 }
-@media(min-width:769px){#mob-bar,.sheet-overlay,.sheet{display:none!important}}
+@media(min-width:769px){#mob-bar,.sheet-overlay,.sheet,#mobile-dot-bar{display:none!important}}
+@media(max-width:768px){
+  #mobile-dot-bar{position:fixed;bottom:0;left:0;right:0;z-index:900;background:rgba(5,15,28,0.97);border-top:0.5px solid rgba(255,255,255,0.12);padding:10px 16px 16px;display:none;align-items:center;gap:10px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+  #mobile-dot-bar.visible{display:flex}
+  #mobile-dot-info{flex:1;min-width:0}
+  #mobile-dot-nr{font-size:11px;font-weight:600;color:#fff;line-height:1.3}
+  #mobile-dot-name{font-size:10px;color:rgba(255,255,255,0.5);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #mobile-dot-btn{background:#2a5a3a;color:#fff;border:none;border-radius:7px;padding:8px 14px;font-size:12px;font-weight:500;cursor:pointer;flex-shrink:0}
+}
 @keyframes pulse{0%{transform:translate(-50%,-50%) scale(1);opacity:.5}50%{transform:translate(-50%,-50%) scale(2.2);opacity:.1}100%{transform:translate(-50%,-50%) scale(1);opacity:.5}}
 </style>
 </head>
@@ -363,6 +377,13 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
   <button class="mob-btn" onclick="window.open('https://discord.gg/FGB8Mfj','_blank')"><span class="mob-icon">💬</span><span>Discord</span></button>
 </div>
 <div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
+    <div id="mobile-dot-bar">
+      <div id="mobile-dot-info">
+        <div id="mobile-dot-nr"></div>
+        <div id="mobile-dot-name"></div>
+      </div>
+      <button id="mobile-dot-btn" onclick="mobileDotOpen()">↗ Öffnen</button>
+    </div>
 <div class="sheet" id="sheet-nav">
   <div class="sheet-handle"></div><div class="sheet-title">Navigation</div>
   <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/forum.php" target="_blank">📋 Forum</a>
@@ -1116,7 +1137,16 @@ function renderLots(w){
         ?`<div class="lot-tooltip" style="${_tb};padding:0;overflow:hidden;min-width:160px"><img src="${lot.img}" style="width:100%;height:90px;object-fit:cover;display:block"><div style="padding:7px 10px">${_ti}</div></div>`
         :`<div class="lot-tooltip" style="${_tb};padding:6px 10px">${_ti}</div>`;
       ld.innerHTML=`<div class="lot-pulse"></div><div class="lot-inner" style="width:12px;height:12px;background:${_dotBg};box-shadow:${_dotShadow}"></div><div class="lot-label">${(()=>{const p=parseLotLabel(lot);return p.sub?`${p.num}<span class="lot-sublabel">${p.sub}</span>`:p.num;})()}</div>${_tt}`;
-      ld.addEventListener('click',e=>{e.stopPropagation();if(!calibWorldMode&&!posMode)window.open(lot.url,'_blank');});
+      ld.addEventListener('click',e=>{
+        e.stopPropagation();
+        if(calibWorldMode||posMode)return;
+        if(window.matchMedia('(max-width:768px)').matches){
+          const lbl=parseLotLabel(lot);
+          showMobileDotBar(lbl.num,lbl.sub||lbl.num,lot.url);
+        } else {
+          window.open(lot.url,'_blank');
+        }
+      });
       wia.appendChild(ld);
     } else {
       const buildings=[...new Set(group.lots.filter(l=>l.building).map(l=>l.building))];
@@ -1335,43 +1365,90 @@ document.addEventListener('DOMContentLoaded',function(){
   });
 });
 // ═══════════════════════════════════════════
-// MOBILE PAN / ZOOM
+// MOBILE PINCH-ZOOM + PAN
 // ═══════════════════════════════════════════
-(function(){
-  let panX=0,panY=0,scale=1,startX=0,startY=0,startPanX=0,startPanY=0;
-  let pinchDist0=0,scale0=1;
-  function clamp(v,mn,mx){return Math.max(mn,Math.min(mx,v));}
-  function applyTransform(){worldC.style.transformOrigin='0 0';worldC.style.transform=`translate(${panX}px,${panY}px) scale(${scale})`;}
-  function resetTransform(){panX=0;panY=0;scale=1;applyTransform();}
-  worldC.addEventListener('touchstart',e=>{
-    if(calibWorldMode||posMode)return;
-    if(e.touches.length===1){startX=e.touches[0].clientX-panX;startY=e.touches[0].clientY-panY;startPanX=panX;startPanY=panY;}
-    if(e.touches.length===2){pinchDist0=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);scale0=scale;}
-  },{passive:true});
-  worldC.addEventListener('touchmove',e=>{
-    if(calibWorldMode||posMode)return;
-    if(e.touches.length===1&&scale>1){
-      panX=e.touches[0].clientX-startX;panY=e.touches[0].clientY-startY;
-      const maxX=worldC.clientWidth*(scale-1),maxY=worldC.clientHeight*(scale-1);
-      panX=clamp(panX,-maxX,0);panY=clamp(panY,-maxY,0);
-      applyTransform();e.preventDefault();
+function makePinchZoom(el,opts={}){
+  let tx=0,ty=0,sc=1,px0=0,py0=0,tx0=0,ty0=0,pd0=0,sc0=1;
+  const maxSc=opts.maxScale||5, labelThreshold=opts.labelThreshold||1.8;
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+  function apply(){
+    el.style.transformOrigin='0 0';
+    el.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`;
+    el.classList.toggle('zoom-labels',sc>=labelThreshold);
+  }
+  function reset(){tx=0;ty=0;sc=1;apply();}
+  function clampPan(){
+    const pw=el.parentElement.clientWidth, ph=el.parentElement.clientHeight;
+    const iw=el.clientWidth*sc, ih=el.clientHeight*sc;
+    const offX=(pw-el.clientWidth)/2, offY=(ph-el.clientHeight)/2;
+    const lx=Math.min(0,-iw+pw-offX*(sc>1?0:1)), rx=offX*(sc>1?0:1);
+    const ly=Math.min(0,-ih+ph-offY*(sc>1?0:1)), ry=offY*(sc>1?0:1);
+    tx=clamp(tx,lx,rx); ty=clamp(ty,ly,ry);
+  }
+  el.parentElement.addEventListener('touchstart',e=>{
+    if(opts.guard&&opts.guard())return;
+    if(e.touches.length===1){
+      px0=e.touches[0].clientX-tx; py0=e.touches[0].clientY-ty;
     }
     if(e.touches.length===2){
-      const dist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
-      scale=clamp(scale0*(dist/pinchDist0),1,4);
-      if(scale===1){panX=0;panY=0;}
-      applyTransform();e.preventDefault();
+      const [a,b]=e.touches;
+      pd0=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+      sc0=sc; tx0=tx; ty0=ty;
+      // pinch midpoint
+      px0=(a.clientX+b.clientX)/2; py0=(a.clientY+b.clientY)/2;
+    }
+  },{passive:true});
+  el.parentElement.addEventListener('touchmove',e=>{
+    if(opts.guard&&opts.guard())return;
+    if(e.touches.length===1&&sc>1.05){
+      tx=e.touches[0].clientX-px0; ty=e.touches[0].clientY-py0;
+      clampPan(); apply(); e.preventDefault();
+    }
+    if(e.touches.length===2){
+      const [a,b]=e.touches;
+      const pd=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+      const newSc=clamp(sc0*(pd/pd0),1,maxSc);
+      // Zoom toward pinch midpoint
+      const mx=(a.clientX+b.clientX)/2, my=(b.clientY+a.clientY)/2;
+      tx=mx-(mx-tx0)*(newSc/sc0);
+      ty=my-(my-ty0)*(newSc/sc0);
+      sc=newSc; clampPan(); apply(); e.preventDefault();
     }
   },{passive:false});
-  worldC.addEventListener('touchend',e=>{if(e.touches.length===0&&scale<1.05){resetTransform();}});
-  // Reset on world exit
-  const _origExit=exitWorld;window.exitWorld=function(){resetTransform();_origExit?.();};
-})();
-// Mobile: show label on tap
+  el.parentElement.addEventListener('touchend',e=>{
+    if(e.touches.length===0&&sc<1.05)reset();
+  },{passive:true});
+  return {reset};
+}
+
+const _worldZoom=makePinchZoom(document.getElementById('world-image-area'),{
+  guard:()=>calibWorldMode||posMode
+});
+const _mapZoom=makePinchZoom(document.getElementById('map-image-area'));
+
+// Reset zoom on world exit
+const _origExit=exitWorld;
+window.exitWorld=function(){_worldZoom.reset();if(_origExit)_origExit();};
+
+// Mobile bottom bar
+let _mobileDotUrl='';
+function showMobileDotBar(nr,name,url){
+  _mobileDotUrl=url;
+  const bar=document.getElementById('mobile-dot-bar');
+  document.getElementById('mobile-dot-nr').textContent=nr||name;
+  document.getElementById('mobile-dot-name').textContent=(nr&&name!==nr)?name:'';
+  bar.classList.add('visible');
+}
+function hideMobileDotBar(){document.getElementById('mobile-dot-bar').classList.remove('visible');_mobileDotUrl='';}
+function mobileDotOpen(){if(_mobileDotUrl)window.open(_mobileDotUrl,'_blank');}
+
+// Mobile: show bottom bar on tap, hide on tap elsewhere
 document.addEventListener('touchstart',e=>{
   document.querySelectorAll('.tapped').forEach(el=>el.classList.remove('tapped'));
-  const dot=e.target.closest('.lot-dot,.cluster-dot');
-  if(dot)dot.classList.add('tapped');
+  if(e.target.closest('#mobile-dot-bar'))return;
+  const dot=e.target.closest('.lot-dot,.cluster-dot,.world-dot');
+  if(dot){dot.classList.add('tapped');}
+  else{hideMobileDotBar();}
 },{passive:true});
 
 document.querySelectorAll('.sheet').forEach(sheet=>{let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive:true});sheet.addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-sy>60)closeSheet();},{passive:true});});
