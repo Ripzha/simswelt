@@ -1,1752 +1,569 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Simswelt — Projekt ATLAS</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Charakterbogen – simsforumrpg.de</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
-#topnav{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(0,0,0,0.75);border-bottom:0.5px solid rgba(255,255,255,0.08);flex-shrink:0;z-index:100}
-.logo{display:flex;align-items:center;gap:8px}
-.logo-icon{width:24px;height:24px;background:#2a5a3a;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
-.logo-icon.admin-active{background:#7a4a00;box-shadow:0 0 8px rgba(255,200,0,0.5)}
-.title{font-size:12px;font-weight:500;letter-spacing:3px}
-.subtitle{font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-left:4px}
-#btn-back{background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.15);border-radius:5px;color:rgba(255,255,255,0.7);font-size:10px;padding:4px 9px;cursor:pointer;display:none}
-.btn-auth{border:none;border-radius:5px;font-size:10px;padding:5px 12px;cursor:pointer}
-#btn-login{background:#2a5a3a;color:#fff}
-#btn-register{background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6)}
-#btn-forum{background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);border-radius:5px;font-size:10px;padding:5px 12px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
-#btn-forum:hover{background:rgba(255,255,255,0.1);color:#fff}
-#main{flex:1;display:flex;min-height:0;overflow:hidden}
-#left{width:165px;flex-shrink:0;background:rgba(0,0,0,0.55);border-right:0.5px solid rgba(255,255,255,0.06);padding:12px 10px;display:flex;flex-direction:column;gap:4px;overflow-y:auto}
-#right{width:165px;flex-shrink:0;background:rgba(0,0,0,0.55);border-left:0.5px solid rgba(255,255,255,0.06);padding:12px 10px;display:flex;flex-direction:column;gap:10px;overflow-y:auto}
-#center{flex:1;position:relative;overflow:hidden}
-.sec-label{font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1.5px;text-transform:uppercase;margin:6px 0 4px}
-.nav-item{padding:6px 8px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.07);border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:11px;color:#fff;text-decoration:none}
-.nav-item:hover,.nav-item:active{background:rgba(255,255,255,0.08)}
-.activity-item{padding:5px 7px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.07);border-radius:5px;display:flex;align-items:center;gap:7px;margin-bottom:4px}
-.activity-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.activity-name{font-size:11px;font-weight:500}
-.activity-world{font-size:10px;color:rgba(255,255,255,0.35)}
-.online-item{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:4px}
-.stat-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
-.stat-key{color:rgba(255,255,255,0.4)}
-#discord-btn{margin-top:auto;padding:8px 10px;background:rgba(88,101,242,0.15);border:0.5px solid rgba(88,101,242,0.3);border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:7px}
-#map-container,#world-container{position:absolute;inset:0;display:none}
-#map-container.active,#world-container.active{display:block}
-#map-bg{position:absolute;inset:0;overflow:hidden}
-#map-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(0.7) saturate(0.85);display:block}
-#world-bg{position:absolute;inset:0;overflow:hidden}
-#world-bg img{width:100%;height:100%;object-fit:fill;filter:brightness(0.65) saturate(0.9);display:block}
-.image-area-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
-#world-image-area{position:relative;flex-shrink:0;width:min(100%,100vh * 1920/1200);height:min(100%,100vw * 1200/1920);aspect-ratio:1920/1200;overflow:visible;transform-origin:0 0}
-#map-image-area{position:relative;flex-shrink:0;max-width:100%;max-height:100%;overflow:visible;transform-origin:0 0}
-#world-bg,#world-container,#map-container{background:#040d14}
-@media(pointer:coarse){
-  .lot-label,.dot-label,.cluster-label{display:none}
-  .zoom-labels .lot-label,.zoom-labels .dot-label,.zoom-labels .cluster-label{display:block}
-  .world-dot .dot-pulse{width:18px!important;height:18px!important}
-  .world-dot .dot-inner{width:6px!important;height:6px!important}
-  .hover-card{display:none!important}
-  #mobile-dot-bar{display:none}
-  #mobile-dot-bar.visible{display:flex}
-}
-@media(pointer:fine){#mobile-dot-bar{display:none!important}}
-.vignette{position:absolute;inset:0;background:radial-gradient(ellipse at 55% 50%,transparent 35%,rgba(0,0,0,0.55) 100%);pointer-events:none}
-#map-legend{position:absolute;bottom:14px;left:12px;background:rgba(0,0,0,0.55);border:0.5px solid rgba(255,255,255,0.07);border-radius:6px;padding:5px 10px;font-size:10px;color:rgba(255,255,255,0.35);pointer-events:none;z-index:5}
-#world-header{position:absolute;top:0;left:0;right:0;padding:10px 14px;background:linear-gradient(rgba(0,0,0,0.7),transparent);z-index:5;pointer-events:none}
-#world-header .wh-name{font-size:16px;font-weight:500}
-#world-header .wh-sub{font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px}
-.legend-btn{position:absolute;top:50px;left:12px;background:rgba(0,0,0,0.55);border:0.5px solid rgba(255,255,255,0.12);border-radius:6px;padding:4px 10px;font-size:10px;color:rgba(255,255,255,0.45);cursor:pointer;z-index:15;user-select:none}
-.legend-btn:hover{color:#fff}
-.legend-box{position:absolute;top:78px;left:12px;background:rgba(0,0,0,0.9);border:0.5px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 13px;z-index:15;display:none;min-width:185px}
-.legend-box.open{display:block}
-.leg-row{display:flex;align-items:center;gap:9px;margin-bottom:7px;font-size:10px;color:rgba(255,255,255,0.65)}
-.leg-row:last-child{margin-bottom:0}
-.leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.leg-cluster{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0}
-#building-container{position:absolute;inset:0;z-index:25;display:none}
-#building-bg{position:absolute;inset:0;overflow:hidden}
-#building-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(0.65)}
-#building-header{position:absolute;top:0;left:0;right:0;padding:10px 14px;background:linear-gradient(rgba(0,0,0,0.7),transparent);z-index:5;pointer-events:none}
-#building-name{font-size:15px;font-weight:500}
-#building-no-img{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;display:none;z-index:6}
-#world-lots-bar{position:absolute;bottom:0;left:0;right:0;border-top:0.5px solid rgba(255,255,255,0.07);padding:8px 12px;background:rgba(0,0,0,0.8);display:flex;gap:6px;align-items:center;z-index:10;max-height:88px;flex-wrap:wrap;overflow-y:auto}
-.lot-pill{padding:4px 9px;border-radius:5px;font-size:10px;cursor:pointer;display:flex;align-items:center;gap:4px;border:0.5px solid transparent;white-space:nowrap;flex-shrink:0}
-.lot-pip{width:5px;height:5px;border-radius:50%;flex-shrink:0}
-#suggest-bar-btn{padding:4px 9px;border-radius:5px;font-size:10px;cursor:pointer;background:rgba(74,170,106,0.12);border:0.5px solid rgba(74,170,106,0.3);color:rgba(74,170,106,0.8);white-space:nowrap;flex-shrink:0}
-.world-dot{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:10}
-.dot-inner{border-radius:50%;border:1.5px solid rgba(255,255,255,0.45);transition:all 0.15s}
-.world-dot:hover .dot-inner{width:12px!important;height:12px!important}
-.dot-pulse{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border-radius:50%;opacity:0;border-width:1.5px;border-style:solid;animation:pulse 1.4s infinite;pointer-events:none}
-.world-dot:hover .dot-pulse{opacity:0.5}
-.dot-label{position:absolute;top:12px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;font-weight:500;text-shadow:0 1px 4px #000,0 0 8px #000;pointer-events:none}
-.hover-card{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);background:rgba(5,12,22,0.97);border-radius:9px;overflow:hidden;z-index:30;pointer-events:none;width:165px;display:none}
-.world-dot:hover .hover-card{display:block}
-.hover-img{width:100%;height:95px;object-fit:cover;display:block}
-.hover-gradient{position:absolute;bottom:28px;left:0;right:0;height:40px;background:linear-gradient(transparent,rgba(5,12,22,0.97))}
-.hover-name{position:absolute;bottom:30px;left:10px;font-size:12px;font-weight:500}
-.hover-footer{padding:6px 10px;display:flex;justify-content:space-between}
-.hover-type{font-size:10px;color:rgba(255,255,255,0.45)}
-.hover-action{font-size:10px;font-weight:500}
-.lot-dot{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:10}
-.lot-inner{border-radius:50%;border:1.5px solid rgba(255,255,255,0.7);transition:all 0.15s}
-.lot-dot:hover .lot-inner,.lot-dot:active .lot-inner{width:13px!important;height:13px!important}
-.lot-pulse{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:50%;border:1.5px solid #4aaa6a;animation:pulse 1.4s infinite;pointer-events:none;display:none}
-.lot-dot.isactive .lot-pulse{display:block}
-.lot-label{position:absolute;top:13px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:11px;font-weight:500;text-shadow:0 1px 4px #000,0 0 8px #000;pointer-events:none;text-align:center;line-height:1.3}
-.lot-sublabel{font-size:10px;color:rgba(255,255,255,0.7);font-weight:400;display:block}
-.lot-tooltip{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.95);border-radius:6px;font-size:11px;white-space:nowrap;z-index:20;pointer-events:none;display:none;box-shadow:0 4px 14px rgba(0,0,0,0.6)}
-.lot-dot:hover .lot-tooltip{display:block}
-.lot-dot.isoutdoor .lot-inner{background:rgba(80,190,170,0.75)!important;border-color:rgba(80,190,170,1)!important;box-shadow:none!important}
-.cluster-dot{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:15}
-.cluster-inner{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;border:1.5px solid rgba(255,165,0,0.6);transition:all 0.15s;background:rgba(255,165,0,0.2)}
-.cluster-dot:hover .cluster-inner{width:26px;height:26px}
-.cluster-label{position:absolute;top:14px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;font-weight:500;text-shadow:0 1px 4px #000;pointer-events:none}
-.cluster-popup{position:absolute;bottom:25px;left:50%;transform:translateX(-50%);background:rgba(5,12,22,0.97);border:0.5px solid rgba(255,165,0,0.4);border-radius:8px;padding:8px;z-index:40;display:none;min-width:170px;box-shadow:0 6px 24px rgba(0,0,0,0.8)}
-.cluster-dot.open .cluster-popup{display:block}
-.cluster-item{padding:6px 8px;font-size:11px;cursor:pointer;border-radius:4px;display:flex;align-items:center;gap:7px;color:#fff;position:relative}
-.cluster-item:hover{background:rgba(255,255,255,0.08)}
-.cluster-item-preview{position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);width:150px;height:100px;object-fit:cover;border-radius:6px;display:none;pointer-events:none;z-index:60;box-shadow:0 4px 16px rgba(0,0,0,0.9);border:0.5px solid rgba(255,255,255,0.15)}
-.cluster-item:hover .cluster-item-preview{display:block}
-.cluster-pip{width:5px;height:5px;border-radius:50%;flex-shrink:0}
-.building-dot .cluster-inner{background:rgba(100,160,255,0.2)!important;border-color:rgba(100,160,255,0.6)!important}
-.cluster-hover{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(5,12,22,0.97);border-radius:9px;overflow:hidden;z-index:30;pointer-events:none;min-width:165px;display:none}
-@media(max-width:768px){.cluster-hover{display:none!important}}
-.calib-btn{position:absolute;background:rgba(255,200,0,0.15);border:0.5px solid rgba(255,200,0,0.4);border-radius:5px;padding:4px 9px;font-size:10px;color:#ffcc44;cursor:pointer;z-index:20}
-#calib-map-btn{bottom:12px;right:12px}
-#calib-world-btn{left:12px;bottom:75px}
-.calib-panel{position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,0.96);border:1px solid rgba(255,200,0,0.4);border-radius:8px;padding:11px 13px;z-index:50;font-size:11px;width:230px;display:none}
-.calib-panel h4{font-size:11px;color:#ffcc44;margin-bottom:5px;font-weight:500}
-.calib-info{font-size:10px;color:#999;line-height:1.5}
-.calib-next-line{margin-top:8px;font-size:11px;color:#ffcc44}
-.calib-log{font-size:10px;color:#aaa;max-height:140px;overflow-y:auto;margin-top:7px;font-family:monospace;line-height:1.5;background:rgba(255,255,255,0.04);border-radius:3px;padding:5px}
-.calib-copy{margin-top:7px;background:#ffcc44;color:#000;border:none;border-radius:4px;padding:5px 9px;cursor:pointer;font-size:10px;font-weight:500;width:100%}
-.calib-clear{margin-top:3px;background:rgba(255,80,80,0.12);border:0.5px solid rgba(255,80,80,0.3);border-radius:4px;padding:5px 9px;cursor:pointer;font-size:10px;color:#ff8888;width:100%}
-.calib-mode-bar{position:fixed;top:42px;left:0;right:0;background:rgba(255,200,0,0.9);color:#000;text-align:center;font-size:11px;font-weight:500;padding:5px;z-index:600;display:none}
-#admin-panel{position:fixed;top:0;right:0;bottom:0;width:min(340px,100vw);background:rgba(4,10,20,0.99);border-left:1px solid rgba(255,200,0,0.3);z-index:400;display:none;flex-direction:column;box-shadow:-8px 0 32px rgba(0,0,0,0.7)}
-#admin-panel.open{display:flex}
-.admin-header{padding:12px 14px;border-bottom:0.5px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-.admin-tabs{display:flex;border-bottom:0.5px solid rgba(255,255,255,0.08);flex-shrink:0}
-.atab{flex:1;padding:9px 4px;font-size:11px;background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;border-bottom:2px solid transparent}
-.atab.active{color:#ffcc44;border-bottom-color:#ffcc44}
-#admin-content{flex:1;overflow-y:auto;padding:14px}
-.a-form-row{margin-bottom:10px}
-.a-label{font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:4px}
-.a-input{width:100%;background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.15);border-radius:5px;color:#fff;font-size:11px;padding:6px 9px}
-.a-input:focus{outline:none;border-color:rgba(255,200,0,0.4)}
-.a-select{width:100%;background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.15);border-radius:5px;color:#fff;font-size:11px;padding:6px 9px;cursor:pointer}
-.a-btn{border:none;border-radius:5px;font-size:11px;padding:7px 12px;cursor:pointer;font-weight:500}
-.a-btn-primary{background:#ffcc44;color:#000}
-.a-btn-danger{background:rgba(255,80,80,0.15);border:0.5px solid rgba(255,80,80,0.3);color:#ff8888}
-.a-btn-ghost{background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6)}
-.a-btn-pos{background:rgba(74,170,106,0.15);border:0.5px solid rgba(74,170,106,0.3);color:#4aaa6a}
-.lot-entry{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.07);border-radius:6px;padding:8px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
-.lot-entry-name{font-size:11px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lot-entry-sub{font-size:9px;color:rgba(255,255,255,0.35);margin-top:2px}
-.badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:500}
-.badge-hard{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.4)}
-.badge-custom{background:rgba(255,200,0,0.15);color:#ffcc44}
-.badge-active{background:rgba(74,170,106,0.2);color:#4aaa6a}
-#admin-suggest-count{display:none;background:#ff5555;color:#fff;border-radius:50%;width:14px;height:14px;font-size:8px;font-weight:700;align-items:center;justify-content:center;margin-left:4px}
-#suggest-modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:450;display:none;align-items:flex-end;justify-content:center}
-#suggest-modal.open{display:flex}
-.suggest-box{background:rgba(6,14,26,0.99);border:0.5px solid rgba(74,170,106,0.3);border-radius:14px 14px 0 0;padding:18px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto}
-.suggest-handle{width:36px;height:3px;background:rgba(255,255,255,0.2);border-radius:2px;margin:0 auto 16px}
-.suggest-copy-box{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px;font-size:10px;font-family:monospace;color:#aaa;margin-top:10px;line-height:1.6;max-height:120px;overflow-y:auto;white-space:pre-wrap}
-#mob-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(6,12,24,0.97);border-top:0.5px solid rgba(255,255,255,0.1);z-index:200;height:calc(50px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
-.mob-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-size:8px;color:rgba(255,255,255,0.4);background:none;border:none;padding:0;-webkit-tap-highlight-color:transparent;height:50px}
-.mob-btn .mob-icon{font-size:17px;line-height:1}
-.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:250;display:none}
-.sheet-overlay.open{display:block}
-.sheet{position:fixed;bottom:0;left:0;right:0;z-index:260;background:rgba(8,16,28,0.99);border-top:0.5px solid rgba(255,255,255,0.1);border-radius:14px 14px 0 0;padding:14px 14px calc(14px + env(safe-area-inset-bottom));max-height:75vh;overflow-y:auto;transform:translateY(100%);transition:transform 0.28s ease}
-.sheet.open{transform:translateY(0)}
-.sheet-handle{width:36px;height:3px;background:rgba(255,255,255,0.2);border-radius:2px;margin:0 auto 14px}
-.sheet-title{font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
-@media(max-width:768px){
-  #left,#right{display:none!important}
-  #mob-bar{display:flex!important}
-  #btn-login,#btn-register,#btn-forum{display:none}
-  #world-lots-bar{bottom:calc(50px + env(safe-area-inset-bottom));flex-wrap:nowrap;overflow-x:auto;max-height:none;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-  #world-lots-bar::-webkit-scrollbar{display:none}
-  #map-legend{bottom:calc(60px + env(safe-area-inset-bottom))}
-  #calib-map-btn{bottom:calc(60px + env(safe-area-inset-bottom))}
-  #calib-world-btn{left:8px;bottom:calc(118px + env(safe-area-inset-bottom))}
-  .calib-panel{top:auto;bottom:calc(50px + env(safe-area-inset-bottom) + 34px);right:8px;left:8px;width:auto}
-  .hover-card{display:none!important}
-  #admin-panel{width:100vw}
-}
-@media(pointer:fine){#mob-bar,.sheet-overlay,.sheet,#mobile-dot-bar{display:none!important}}
-@media(pointer:coarse){
-  #mobile-dot-bar{position:fixed;bottom:0;left:0;right:0;z-index:900;background:rgba(5,15,28,0.97);border-top:0.5px solid rgba(255,255,255,0.12);padding:10px 16px calc(16px + env(safe-area-inset-bottom));display:none;align-items:center;gap:10px}
-  #mobile-dot-bar.visible{display:flex}
-  #mobile-dot-info{flex:1;min-width:0}
-  #mobile-dot-nr{font-size:11px;font-weight:600;color:#fff;line-height:1.3}
-  #mobile-dot-name{font-size:10px;color:rgba(255,255,255,0.5);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  #mobile-dot-btn{background:#2a5a3a;color:#fff;border:none;border-radius:7px;padding:8px 14px;font-size:12px;font-weight:500;cursor:pointer;flex-shrink:0}
-}
-@keyframes pulse{0%{transform:translate(-50%,-50%) scale(1);opacity:.5}50%{transform:translate(-50%,-50%) scale(2.2);opacity:.1}100%{transform:translate(-50%,-50%) scale(1);opacity:.5}}
-/* ── CHARACTER VIEW ── */
-#char-container{position:fixed;inset:0;z-index:300;background:#050d18;display:none;flex-direction:column;overflow:hidden}
-#char-container.open{display:flex}
-#char-header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:0.5px solid rgba(255,255,255,0.08);flex-shrink:0;flex-wrap:wrap}
-#char-title{font-size:16px;font-weight:600;color:#fff}
-#char-subtitle{font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px}
-#char-filters{display:flex;gap:6px;flex-wrap:wrap;flex:1}
-.char-filter{padding:4px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:0.5px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);background:transparent;transition:all 0.15s}
-.char-filter.active{background:rgba(100,180,120,0.2);border-color:#4aaa6a;color:#4aaa6a}
-#char-reload{background:transparent;border:0.5px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:14px}
-#char-reload:hover{color:#fff;border-color:rgba(255,255,255,0.4)}
-#char-close{background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:18px;cursor:pointer;padding:4px 8px;line-height:1}
-#char-close:hover{color:#fff}
-/* ── CHARACTER VIEW ── */
-#char-container{position:fixed;inset:0;z-index:300;background:#050d18;display:none;flex-direction:column;overflow:hidden}
-#char-container.open{display:flex}
-#char-header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:0.5px solid rgba(255,255,255,0.08);flex-shrink:0;flex-wrap:wrap}
-#char-tabs{display:flex;gap:4px;flex-shrink:0}
-.char-tab{background:transparent;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s}
-.char-tab.active{background:rgba(100,180,120,0.15);border-color:#4aaa6a;color:#4aaa6a}
-#char-subtitle{font-size:10px;color:rgba(255,255,255,0.25);white-space:nowrap}
-#char-filter-bar{display:flex;gap:5px;flex-wrap:wrap;flex:1;justify-content:flex-end}
-.char-filter{padding:3px 9px;border-radius:20px;font-size:10px;cursor:pointer;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);background:transparent;transition:all 0.15s}
-.char-filter.active{background:rgba(100,180,120,0.15);border-color:#4aaa6a;color:#4aaa6a}
-#char-create-btn{padding:5px 12px;background:rgba(100,180,120,0.15);border:0.5px solid #4aaa6a;border-radius:6px;color:#4aaa6a;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;flex-shrink:0}
-#char-create-btn:hover{background:rgba(100,180,120,0.3)}
-#char-sort-btn{background:transparent;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:11px;font-weight:600;flex-shrink:0}
-#char-sort-btn.active{border-color:#4aaa6a;color:#4aaa6a}
-#char-reload{background:transparent;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:13px;flex-shrink:0}
-#char-reload:hover{color:#fff}
-#char-close{background:transparent;border:none;color:rgba(255,255,255,0.35);font-size:18px;cursor:pointer;padding:2px 6px;flex-shrink:0}
-#char-close:hover{color:#fff}
-#char-grid{flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;align-content:start}
-.char-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative}
-.char-card:hover{background:rgba(255,255,255,0.08);border-color:rgba(100,180,120,0.4);transform:translateY(-2px)}
-.char-portrait-wrap{width:100%;aspect-ratio:3/4;overflow:hidden;background:#0a1520}
-.char-portrait{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
-.char-portrait-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;color:rgba(255,255,255,0.08)}
-.char-info{padding:7px 9px}
-.char-name{font-size:11px;font-weight:600;color:#fff;margin-bottom:2px;line-height:1.3}
-.char-player{font-size:9px;color:rgba(255,255,255,0.35);margin-bottom:2px}
-.char-location{font-size:9px;color:#4aaa6a}
-#char-hover-card{position:fixed;z-index:400;background:#0d1f2d;border:0.5px solid rgba(100,180,120,0.3);border-radius:10px;width:200px;box-shadow:0 8px 32px rgba(0,0,0,0.6);pointer-events:none;opacity:0;transition:opacity 0.15s;overflow:hidden}
-#char-hover-card.visible{opacity:1}
-#chc-body{padding:12px 14px;display:flex;flex-direction:column;gap:5px}
-#chc-name{font-size:12px;font-weight:700;color:#fff;line-height:1.3}
-#chc-player{font-size:10px;color:#4aaa6a}
-#chc-details{font-size:10px;color:rgba(255,255,255,0.45);line-height:1.7;margin-top:2px}
-#chc-lastseen{font-size:10px;color:rgba(100,180,120,0.7);margin-top:2px}
-#chc-link{font-size:9px;color:rgba(255,255,255,0.25);margin-top:4px;border-top:0.5px solid rgba(255,255,255,0.06);padding-top:6px}
-@media(max-width:600px){#char-grid{grid-template-columns:repeat(3,1fr);gap:8px;padding:10px}#char-header{gap:6px}#char-create-btn{display:none}}
+body{background:#b8c2b8;font-family:'Segoe UI',sans-serif;color:#1a1a1a;min-height:100vh}
+input,textarea,button{font-family:inherit}
+input:focus,textarea:focus{border-color:#3d6f8a!important;outline:none}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:#b8c2b8}
+::-webkit-scrollbar-thumb{background:#96a896;border-radius:3px}
 </style>
 </head>
 <body>
-
-<div id="topnav">
-  <div class="logo">
-    <button id="btn-back" onclick="goBack()">← Zurück</button>
-    <div class="logo-icon" id="logo-icon" title="5× = Admin">🌍</div>
-    <span class="title">SIMSWELT</span>
-    <span class="subtitle" id="world-subtitle"></span>
-  </div>
-  <div style="display:flex;gap:7px;align-items:center">
-    <button id="btn-close-atlas" onclick="closeAtlas()" style="background:rgba(255,80,80,0.12);border:0.5px solid rgba(255,80,80,0.25);border-radius:5px;color:rgba(255,130,130,0.85);font-size:10px;padding:5px 10px;cursor:pointer" title="Zur normalen Forenansicht">✕ Forum</button>
-    <a href="https://www.simsforumrpg.de/forum.php" target="_blank" id="btn-forum">📋 Forum</a>
-    <button class="btn-auth" id="btn-login" onclick="window.open('https://www.simsforumrpg.de/anmeldung.php','_blank')">Anmelden</button>
-    <button class="btn-auth" id="btn-register" onclick="window.open('https://www.simsforumrpg.de/anmeldung.php','_blank')">Registrieren</button>
-  </div>
-</div>
-
-<div class="calib-mode-bar" id="calib-mode-bar">
-  ⚙ Positionsmodus — klick auf Stelle im Bild
-  <button onclick="cancelPosMode()" style="margin-left:12px;background:rgba(0,0,0,0.2);border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:10px">Abbrechen</button>
-</div>
-
-<div id="main">
-  <div id="left">
-    <div class="sec-label">Navigation</div>
-    <a class="nav-item" href="https://www.simsforumrpg.de/forum.php" target="_blank">📋 Forum</a>
-    <a class="nav-item" onclick="openCharView()" style="cursor:pointer">👤 Charaktere</a>
-    <a class="nav-item" href="https://www.simsforumrpg.de/f58642-Kreationen-und-Geschichten.html" target="_blank">🎨 Kreativ-Ecke</a>
-    <a class="nav-item" href="https://www.simsforumrpg.de/f15070-Forenspiele.html" target="_blank">🎲 Forenspiele</a>
-    <a class="nav-item" href="https://www.simsforumrpg.de/blog-c1386-Simstagram.html" target="_blank">📸 Simstagram</a>
-    <a class="nav-item" href="https://www.simsforumrpg.de/blog-c1375-Metaverse.html" target="_blank">🌐 Metaverse</a>
-    <a class="nav-item" href="https://www.simsforumrpg.de/f15063-Foren-Hub-Neulinge-starten-hier.html" target="_blank">📖 RPG Hub</a>
-    <a class="nav-item" href="https://www.simsforumrpg.de/page-simsweltnews.html" target="_blank">📰 SimsWelt News</a>
-    <a class="nav-item" href="https://www.simsforumrpg.de/gallery.php" target="_blank">🖼️ Bildergalerie</a>
-    <div class="sec-label">Ausserhalb</div>
-    <a class="nav-item" href="https://www.simsforumrpg.de/f51855-Orte-ausserhalb-von-Simswelt.html" target="_blank">🌑 Andere Welten</a>
-  </div>
-
-  <div id="center">
-    <div id="map-container" class="active">
-      <div class="image-area-wrap">
-        <div id="map-image-area">
-          <div id="map-bg"><img src="https://files.homepagemodules.de/b855163/resize/550x550/pictures_u1169_VsxXqBbZ.jpg" alt="Karte"></div>
-        </div>
-      </div>
-      <div class="vignette"></div>
-      <div id="map-legend">29 Welten · Hover = Vorschau · Klick = Betreten</div>
-      <button class="calib-btn" id="calib-map-btn" onclick="toggleCalib('map')">⚙ Kalibrieren</button>
-      <div class="calib-panel" id="calib-map-panel">
-        <h4>⚙ Welten kalibrieren</h4>
-        <div class="calib-info">Klick auf Kartenposition für jede Welt.</div>
-        <div class="calib-next-line">Nächste: <span id="calib-next">—</span></div>
-        <div class="calib-log" id="calib-map-log">Noch keine Klicks...</div>
-        <button class="calib-copy" onclick="copyCalib('map')">📋 Kopieren</button>
-        <button class="calib-clear" onclick="clearCalib('map')">🗑 Reset</button>
-      </div>
-    </div>
-
-    <div id="world-container">
-      <div class="image-area-wrap">
-        <div id="world-image-area">
-          <div id="world-bg"></div>
-        </div>
-      </div>
-      <div class="vignette"></div>
-      <div id="world-header">
-        <div class="wh-name" id="world-name-display"></div>
-        <div class="wh-sub" id="world-type-display"></div>
-      </div>
-      <div id="building-container">
-        <div id="building-bg"></div>
-        <div class="vignette"></div>
-        <div id="building-header">
-          <div id="building-name" style="font-size:15px;font-weight:500"></div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.45);margin-top:2px">Wohnungen — klick zum Öffnen</div>
-        </div>
-        <div id="floor-nav" style="position:absolute;top:12px;right:12px;z-index:10;display:none;align-items:center;gap:6px">
-          <button id="floor-up-btn" onclick="changeBuildingFloor(-1)" style="background:rgba(0,0,0,0.6);border:0.5px solid rgba(255,255,255,0.2);border-radius:5px;color:#fff;font-size:11px;padding:4px 10px;cursor:pointer">↑</button>
-          <span id="floor-label" style="font-size:10px;color:rgba(255,255,255,0.5);min-width:32px;text-align:center"></span>
-          <button id="floor-down-btn" onclick="changeBuildingFloor(1)" style="background:rgba(0,0,0,0.6);border:0.5px solid rgba(255,255,255,0.2);border-radius:5px;color:#fff;font-size:11px;padding:4px 10px;cursor:pointer">↓</button>
-        </div>
-        <div id="building-no-img">
-          <div style="font-size:12px;color:rgba(255,255,255,0.4)">🏗 Grundriss noch ausstehend</div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:4px">Threads über Leiste öffnen</div>
-        </div>
-        <button class="calib-btn" id="calib-building-btn" onclick="toggleBuildingCalib()" style="bottom:12px;right:12px">⚙ Dots kalibrieren</button>
-        <div class="calib-panel" id="calib-building-panel" style="bottom:50px;top:auto;right:10px;left:auto">
-          <h4>⚙ Apartment-Dots setzen</h4>
-          <div class="calib-info">Klick auf die Stelle im Grundriss für jeden Dot.</div>
-          <div class="calib-next-line">👉 Jetzt: <span id="calib-building-next" style="color:#fff;font-weight:500">—</span></div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:4px">Fortschritt: <span id="calib-building-count">0</span> gesetzt</div>
-          <div class="calib-log" id="calib-building-log">Noch keine Klicks...</div>
-          <button class="calib-copy" onclick="copyBuildingCalib()">📋 Kopieren</button>
-          <button class="calib-clear" onclick="clearBuildingCalib()">🗑 Reset</button>
-        </div>
-      </div>
-      <button class="legend-btn" onclick="toggleLegend(this)">≡ Legende</button>
-      <div class="legend-box">
-        <div class="leg-row"><div class="leg-dot" style="background:#4aaa6a;box-shadow:0 0 5px #4aaa6a"></div>Aktiver Ort</div>
-        <div class="leg-row"><div class="leg-dot" style="background:rgba(255,255,255,0.35);border:1px solid rgba(255,255,255,0.5)"></div>Inaktiver Ort</div>
-        <div class="leg-row"><div class="leg-dot" style="background:rgba(80,190,170,0.75);border:1px solid rgba(80,190,170,1)"></div>Öffentlicher Raum</div>
-        <div class="leg-row"><div class="leg-cluster" style="background:rgba(255,165,0,0.2);border:1.5px solid rgba(255,165,0,0.6);color:rgba(255,165,0,0.9)">3</div>Mehrere Orte (Cluster)</div>
-        <div class="leg-row"><div class="leg-cluster" style="background:rgba(100,160,255,0.2);border:1.5px solid rgba(100,160,255,0.6);font-size:10px">🏢</div>Wohnblock (Apartments)</div>
-      </div>
-      <button class="calib-btn" id="calib-world-btn" onclick="toggleCalib('world')">⚙ Orte kalibrieren</button>
-      <div class="calib-panel" id="calib-world-panel">
-        <h4>⚙ Orte kalibrieren</h4>
-        <div class="calib-info">Schau auf die Zahl im Bild → klick drauf.</div>
-        <div class="calib-next-line">👉 Jetzt: <span id="calib-world-next" style="color:#fff;font-weight:500">—</span></div>
-        <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:4px">Fortschritt: <span id="calib-world-count">0</span> kalibriert</div>
-        <div class="calib-log" id="calib-world-log">Noch keine Klicks...</div>
-        <button class="calib-copy" onclick="copyCalib('world')">📋 Kopieren</button>
-        <button class="calib-clear" onclick="clearCalib('world')">🗑 Reset</button>
-      </div>
-      <div id="world-lots-bar"></div>
-    </div>
-  </div>
-
-  <div id="right">
-    <div>
-      <div class="sec-label">Zuletzt aktiv</div>
-      <div class="activity-item"><div class="activity-dot" style="background:#5a6a7a;box-shadow:0 0 5px #5a6a7a"></div><div><div class="activity-name">Blaze</div><div class="activity-world">Windenburg</div></div></div>
-      <div class="activity-item"><div class="activity-dot" style="background:#c8a02a;box-shadow:0 0 5px #c8a02a"></div><div><div class="activity-name">Vaas</div><div class="activity-world">Del Sol Valley</div></div></div>
-      <div class="activity-item"><div class="activity-dot" style="background:#3a4a7a;box-shadow:0 0 5px #3a4a7a"></div><div><div class="activity-name">Artjom</div><div class="activity-world">Willow Creek</div></div></div>
-      <div class="activity-item"><div class="activity-dot" style="background:#4a8a3a;box-shadow:0 0 5px #4a8a3a"></div><div><div class="activity-name">Alma</div><div class="activity-world">Brindleton Bay</div></div></div>
-      <div class="activity-item"><div class="activity-dot" style="background:#c87a2a;box-shadow:0 0 5px #c87a2a"></div><div><div class="activity-name">Dennah</div><div class="activity-world">Granite Falls</div></div></div>
-    </div>
-    <div>
-      <div class="sec-label">Online</div>
-      <div class="online-item"><div style="width:6px;height:6px;border-radius:50%;background:#4aaa6a"></div>Ripzha</div>
-      <div class="online-item"><div style="width:6px;height:6px;border-radius:50%;background:#4aaa6a"></div>Murloc</div>
-    </div>
-    <div>
-      <div class="sec-label">Stats</div>
-      <div class="stat-row"><span class="stat-key">Posts</span><span>7270</span></div>
-      <div class="stat-row"><span class="stat-key">Themen</span><span>722</span></div>
-      <div class="stat-row"><span class="stat-key">Mitglieder</span><span>39</span></div>
-      <div class="stat-row"><span class="stat-key">Welten</span><span>29</span></div>
-    </div>
-    <div id="discord-btn" onclick="window.open('https://discord.gg/FGB8Mfj','_blank')">
-      <span style="font-size:14px">💬</span>
-      <div><div style="font-size:11px;font-weight:500">Discord</div><div style="font-size:10px;color:rgba(255,255,255,0.35)">Community beitreten</div></div>
-    </div>
-  </div>
-</div>
-
-<!-- ADMIN PANEL -->
-<div id="admin-panel">
-  <div class="admin-header">
-    <div style="display:flex;align-items:center;gap:8px">
-      <span style="font-size:13px">🔧</span>
-      <span style="font-size:12px;color:#ffcc44;font-weight:500">Admin — Projekt ATLAS</span>
-      <span id="admin-suggest-count"></span>
-    </div>
-    <button onclick="closeAdmin()" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:18px">✕</button>
-  </div>
-  <div class="admin-tabs">
-    <button class="atab active" id="atab-lots" onclick="setAdminTab('lots')">Orte</button>
-    <button class="atab" id="atab-suggest" onclick="setAdminTab('suggest')">Vorschläge</button>
-    <button class="atab" id="atab-export" onclick="setAdminTab('export')">Export</button>
-  </div>
-  <div id="admin-content"></div>
-</div>
-
-<!-- USER SUGGEST MODAL -->
-<div id="suggest-modal">
-  <div class="suggest-box">
-    <div class="suggest-handle"></div>
-    <div style="font-size:14px;font-weight:500;margin-bottom:4px">📍 Ort vorschlagen</div>
-    <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:16px">Dein Vorschlag landet in der Admin-Queue.</div>
-    <div class="a-form-row"><div class="a-label">Welt</div><select class="a-select" id="sug-world"></select></div>
-    <div class="a-form-row"><div class="a-label">Ort-Name</div><input class="a-input" id="sug-name" placeholder="z.B. Nr. 5 - Meine Wohnung"></div>
-    <div class="a-form-row"><div class="a-label">Thread-URL</div><input class="a-input" id="sug-url" placeholder="https://www.simsforumrpg.de/t..."></div>
-    <div style="display:flex;gap:8px;margin-top:14px">
-      <button class="a-btn a-btn-primary" style="flex:1" onclick="submitSuggestion()">Einreichen</button>
-      <button class="a-btn a-btn-ghost" onclick="closeSuggest()">Abbrechen</button>
-    </div>
-    <div id="sug-result" style="display:none;margin-top:14px">
-      <div style="font-size:11px;color:#4aaa6a;margin-bottom:6px">✓ Eingereicht! Kopiere für Discord:</div>
-      <div class="suggest-copy-box" id="sug-copy-text"></div>
-      <button class="a-btn a-btn-primary" style="width:100%;margin-top:8px" onclick="copySuggest()">📋 Kopieren</button>
-    </div>
-  </div>
-</div>
-
-<!-- MOBILE BAR -->
-<div id="mob-bar">
-  <button class="mob-btn" id="mob-back" onclick="goBack()" style="display:none"><span class="mob-icon">←</span><span>Zurück</span></button>
-  <button class="mob-btn" onclick="window.open('https://www.simsforumrpg.de/forum.php','_blank')"><span class="mob-icon">📋</span><span>Forum</span></button>
-  <button class="mob-btn" onclick="openSheet('nav')"><span class="mob-icon">🗺️</span><span>Navigation</span></button>
-  <button class="mob-btn" onclick="openSheet('info')"><span class="mob-icon">📊</span><span>Stats</span></button>
-  <button class="mob-btn" onclick="window.open('https://discord.gg/FGB8Mfj','_blank')"><span class="mob-icon">💬</span><span>Discord</span></button>
-</div>
-    <div id="char-container">
-      <div id="char-header">
-        <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
-          <div id="char-tabs">
-            <button class="char-tab active" onclick="switchCharTab('haupt',this)">Hauptcharaktere</button>
-            <button class="char-tab" onclick="switchCharTab('neben',this)">Nebencharaktere</button>
-            <button class="char-tab" onclick="switchCharTab('statist',this)">Statisten</button>
-          </div>
-          <div id="char-subtitle"></div>
-        </div>
-        <div id="char-filter-bar"></div>
-        <a id="char-create-btn" href="https://ripzha.github.io/simswelt/rpg_char_html.html" target="_blank">✚ Charakter erstellen</a>
-        <button id="char-sort-btn" onclick="toggleCharSort()" title="Alphabetisch sortieren">A–Z</button>
-        <button id="char-reload" onclick="reloadChars()" title="Aktualisieren">↺</button>
-        <button id="char-close" onclick="closeCharView()">✕</button>
-      </div>
-      <div id="char-grid"></div>
-      <div id="char-hover-card">
-        <div id="chc-body">
-          <div id="chc-name"></div>
-          <div id="chc-player"></div>
-          <div id="chc-details"></div>
-          <div id="chc-lastseen"></div>
-          <div id="chc-link">Bogen öffnen →</div>
-        </div>
-      </div>
-    </div>
-<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
-    <div id="mobile-dot-bar">
-      <div id="mobile-dot-info">
-        <div id="mobile-dot-nr"></div>
-        <div id="mobile-dot-name"></div>
-      </div>
-      <button id="mobile-dot-btn" onclick="mobileDotOpen()">↗ Öffnen</button>
-    </div>
-<div class="sheet" id="sheet-nav">
-  <div class="sheet-handle"></div><div class="sheet-title">Navigation</div>
-  <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/forum.php" target="_blank">📋 Forum</a>
-  <a class="nav-item" style="margin-bottom:6px;cursor:pointer" onclick="openCharView();closeSheet()">👤 Charaktere</a>
-  <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/page-simsweltnews.html" target="_blank">📰 SimsWelt News</a>
-  <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/gallery.php" target="_blank">🖼️ Bildergalerie</a>
-</div>
-<div class="sheet" id="sheet-info">
-  <div class="sheet-handle"></div><div class="sheet-title">Online &amp; Stats</div>
-  <div class="online-item" style="margin-bottom:6px"><div style="width:8px;height:8px;border-radius:50%;background:#4aaa6a"></div>Ripzha</div>
-  <div class="online-item" style="margin-bottom:10px"><div style="width:8px;height:8px;border-radius:50%;background:#4aaa6a"></div>Murloc</div>
-  <div class="stat-row"><span class="stat-key">Posts</span><span>7270</span></div>
-  <div class="stat-row"><span class="stat-key">Themen</span><span>722</span></div>
-  <div class="stat-row"><span class="stat-key">Mitglieder</span><span>39</span></div>
-</div>
-
+<div id="app"></div>
+<div id="modals"></div>
+<input id="imgInput" type="file" accept="image/*" style="display:none"/>
 <script>
-const ADMIN_PASS='admin0987';
-const BASE='https://www.simsforumrpg.de/';
-const IMG='https://files.homepagemodules.de/b855163/resize/1920x1200/';
+var MISTRAL_KEY="2sFqjZLioWcFFuILhASGZJwVhxnjss4r";
 
-// ═══════════════════════════════════════════
-// GEBÄUDE-DATEN (SM + EH)
-// ═══════════════════════════════════════════
-const BUILDINGS = {
-  "Culpepper-Apartments":  {imgs:[IMG+"pictures_u1170_BtwAdlUp.png"],lots:[{name:"Wohnung 1",x:30,y:75,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 2",x:50,y:25,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 3",x:70,y:65,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 4",x:50,y:88,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Jasmin-Studios":        {imgs:[IMG+"pictures_u1173_glSvpdsr.png"],lots:[{name:"Studio 5",x:35,y:35,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Studio 6",x:60,y:75,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Medina-Studios":        {imgs:[IMG+"pictures_u1176_qXcTrNaj.png"],lots:[{name:"Studio 9",x:30,y:60,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Studio 10",x:60,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Studio 11",x:55,y:75,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Hakim-Haus":            {imgs:[IMG+"pictures_u1172_jgdhOcVw.png"],lots:[{name:"Wohnung 13",x:50,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 14",x:50,y:78,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Landgraab-Apartments":  {imgs:[IMG+"pictures_u1175_bPvqCfdS.png",IMG+"pictures_u1174_eIzqUPZL.png"],lots:[{name:"Wohnung 17",x:40,y:35,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 18",x:55,y:72,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Alto-Apartments":       {imgs:[IMG+"pictures_u1171_CbejBpJu.png"],lots:[{name:"Wohnung 21",x:40,y:40,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 22",x:55,y:78,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "ZenView-Apartments":    {imgs:[IMG+"pictures_u1181_hVjZGEkW.png",IMG+"pictures_u1180_LhvsFNlx.png"],lots:[{name:"Wohnung 24",x:50,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 25",x:50,y:72,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Spitzen-Apartments":    {imgs:[IMG+"pictures_u1178_odPXQNxE.png",IMG+"pictures_u1179_KecVnlEU.png"],lots:[{name:"Wohnung 16",x:50,y:50,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Luxusallee-21":         {imgs:[IMG+"pictures_u1177_mzbSxfyX.png"],lots:[{name:"Wohnung 26",x:60,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 27",x:30,y:60,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 28",x:55,y:80,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Kieferhügel-Apartments":{imgs:[''],lots:[
-    {name:"Nr. 12 - Jarred Cunningham",x:35,y:45,url:BASE+'t621f51791-Evergreen-Harbor-Nr-Wohnung-Jarred-Cunningham.html',active:false},
-    {name:"Nr. 13 - WG Tom & Valentin",x:65,y:70,url:BASE+'t233f51791-Evergreen-Harbor-Nr-WG-Tom-Valentin.html',active:false},
-  ]},
-  "Steinweg-Apartments":   {imgs:[''],lots:[
-    {name:"Nr. 14 - Familie Engel",x:35,y:50,url:BASE+'t55f51791-Evergreen-Harbor-Nr-Familie-Engel.html',active:false},
-    {name:"Nr. 15 - Wohnung Joachim Winter",x:65,y:65,url:BASE+'f51791-Evergreen-Harbor.html',active:false},
-  ]},
-};
+var C={bg:"#b8c2b8",card:"#c8d0c8",card2:"#bec8be",border:"#96a896",accent:"#4d7a4d",teal:"#3d6f8a",text:"#1a1a1a",muted:"#4a564a",input:"#d4dcd4",danger:"#902020"};
 
-// ═══════════════════════════════════════════
-// WELTEN
-// ═══════════════════════════════════════════
-const worlds=[
-  {name:"Innisgreen",x:15.1,y:13.7,color:"#4a8a5a",type:"Feen-Insel",url:BASE+"f59907-Innisgreen.html",img:IMG+"f59907t701p6857n6_GhgTkzIe.png"},
-  {name:"Nordhaven",x:38.7,y:22,color:"#4a8aaa",type:"Fjordstadt",url:BASE+"f59567-Nordhaven.html",img:IMG+"f51848t204p5730n2_bcapNnET.png"},
-  {name:"Ravenwood",x:48.7,y:24.9,color:"#5a5a3a",type:"Nebelhochland",url:BASE+"f59271-Ravenwood.html",img:IMG+"f51848t204p4824n2_TWBoOluh.png"},
-  {name:"Granite Falls",x:62.6,y:23.9,color:"#3a6a3a",type:"Nationalpark",url:BASE+"f51798-Granite-Falls.html",img:IMG+"f51848t204p6440n4_YVXgMSor.png"},
-  {name:"Chestnut Ridge",x:72.9,y:20.4,color:"#aa7a2a",type:"Ranch",url:BASE+"f55177-Chestnut-Ridge.html",img:IMG+"f51848t204p3080n2_UHnYvhOE.png"},
-  {name:"Strangerville",x:81.3,y:29.5,color:"#8a3a5a",type:"Mysteriös",url:BASE+"f51787-Strangerville.html",img:IMG+"f51848t204p3069n2_YGvixVsh.png"},
-  {name:"Evergreen Harbor",x:88.7,y:34.1,color:"#3a5a5a",type:"Hafen",url:BASE+"f51791-Evergreen-Harbor.html",img:IMG+"f51848t204p3073n2_DfshroRW.png"},
-  {name:"San Sequoia",x:40.1,y:31.6,color:"#3a6a5a",type:"Pazifik",url:BASE+"f51797-San-Sequoia.html",img:IMG+"f51848t204p3079n2_uJtqbMOr.png"},
-  {name:"Britechester",x:57,y:30.9,color:"#7a8a5a",type:"Universität",url:BASE+"f51790-Britechester.html",img:IMG+"f51848t204p3072n2_YRsCbFjy.png"},
-  {name:"Forgotten Hollow",x:69.5,y:32,color:"#6a3a8a",type:"Vampire",url:BASE+"f51784-Forgotten-Hollow.html",img:IMG+"f51848t204p3066n2_JXpWTELe.png"},
-  {name:"Copperdale",x:59.7,y:40.3,color:"#5a7a5a",type:"Kleinstadt",url:BASE+"f51796-Copperdale.html",img:IMG+"f51848t204p3078n2_kPwgBqFU.png"},
-  {name:"Henford-on-Bagley",x:70.6,y:41.2,color:"#6a8a3a",type:"England",url:BASE+"f51793-Henford-on-Bagley.html",img:IMG+"f51848t204p3075n2_YXNhtBrg.png"},
-  {name:"Glimmerbrook",x:80.3,y:41.4,color:"#7a3a9a",type:"Magie",url:BASE+"f51789-Glimmerbrook.html",img:IMG+"f51848t204p3071n2_fiXwYNJL.png"},
-  {name:"Mt. Komorebi",x:69,y:49,color:"#9aaabb",type:"Gebirge",url:BASE+"f51792-Mt-Komorebi.html",img:IMG+"f51848t204p3074n2_jCIcfQSW.png"},
-  {name:"Moonwood Mill",x:77.5,y:49.5,color:"#2a4a5a",type:"Werwölfe",url:BASE+"f51795-Moonwood-Mill.html",img:IMG+"f51848t204p3077n2_ycbLHtnP.png"},
-  {name:"Brindleton Bay",x:85.2,y:51.2,color:"#3a7a7a",type:"Küste",url:BASE+"f51785-Brindleton-Bay.html",img:IMG+"f51848t204p3067n2_lgSCqfRT.png"},
-  {name:"San Myshuno",x:60.1,y:56.7,color:"#3a4a7a",type:"Grossstadt",url:BASE+"f51783-San-Myshuno.html",img:IMG+"f51848t204p3065n2_bDAZuVYK.png"},
-  {name:"Magnolia Promenade",x:69.1,y:56.4,color:"#7a6a5a",type:"Promenade",url:BASE+"f51781-Magnolia-Promenade.html",img:IMG+"f51848t204p3063n2_adLzKDsI.png"},
-  {name:"Willow Creek",x:78.4,y:58.5,color:"#4a8a3a",type:"Südstaaten",url:BASE+"f51778-Willow-Creek.html",img:IMG+"f51848t204p3060n2_PxOvMDpj.png"},
-  {name:"Newcrest",x:73.2,y:65.6,color:"#7a8a5a",type:"Vorstadt",url:BASE+"f51780-Newcrest.html",img:IMG+"f51848t204p3062n2_otgEqnkR.png"},
-  {name:"Windenburg",x:79.8,y:68.4,color:"#5a6a7a",type:"Altstadt",url:BASE+"f51782-Windenburg.html",img:IMG+"f51848t204p3064n2_psJRBMPY.png"},
-  {name:"Del Sol Valley",x:65,y:71.1,color:"#c8a02a",type:"Hollywood",url:BASE+"f51786-Del-Sol-Valley.html",img:IMG+"f51848t204p3068n2_ubDiGjJP.png"},
-  {name:"Oasis Springs",x:72,y:78.7,color:"#c87a2a",type:"Wüste",url:BASE+"f51779-Oasis-Springs.html",img:IMG+"f51848t204p3061n2_zxcBGyYe.png"},
-  {name:"Sulani",x:91.4,y:67.6,color:"#2a9a8a",type:"Tropeninsel",url:BASE+"f51788-Sulani.html",img:IMG+"f51848t204p3070n2_zlTJqYjA.png"},
-  {name:"Selvadorada",x:15.9,y:63.8,color:"#2a5a2a",type:"Dschungel",url:BASE+"f51799-Selvadorada.html",img:IMG+"f51848t204p6856n2_kZxrGtah.png"},
-  {name:"Tomarang",x:3.7,y:40,color:"#2a7a5a",type:"Südostasien",url:BASE+"f58300-Tomarang.html",img:IMG+"f51848t204p3081n2_oltrqfsx.png"},
-  {name:"Ciudad Enamorada",x:2.7,y:44.6,color:"#aa4a3a",type:"Latein",url:BASE+"f58925-Ciudad-Enamorada.html",img:IMG+"f51848t204p3786n2_wXzDyWOT.png"},
-  {name:"Tartosa",x:72.8,y:92.2,color:"#b06a3a",type:"Mittelmeer",url:BASE+"f51794-Tartosa.html",img:IMG+"f51848t204p3076n2_nNWxrUDc.png"},
-  {name:"Ondarion",x:3.1,y:50.2,color:"#8a7a3a",type:"Königreich",url:BASE+"f51848-Orte.html",img:""},
+var FIELDS=[
+  {key:"name",label:"Name",hint:"Wie heisst dein Charakter? Hat er einen Kosenamen?",multi:false},
+  {key:"age",label:"Alter",hint:"Wie alt ist dein Charakter? Geburtsdatum?",multi:false},
+  {key:"gender",label:"Geschlecht",hint:"Männlich, weiblich, divers?",multi:false},
+  {key:"orientation",label:"Orientierung",hint:"Zu welchem Geschlecht fühlt sich der Charakter hingezogen?",multi:false,optional:true},
+  {key:"occult",label:"Okkultismus",hint:"Vampir, Magier, Meersim oder Alien?",multi:false,optional:true},
+  {key:"job",label:"Beruf",hint:"Was arbeitet dein Charakter?",multi:false},
+  {key:"wealth",label:"Einkommen / Vermögen",hint:"Reich, arm, durchschnittlich?",multi:false},
+  {key:"goals",label:"Ziele",hint:"Welches Ziel verfolgt dein Sim?",multi:true},
+  {key:"group",label:"Gruppierung",hint:"In einer Gruppe? Angesehen oder verrufen?",multi:false,optional:true},
+  {key:"origin",label:"Herkunft",hint:"Wo kommt dein Charakter her?",multi:false},
+  {key:"hobbies",label:"Hobbies",hint:"Was macht dein Charakter in der Freizeit?",multi:true},
+  {key:"home",label:"Wohnort / Haus",hint:"Wähle eine noch freie Kartennummer.",multi:false},
+  {key:"livingSit",label:"Wohnsituation",hint:"Allein, WG, bei den Eltern, mit Partner?",multi:false},
+  {key:"family",label:"Familie / Tiere / NPCs",hint:"Verwandtschaft, Freunde, Feinde?",multi:true},
+  {key:"skills",label:"Fähigkeiten",hint:"Was kann dein Charakter besonders gut?",multi:true},
+  {key:"appearance",label:"Aussehen",hint:"Wie gross? Besondere Merkmale?",multi:true},
+  {key:"voice",label:"Stimme",hint:"Hoch, tief, rau, sanft?",multi:false},
+  {key:"scent",label:"Geruch / Duft",hint:"Wie riecht der Charakter?",multi:false},
+  {key:"personality",label:"Persönlichkeit",hint:"Lustig? Verschlossen? Draufgänger?",multi:true},
+  {key:"history",label:"Geschichte",hint:"Was hat dein Charakter bisher erlebt?",multi:true}
 ];
 
-// ═══════════════════════════════════════════
-// ORTE PRO WELT
-// ═══════════════════════════════════════════
-const worldLots={
-  "Innisgreen":[
-    {name:"Innisgreen",x:50,y:50,url:BASE+"t701f59907-Innisgreen.html",active:true,outdoor:true},
-  ],
-  "Willow Creek":[
-    {name:"Nr. 2 - Gerichtsgebäude",x:25.2,y:44.7,url:BASE+"t42f51778-Willow-Creek-Nr-Gerichtsgebaeude.html",active:false,img:IMG+"f51778t42p480n2_hRnETHkO.png"},
-    {name:"Nr. 7 - Restaurant Panorama",x:77.8,y:40.4,url:BASE+"t30f51778-Willow-Creek-Nr-Restaurant-Panorama.html",active:false,img:IMG+"f51778t30p211n2_hzFedUlK.png"},
-    {name:"Nr. 11 - Archiv",x:85.4,y:52.8,url:BASE+"t13f51778-Willow-Creek-Nr-Archiv-von-Willow-Creek.html",active:false,img:IMG+"f15060t13p50n2_ohFYWDgT.png"},
-    {name:"Nr. 12 - Familie Komarow",x:70.6,y:65.4,url:BASE+"t212f51778-Willow-Creek-Nr-Familie-Komarow.html",active:false,img:IMG+"f51778t212p2694n6_DpoPUmuQ.png"},
-    {name:"Nr. 14 - Phil Hermann",x:58.7,y:64.6,url:BASE+"t34f51778-Willow-Creek-Nr-Haus-von-Phil-Hermann.html",active:false,img:IMG+"f51778t34p230n2_dLhNcPVe.png"},
-    {name:"Nr. 16 - Haus Darkholme",x:75.5,y:81.3,url:BASE+"t72f51778-Willow-Creek-Nr-Haus-Darkholme.html",active:false,img:IMG+"f51778t72p630n12_OPosmXBZ.png"},
-    {name:"Nr. 17 - Magnolienblüten Park",x:37.5,y:57.8,url:BASE+"t36f51778-Willow-Creek-Nr-Magnolienblueten-Park.html",active:false,img:IMG+"f51778t36p244n2_kighvlSC.jpg"},
-    {name:"Nadine's Haus",nr:"Nr. 9",x:70.2,y:49.3,url:BASE+"t159f51778-Willow-Creek-Nadine-s-Haus.html",active:false,img:IMG+"f51778t159p2250n8_MQOKRYAe.png"},
-    {name:"Denize' Haus",nr:"Nr. 15",x:63.3,y:74.1,url:BASE+"t66f51778-Willow-Creek-Denize-Haus.html",active:false,img:IMG+"f51778t66p624n2_cjyNqzif.png"},
-    {name:"Familie Lamont",nr:"Nr. 21",x:41.3,y:82.9,url:BASE+"t237f51778-Willow-Creek-Haus-von-Familie-Lamont.html",active:false,img:IMG+"f51778t237p2999n13_GVtEkBvD.png"},
-    {name:"Nr. 1",x:14.2,y:37,url:BASE+"f51778-Willow-Creek.html",active:false},
-    {name:"Nr. 3",x:40.6,y:35.5,url:BASE+"f51778-Willow-Creek.html",active:false},
-    {name:"Nr. 4",x:53.7,y:32.9,url:BASE+"f51778-Willow-Creek.html",active:false},
-    {name:"Nr. 5",x:49.9,y:44.4,url:BASE+"f51778-Willow-Creek.html",active:false},
-    {name:"Nr. 6",x:59.2,y:39.5,url:BASE+"f51778-Willow-Creek.html",active:false},
-    {name:"Nr. 8",x:89.1,y:44.5,url:BASE+"f51778-Willow-Creek.html",active:false},
-    {name:"Nr. 10",x:77.8,y:51.9,url:BASE+"f51778-Willow-Creek.html",active:false},
-    {name:"Nr. 13",x:82.9,y:72.4,url:BASE+"f51778-Willow-Creek.html",active:false},
-    {name:"Nr. 18",x:17.3,y:68,url:BASE+"f51778-Willow-Creek.html",active:false},
-    {name:"Nr. 19",x:25.1,y:73.5,url:BASE+"f51778-Willow-Creek.html",active:false},
-    {name:"Nr. 20",x:33.2,y:77.8,url:BASE+"f51778-Willow-Creek.html",active:false},
-  ],
-  "Oasis Springs":[
-    {name:"Oasis Springs (Strassen)",x:40.5,y:60.6,url:BASE+"t166f51779-Oasis-Springs.html",active:true,outdoor:true},
-    {name:"Nr. 1",x:20.2,y:35.9,url:BASE+"f51779-Oasis-Springs.html",active:false},
-    {name:"Nr. 2",x:12.9,y:44.6,url:BASE+"f51779-Oasis-Springs.html",active:false},
-    {name:"Nr. 3",x:20,y:49.3,url:BASE+"f51779-Oasis-Springs.html",active:false},
-    {name:"Nr. 4",x:34.8,y:43.1,url:BASE+"f51779-Oasis-Springs.html",active:false},
-    {name:"Nr. 5",x:50.8,y:51.5,url:BASE+"f51779-Oasis-Springs.html",active:false},
-    {name:"Nr. 6",x:44,y:32.3,url:BASE+"f51779-Oasis-Springs.html",active:false},
-    {name:"Nr. 7",x:59.6,y:37.2,url:BASE+"f51779-Oasis-Springs.html",active:false},
-        {name:"Nr. 9",x:79,y:44.3,url:BASE+"f51779-Oasis-Springs.html",active:false},
-            {name:"Nr. 12",x:75.5,y:57.1,url:BASE+"f51779-Oasis-Springs.html",active:false},
-    {name:"Nr. 13",x:81.7,y:73.5,url:BASE+"f51779-Oasis-Springs.html",active:false},
-    {name:"Nr. 14",x:64.4,y:65.4,url:BASE+"f51779-Oasis-Springs.html",active:false},
-    {name:"Nr. 15",x:54.6,y:68.1,url:BASE+"f51779-Oasis-Springs.html",active:false},
-    {name:"Nr. 16",x:69.5,y:79.4,url:BASE+"f51779-Oasis-Springs.html",active:false},
-    {name:"Nr. 17",x:58.5,y:79.6,url:BASE+"f51779-Oasis-Springs.html",active:false},
-    {name:"Nr. 18",x:39.3,y:81.5,url:BASE+"f51779-Oasis-Springs.html",active:false},
-    {name:"Nr. 19",x:31.7,y:72.1,url:BASE+"f51779-Oasis-Springs.html",active:false},
-            {name:"Familie Töpfer",nr:"Nr. 11",x:83.4,y:56.8,url:BASE+"t51f51779-Oasis-Springs.html",active:false,img:IMG+"f51779t51p609n2_oiOQgtVH.png"},
-    {name:"Delsyns Camper",nr:"Nr. 10",x:88.8,y:52.3,url:BASE+"t64f51779-Oasis-Springs.html",active:false,img:IMG+"f51779t64p622n2_HsOdbCVe.png"},
-    {name:"Bandraum",x:90,y:29,url:BASE+"t62f51779-Oasis-Springs.html",active:false,img:IMG+"f51779t62p620n2_dIPqYGbr.png"},
-    {name:"Oasis Bowling",nr:"Nr. 20",x:20.5,y:67,url:BASE+"t44f51779-Oasis-Springs.html",active:false,img:IMG+"f51779t44p602n2_wOPutXMn.png"},
-    {name:"Skate Park",nr:"Nr. 21",x:13.8,y:63.8,url:BASE+"t49f51779-Oasis-Springs.html",active:false,img:IMG+"f51779t49p607n2_ALITpwVs.png"},
-    {name:"Haus Bucur",x:90,y:50,url:BASE+"t469f51779-Oasis-Springs.html",active:false,img:IMG+"f51779t469p3806n2_alfePpTq.png"},
-    {name:"Oasis Springs Endstation",x:90,y:57,url:BASE+"t63f51779-Oasis-Springs.html",active:false,img:IMG+"f51779t63p621n2_RKMJYeyH.png"},
-    {name:"Leerstehende Bruchbude",nr:"Nr. 8",x:68.8,y:50.4,url:BASE+"t48f51779-Oasis-Springs.html",active:false,img:IMG+"f51779t48p606n2_MnwPKEYs.png"},
-  ],
-  "Newcrest":[
-    {name:"Newcrest",x:50,y:50,url:BASE+"t88f51780-Newcrest.html",active:true,outdoor:true},
-    {name:"Nr. 13 - Waisenhaus Heimathafen",x:32,y:57.2,url:BASE+"t566f51780-Newcrest-Nr-Waisenhaus-Heimathafen.html",active:true,img:IMG+"f51780t566p4997n7_zwhuqRTB.png"},
-    {name:"Jugendtreff KOJ",nr:"Nr. 1",x:54.5,y:24.7,url:BASE+"t71f51780-Newcrest.html",active:false,img:IMG+"f51780t71p629n2_wnFATONg.png"},
-    {name:"Nr. 2",x:61.3,y:27.8,url:BASE+"f51780-Newcrest.html",active:false},
-    {name:"Nr. 3",x:64.8,y:22.4,url:BASE+"f51780-Newcrest.html",active:false},
-    {name:"Nr. 4",x:67.2,y:19.8,url:BASE+"f51780-Newcrest.html",active:false},
-    {name:"Selvadorada Museum",nr:"Nr. 5",x:69,y:30.6,url:BASE+"t45f51780-Newcrest.html",active:false,img:IMG+"f51780t45p603n2_NnTLulDU.png"},
-    {name:"Nr. 6",x:82.5,y:53.1,url:BASE+"f51780-Newcrest.html",active:false},
-    {name:"Nr. 7",x:79.3,y:58.1,url:BASE+"f51780-Newcrest.html",active:false},
-    {name:"Café \"The Purrfect Time\"",nr:"Nr. 8",x:76.4,y:63.7,url:BASE+"t50f51780-Newcrest.html",active:false,img:IMG+"f51780t50p608n2_ztCPsOVu.png"},
-    {name:"Saunabad \"Freigeist\"",nr:"Nr. 9",x:72.3,y:69.2,url:BASE+"t32f51780-Newcrest.html",active:false,img:IMG+"f51780t32p219n2_GRhyKVDO.png"},
-    {name:"Tropenbad",nr:"Nr. 10",x:69.5,y:78.3,url:BASE+"t75f51780-Newcrest.html",active:false,img:IMG+"f51780t75p633n2_DumIKaAR.png"},
-    {name:"Nr. 11",x:42.7,y:64.6,url:BASE+"f51780-Newcrest.html",active:false},
-    {name:"Fussballplatz",nr:"Nr. 12",x:38.1,y:50.7,url:BASE+"t77f51780-Newcrest.html",active:false,img:IMG+"f51780t77p635n2_HtnsGkjE.png"},
-    {name:"Naturkundemuseum",nr:"Nr. 14",x:23.9,y:68.5,url:BASE+"t214f51780-Newcrest.html",active:false,img:IMG+"f51780t214p2704n10_uabWVRpd.png"},
-    {name:"Blaisdell Anwesen",nr:"Nr. 15",x:33.7,y:75.7,url:BASE+"t70f51780-Newcrest.html",active:false,img:IMG+"f51780t70p628n2_UenvSTXa.png"},
-  ],
-  "Magnolia Promenade":[
-    {name:"Magnolia Promenade",x:49,y:52,url:BASE+"t225f51781-Magnolia-Promenade.html",active:true,outdoor:true},
-    {name:"Nr. 1 - Kleiner Lebensmittelladen",x:43.9,y:43.5,url:BASE+"t16f51781-Magnolia-Promenade-Nr-Kleiner-Lebensmittelladen.html",active:false,img:IMG+"f51781t16p65n2_qVzxAWyO.png"},
-    {name:"Nr. 2 - Shopping District",x:59.8,y:50,url:BASE+"t24f51781-Magnolia-Promenade-Nr-Shopping-District.html",active:false,img:IMG+"f51781t24p139n2_bEWilIGu.png"},
-    {name:"Nr. 3 - Möbelhaus",x:42,y:57.8,url:BASE+"t752f51781-Magnolia-Promenade-Nr-Moebelhaus.html",active:true,img:IMG+"f51781t752p7348n2_VlqyHTXa.png"},
-    {name:"Nr. 4",x:53.5,y:63.5,url:BASE+"f51781-Magnolia-Promenade.html",active:false},
-  ],
-  "Windenburg":[
-    {name:"Windenburg (Strassen)",x:49,y:51.7,url:BASE+"t167f51782-Windenburg.html",active:true,outdoor:true},
-    {name:"Friedhof Windenburg",nr:"Nr. 1",x:24.8,y:30.2,url:BASE+"t57f51782-Windenburg-Nr-Friedhof-Windenburg.html",active:false,img:IMG+"f51782t57p615n2_mjnMCfri.png"},
-    {name:"Nr. 2",x:28.9,y:34.8,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"Nr. 3",x:33.1,y:37.9,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"Nr. 4",x:39.2,y:38.5,url:BASE+"f51782-Windenburg.html",active:false},
-        {name:"Eventhalle",nr:"Nr. 5",x:46.3,y:32.2,url:BASE+"t576f51782-Windenburg-Eventhalle.html",active:false,img:IMG+"f51782t576p5130n2_hCZgyFYd.png"},
-    {name:"Familie Jaspers",nr:"Nr. 6",x:48.3,y:39.8,url:BASE+"t74f51782-Windenburg-Nr-Familie-Jaspers.html",active:false,img:IMG+"f51782t74p632n2_hoxlkMzT.png"},
-    {name:"Kleinkinderspielplatz",nr:"Nr. 7",x:60.5,y:48.2,url:BASE+"t123f51782-Windenburg-Nr-Kleinkinderspielplatz.html",active:false,img:IMG+"f51782t123p1413n2_WTdtgBAc.png"},
-    {name:"Narwal Arms",nr:"Nr. 8",x:67.2,y:44.7,url:BASE+"t6f51782-Windenburg-Nr-Narwal-Arms.html",active:false,img:IMG+"f15060t6p18n2_fxlFUbiY.png"},
-    {name:"Palazzo",nr:"Nr. 9",x:72.3,y:42.9,url:BASE+"t648f51782-Windenburg-Palazzo-Dinner-Tanz-amp-Show.html",active:false,img:IMG+"f51782t648p5987n2_RbSyLPFr.png"},
-    {name:"Nr. 10",x:74.9,y:39.1,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"Wohnung Arnim & Mayve",nr:"Nr. 11",x:80.6,y:42.1,url:BASE+"t494f51782-Windenburg-Nr-Wohnung-von-Arnim-und-Mayve.html",active:false,img:IMG+"f51782t494p4235n2_PtNTRLdu.png"},
-    {name:"Wohnung Doris & Marvin",nr:"Nr. 11",x:80.6,y:42.1,url:BASE+"t602f51782-Windenburg-Nr-Wohnung-von-Doris-und-Marvin-Minze.html",active:false,img:IMG+"f51782t602p5301n2_ebPmoaUj.png"},
-    {name:"Dienstwohnung Phönix Bright",nr:"Nr. 11",x:80.6,y:42.1,url:BASE+"t540f51782-Windenburg-Nr-Dienstwohnung-von-Phoenix-Bright.html",active:false,img:IMG+"f51782t540p4588n11_nlqhaQEM.png"},
-    {name:"Luigi's Pizza",nr:"Nr. 12",x:87.5,y:51.7,url:BASE+"t14f51782-Windenburg-Nr-Luigi-s-Pizza.html",active:false,img:IMG+"f51782t14p59n2_ARXEztSn.png"},
-        {name:"Tierarztpraxis",nr:"Nr. 13",x:78.8,y:53.1,url:BASE+"t546f51782-Windenburg-Tierarztpraxis-Windenburg.html",active:false,img:IMG+"f51782t546p4743n2_DMYxedGX.png"},
-    {name:"Nr. 14",x:67.4,y:54,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"Schwimmbad Aqua Paradise",nr:"Nr. 15",x:61.7,y:69.4,url:BASE+"t76f51782-Windenburg-Nr-Schwimmbad-Aqua-Paradise.html",active:false,img:IMG+"f51782t76p634n2_EBlqxbRP.png"},
-    {name:"Tattoo-Studio",nr:"Nr. 16",x:71.5,y:65.8,url:BASE+"t420f51782-Windenburg-Nr-Tattoo-Studio.html",active:false,img:IMG+"f51782t420p3599n2_EOjnqRNC.png"},
-    {name:"Café zum Waschbär",nr:"Nr. 17",x:80.4,y:69.6,url:BASE+"t33f51782-Windenburg-Nr-Cafe-zum-Waschbaer.html",active:false,img:IMG+"f51782t33p223n2_IaRFSiZo.png"},
-    {name:"Krankenhaus",nr:"Nr. 18",x:84.1,y:78.3,url:BASE+"t156f51782-Windenburg-Nr-Krankenhaus.html",active:false,img:IMG+"f51782t156p2182n25_EBhfbZRP.png"},
-    {name:"Hot & Spicy Restaurant",nr:"Nr. 19",x:70.9,y:80.3,url:BASE+"t119f51782-Windenburg-Nr-Hot-amp-Spicy-Restaurant.html",active:false,img:IMG+"f51782t119p1342n7_sLiBAhCd.png"},
-    {name:"Nr. 20",x:36.6,y:68,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"Nr. 21",x:29.6,y:78.1,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"Nr. 22",x:21.2,y:76.5,url:BASE+"f51782-Windenburg.html",active:false},
-        {name:"Neue Wege Klinik",nr:"Nr. 23",x:23.4,y:68.6,url:BASE+"t352f51782-Windenburg-Neue-Wege-Klinik.html",active:false,img:IMG+"f51782t352p3337n17_LtzWbSml.png"},
-    {name:"Park von Windenburg",nr:"Nr. 24",x:18.8,y:61.9,url:BASE+"t740f51782-Windenburg-Nr-Park-von-Windenburg.html",active:false,img:IMG+"f51782t740p7211n3_cYqojUQl.png"},
-    {name:"A",x:30.7,y:56.1,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"B",x:37.5,y:23.7,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"C - Alte Ruine",x:63.6,y:37.9,url:BASE+"t351f51782-Windenburg-alte-Ruine.html",active:false,img:IMG+"f51782t351p3335n2_MpfxoUiL.png"},
-  ],
-  "San Myshuno":[
-    {name:"San Myshuno (Strassen)",x:54.1,y:31.5,url:BASE+"t169f51783-San-Myshuno.html",active:true,outdoor:true},
-    {name:"Nr. 7",x:29.2,y:24.3,url:BASE+"f51783-San-Myshuno.html",active:false},
-    {name:"Nr. 8",x:34.4,y:30,url:BASE+"f51783-San-Myshuno.html",active:false},
-    {name:"Nr. 12",x:70.1,y:23.8,url:BASE+"f51783-San-Myshuno.html",active:false},
-    {name:"Nr. 15",x:80.5,y:23.5,url:BASE+"f51783-San-Myshuno.html",active:false},
-    {name:"Nr. 16",x:48.9,y:40.7,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Spitzen-Apartments"},
-    {name:"Nr. 19",x:46.8,y:62.6,url:BASE+"f51783-San-Myshuno.html",active:false},
-    {name:"Nr. 20",x:56.9,y:59.8,url:BASE+"f51783-San-Myshuno.html",active:false},
-    {name:"Nr. 23",x:15.2,y:37.8,url:BASE+"f51783-San-Myshuno.html",active:false},
-    {name:"A - Spice Festival Park",x:84.2,y:66.3,url:BASE+"f51783-San-Myshuno.html",active:false,outdoor:true},
-    {name:"Nr. 1 - Culpepper",x:33.2,y:14.6,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Culpepper-Apartments"},
-    {name:"Nr. 2 - Culpepper",x:33.2,y:14.6,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Culpepper-Apartments"},
-    {name:"Nr. 3 - Culpepper",x:33.2,y:14.6,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Culpepper-Apartments"},
-    {name:"Nr. 4 - Culpepper",x:33.2,y:14.6,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Culpepper-Apartments"},
-    {name:"Nr. 5 - Jasmin",x:38.1,y:13.8,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Jasmin-Studios"},
-    {name:"Nr. 6 - Jasmin",x:38.1,y:13.8,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Jasmin-Studios"},
-    {name:"Nr. 9 - Medina",x:65.2,y:13.8,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Medina-Studios"},
-    {name:"Nr. 10 - Medina",x:65.2,y:13.8,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Medina-Studios"},
-    {name:"Nr. 11 - Medina",x:65.2,y:13.8,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Medina-Studios"},
-    {name:"Nr. 13 - Hakim",x:79,y:13.5,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Hakim-Haus"},
-    {name:"Nr. 14 - Hakim",x:79,y:13.5,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Hakim-Haus"},
-    {name:"Nr. 17 - Landgraab",x:65.9,y:42.8,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Landgraab-Apartments"},
-    {name:"Nr. 18 - Landgraab",x:65.9,y:42.8,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Landgraab-Apartments"},
-    {name:"Nr. 21 - Alto",x:69.2,y:57.7,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Alto-Apartments"},
-    {name:"Nr. 22 - Alto",x:69.2,y:57.7,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Alto-Apartments"},
-    {name:"Nr. 24 - ZenView",x:11.2,y:52.4,url:BASE+"f51783-San-Myshuno.html",active:false,building:"ZenView-Apartments"},
-    {name:"Nr. 25 - ZenView",x:11.2,y:52.4,url:BASE+"f51783-San-Myshuno.html",active:false,building:"ZenView-Apartments"},
-    {name:"Nr. 26 - Luxusallee",x:18.1,y:59.4,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Luxusallee-21"},
-    {name:"Nr. 27 - Luxusallee",x:18.1,y:59.4,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Luxusallee-21"},
-    {name:"Nr. 28 - Luxusallee",x:18.1,y:59.4,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Luxusallee-21"},
-  ],
-  "Forgotten Hollow":[
-    {name:"Forgotten Hollow (Strassen)",x:44.1,y:48.9,url:BASE+"t120f51784-Forgotten-Hollow.html",active:true,outdoor:true},
-    {name:"Nr. 1 - Pablo Garcia-Lopez",x:30.5,y:46.8,url:BASE+"t69f51784-Forgotten-Hollow-Nr-Haus-von-Pablo-Garcia-Lopez.html",active:false},
-    {name:"Nr. 2 - Vampir Bar",x:45.9,y:32.5,url:BASE+"t52f51784-Forgotten-Hollow-Nr-Vampir-Bar.html",active:false},
-    {name:"Nr. 3 - Villa Victoria",x:70,y:27,url:BASE+"t54f51784-Forgotten-Hollow-Nr-Villa-Victoria.html",active:false},
-    {name:"Nr. 4 - Villa Blutrose",x:60.1,y:50.5,url:BASE+"t19f51784-Forgotten-Hollow-Nr-Villa-Blutrose.html",active:true},
-    {name:"Nr. 5 - Shanes Höhle",x:9.5,y:17.3,url:BASE+"t65f51784-Forgotten-Hollow-Shanes-Hoehle.html",active:false},
-    {name:"Blutzahn-Familienhaus",x:43,y:66,url:BASE+"t487f51784-Forgotten-Hollow-Blutzahn-Familienhaus.html",active:false},
-  ],
-  "Brindleton Bay":[
-    {name:"Brindleton Bay (Strassen)",x:52.1,y:73.6,url:BASE+"t137f51785-Brindleton-Bay.html",active:true,outdoor:true},
-    {name:"Altersheim Shady Pines",nr:"Nr. 1",x:24.2,y:27.3,url:BASE+"t53f51785-Brindleton-Bay-Nr-Altersheim-Shady-Pines.html",active:false},
-    {name:"Nr. 2",x:16.8,y:38,url:BASE+"f51785-Brindleton-Bay.html",active:false},
-    {name:"Haus der Garcias",nr:"Nr. 3",x:30.1,y:39.6,url:BASE+"t9f51785-Brindleton-Bay-Nr-Haus-der-Garcias.html",active:false},
-    {name:"Nr. 4",x:32.2,y:33.1,url:BASE+"f51785-Brindleton-Bay.html",active:false},
-    {name:"Rainbow Kindergarten",nr:"Nr. 5",x:34.9,y:27.6,url:BASE+"t343f51785-Brindleton-Bay-Nr-Rainbow-Kindergarten.html",active:false},
-    {name:"Nr. 6",x:60,y:29.2,url:BASE+"f51785-Brindleton-Bay.html",active:false},
-    {name:"Maryamas Haus",nr:"Nr. 7",x:68.9,y:31.4,url:BASE+"t17f51785-Brindleton-Bay-Nr-Maryamas-Haus.html",active:false},
-    {name:"Nr. 8",x:77.4,y:33.7,url:BASE+"f51785-Brindleton-Bay.html",active:false},
-    {name:"Green Fingers",nr:"Nr. 9",x:65.3,y:40.4,url:BASE+"t67f51785-Brindleton-Bay-Nr-Green-Fingers.html",active:false},
-    {name:"Brindleton High",nr:"Nr. 10",x:56.3,y:51.5,url:BASE+"t56f51785-Brindleton-Bay-Nr-Brindleton-High.html",active:false},
-    {name:"Nr. 11",x:79.7,y:70.3,url:BASE+"f51785-Brindleton-Bay.html",active:false},
-    {name:"Pfotenklinik",nr:"Nr. 12",x:39.9,y:62.6,url:BASE+"t239f51785-Brindleton-Bay-Nr-Pfotenklinik.html",active:false},
-    {name:"Tierauffangstation",nr:"Nr. 13",x:34,y:66.2,url:BASE+"t31f51785-Brindleton-Bay-Nr-Tierauffangstation.html",active:false},
-    {name:"Booze & Bass",nr:"Nr. 14",x:32.4,y:73,url:BASE+"t95f51785-Brindleton-Bay-Nr-Booze-amp-Bass-Fischrestaurant.html",active:false},
-    {name:"Altersheim",nr:"Nr. 15",x:21.1,y:74.1,url:BASE+"t53f51785-Brindleton-Bay-Nr-Altersheim-Shady-Pines.html",active:false},
-    {name:"Jim & Billie",nr:"Nr. 15A",x:21.3,y:74.1,url:BASE+"t737f51785-Brindleton-Bay-Nr-A-Wohnung-von-Jim-und-Billie.html",active:false},
-    {name:"Aurelia Blutzahn",nr:"Nr. 15C",x:21.3,y:74.1,url:BASE+"t709f51785-Brindleton-Bay-Nr-C-Wohnung-von-Aurelia-Blutzahn.html",active:false},
-    {name:"Marina Winter",nr:"Nr. 15E",x:21.3,y:74.1,url:BASE+"t693f51785-Brindleton-Bay-Nr-E-Wohnung-von-Marina-Winter.html",active:false},
-    {name:"Nr. 16",x:15.8,y:67,url:BASE+"f51785-Brindleton-Bay.html",active:false},
-  ],
-  "Del Sol Valley":[
-    {name:"Del Sol Valley (Strassen)",x:52,y:54.2,url:BASE+"t83f51786-Del-Sol-Valley.html",active:true,outdoor:true},
-    {name:"Black'n'Red Theater",nr:"Nr. 1",x:28.9,y:34.5,url:BASE+"t626f51786-Del-Sol-Valley-Nr-The-Black-n-Red-Theater.html",active:false},
-    {name:"Nr. 2",x:34.1,y:27.1,url:BASE+"f51786-Del-Sol-Valley.html",active:false},
-    {name:"Haus Clemens",nr:"Nr. 3",x:39.1,y:29.4,url:BASE+"t655f51786-Del-Sol-Valley-Haus-Clemens.html",active:false},
-    {name:"Nr. 4 - Kino / Café",nr:"Nr. 4",x:61,y:22.9,url:BASE+"t21f51786-Del-Sol-Valley-Nr-Kino-Caf-eacute.html",active:false},
-    {name:"Nr. 5 - Château LeBeau",x:69,y:17.9,url:BASE+"t517f51786-Del-Sol-Valley-Nr-Ch-acirc-teau-LeBeau.html",active:true},
-    {name:"Wasserturm",nr:"Nr. 6",x:78.7,y:24.6,url:BASE+"t196f51786-Del-Sol-Valley-Wasserturm.html",active:false},
-    {name:"Nr. 7 - Nachtclub / Tonstudio",x:30.9,y:61,url:BASE+"t218f51786-Del-Sol-Valley-Nachtclub-Tonstudio.html",active:false},
-    {name:"Nr. 8",x:37.7,y:60.8,url:BASE+"f51786-Del-Sol-Valley.html",active:false},
-    {name:"Nr. 9",x:39.3,y:69.3,url:BASE+"f51786-Del-Sol-Valley.html",active:false},
-    {name:"Nr. 10 - Studenten-WG",x:30.5,y:72.4,url:BASE+"t605f51786-Del-Sol-Valley-Wohnkomplex-er-Studenten-WG-Betsy-Wade-Sam.html",active:false},
-    {name:"Casino Royale",nr:"Nr. 10",x:30.5,y:72.4,url:BASE+"t742f51786-Del-Sol-Valley-Casino-Royale.html",active:false},
-    {name:"Nr. 11 - Jacks Eigentumswohnung",x:21.6,y:68,url:BASE+"t688f51786-Del-Sol-Valley-Jacks-Eigentumswohnung.html",active:true},
-  ],
-  "Strangerville":[
-    {name:"Strangerville (Strassen)",x:45,y:55,url:BASE+"t181f51787-Strangerville.html",active:true,outdoor:true},
-    {name:"Labor Dr. Henry McCoy",x:30,y:18,url:BASE+"t402f51787-Strangerville-Labor-Dr-Henry-McCoy.html",active:false},
-    {name:"Nr. 1",x:27,y:53,url:BASE+"f51787-Strangerville.html",active:false},
-    {name:"Nr. 2",x:36,y:52,url:BASE+"f51787-Strangerville.html",active:false},
-    {name:"Nr. 3",x:45,y:47,url:BASE+"f51787-Strangerville.html",active:false},
-    {name:"Nr. 4",x:52,y:44,url:BASE+"f51787-Strangerville.html",active:false},
-    {name:"Nr. 5",x:34,y:61,url:BASE+"f51787-Strangerville.html",active:false},
-    {name:"Nr. 6",x:47,y:57,url:BASE+"f51787-Strangerville.html",active:false},
-    {name:"Nr. 7",x:57,y:22,url:BASE+"f51787-Strangerville.html",active:false},
-    {name:"Nr. 8",x:63,y:26,url:BASE+"f51787-Strangerville.html",active:false},
-    {name:"Nr. 9",x:67,y:17,url:BASE+"f51787-Strangerville.html",active:false},
-    {name:"Nr. 10",x:73,y:19,url:BASE+"f51787-Strangerville.html",active:false},
-    {name:"Nr. 11",x:80,y:15,url:BASE+"f51787-Strangerville.html",active:false},
-  ],
-  "Sulani":[
-    {name:"Sulani (Strände)",x:61.7,y:39,url:BASE+"t170f51788-Sulani.html",active:true,outdoor:true},
-    {name:"Nr. 1",x:22.8,y:17.5,url:BASE+"f51788-Sulani.html",active:false},
-    {name:"Nr. 2",x:31.1,y:26.3,url:BASE+"f51788-Sulani.html",active:false},
-    {name:"Nr. 3",x:41.5,y:28.6,url:BASE+"f51788-Sulani.html",active:false},
-    {name:"Nr. 4",x:15.4,y:35.5,url:BASE+"f51788-Sulani.html",active:false},
-    {name:"Nr. 5 - Clemens Ferienhütte",x:30.8,y:47,url:BASE+"f51788-Sulani.html",active:true},
-    {name:"Nr. 6",x:45.4,y:68.1,url:BASE+"f51788-Sulani.html",active:false},
-    {name:"Nr. 7",x:60.1,y:56.1,url:BASE+"f51788-Sulani.html",active:false},
-    {name:"Nr. 8",x:53.3,y:84.4,url:BASE+"f51788-Sulani.html",active:false},
-    {name:"Nr. 9",x:67.5,y:77.4,url:BASE+"f51788-Sulani.html",active:false},
-    {name:"Nr. 10",x:85.4,y:78.5,url:BASE+"f51788-Sulani.html",active:false},
-    {name:"Nr. 11",x:77.4,y:66.2,url:BASE+"f51788-Sulani.html",active:false},
-    {name:"Nr. 12",x:82.1,y:32.7,url:BASE+"f51788-Sulani.html",active:false},
-    {name:"Nr. 13",x:60.3,y:26.6,url:BASE+"f51788-Sulani.html",active:false},
-    {name:"Nr. 14",x:71.9,y:15.9,url:BASE+"f51788-Sulani.html",active:false},
-  ],
-  "Glimmerbrook":[
-    {name:"Glimmerbrook (Natur)",x:48.9,y:52.6,url:BASE+"t243f51789-Glimmerbrook.html",active:true,outdoor:true},
-    {name:"Nr. 1",x:35.7,y:61.7,url:BASE+"f51789-Glimmerbrook.html",active:false},
-    {name:"Nr. 2",x:45.1,y:43.8,url:BASE+"f51789-Glimmerbrook.html",active:false},
-    {name:"Nr. 3",x:67.1,y:50.2,url:BASE+"f51789-Glimmerbrook.html",active:false},
-    {name:"Nr. 4",x:57.6,y:63.7,url:BASE+"f51789-Glimmerbrook.html",active:false},
-    {name:"Nr. 5",x:76.8,y:76.1,url:BASE+"f51789-Glimmerbrook.html",active:false},
-  ],
-  "Britechester":[
-    {name:"Campus (Strassen)",x:57,y:49.4,url:BASE+"t35f51790-Britechester.html",active:true,outdoor:true},
-    {name:"Nr. 1",x:16.2,y:57.3,url:BASE+"f51790-Britechester.html",active:false},
-    {name:"Nr. 2",x:23.1,y:56.9,url:BASE+"f51790-Britechester.html",active:false},
-    {name:"Nr. 3",x:20.4,y:44.5,url:BASE+"f51790-Britechester.html",active:false},
-        {name:"Alex' Arztpraxis",nr:"Nr. 4",x:28.6,y:44,url:BASE+"t612f51790-Britechester-Alex-Arztpraxis.html",active:false},
-    {name:"Nr. 5 - Tanzschule",x:48.2,y:48.6,url:BASE+"t27f51790-Britechester-Nr-Tanzschule.html",active:false},
-        {name:"Vereinshalle Tigers",nr:"Nr. 6",x:54.2,y:36.9,url:BASE+"t582f51790-Britechester-Vereinshalle-Britechester-Tigers.html",active:false},
-    {name:"Pine Hill University",nr:"Nr. 6",x:54.2,y:36.9,url:BASE+"t235f51790-Britechester-Pine-Hill-University.html",active:false},
-    {name:"Nr. 7 - Violas Hütte",x:65,y:45.8,url:BASE+"t659f51790-Britechester-Nr-Violas-kleine-Huette.html",active:false},
-    {name:"Nr. 8",x:55.3,y:58.6,url:BASE+"f51790-Britechester.html",active:false},
-    {name:"Nr. 9 - Ol' Stues Café",x:62.2,y:58.2,url:BASE+"t401f51790-Britechester-Ol-Stues-Caf-eacute.html",active:false},
-    {name:"Nr. 10",x:74.5,y:15.2,url:BASE+"f51790-Britechester.html",active:false},
-    {name:"Nr. 6A - Jenna & Delaila",nr:"Nr. 6A",x:84.8,y:20.3,url:BASE+"t656f51790-Britechester-Nr-A-Neue-Wohnung-von-Jenna-und-Delaila.html",active:false},
-    {name:"Nr. 6C - Evas Wohnung",nr:"Nr. 6C",x:84.8,y:20.3,url:BASE+"t660f51790-Britechester-Nr-C-Evas-Wohnung-im-Wohnkomplex.html",active:false},
-    {name:"Nr. 6D - Kitty, Felix, Abs",nr:"Nr. 6D",x:84.8,y:20.3,url:BASE+"t689f51790-Britechester-Nr-D-Wohnung-Kitty-Felix-Abs.html",active:true},
-    {name:"Nr. 6E - David Janko",nr:"Nr. 6E",x:84.8,y:20.3,url:BASE+"t599f51790-Britechester-Nr-E-Wohnung-von-David-Janko.html",active:false},
-    {name:"Nr. 12",x:79.3,y:24.3,url:BASE+"f51790-Britechester.html",active:false},
-    {name:"Nr. 13 - Haus der Kamrads",x:75.7,y:39.6,url:BASE+"t265f51790-Britechester-Haus-der-Kamrads.html",active:false},
-    {name:"WG Jean, Megan, Victor",x:3.2,y:19.1,url:BASE+"t236f51790-Britechester-WG-Jean-Megan-Victor-Dora.html",active:false},
-  ],
-  "Evergreen Harbor":[
-    {name:"Evergreen Harbor (Strassen)",x:54.3,y:33,url:BASE+"t234f51791-Evergreen-Harbor.html",active:true,outdoor:true},
-    {name:"Nr. 1",x:20.5,y:20.1,url:BASE+"f51791-Evergreen-Harbor.html",active:false},
-    {name:"Nr. 2",x:32.2,y:23.3,url:BASE+"f51791-Evergreen-Harbor.html",active:false},
-    {name:"Nr. 3",x:35.1,y:34.1,url:BASE+"f51791-Evergreen-Harbor.html",active:false},
-    {name:"Nr. 4 - Evergreen Werkstatt",x:42.3,y:48.1,url:BASE+"t15f51791-Evergreen-Harbor-Nr-Evergreen-Werkstatt.html",active:false},
-    {name:"Bio Gemüseladen",nr:"Nr. 5",x:26.1,y:60.8,url:BASE+"t25f51791-Evergreen-Harbor-Nr-Bio-Gemueseladen.html",active:false},
-    {name:"Nr. 6 - Old Station Bar",x:44,y:60.2,url:BASE+"t38f51791-Evergreen-Harbor-Nr-Old-Station-Bar.html",active:true},
-    {name:"Nr. 7",x:53.1,y:55.5,url:BASE+"f51791-Evergreen-Harbor.html",active:false},
-    {name:"Nr. 8 - Old Fish Factory",x:48.7,y:74.4,url:BASE+"t43f51791-Evergreen-Harbor-Nr-Old-Fish-Factory.html",active:false},
-    {name:"Nr. 9",x:68.5,y:32.8,url:BASE+"f51791-Evergreen-Harbor.html",active:false},
-    {name:"Nr. 10",x:85.3,y:42.4,url:BASE+"f51791-Evergreen-Harbor.html",active:false},
-    {name:"Nr. 11",x:69.4,y:44.1,url:BASE+"f51791-Evergreen-Harbor.html",active:false},
-    {name:"Nr. 12 - Jarred Cunningham",x:69.4,y:44.1,url:BASE+"t621f51791-Evergreen-Harbor-Nr-Wohnung-Jarred-Cunningham.html",active:false,building:"Kieferhügel-Apartments"},
-    {name:"Nr. 13 - WG Tom & Valentin",x:69.4,y:44.1,url:BASE+"t233f51791-Evergreen-Harbor-Nr-WG-Tom-Valentin.html",active:false,building:"Kieferhügel-Apartments"},
-    {name:"Nr. 14 - Familie Engel",x:18.3,y:28.8,url:BASE+"t55f51791-Evergreen-Harbor-Nr-Familie-Engel.html",active:false,building:"Steinweg-Apartments"},
-    {name:"Nr. 15",x:18.3,y:28.8,url:BASE+"f51791-Evergreen-Harbor.html",active:false,building:"Steinweg-Apartments"},
-  ],
-  "Mt. Komorebi":[
-    {name:"Mt. Komorebi (Strassen)",x:48,y:61,url:BASE+"t216f51792-Mt-Komorebi.html",active:true,outdoor:true},
-    {name:"Nr. 1",x:37.4,y:25,url:BASE+"f51792-Mt-Komorebi.html",active:false},
-    {name:"Nr. 2",x:45.4,y:26.2,url:BASE+"f51792-Mt-Komorebi.html",active:false},
-    {name:"Nr. 3",x:56.1,y:24.6,url:BASE+"f51792-Mt-Komorebi.html",active:false},
-    {name:"Nr. 4",x:64.8,y:20.7,url:BASE+"f51792-Mt-Komorebi.html",active:false},
-    {name:"Nr. 5",x:37.2,y:40,url:BASE+"f51792-Mt-Komorebi.html",active:false},
-    {name:"Nr. 6",x:46.4,y:40.7,url:BASE+"f51792-Mt-Komorebi.html",active:false},
-    {name:"Nr. 7",x:35.5,y:47.8,url:BASE+"f51792-Mt-Komorebi.html",active:false},
-    {name:"Nr. 8",x:47,y:49,url:BASE+"f51792-Mt-Komorebi.html",active:false},
-    {name:"Nr. 9",x:31.7,y:56,url:BASE+"f51792-Mt-Komorebi.html",active:false},
-    {name:"Nr. 10",x:57.6,y:71.3,url:BASE+"f51792-Mt-Komorebi.html",active:false},
-    {name:"Nr. 11",x:66.4,y:68.3,url:BASE+"f51792-Mt-Komorebi.html",active:false},
-    {name:"Nr. 12",x:75.9,y:63.4,url:BASE+"f51792-Mt-Komorebi.html",active:false},
-    {name:"Nr. 13",x:60.8,y:84.5,url:BASE+"f51792-Mt-Komorebi.html",active:false},
-    {name:"Nr. 14",x:81.9,y:76.7,url:BASE+"f51792-Mt-Komorebi.html",active:false},
-  ],
-  "Henford-on-Bagley":[
-    {name:"Henford-on-Bagley (Dorf)",x:31.6,y:54.5,url:BASE+"t157f51793-Henford-on-Bagley.html",active:true,outdoor:true},
-    {name:"Bestattungsinstitut Peerscheid-Kalim",nr:"Nr. 7",x:76.8,y:39,url:BASE+"t748f51793-Bestattungsinstitut-Peerscheid-Kalim.html",active:true,img:IMG+"f51793t748p7274n33_GexKJPpT.png"},
-    {name:"Nr. 1",x:39.2,y:12.6,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
-    {name:"Nr. 2",x:44.2,y:23.3,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
-    {name:"Nr. 3",x:44.6,y:31.6,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
-    {name:"Nr. 4",x:15.4,y:39.1,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
-    {name:"Nr. 5",x:47.7,y:48.4,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
-    {name:"Nr. 6",x:64.5,y:35,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
-        {name:"Nr. 8",x:84.1,y:47.6,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
-    {name:"Nr. 9",x:53,y:76.1,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
-    {name:"Nr. 10",x:60.9,y:88.6,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
-    {name:"Nr. 11",x:69.6,y:82.7,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
-    {name:"Nr. 12",x:75.6,y:78,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
-  ],
-  "Tartosa":[
-    {name:"Tartosa (Piazza)",x:37.6,y:68,url:BASE+"t252f51794-Tartosa.html",active:true,outdoor:true},
-    {name:"Nr. 1",x:44.7,y:15.7,url:BASE+"f51794-Tartosa.html",active:false},
-    {name:"Nr. 2",x:84.3,y:33.1,url:BASE+"f51794-Tartosa.html",active:false},
-    {name:"Nr. 3",x:50.8,y:38,url:BASE+"f51794-Tartosa.html",active:false},
-    {name:"Nr. 4",x:61.5,y:40.5,url:BASE+"f51794-Tartosa.html",active:false},
-    {name:"Nr. 5",x:14.1,y:62.3,url:BASE+"f51794-Tartosa.html",active:false},
-    {name:"Nr. 6",x:29.6,y:55.2,url:BASE+"f51794-Tartosa.html",active:false},
-    {name:"Nr. 7",x:50.8,y:57.7,url:BASE+"f51794-Tartosa.html",active:false},
-    {name:"Nr. 8",x:56.3,y:80.1,url:BASE+"f51794-Tartosa.html",active:false},
-    {name:"Nr. 9",x:43.4,y:84.5,url:BASE+"f51794-Tartosa.html",active:false},
-  ],
-  "Moonwood Mill":[
-    {name:"Moonwood Mill (Strassen)",x:48.2,y:59.8,url:BASE+"t251f51795-Moonwood-Mill.html",active:true,outdoor:true},
-    {name:"Drakes Hütte",nr:"Nr. 5",x:59.1,y:71.1,url:BASE+"t716f51795-Moonwood-Mill-Huette-von-Dexter-und-Rose.html",active:true},
-    {name:"Nr. 1",x:57.7,y:24.7,url:BASE+"f51795-Moonwood-Mill.html",active:false},
-    {name:"Nr. 2",x:53.7,y:35.3,url:BASE+"f51795-Moonwood-Mill.html",active:false},
-    {name:"Nr. 3",x:61.1,y:52.7,url:BASE+"f51795-Moonwood-Mill.html",active:false},
-    {name:"Nr. 4",x:77.9,y:60.3,url:BASE+"f51795-Moonwood-Mill.html",active:false},
-    {name:"Nr. 5",x:59.3,y:71.4,url:BASE+"f51795-Moonwood-Mill.html",active:false},
-  ],
-  "Copperdale":[
-    {name:"Copperdale",x:61.6,y:45.2,url:BASE+"t221f51796-Copperdale.html",active:true,outdoor:true},
-    {name:"Haus Familie Sølberg",x:92,y:29.5,url:BASE+"t465f51796-Copperdale-Haus-Familie-S-oslash-lberg.html",active:true,img:IMG+"f51796t465p3768n2_Pemwndps.png"},
-    {name:"Haus der Familie Sievers",x:92.3,y:34,url:BASE+"t581f51796-Copperdale-Haus-der-Familie-Sievers.html",active:true,img:IMG+"f51796t581p5152n2_yNfApmuL.png"},
-    {name:"Villa Bärenklau",x:92.6,y:38.8,url:BASE+"t341f51796-Copperdale-Villa-Baerenklau.html",active:true,img:IMG+"f51796t341p3284n41_vYzIkfua.png"},
-    {name:"Johns Bar",x:92.6,y:43.8,url:BASE+"t260f51796-Copperdale-Johns-Bar.html",active:true,img:IMG+"f51796t260p3115n2_SjLxKFcP.png"},
-        {name:"Nr. 2",x:18.5,y:46.2,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 3",x:34.6,y:44,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 4",x:24,y:52.9,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 5",x:22.1,y:61.8,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 6",x:66.4,y:59.7,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 7",x:76.3,y:59.5,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 8",x:81.2,y:64.6,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 9",x:53.7,y:78.8,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 10",x:64.4,y:84.3,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"A - Schule",x:41.3,y:19.6,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"B - Schule",x:47.3,y:16.2,url:BASE+"f51796-Copperdale.html",active:false},
-  ],
-  "San Sequoia":[
-    {name:"San Sequoia (Strassen)",x:52.5,y:43.8,url:BASE+"t246f51797-San-Sequoia.html",active:true,outdoor:true},
-    {name:"Nr. 1",x:14.4,y:12.5,url:BASE+"f51797-San-Sequoia.html",active:false},
-    {name:"Haus S. Schmidt",nr:"Nr. 2",x:15.1,y:23.7,url:BASE+"t559f51797-San-Sequoia-Haus-S-Schmidt.html",active:false},
-    {name:"Nr. 3 - Veronikas Boutique",x:28.2,y:28.4,url:BASE+"t686f51797-San-Sequoia-Nr-Veronikas-Boutique.html",active:true},
-    {name:"Nr. 4",x:35.9,y:34.4,url:BASE+"f51797-San-Sequoia.html",active:false},
-    {name:"Doppelhaushälfte der Familie Janko",nr:"Nr. 5",x:71.5,y:9.2,url:BASE+"t638f51797-San-Sequoia-Doppelhaushaelfte-der-Familie-Janko.html",active:false},
-    {name:"Nr. 6 - Gilbert Gardens",x:67.8,y:27.9,url:BASE+"f51797-San-Sequoia.html",active:false,outdoor:true},
-    {name:"Nr. 7 - Old Factory Live Club",x:88.3,y:19.8,url:BASE+"t410f51797-San-Sequoia-Nr-Old-Factory-Live-Club.html",active:false},
-    {name:"Nr. 8",x:81.9,y:32.8,url:BASE+"f51797-San-Sequoia.html",active:false},
-    {name:"Nr. 9 - Familie Delany",x:40.7,y:68.5,url:BASE+"t550f51797-San-Sequoia-Haus-Familie-Delany.html",active:false},
-    {name:"Nr. 11 - Greenridge Correctional",x:65.5,y:76.6,url:BASE+"t694f51797-San-Sequoia-Greenridge-Correctional-Institution.html",active:false},
-    {name:"Nr. 12",x:57.5,y:90.2,url:BASE+"f51797-San-Sequoia.html",active:false},
-  ],
-  // ── NEU: 7 Welten mit Koordinaten ──────────────────────────────────────
-  "Chestnut Ridge":[
-    {name:"Chestnut Ridge",x:49.2,y:45.4,url:BASE+"f55177-Chestnut-Ridge.html",active:true,outdoor:true},
-    {name:"Pferderanch",nr:"Nr. 8",x:82.4,y:58.1,url:BASE+"t470f55177-Chestnut-Ridge-Pferderanch.html",active:true,img:IMG+"f55177t470p3808n2_wfPDvTYH.png"},
-    {name:"Phönix Bright 'Canyon Retreat'",nr:"Nr. 1",x:32.2,y:17.5,url:BASE+"t519f55177-Chestnut-Ridge.html",active:true,img:IMG+"f55177t519p4326n2_LBtnixkg.png"},
-        {name:"Nr. 2",x:22.7,y:22.3,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 3",x:16.8,y:31.6,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 4",x:34.3,y:47.2,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 5",x:45.1,y:35.9,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 6",x:57.8,y:32.5,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 7",x:67.7,y:46.1,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-        {name:"Nr. 9",x:84.6,y:74.1,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 10",x:68.5,y:70.4,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 11",x:74.3,y:85.1,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 12",x:59.3,y:82.5,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 13",x:40.1,y:58.2,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-  ],
-  "Tomarang":[
-    {name:"Nr. 1",x:16.9,y:21.8,url:BASE+"f58300-Tomarang.html",active:false},
-    {name:"Nr. 2",x:32.7,y:19,url:BASE+"f58300-Tomarang.html",active:false},
-    {name:"Nr. 3",x:28.8,y:28.1,url:BASE+"f58300-Tomarang.html",active:false},
-    {name:"Nr. 4",x:53.9,y:30.4,url:BASE+"f58300-Tomarang.html",active:false},
-    {name:"Nr. 5",x:58.2,y:53.4,url:BASE+"f58300-Tomarang.html",active:false},
-    {name:"Nr. 6",x:47.2,y:64.4,url:BASE+"f58300-Tomarang.html",active:false},
-    {name:"Nr. 7",x:59.9,y:72,url:BASE+"f58300-Tomarang.html",active:false},
-    {name:"Nr. 8",x:76.3,y:70.3,url:BASE+"f58300-Tomarang.html",active:false},
-    {name:"Nr. 9",x:75,y:58,url:BASE+"f58300-Tomarang.html",active:false},
-  ],
-  "Ciudad Enamorada":[
-    {name:"Nr. 1",x:14,y:63.4,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
-    {name:"Nr. 2",x:28.3,y:43.9,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
-    {name:"Nr. 3",x:38.1,y:46.2,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
-    {name:"Nr. 4",x:31.7,y:60.2,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
-    {name:"Nr. 5",x:43.2,y:71.6,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
-    {name:"Nr. 6",x:61,y:69.5,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
-    {name:"Nr. 7",x:71.6,y:74.4,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
-    {name:"Nr. 8",x:63.6,y:87.7,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
-    {name:"Nr. 9",x:85.3,y:93.5,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
-    {name:"Nr. 10",x:70.6,y:35.7,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
-    {name:"Nr. 11",x:84.7,y:28.8,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
-  ],
-  "Ravenwood":[
-    {name:"Ravenwood",x:48,y:42.4,url:BASE+"t650f59271-Ravenwood.html",active:true,outdoor:true},
-    {name:"Das Institut der Geheimnisse",nr:"Nr. 6",x:85.8,y:42.7,url:BASE+"t669f59271-Ravenwood-Das-Institut-der-Geheimnisse.html",active:true},
-    {name:"Nr. 1",x:15.9,y:26.5,url:BASE+"f59271-Ravenwood.html",active:false},
-    {name:"Nr. 2",x:28.6,y:28.4,url:BASE+"f59271-Ravenwood.html",active:false},
-    {name:"Nr. 3",x:32.2,y:17.9,url:BASE+"f59271-Ravenwood.html",active:false},
-    {name:"Nr. 4",x:43.4,y:18.2,url:BASE+"f59271-Ravenwood.html",active:false},
-    {name:"Nr. 5",x:68.4,y:37.8,url:BASE+"f59271-Ravenwood.html",active:false},
-    {name:"Nr. 7",x:76.5,y:50.2,url:BASE+"f59271-Ravenwood.html",active:false},
-    {name:"Nr. 8",x:57.9,y:48.7,url:BASE+"f59271-Ravenwood.html",active:false},
-    {name:"Nr. 9",x:55.2,y:59.8,url:BASE+"f59271-Ravenwood.html",active:false},
-    {name:"Nr. 10",x:47.5,y:69.2,url:BASE+"f59271-Ravenwood.html",active:false},
-    {name:"Nr. 11",x:49.4,y:80.9,url:BASE+"f59271-Ravenwood.html",active:false},
-    {name:"Nr. 12",x:67.4,y:68.6,url:BASE+"f59271-Ravenwood.html",active:false},
-    {name:"Nr. 13",x:80.6,y:74.4,url:BASE+"f59271-Ravenwood.html",active:false},
-  ],
-  "Nordhaven":[
-    {name:"Nr. 1",x:17.5,y:46,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 2",x:24.6,y:38.3,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 3",x:23.2,y:26.7,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 4",x:33.9,y:43.8,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 5",x:37.9,y:21.6,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 6",x:42.7,y:32.7,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 7",x:71.1,y:43.3,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 8",x:65.8,y:56.1,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 9",x:73.7,y:60.2,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 10",x:81.5,y:56.1,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 11",x:69.5,y:71.6,url:BASE+"f59567-Nordhaven.html",active:false},
-    {name:"Nr. 12",x:79.1,y:72.6,url:BASE+"f59567-Nordhaven.html",active:false},
-  ],
-  "Granite Falls":[
-    {name:"Granite Falls",x:44.7,y:52.7,url:BASE+"f51798-Granite-Falls.html",active:true,outdoor:true},
-    {name:"Camp Firefly",nr:"Nr. 6",x:74.7,y:25.8,url:BASE+"t211f51798-Granite-Falls-Nr-Camp-Firefly.html",active:true,img:IMG+"f51798t211p2691n13_VAEaUIHc.png"},
-    {name:"Nr. 1",x:26.1,y:49,url:BASE+"f51798-Granite-Falls.html",active:false},
-    {name:"Nr. 2",x:33.4,y:73.3,url:BASE+"f51798-Granite-Falls.html",active:false},
-    {name:"Nr. 3",x:48,y:72.8,url:BASE+"f51798-Granite-Falls.html",active:false},
-    {name:"Nr. 4",x:56.7,y:60.3,url:BASE+"f51798-Granite-Falls.html",active:false},
-    {name:"Nr. 5",x:55.8,y:47.2,url:BASE+"f51798-Granite-Falls.html",active:false},
-      ],
-  "Selvadorada":[
-    {name:"Nr. 1",x:21.6,y:62.5,url:BASE+"f51799-Selvadorada.html",active:false},
-    {name:"Nr. 2",x:31.5,y:53.5,url:BASE+"f51799-Selvadorada.html",active:false},
-    {name:"Nr. 3",x:39.7,y:42,url:BASE+"f51799-Selvadorada.html",active:false},
-    {name:"Nr. 4",x:60.4,y:70.3,url:BASE+"f51799-Selvadorada.html",active:false},
-    {name:"Nr. 5",x:65.7,y:61.8,url:BASE+"f51799-Selvadorada.html",active:false},
-    {name:"Nr. 6",x:79.6,y:68.3,url:BASE+"f51799-Selvadorada.html",active:false},
-    {name:"Nr. 7",x:72.9,y:81.9,url:BASE+"f51799-Selvadorada.html",active:false},
-  ],
+var SECTIONS=[
+  {title:"Identität",fields:["name","age","gender","orientation","occult"]},
+  {title:"Leben",fields:["job","wealth","goals","group","origin","hobbies"]},
+  {title:"Zuhause",fields:["home","livingSit","family"]},
+  {title:"Charakter",fields:["skills","appearance","voice","scent","personality","history"]},
+  {title:"Blatt",fields:[]}
+];
+
+var SYS="Du bist ein kreativer Autor-Assistent für das Forum-RPG auf simsforumrpg.de (Sims 4 basiert).\nHilf dem Nutzer ein Feld im Charakterbogen zu füllen oder zu vertiefen.\nAntworte auf Deutsch. Kein Markdown, keine Sternchen.\nGib 1-2 kurze Autoren-Tipps für dieses Feld, dann 2-3 Fragen die der Nutzer sich stellen kann.\nKeine fertigen Texte zum Einfügen – der Nutzer schreibt selbst.";
+
+var state={
+  step:0,
+  char:(function(){var o={};FIELDS.forEach(function(f){o[f.key]="";});return o;}()),
+  imgPreview:null,imgB64:null,imgMime:null,
+  ai:{},
+  importText:"",importing:false,showImport:false,
+  ctxEntries:[],ctxLabel:"",ctxText:"",showCtx:false,
+  showAtlas:false,atlasPlayer:"",atlasThread:"",atlasPortrait:"",atlasType:"haupt",atlasSaving:false,atlasSaved:false
 };
 
-// ═══════════════════════════════════════════
-// STATE & STORAGE
-// ═══════════════════════════════════════════
-let adminMode=false,logoClicks=0,logoTimer=null;
-let currentWorld=null;
-let calibMapMode=false,calibWorldMode=false;
-let calibMapData=[],calibWorldData=[],calibMapIdx=0;
-let posMode=false,posModeCallback=null,pendingPos=null;
-let customLots=JSON.parse(localStorage.getItem('sw_custom_lots')||'{}');
-let suggestions=JSON.parse(localStorage.getItem('sw_suggestions')||'[]');
-let hiddenLots=JSON.parse(localStorage.getItem('sw_hidden_lots')||'{}');
-let renamedLots=JSON.parse(localStorage.getItem('sw_renamed_lots')||'{}');
-let adminWorldFilter=worlds[0].name,adminTab='lots';
-function saveLots(){localStorage.setItem('sw_custom_lots',JSON.stringify(customLots))}
-function saveSugs(){localStorage.setItem('sw_suggestions',JSON.stringify(suggestions))}
-function saveHidden(){localStorage.setItem('sw_hidden_lots',JSON.stringify(hiddenLots))}
-function saveRenamed(){localStorage.setItem('sw_renamed_lots',JSON.stringify(renamedLots))}
-
-function getLots(wname){
-  const hidden=hiddenLots[wname]||[];
-  const renamed=renamedLots[wname]||{};
-  const hard=(worldLots[wname]||[]).filter(l=>!hidden.includes(l.name)).map(l=>({...l,name:renamed[l.name]||l.name,_origName:l.name,_src:'hard'}));
-  const cust=(customLots[wname]||[]).map(l=>({...l,_src:'custom'}));
-  const all=[...hard,...cust];
-  return all.length?all:[{name:'Forum öffnen',x:50,y:50,url:worlds.find(w=>w.name===wname)?.url||BASE,active:false}];
-}
-function renameLot(wname,origName,custIdx){
-  const current = custIdx!=null ? customLots[wname][custIdx].name : (renamedLots[wname]?.[origName]||origName);
-  const neu=prompt('Neuer Name:',current);
-  if(!neu||neu===current)return;
-  if(custIdx!=null){
-    customLots[wname][custIdx].name=neu;saveLots();
-  } else {
-    if(!renamedLots[wname])renamedLots[wname]={};
-    renamedLots[wname][origName]=neu;saveRenamed();
+// ── helpers ──
+function qs(id){return document.getElementById(id);}
+function mk(tag,style,children){
+  var e=document.createElement(tag);
+  if(style){
+    Object.keys(style).forEach(function(k){
+      if(k==="src"||k==="href"||k==="id"||k==="type"||k==="accept"||k==="rows"||k==="placeholder"||k==="value"){
+        e[k]=style[k];
+      } else if(k==="style"&&typeof style[k]==="object"){
+        Object.assign(e.style,style[k]);
+      } else if(k==="style"&&typeof style[k]==="string"){
+        e.style.cssText=style[k];
+      } else {
+        e.style[k]=style[k];
+      }
+    });
   }
-  if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();
+  if(children)children.forEach(function(c){if(c!=null)e.appendChild(typeof c==="string"?document.createTextNode(c):c);});
+  return e;
 }
-function hideHardLot(wname,lotName){
-  if(!hiddenLots[wname])hiddenLots[wname]=[];
-  if(!hiddenLots[wname].includes(lotName))hiddenLots[wname].push(lotName);
-  saveHidden();if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();
+function div(s,c){return mk("div",s,c);}
+function span(s,c){return mk("span",s,c);}
+var INP={width:"100%",padding:"8px 11px",borderRadius:"6px",border:"1px solid "+C.border,fontSize:"13px",background:C.input,color:C.text,boxSizing:"border-box"};
+function btn(label,bg,cb,sm,out,dis){
+  var e=mk("button",{background:out?"transparent":(bg||C.accent),color:out?(bg||C.accent):"#fff",border:"1px solid "+(bg||C.accent),borderRadius:"7px",padding:sm?"4px 10px":"7px 14px",fontSize:sm?"11px":"13px",fontWeight:"600",cursor:dis?"not-allowed":"pointer",opacity:dis?"0.5":"1",whiteSpace:"nowrap"});
+  e.textContent=label;
+  if(!dis&&cb)e.addEventListener("click",cb);
+  return e;
 }
-function restoreHardLot(wname,lotName){
-  if(!hiddenLots[wname])return;
-  hiddenLots[wname]=hiddenLots[wname].filter(n=>n!==lotName);
-  saveHidden();if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();
-}
-function startPosForLot(wname,idx){
-  if(!currentWorld||currentWorld.name!==wname){alert('Zuerst die Welt "'+wname+'" betreten.');return;}
-  posMode=true;document.getElementById('world-container').style.cursor='crosshair';document.getElementById('calib-mode-bar').style.display='block';
-  posModeCallback=(x,y)=>{customLots[wname][idx].x=x;customLots[wname][idx].y=y;saveLots();renderLots(currentWorld);renderAdminContent();};
-}
-function parseLotLabel(lot){
-  const name=lot.name;
-  if(lot.nr)return{num:lot.nr,sub:name};
-  const m=name.match(/^(Nr\.\s*\d+[A-Za-z]?)\s*[-–]\s*(.+)$/);
-  if(m)return{num:m[1],sub:m[2].trim()};
-  const n=name.match(/^(Nr\.\s*\d+[A-Za-z]?)$/);
-  if(n)return{num:n[1],sub:''};
-  return{num:name,sub:''};
-}
-function groupLots(lots){
-  const groups=[],used=new Set();
-  lots.forEach((lot,i)=>{
-    if(used.has(i))return;
-    const g=[lot];used.add(i);
-    lots.forEach((o,j)=>{if(i===j||used.has(j))return;if(lot.x===o.x&&lot.y===o.y){g.push(o);used.add(j);}});
-    groups.push({x:lot.x,y:lot.y,lots:g});
-  });
-  return groups;
+function stripMd(t){return(t||"").replace(/\*\*(.*?)\*\*/g,"$1").replace(/\*(.*?)\*/g,"$1").replace(/^#+\s/gm,"");}
+function toStr(v){if(v==null)return"";if(Array.isArray(v))return v.map(toStr).join("\n");if(typeof v==="object")return Object.values(v).map(toStr).join("\n");return String(v);}
+function charCtx(){
+  var m=FIELDS.filter(function(f){return state.char[f.key];}).map(function(f){return f.label+": "+state.char[f.key];}).join("\n");
+  var r=state.ctxEntries.length?"\n\n--- VERWANDTE CHARAKTERE ---\n"+state.ctxEntries.map(function(e){return"["+e.label+"]\n"+e.text;}).join("\n\n"):"";
+  return m+r;
 }
 
-// ═══════════════════════════════════════════
-// WELT-DOTS
-// ═══════════════════════════════════════════
-const mapC=document.getElementById('map-container');
-const mapIA=document.getElementById('map-image-area');
-
-// Size map-image-area to match actual image aspect ratio
-(function(){
-  const mapImg=document.querySelector('#map-bg img');
-  function sizeMapArea(){
-    const iw=mapImg.naturalWidth||1,ih=mapImg.naturalHeight||1;
-    if(!iw||!ih)return;
-    const cw=mapC.clientWidth,ch=mapC.clientHeight;
-    const scale=Math.min(cw/iw,ch/ih);
-    mapIA.style.width=Math.round(iw*scale)+'px';
-    mapIA.style.height=Math.round(ih*scale)+'px';
-  }
-  if(mapImg.complete&&mapImg.naturalWidth>0)sizeMapArea();
-  else mapImg.addEventListener('load',sizeMapArea);
-  window.addEventListener('resize',sizeMapArea);
-})();
-worlds.forEach(w=>{
-  const el=document.createElement('div');
-  el.className='world-dot';
-  el.style.cssText=`left:${w.x}%;top:${w.y}%`;
-  el.innerHTML=`<div class="dot-pulse" style="width:34px;height:34px;border-color:${w.color}"></div><div class="dot-inner" style="width:11px;height:11px;background:${w.color};box-shadow:0 0 5px ${w.color}"></div><div class="dot-label">${w.name}</div><div class="hover-card" style="border:1px solid ${w.color}88;box-shadow:0 6px 28px ${w.color}44"><div style="position:relative">${w.img?`<img class="hover-img" src="${w.img}" onerror="this.style.display='none'">`:''}<div class="hover-gradient"></div><div class="hover-name">${w.name}</div></div><div class="hover-footer"><span class="hover-type">${w.type}</span><span class="hover-action" style="color:${w.color}">Klicken →</span></div></div>`;
-  el.addEventListener('click',e=>{e.stopPropagation();if(!calibMapMode)enterWorld(w);});
-  mapIA.appendChild(el);
-});
-mapC.addEventListener('click',e=>{
-  if(!calibMapMode)return;
-  if(e.target.closest('.calib-panel')||e.target.closest('.calib-btn'))return;
-  const r=mapIA.getBoundingClientRect();
-  const x=+((e.clientX-r.left)/r.width*100).toFixed(1);
-  const y=+((e.clientY-r.top)/r.height*100).toFixed(1);
-  const w=worlds[calibMapIdx];
-  if(!w){alert('Alle kalibriert!');return;}
-  calibMapData.push({name:w.name,x,y});calibMapIdx++;
-  updateCalibLog('map');
-  document.getElementById('calib-next').textContent=worlds[calibMapIdx]?.name||'✓ Fertig';
-},true);
-
-// ═══════════════════════════════════════════
-// NAVIGATION
-// ═══════════════════════════════════════════
-function enterWorld(w){
-  currentWorld=w;
-  mapC.classList.remove('active');
-  const wc=document.getElementById('world-container');
-  wc.classList.add('active');
-  sizeWorldImageArea();
-  document.getElementById('world-name-display').textContent=w.name;
-  document.getElementById('world-type-display').textContent=w.type;
-  const _grad=`<div style="position:absolute;inset:0;background:linear-gradient(135deg,${w.color}33,#0a1420)"></div>`;
-  document.getElementById('world-bg').innerHTML=w.img
-    ?`<img src="${w.img}" alt="${w.name}" style="width:100%;height:100%;object-fit:cover;filter:brightness(0.65) saturate(0.9);display:block" onerror="this.parentElement.innerHTML='${_grad.replace(/'/g,"\\'")}'">`
-    :_grad;
-  document.getElementById('world-subtitle').textContent='/ '+w.name;
-  document.getElementById('btn-back').style.display='inline-block';
-  document.getElementById('mob-back').style.display='flex';
-  calibWorldData=[];updateCalibLog('world');
-  document.getElementById('calib-world-next').textContent=getLots(w.name)[0]?.name||'—';
-  document.getElementById('calib-world-count').textContent='0';
-  exitBuilding();
-  renderLots(w);
-  if(adminMode)renderAdminContent();
+// ── API ──
+function mistral(messages,model,maxTok,cb){
+  fetch("https://api.mistral.ai/v1/chat/completions",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+MISTRAL_KEY},
+    body:JSON.stringify({model:model||"mistral-small-latest",max_tokens:maxTok||800,messages:messages})
+  }).then(function(r){return r.json();}).then(function(d){
+    if(d.error)cb(d.error.message||"API Fehler",null);
+    else cb(null,(d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content)||"");
+  }).catch(function(e){cb(e.message,null);});
 }
 
-let buildingFloorIdx=0,currentBuildingKey=null;
+function callAI(key,msg,histOverride){
+  var ai=state.ai[key]||{msgs:[],history:[],input:"",open:false};
+  ai.loading=true;ai.open=true;
+  state.ai[key]=ai;
+  draw();
+  var hist=histOverride!==undefined?histOverride:(ai.history||[]);
+  var newHist=hist.concat([{role:"user",content:msg}]);
+  var sysMsg={role:"system",content:SYS+"\n\nCharakterbogen:\n"+charCtx()};
 
-function enterBuilding(buildingKey,lots){
-  buildingFloorIdx=0;currentBuildingKey=buildingKey;
-  const bc=document.getElementById('building-container');
-  const data=BUILDINGS[buildingKey];
-  bc.style.display='block';
-  document.getElementById('building-name').textContent=buildingKey;
-  const imgs=data?.imgs||[];
-  const nav=document.getElementById('floor-nav');
-  if(imgs.length>1){nav.style.display='flex';updateFloorNav(imgs);}
-  else{nav.style.display='none';}
-  renderBuildingBg(imgs);
-  bc.querySelectorAll('.apt-dot').forEach(d=>d.remove());
-  const aptLots=data?.lots||lots;
-  aptLots.forEach(apt=>{
-    const d=document.createElement('div');
-    d.className='apt-dot lot-dot'+(apt.active?' isactive':'');
-    d.style.cssText=`left:${apt.x}%;top:${apt.y}%`;
-    d.innerHTML=`<div class="lot-pulse"></div><div class="lot-inner" style="width:11px;height:11px;background:${apt.active?'#4aaa6a':'rgba(255,255,255,0.6)'};box-shadow:${apt.active?'0 0 10px #4aaa6a':'none'}"></div><div class="lot-label">${apt.name}</div><div class="lot-tooltip" style="padding:6px 10px;border:0.5px solid rgba(255,255,255,0.2)"><div style="font-weight:500;margin-bottom:2px">${apt.name}</div><div style="font-size:10px;color:rgba(255,255,255,0.4)">↗ Thread öffnen</div></div>`;
-    d.addEventListener('click',e=>{e.stopPropagation();window.open(apt.url,'_blank');});
-    bc.appendChild(d);
-  });
-}
-function renderBuildingBg(imgs){
-  const img=imgs[buildingFloorIdx]||'';
-  const bg=document.getElementById('building-bg');
-  if(img){bg.innerHTML=`<img src="${img}" style="width:100%;height:100%;object-fit:cover;filter:brightness(0.65)">`;document.getElementById('building-no-img').style.display='none';}
-  else{bg.innerHTML=`<div style="position:absolute;inset:0;background:linear-gradient(135deg,#0a1a2a,#1a2a3a)"></div>`;document.getElementById('building-no-img').style.display='block';}
-}
-function changeBuildingFloor(dir){
-  const data=BUILDINGS[currentBuildingKey];
-  const imgs=data?.imgs||[];
-  buildingFloorIdx=Math.max(0,Math.min(imgs.length-1,buildingFloorIdx+dir));
-  renderBuildingBg(imgs);updateFloorNav(imgs);
-}
-function updateFloorNav(imgs){
-  document.getElementById('floor-label').textContent=`${buildingFloorIdx+1} / ${imgs.length}`;
-  document.getElementById('floor-up-btn').style.opacity=buildingFloorIdx>0?'1':'0.3';
-  document.getElementById('floor-down-btn').style.opacity=buildingFloorIdx<imgs.length-1?'1':'0.3';
-}
-function exitBuilding(){const bc=document.getElementById('building-container');if(bc)bc.style.display='none';}
-
-function goBack(){
-  const bc=document.getElementById('building-container');
-  if(bc&&bc.style.display!=='none'){exitBuilding();return;}
-  document.getElementById('world-container').classList.remove('active');
-  mapC.classList.add('active');
-  document.getElementById('world-subtitle').textContent='';
-  document.getElementById('btn-back').style.display='none';
-  document.getElementById('mob-back').style.display='none';
-  calibWorldMode=false;
-  document.getElementById('calib-world-panel').style.display='none';
-  document.getElementById('world-container').style.cursor='default';
-}
-
-// ═══════════════════════════════════════════
-// LOTS RENDERN
-// ═══════════════════════════════════════════
-function renderLots(w){
-  const wc=document.getElementById('world-container');
-  const wia=document.getElementById('world-image-area');
-  wc.querySelectorAll('.lot-dot,.cluster-dot').forEach(d=>d.remove());
-  const bar=document.getElementById('world-lots-bar');
-  bar.innerHTML='';
-  const lots=getLots(w.name);
-  if(!worldLots[w.name]&&!(customLots[w.name]||[]).length){
-    const h=document.createElement('div');
-    h.style.cssText='font-size:10px;color:rgba(255,200,100,0.7);padding:4px 8px;background:rgba(255,150,0,0.1);border-radius:5px;border:0.5px solid rgba(255,150,0,0.2);white-space:nowrap;flex-shrink:0';
-    h.textContent='⚠ Noch kalibrieren';bar.appendChild(h);
-  }
-  groupLots(lots).forEach(group=>{
-    if(group.lots.length===1 && !group.lots[0].building){
-      const lot=group.lots[0];
-      const ld=document.createElement('div');
-      ld.className='lot-dot'+(lot.active?' isactive':'')+(lot.outdoor?' isoutdoor':'');
-      ld.style.cssText=`left:${lot.x}%;top:${lot.y}%`;
-      const _tb=`border:0.5px solid ${lot.outdoor?'rgba(80,190,170,0.8)':lot.active?'#4aaa6a':'rgba(255,255,255,0.2)'}`;
-      const _ti=`<div style="font-weight:500;margin-bottom:2px">${lot.name}</div><div style="font-size:10px;color:${lot.outdoor?'rgba(80,190,170,0.9)':lot.active?'#4aaa6a':'rgba(255,255,255,0.4)'}">${lot.outdoor?'🌿 Öffentlicher Bereich':lot.active?'● Aktiv':'↗ Thread öffnen'}</div>`;
-      const _dotBg=lot.outdoor?'rgba(80,190,170,0.75)':lot.active?'#4aaa6a':'rgba(255,255,255,0.5)';
-      const _dotShadow=lot.outdoor?'0 0 8px rgba(80,190,170,0.6)':lot.active?'0 0 10px #4aaa6a':'none';
-      const _tt=lot.img
-        ?`<div class="lot-tooltip" style="${_tb};padding:0;overflow:hidden;min-width:160px"><img src="${lot.img}" style="width:100%;height:90px;object-fit:cover;display:block"><div style="padding:7px 10px">${_ti}</div></div>`
-        :`<div class="lot-tooltip" style="${_tb};padding:6px 10px">${_ti}</div>`;
-      ld.innerHTML=`<div class="lot-pulse"></div><div class="lot-inner" style="width:12px;height:12px;background:${_dotBg};box-shadow:${_dotShadow}"></div><div class="lot-label">${(()=>{const p=parseLotLabel(lot);return p.sub?`${p.num}<span class="lot-sublabel">${p.sub}</span>`:p.num;})()}</div>${_tt}`;
-      ld.addEventListener('click',e=>{
-        e.stopPropagation();
-        if(calibWorldMode||posMode)return;
-        if(window.matchMedia('(max-width:768px)').matches){
-          const lbl=parseLotLabel(lot);
-          showMobileDotBar(lbl.num,lbl.sub||lbl.num,lot.url);
-        } else {
-          window.open(lot.url,'_blank');
-        }
-      });
-      wia.appendChild(ld);
+  var model="mistral-small-latest";
+  var sendHist=hist.concat([{role:"user",content:msg}]);
+  mistral([sysMsg].concat(sendHist),model,800,function(err,text){
+    var ai2=state.ai[key]||{msgs:[],history:[]};
+    ai2.loading=false;
+    if(err){
+      ai2.msgs=(ai2.msgs||[]).concat([{role:"assistant",content:"⚠️ "+err}]);
     } else {
-      const buildings=[...new Set(group.lots.filter(l=>l.building).map(l=>l.building))];
-      const isBuilding=buildings.length===1;
-      const hasActive=group.lots.some(l=>l.active);
-      const color=isBuilding?'rgba(100,160,255,0.6)':(hasActive?'#ffaa44':'rgba(255,165,0,0.6)');
-      const cd=document.createElement('div');
-      cd.className='cluster-dot'+(isBuilding?' building-dot':'');
-      cd.style.cssText=`left:${group.x}%;top:${group.y}%`;
-      const lbl=isBuilding?buildings[0].split('-')[0].trim():group.lots[0].name.split('-').pop().trim().split(' ').slice(0,2).join(' ');
-      const itemsHtml=group.lots.map(l=>`<div class="cluster-item" onclick="window.open('${l.url}','_blank');event.stopPropagation()">${l.img?`<img class="cluster-item-preview" src="${l.img}">`:''}><div class="cluster-pip" style="background:${l.active?'#4aaa6a':'rgba(255,255,255,0.4)'}"></div>${parseLotLabel(l).num}${parseLotLabel(l).sub?` <span style="color:rgba(255,255,255,0.45);font-size:10px">– ${parseLotLabel(l).sub}</span>`:''}</div>`).join('');
-      const lotsWithImg=group.lots.filter(l=>l.img);
-      const clusterHoverHtml=(!isBuilding&&lotsWithImg.length>0)?`<div class="cluster-hover" style="border:1px solid ${color}88;box-shadow:0 6px 28px ${color}44"><div style="display:flex;gap:1px">${lotsWithImg.map(l=>`<div style="position:relative;flex:1;min-width:0"><img src="${l.img}" style="width:100%;height:75px;object-fit:cover;display:block"><div style="position:absolute;bottom:3px;left:5px;font-size:8px;font-weight:600;text-shadow:0 1px 3px #000;color:#fff">${parseLotLabel(l).num}</div></div>`).join('')}</div><div class="hover-footer"><span class="hover-type">${group.lots.length} Orte</span><span class="hover-action" style="color:${color}">Klicken →</span></div></div>`:'';
-      cd.innerHTML=`<div class="cluster-inner" style="color:${color};border-color:${color};box-shadow:0 0 8px ${color}44">${isBuilding?'🏢':group.lots.length}</div><div class="cluster-label">${lbl}</div>${clusterHoverHtml}${isBuilding?'':` <div class="cluster-popup"><div style="font-size:10px;color:rgba(255,165,0,0.7);margin-bottom:6px;padding:0 4px">📦 ${group.lots.length} Orte</div>${itemsHtml}</div>`}`;
-      cd.addEventListener('click',e=>{
-        e.stopPropagation();if(calibWorldMode||posMode)return;
-        if(isBuilding){enterBuilding(buildings[0],group.lots);return;}
-        wc.querySelectorAll('.cluster-dot.open').forEach(c=>{if(c!==cd)c.classList.remove('open');});
-        cd.classList.toggle('open');
-      });
-      wia.appendChild(cd);
+      var t=stripMd(text);
+      ai2.history=newHist.concat([{role:"assistant",content:t}]);
+      ai2.msgs=(ai2.msgs||[]).concat([{role:"user",content:msg},{role:"assistant",content:t}]);
     }
-    group.lots.forEach(lot=>{
-      const pill=document.createElement('div');
-      pill.className='lot-pill';
-      pill.style.cssText=`background:${lot.active?'rgba(74,170,106,0.15)':'rgba(255,255,255,0.05)'};border-color:${lot.active?'#4aaa6a55':'rgba(255,255,255,0.1)'};color:${lot.active?'#4aaa6a':'rgba(255,255,255,0.5)'}`;
-      pill.innerHTML=`<div class="lot-pip" style="background:${lot.active?'#4aaa6a':'rgba(255,255,255,0.3)'}"></div>${lot.name}`;
-      pill.addEventListener('click',()=>window.open(lot.url,'_blank'));
-      bar.appendChild(pill);
+    state.ai[key]=ai2;draw();
+  });
+}
+
+// ── Image upload ──
+function setupImgInput(){
+  var inp=qs("imgInput");
+  inp.addEventListener("change",function(){
+    var file=inp.files[0];
+    if(!file)return;
+    var reader=new FileReader();
+    reader.addEventListener("load",function(){
+      var result=reader.result;
+      if(!result||result.indexOf("data:")===-1){alert("Fehler: Bild konnte nicht gelesen werden.");return;}
+      state.imgPreview=result;
+      state.imgB64=result.split(",")[1];
+      state.imgMime=file.type||"image/png";
+      inp.value="";
+      // Remove old preview if exists
+      var existing=qs("preview-img");
+      if(existing)existing.parentNode.removeChild(existing);
+      // Redraw content only – shell stays
+      var ca=qs("content");
+      if(ca){
+        ca.innerHTML="";
+        var sec=SECTIONS[state.step];
+        if(state.step<SECTIONS.length-1){
+          ca.appendChild(div({fontSize:"10px",fontWeight:"800",letterSpacing:"3px",color:C.teal,marginBottom:"18px"},[sec.title.toUpperCase()]));
+          sec.fields.forEach(function(k){var f=FIELDS.find(function(f){return f.key===k;});if(f)ca.appendChild(mkField(f));});
+        } else {
+          ca.appendChild(mkSheet());
+        }
+      }
     });
+    reader.readAsDataURL(file);
   });
-  const sbtn=document.createElement('button');sbtn.id='suggest-bar-btn';sbtn.textContent='+ Ort vorschlagen';sbtn.onclick=openSuggest;bar.appendChild(sbtn);
 }
 
-// ═══════════════════════════════════════════
-// WORLD-CONTAINER CLICK
-// ═══════════════════════════════════════════
-function sizeWorldImageArea(){
-  const wia=document.getElementById('world-image-area');
-  if(!wia)return;
-  const cw=worldC.clientWidth,ch=worldC.clientHeight;
-  const scale=Math.min(cw/1920,ch/1200);
-  wia.style.width=(1920*scale)+'px';
-  wia.style.height=(1200*scale)+'px';
-}
-window.addEventListener('resize',sizeWorldImageArea);
-
-const worldC=document.getElementById('world-container');
-worldC.addEventListener('click',e=>{
-  if(!e.target.closest('.cluster-dot'))worldC.querySelectorAll('.cluster-dot.open').forEach(c=>c.classList.remove('open'));
-  if(posMode){
-    if(e.target.closest('#world-lots-bar')||e.target.closest('.calib-panel')||e.target.closest('.calib-btn'))return;
-    const wia=document.getElementById('world-image-area');
-    const r=wia.getBoundingClientRect();
-    const x=+((e.clientX-r.left)/r.width*100).toFixed(1);
-    const y=+((e.clientY-r.top)/r.height*100).toFixed(1);
-    if(posModeCallback)posModeCallback(x,y);cancelPosMode();return;
-  }
-  if(!calibWorldMode)return;
-  if(e.target.closest('.lot-dot')||e.target.closest('.cluster-dot')||e.target.closest('.calib-panel')||e.target.closest('.calib-btn')||e.target.closest('#world-lots-bar'))return;
-  const wia2=document.getElementById('world-image-area');
-  const r=wia2.getBoundingClientRect();
-  const x=+((e.clientX-r.left)/r.width*100).toFixed(1);
-  const y=+((e.clientY-r.top)/r.height*100).toFixed(1);
-  const allLots=getLots(currentWorld?.name||'');
-  const idx=calibWorldData.length;
-  calibWorldData.push({name:allLots[idx]?.name||'Ort '+idx,x,y});
-  updateCalibLog('world');
-  document.getElementById('calib-world-next').textContent=allLots[idx+1]?.name||'✅ Fertig! Jetzt kopieren';
-  document.getElementById('calib-world-count').textContent=calibWorldData.length;
-});
-
-// ═══════════════════════════════════════════
-// KALIBRIERUNG
-// ═══════════════════════════════════════════
-function toggleCalib(mode){
-  if(mode==='map'){calibMapMode=!calibMapMode;document.getElementById('calib-map-panel').style.display=calibMapMode?'block':'none';mapC.style.cursor=calibMapMode?'crosshair':'default';if(calibMapMode)document.getElementById('calib-next').textContent=worlds[calibMapIdx]?.name||'—';}
-  else{calibWorldMode=!calibWorldMode;document.getElementById('calib-world-panel').style.display=calibWorldMode?'block':'none';worldC.style.cursor=calibWorldMode?'crosshair':'default';if(calibWorldMode)document.getElementById('calib-world-next').textContent=getLots(currentWorld?.name||'')[calibWorldData.length]?.name||'—';}
-}
-function updateCalibLog(mode){const data=mode==='map'?calibMapData:calibWorldData;const log=document.getElementById(mode==='map'?'calib-map-log':'calib-world-log');log.innerHTML=data.length===0?'Noch keine Klicks...':data.map(d=>`<div style="color:#ffcc44">${d.name}</div><div style="color:#777">x:${d.x}, y:${d.y}</div>`).join('');log.scrollTop=log.scrollHeight;}
-function copyCalib(mode){const data=mode==='map'?calibMapData:calibWorldData;navigator.clipboard.writeText(data.map(d=>`{name:"${d.name}",x:${d.x},y:${d.y}}`).join(',\n')).then(()=>alert('✓ Kopiert!'));}
-function clearCalib(mode){if(mode==='map'){calibMapData=[];calibMapIdx=0;document.getElementById('calib-next').textContent=worlds[0]?.name||'—';}else{calibWorldData=[];document.getElementById('calib-world-next').textContent=getLots(currentWorld?.name||'')[0]?.name||'—';document.getElementById('calib-world-count').textContent='0';}updateCalibLog(mode);}
-
-// ═══════════════════════════════════════════
-// LEGENDE
-// ═══════════════════════════════════════════
-function closeAtlas(){
-  localStorage.setItem('atlas_open','0');
-  window.parent.postMessage({action:'atlas-close'},'*');
-}
-function toggleLegend(btn){btn.nextElementSibling.classList.toggle('open');}
-document.addEventListener('click',e=>{document.querySelectorAll('.legend-box.open').forEach(b=>{if(!b.previousElementSibling.contains(e.target)&&!b.contains(e.target))b.classList.remove('open');});});
-
-// ═══════════════════════════════════════════
-// ADMIN LOGIN
-// ═══════════════════════════════════════════
-document.getElementById('logo-icon').addEventListener('click',()=>{
-  logoClicks++;clearTimeout(logoTimer);logoTimer=setTimeout(()=>logoClicks=0,2500);
-  if(logoClicks>=5){logoClicks=0;if(adminMode){adminMode=false;closeAdmin();return;}const pw=prompt('Admin-Passwort:');if(pw===ADMIN_PASS){adminMode=true;openAdmin();}else if(pw!==null)alert('Falsches Passwort.');}
-});
-function openAdmin(){document.getElementById('admin-panel').classList.add('open');document.getElementById('logo-icon').classList.add('admin-active');updateSuggestBadge();renderAdminContent();}
-function closeAdmin(){document.getElementById('admin-panel').classList.remove('open');document.getElementById('logo-icon').classList.remove('admin-active');adminMode=false;}
-function setAdminTab(t){adminTab=t;['lots','suggest','export'].forEach(id=>document.getElementById('atab-'+id).classList.toggle('active',id===t));renderAdminContent();}
-function updateSuggestBadge(){const cnt=suggestions.filter(s=>s.status==='pending').length;const el=document.getElementById('admin-suggest-count');el.style.display=cnt>0?'inline-flex':'none';el.textContent=cnt;}
-function renderAdminContent(){const c=document.getElementById('admin-content');if(adminTab==='lots')c.innerHTML=renderLotsTab();else if(adminTab==='suggest')c.innerHTML=renderSuggestTab();else c.innerHTML=renderExportTab();}
-function renderLotsTab(){
-  const wname=adminWorldFilter;
-  const hardLots=worldLots[wname]||[];
-  const hidden=hiddenLots[wname]||[];
-  const custLots=customLots[wname]||[];
-  const worldOpts=worlds.map(w=>`<option value="${w.name}" ${w.name===wname?'selected':''}>${w.name}</option>`).join('');
-  const hardHtml=hardLots.map(l=>{
-    const isHidden=hidden.includes(l.name);
-    const displayName=(renamedLots[wname]||{})[l.name]||l.name;
-    const isRenamed=displayName!==l.name;
-    return `<div class="lot-entry" style="opacity:${isHidden?0.4:1}"><div style="flex:1;min-width:0"><div class="lot-entry-name">${displayName}${isRenamed?` <span style="font-size:9px;color:rgba(255,200,0,0.6)">(war: ${l.name})</span>`:''}</div><div class="lot-entry-sub">x:${l.x} y:${l.y} <span class="badge badge-hard">Hard</span>${l.active?' <span class="badge badge-active">Aktiv</span>':''}</div></div><button class="a-btn a-btn-ghost" style="font-size:9px;padding:3px 7px" onclick="renameLot('${wname}','${l.name.replace(/'/g,"\\'")}',null)" title="Umbenennen">✏️</button>${isHidden?`<button class="a-btn a-btn-ghost" style="font-size:9px;padding:3px 7px" onclick="restoreHardLot('${wname}','${l.name.replace(/'/g,"\\'")}')">↩</button>`:`<button class="a-btn a-btn-danger" style="font-size:9px;padding:3px 7px" onclick="hideHardLot('${wname}','${l.name.replace(/'/g,"\\'")}')">✕</button>`}</div>`;
-  }).join('');
-  const custHtml=custLots.map((l,i)=>{
-    const needsCalib=l._needsCalib||(l.x===50&&l.y===50);
-    return `<div class="lot-entry" style="border-color:${needsCalib?'rgba(255,200,0,0.3)':'rgba(255,255,255,0.07)'}"><div style="flex:1;min-width:0"><div class="lot-entry-name">${l.name}</div><div class="lot-entry-sub">x:${l.x} y:${l.y} <span class="badge badge-custom">Custom</span>${needsCalib?' <span class="badge" style="background:rgba(255,200,0,0.15);color:#ffcc44">📍 pos fehlt</span>':''}</div></div><button class="a-btn a-btn-ghost" style="font-size:9px;padding:3px 7px" onclick="renameLot('${wname}',null,${i})" title="Umbenennen">✏️</button><button class="a-btn a-btn-pos" style="font-size:9px;padding:3px 7px" onclick="startPosForLot('${wname}',${i})" title="Position setzen">📍</button><button class="a-btn a-btn-ghost" style="font-size:9px;padding:3px 7px" onclick="toggleCustomActive('${wname}',${i})">${l.active?'Inaktiv':'Aktiv'}</button><button class="a-btn a-btn-danger" style="font-size:9px;padding:3px 7px" onclick="removeCustomLot('${wname}',${i})">✕</button></div>`;
-  }).join('');
-  return `<div class="a-form-row"><div class="a-label">Welt</div><select class="a-select" onchange="adminWorldFilter=this.value;renderAdminContent()">${worldOpts}</select></div><div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:8px">${hardLots.length-hidden.length} sichtbar · ${hidden.length} versteckt · ${custLots.length} custom</div>${hardHtml}${custHtml}<div style="border-top:0.5px solid rgba(255,255,255,0.08);margin:14px 0 12px"></div><div style="font-size:11px;color:#ffcc44;font-weight:500;margin-bottom:10px">+ Ort hinzufügen</div><div class="a-form-row"><div class="a-label">Name</div><input class="a-input" id="a-new-name" placeholder="z.B. Nr. 5 - Meine Wohnung"></div><div class="a-form-row"><div class="a-label">Thread-URL <span style="color:rgba(255,255,255,0.3)">(optional — leer = Subforum)</span></div><input class="a-input" id="a-new-url" placeholder="https://www.simsforumrpg.de/t..."></div><div class="a-form-row" style="display:flex;gap:8px;align-items:center"><div style="flex:1"><div class="a-label">Position</div><div id="a-pos-display" style="font-size:10px;color:rgba(255,255,255,0.4)">${pendingPos?`x:${pendingPos.x}, y:${pendingPos.y} ✓`:'Noch nicht gesetzt'}</div></div><button class="a-btn a-btn-pos" onclick="startPosMode()" style="margin-top:14px">${currentWorld?'📍 Setzen':'Erst Welt betreten'}</button></div><div class="a-form-row" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="a-new-active"><label for="a-new-active" style="font-size:11px;color:rgba(255,255,255,0.6)">Als aktiv markieren</label></div><button class="a-btn a-btn-primary" style="width:100%;margin-top:4px" onclick="addCustomLot()">Ort hinzufügen</button>`;
-}
-function renderSuggestTab(){const pending=suggestions.filter(s=>s.status==='pending');if(!pending.length)return`<div style="font-size:11px;color:rgba(255,255,255,0.3);text-align:center;padding:30px 0">Keine Vorschläge</div>`;return pending.map((s,i)=>`<div class="suggest-entry" style="background:rgba(255,255,255,0.04);border:0.5px solid rgba(74,170,106,0.2);border-radius:6px;padding:10px;margin-bottom:8px"><div style="font-size:12px;font-weight:500;margin-bottom:3px">${s.name}</div><div style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:8px">🌍 ${s.world} · ${new Date(s.ts).toLocaleDateString('de-CH')}</div><div style="font-size:10px;color:rgba(100,180,255,0.7);word-break:break-all;margin-bottom:10px">${s.url}</div><div style="display:flex;gap:8px"><button class="a-btn a-btn-primary" style="flex:1" onclick="approveSuggestion(${i})">✓</button><button class="a-btn a-btn-danger" onclick="rejectSuggestion(${i})">✕</button></div></div>`).join('');}
-function renderExportTab(){
-  const combined={};
-  [...Object.keys(worldLots),...Object.keys(customLots)].forEach(k=>{
-    combined[k]=[
-      ...(worldLots[k]||[]).filter(l=>!(hiddenLots[k]||[]).includes(l.name)),
-      ...(customLots[k]||[]).map(l=>{const c={...l};delete c._src;delete c._needsCalib;return c;})
-    ];
+// ── Import ──
+function doImport(){
+  var txt=state.importText;
+  if(!txt.trim())return;
+  state.importing=true;draw();
+  var fl=FIELDS.map(function(f){return'"'+f.key+'":"'+f.label+'"';}).join(",");
+  mistral([
+    {role:"system",content:"Analysiere einen Charakterbogen. Gib NUR ein JSON-Objekt zurück, keine Backticks, kein Markdown. Alle Werte als Strings. Felder: {"+fl+"}"},
+    {role:"user",content:"Charakterbogen:\n\n"+txt}
+  ],"mistral-small-latest",2000,function(err,raw){
+    if(err){alert("Fehler: "+err);state.importing=false;draw();return;}
+    try{
+      var p=JSON.parse(raw.replace(/```json|```/g,"").trim());
+      FIELDS.forEach(function(f){if(p[f.key]!=null)state.char[f.key]=toStr(p[f.key]);});
+      state.importing=false;state.showImport=false;state.importText="";
+    }catch(e){alert("Parse-Fehler: "+e.message);state.importing=false;}
+    draw();
   });
-  const code='const worldLots='+JSON.stringify(combined,null,2)+';';
-  return `
-    <div style="background:rgba(255,200,0,0.08);border:0.5px solid rgba(255,200,0,0.3);border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:11px;line-height:1.7">
-      <div style="color:#ffcc44;font-weight:500;margin-bottom:4px">📋 So verwendest du den Export:</div>
-      <div style="color:rgba(255,255,255,0.6)">1. Unten auf „Kopieren" klicken</div>
-      <div style="color:rgba(255,255,255,0.6)">2. GitHub → <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px">index.html</code> öffnen → ✏️ Edit</div>
-      <div style="color:rgba(255,255,255,0.6)">3. Im Code <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px">const worldLots=</code> suchen (Ctrl+F)</div>
-      <div style="color:rgba(255,255,255,0.6)">4. Alles von <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px">const worldLots=</code> bis zum abschliessenden <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px">};</code> markieren und ersetzen</div>
-      <div style="color:rgba(255,255,255,0.6)">5. Commit → fertig ✓</div>
-    </div>
-    <div style="background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px;font-size:9px;font-family:monospace;color:#aaa;max-height:220px;overflow-y:auto;white-space:pre;line-height:1.5">${code.replace(/</g,'&lt;')}</div>
-    <button class="a-btn a-btn-primary" style="width:100%;margin-top:10px" onclick="copyExport()">📋 worldLots kopieren</button>
-    <div style="border-top:0.5px solid rgba(255,255,255,0.08);margin:14px 0 10px"></div>
-    <button class="a-btn a-btn-danger" style="width:100%" onclick="clearAllCustom()">🗑 Alle Custom-Lots löschen</button>`;
-}
-function startPosMode(){if(!currentWorld){alert('Zuerst eine Welt betreten.');return;}posMode=true;worldC.style.cursor='crosshair';document.getElementById('calib-mode-bar').style.display='block';posModeCallback=(x,y)=>{pendingPos={x,y};const el=document.getElementById('a-pos-display');if(el)el.textContent=`x:${x}, y:${y} ✓`;};}
-function cancelPosMode(){posMode=false;worldC.style.cursor='default';document.getElementById('calib-mode-bar').style.display='none';posModeCallback=null;}
-function addCustomLot(){const name=document.getElementById('a-new-name')?.value?.trim();let url=document.getElementById('a-new-url')?.value?.trim();const active=document.getElementById('a-new-active')?.checked||false;if(!name){alert('Name eingeben.');return;}if(!url){url=worlds.find(w=>w.name===adminWorldFilter)?.url||BASE;}if(!pendingPos){alert('Position setzen.');return;}const wname=adminWorldFilter;if(!customLots[wname])customLots[wname]=[];customLots[wname].push({name,url,x:pendingPos.x,y:pendingPos.y,active});pendingPos=null;saveLots();if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();}
-function removeCustomLot(wname,idx){if(!confirm(`"${customLots[wname][idx].name}" löschen?`))return;customLots[wname].splice(idx,1);if(!customLots[wname].length)delete customLots[wname];saveLots();if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();}
-function toggleCustomActive(wname,idx){customLots[wname][idx].active=!customLots[wname][idx].active;saveLots();if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();}
-function approveSuggestion(i){const pending=suggestions.filter(s=>s.status==='pending');const s=pending[i];const wname=s.world;if(!customLots[wname])customLots[wname]=[];customLots[wname].push({name:s.name,url:s.url,x:50,y:50,active:false,_needsCalib:true});s.status='approved';saveLots();saveSugs();updateSuggestBadge();if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();alert(`✓ "${s.name}" hinzugefügt.\n\nPosition setzen:\n1. Welt "${wname}" betreten\n2. Admin-Panel öffnen → Ort in Liste finden\n3. Den 📍-Button klicken\n4. Auf die richtige Stelle im Weltbild klicken`);}
-function rejectSuggestion(i){suggestions.filter(s=>s.status==='pending')[i].status='rejected';saveSugs();updateSuggestBadge();renderAdminContent();}
-function copyExport(){const combined={};[...Object.keys(worldLots),...Object.keys(customLots)].forEach(k=>{const renamed=renamedLots[k]||{};combined[k]=[...(worldLots[k]||[]).filter(l=>!(hiddenLots[k]||[]).includes(l.name)).map(l=>({...l,name:renamed[l.name]||l.name})),...(customLots[k]||[]).map(l=>{const c={...l};delete c._src;delete c._needsCalib;return c;})];});navigator.clipboard.writeText('const worldLots='+JSON.stringify(combined,null,2)+';').then(()=>alert('✓ Kopiert! Jetzt in GitHub einfügen.'));}
-function clearAllCustom(){if(!confirm('Alle custom Lots löschen?'))return;customLots={};localStorage.removeItem('sw_custom_lots');if(currentWorld)renderLots(currentWorld);renderAdminContent();}
-
-// ═══════════════════════════════════════════
-// USER SUGGEST
-// ═══════════════════════════════════════════
-function openSuggest(){const modal=document.getElementById('suggest-modal');modal.classList.add('open');document.getElementById('sug-result').style.display='none';document.getElementById('sug-name').value='';document.getElementById('sug-url').value='';const sel=document.getElementById('sug-world');sel.innerHTML=worlds.map(w=>`<option value="${w.name}" ${currentWorld?.name===w.name?'selected':''}>${w.name}</option>`).join('');}
-function closeSuggest(){document.getElementById('suggest-modal').classList.remove('open');}
-document.getElementById('suggest-modal').addEventListener('click',e=>{if(e.target===document.getElementById('suggest-modal'))closeSuggest();});
-function submitSuggestion(){const world=document.getElementById('sug-world').value;const name=document.getElementById('sug-name').value.trim();const url=document.getElementById('sug-url').value.trim();if(!name){alert('Name eingeben.');return;}if(!url||!url.startsWith('http')){alert('Gültige URL eingeben.');return;}suggestions.push({world,name,url,status:'pending',ts:Date.now()});saveSugs();updateSuggestBadge();document.getElementById('sug-copy-text').textContent=`📍 Ort-Vorschlag für Projekt ATLAS\nWelt: ${world}\nOrt: ${name}\nURL: ${url}`;document.getElementById('sug-result').style.display='block';}
-function copySuggest(){navigator.clipboard.writeText(document.getElementById('sug-copy-text').textContent).then(()=>alert('✓ Kopiert!'));}
-
-// ═══════════════════════════════════════════
-// MOBILE SHEETS
-// ═══════════════════════════════════════════
-function openSheet(id){document.getElementById('sheet-overlay').classList.add('open');['nav','info'].forEach(s=>document.getElementById('sheet-'+s).classList.toggle('open',s===id));}
-function closeSheet(){document.getElementById('sheet-overlay').classList.remove('open');document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('open'));}
-let calibBuildingMode=false,calibBuildingData=[];
-
-function toggleBuildingCalib(){
-  calibBuildingMode=!calibBuildingMode;
-  const panel=document.getElementById('calib-building-panel');
-  const bc=document.getElementById('building-container');
-  panel.style.display=calibBuildingMode?'block':'none';
-  bc.style.cursor=calibBuildingMode?'crosshair':'default';
-  if(calibBuildingMode){
-    calibBuildingData=[];
-    const lots=BUILDINGS[currentBuildingKey]?.lots||[];
-    document.getElementById('calib-building-next').textContent=lots[0]?.name||'—';
-    document.getElementById('calib-building-count').textContent='0';
-    document.getElementById('calib-building-log').textContent='Noch keine Klicks...';
-  }
-}
-function clearBuildingCalib(){
-  calibBuildingData=[];
-  document.getElementById('calib-building-next').textContent=BUILDINGS[currentBuildingKey]?.lots[0]?.name||'—';
-  document.getElementById('calib-building-count').textContent='0';
-  document.getElementById('calib-building-log').textContent='Noch keine Klicks...';
-}
-function copyBuildingCalib(){
-  const txt=calibBuildingData.map(d=>`{name:"${d.name}",x:${d.x},y:${d.y}}`).join(',\n');
-  navigator.clipboard.writeText(txt).then(()=>alert('✓ Kopiert!'));
 }
 
-document.addEventListener('DOMContentLoaded',function(){
-  document.getElementById('building-container').addEventListener('click',function(e){
-    if(!calibBuildingMode)return;
-    if(e.target.closest('.calib-panel')||e.target.closest('.calib-btn')||e.target.closest('#floor-nav'))return;
-    const bc=document.getElementById('building-container');
-    const r=bc.getBoundingClientRect();
-    const x=+((e.clientX-r.left)/r.width*100).toFixed(1);
-    const y=+((e.clientY-r.top)/r.height*100).toFixed(1);
-    const lots=BUILDINGS[currentBuildingKey]?.lots||[];
-    const idx=calibBuildingData.length;
-    if(idx>=lots.length){alert('Alle gesetzt!');return;}
-    calibBuildingData.push({name:lots[idx].name,x,y});
-    const log=document.getElementById('calib-building-log');
-    log.innerHTML=calibBuildingData.map(d=>`<div style="color:#ffcc44">${d.name}</div><div style="color:#777">x:${d.x}, y:${d.y}</div>`).join('');
-    log.scrollTop=log.scrollHeight;
-    document.getElementById('calib-building-next').textContent=lots[idx+1]?.name||'✅ Fertig!';
-    document.getElementById('calib-building-count').textContent=calibBuildingData.length;
+// ── Download ──
+function downloadDoc(){
+  var name=state.char.name||"Charakter";
+  var skip=["name","age","gender","occult","job","origin"];
+  var h=['<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:Calibri,sans-serif;margin:40px}h1{color:#4d7a4d;font-size:22pt}h2{color:#3d6f8a;font-size:12pt;margin:16px 0 4px;border-bottom:1px solid #96a896;padding-bottom:2px}p{font-size:11pt;white-space:pre-wrap;margin:2px 0 8px}.s{color:#4a564a;font-size:10pt}</style></head><body>'];
+  h.push("<h1>"+name+"</h1>");
+  var sub=[state.char.age&&state.char.age+" Jahre",state.char.gender,state.char.occult].filter(Boolean).join(" · ");
+  if(sub)h.push('<p class="s">'+sub+"</p>");
+  if(state.char.job)h.push('<p class="s" style="color:#3d6f8a">'+state.char.job+"</p>");
+  if(state.char.origin)h.push('<p class="s">aus '+state.char.origin+"</p>");
+  h.push('<hr style="border:none;border-top:2px solid #4d7a4d;margin:8px 0 16px"/>');
+  SECTIONS.slice(0,-1).forEach(function(sec){
+    var sf=sec.fields.map(function(k){return FIELDS.find(function(f){return f.key===k;});}).filter(function(f){return f&&state.char[f.key]&&skip.indexOf(f.key)===-1;});
+    if(!sf.length)return;
+    h.push("<h2>"+sec.title.toUpperCase()+"</h2>");
+    sf.forEach(function(f){h.push("<p><strong>"+f.label+":</strong><br/>"+state.char[f.key].replace(/</g,"&lt;").replace(/\n/g,"<br/>")+"</p>");});
   });
-});
-// ═══════════════════════════════════════════
-// MOBILE PINCH-ZOOM + PAN
-// ═══════════════════════════════════════════
-function makePinchZoom(el,opts={}){
-  let tx=0,ty=0,sc=1;
-  let p1x=0,p1y=0;
-  let nlx=0,nly=0,lx0=0,ly0=0,pd0=1,sc0=1;
-  const maxSc=opts.maxScale||5,thresh=opts.labelThreshold||1.8;
-  const wrap=el.parentElement;
-  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
-  function apply(){
-    el.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`;
-    el.classList.toggle('zoom-labels',sc>=thresh);
-  }
-  function clampPan(){
-    const ww=wrap.clientWidth,wh=wrap.clientHeight;
-    const ew=el.offsetWidth,eh=el.offsetHeight;
-    // baseX/Y = natural centered offset of element within wrapper (when tx=ty=0)
-    const baseX=(ww-ew)/2,baseY=(wh-eh)/2;
-    const sw=ew*sc,sh=eh*sc;
-    if(sw<=ww){tx=0;}
-    else{tx=clamp(tx,ww-baseX-sw,-baseX);}
-    if(sh<=wh){ty=0;}
-    else{ty=clamp(ty,wh-baseY-sh,-baseY);}
-  }
-  function reset(){tx=0;ty=0;sc=1;apply();}
-  wrap.addEventListener('touchstart',e=>{
-    if(opts.guard&&opts.guard())return;
-    if(e.touches.length===1){
-      p1x=e.touches[0].clientX-tx;
-      p1y=e.touches[0].clientY-ty;
-    }
-    if(e.touches.length===2){
-      const a=e.touches[0],b=e.touches[1];
-      pd0=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)||1;
-      sc0=sc;
-      const r=el.getBoundingClientRect();
-      nlx=r.left-tx; nly=r.top-ty;
-      const mx=(a.clientX+b.clientX)/2,my=(a.clientY+b.clientY)/2;
-      lx0=(mx-r.left)/sc;
-      ly0=(my-r.top)/sc;
-    }
-  },{passive:true});
-  wrap.addEventListener('touchmove',e=>{
-    if(opts.guard&&opts.guard())return;
-    if(e.touches.length===1&&sc>1.05){
-      tx=e.touches[0].clientX-p1x;
-      ty=e.touches[0].clientY-p1y;
-      clampPan();apply();e.preventDefault();
-    }
-    if(e.touches.length===2){
-      const a=e.touches[0],b=e.touches[1];
-      const pd=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)||1;
-      sc=clamp(sc0*(pd/pd0),1,maxSc);
-      const mx=(a.clientX+b.clientX)/2,my=(a.clientY+b.clientY)/2;
-      tx=mx-nlx-lx0*sc;
-      ty=my-nly-ly0*sc;
-      clampPan();apply();e.preventDefault();
-    }
-  },{passive:false});
-  wrap.addEventListener('touchend',e=>{
-    if(e.touches.length===0&&sc<1.05){reset();return;}
-    if(e.touches.length===1){
-      p1x=e.touches[0].clientX-tx;
-      p1y=e.touches[0].clientY-ty;
-    }
-  },{passive:true});
-  return {reset};
+  h.push("</body></html>");
+  var blob=new Blob([h.join("")],{type:"application/msword"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a");a.href=url;a.download=name+"_Charakterbogen.doc";
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
 }
-const _worldZoom=makePinchZoom(document.getElementById('world-image-area'),{
-  guard:()=>calibWorldMode||posMode
-});
-const _mapZoom=makePinchZoom(document.getElementById('map-image-area'));
 
-// Reset zoom on world exit
-window._origExitWorld=window.exitWorld||null;
-window.exitWorld=function(){if(_worldZoom)_worldZoom.reset();if(window._origExitWorld)window._origExitWorld();};
+// ── Render AI block ──
+function mkAI(key,label,val){
+  var ai=state.ai[key]||{msgs:[],loading:false,input:"",open:false};
+  var wrap=div({marginTop:"6px"});
+  var hasContent=(ai.msgs&&ai.msgs.length>0)||ai.loading;
+  var firstLoad=ai.loading&&(!ai.msgs||!ai.msgs.length);
+  var startPrompt=key==="appearance"
+    ?'Feld: "Aussehen". Bisheriger Inhalt: "'+(val||"leer")+'". Stelle 3-4 konkrete Fragen die helfen das Aussehen des Charakters zu beschreiben – z.B. zu Körperbau, Haaren, Augen, besonderen Merkmalen, Narben, wie er sich bewegt oder wirkt. Kein Beschreibungstext, nur Fragen.'
+    :'Feld: "'+label+'". Bisheriger Inhalt: "'+(val||"leer")+'". Gib 1-2 kurze Autoren-Tipps für dieses Feld, dann 2-3 Fragen die der Nutzer sich stellen kann um das Feld zu füllen.';
 
-// Mobile bottom bar
-let _mobileDotUrl='';
-function showMobileDotBar(nr,name,url){
-  _mobileDotUrl=url;
-  const bar=document.getElementById('mobile-dot-bar');
-  document.getElementById('mobile-dot-nr').textContent=nr||name;
-  document.getElementById('mobile-dot-name').textContent=(nr&&name!==nr)?name:'';
-  bar.classList.add('visible');
-}
-function hideMobileDotBar(){document.getElementById('mobile-dot-bar').classList.remove('visible');_mobileDotUrl='';}
-function mobileDotOpen(){if(_mobileDotUrl)window.open(_mobileDotUrl,'_blank');}
+  if(!hasContent){
+    wrap.appendChild(btn("✨ Tipps & Fragen",C.teal,function(){callAI(key,startPrompt,[]);},true,true,false));
+    return wrap;
+  }
+  if(firstLoad){
+    var ld=div({display:"inline-flex",alignItems:"center",gap:"8px",background:"rgba(61,111,138,0.12)",border:"1px solid "+C.teal,borderRadius:"7px",padding:"4px 12px"});
+    var dot=mk("span",{display:"inline-block",width:"10px",height:"10px",borderRadius:"50%",background:C.teal,animation:"pulse 1s infinite"});
+    ld.appendChild(dot);ld.appendChild(mk("span",{fontSize:"12px",color:C.teal},["KI denkt nach…"]));
+    wrap.appendChild(ld);return wrap;
+  }
+  var count=Math.ceil((ai.msgs||[]).length/2);
+  var tog=btn((ai.open?"▲ ausblenden":"▼ Tipps & Fragen")+(count>0?" ("+count+")":""),C.muted,function(){
+    state.ai[key]=state.ai[key]||{};state.ai[key].open=!state.ai[key].open;draw();
+  },true,true,false);
+  wrap.appendChild(tog);
+  if(!ai.open)return wrap;
 
-// Mobile: show bottom bar on tap, hide on tap elsewhere
-document.addEventListener('touchstart',e=>{
-  document.querySelectorAll('.tapped').forEach(el=>el.classList.remove('tapped'));
-  if(e.target.closest('#mobile-dot-bar'))return;
-  const dot=e.target.closest('.lot-dot,.cluster-dot,.world-dot');
-  if(dot){dot.classList.add('tapped');}
-  else{hideMobileDotBar();}
-},{passive:true});
-
-// ═══════════════════════════════════════════
-// CHARAKTER-VIEW
-// ═══════════════════════════════════════════
-var SCRIPT_URL='https://script.google.com/macros/s/AKfycbw2QtXNxsvSaD4xzwZcX3U5EebauDQjxfX4LtSHhLViR9RB2jBsmvJWEqhM9Agdqvvo/exec';
-var CHARS=[
-  {n:"Sullivan 'Blaze' Blaisdell",p:"Ripzha",type:"haupt",u:"https://www.simsforumrpg.de/t78f51849-Sullivan-Blaze-Blaisdell.html",h:"Newcrest",img:"",age:"18",job:""},
-  {n:"Artjom Komarow",p:"Ripzha",type:"haupt",u:"https://www.simsforumrpg.de/t266f51849-Artjom-Komarow.html",h:"Willow Creek",img:"",age:"18",job:""},
-  {n:"Vaas Del Toro",p:"Ripzha",type:"haupt",u:"https://www.simsforumrpg.de/t654f51849-Vaas-Del-Toro.html",h:"",img:"",age:"21",job:""},
-  {n:"David Janko",p:"RivaBabylon",type:"haupt",u:"https://www.simsforumrpg.de/t583f51849-David-Janko.html",h:"Britechester",img:"",age:"",job:""},
-  {n:"Viola Nebeljäger",p:"Murloc",type:"haupt",u:"https://www.simsforumrpg.de/t86f51849-Viola-Nebeljaeger.html",h:"Ravenwood",img:"",age:"",job:""},
-  {n:"Bea Greentail",p:"Murloc",type:"haupt",u:"https://www.simsforumrpg.de/t117f51849-Bea-Greentail.html",h:"",img:"",age:"",job:""},
-  {n:"Ellie Hawk",p:"Murloc",type:"haupt",u:"https://www.simsforumrpg.de/t87f51849-Ellie-Hawk.html",h:"",img:"",age:"",job:""},
-  {n:"Gerda Karlotta Simmer",p:"S.Bin.",type:"haupt",u:"https://www.simsforumrpg.de/t647f51849-Gerda-Karlotta-Simmer.html",h:"",img:"",age:"",job:""},
-  {n:"Jack Elliot",p:"S.Bin.",type:"haupt",u:"https://www.simsforumrpg.de/t682f51849-Jack.html",h:"Del Sol Valley",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51850t682p6595n6_FCvJRagV.png",age:"20",job:"Studentin"}
-];
-var charActiveType='haupt';
-var charPlayerFilter='alle';
-var charSortAZ=false;
-var charFetched=false;
-
-function openCharView(type){
-  charActiveType=type||'haupt';
-  location.hash='chars-'+charActiveType;
-  document.getElementById('char-container').classList.add('open');
-  document.querySelectorAll('.char-tab').forEach(function(t){
-    var map={'haupt':'Haupt','neben':'Neben','statist':'Stat'};
-    t.classList.toggle('active',t.textContent.indexOf(map[charActiveType]||charActiveType)>-1);
+  var box=div({marginTop:"8px",background:C.input,border:"1px solid "+C.border,borderRadius:"10px",padding:"12px"});
+  var msgs=div({maxHeight:"300px",overflowY:"auto",display:"flex",flexDirection:"column",gap:"8px"});
+  (ai.msgs||[]).forEach(function(m){
+    if(m.role==="user"){
+      var ub=div({textAlign:"right"});
+      ub.appendChild(span({background:C.accent,color:"#fff",borderRadius:"8px",padding:"4px 10px",fontSize:"12px",display:"inline-block",maxWidth:"80%"},[typeof m.content==="string"?m.content:"[Bild + Text]"]));
+      msgs.appendChild(ub);
+    } else {
+      msgs.appendChild(div({background:C.card2,borderRadius:"8px",padding:"10px 12px",fontSize:"13px",color:C.text,whiteSpace:"pre-wrap",lineHeight:"1.7",border:"1px solid "+C.border},[m.content]));
+    }
   });
-  charPlayerFilter='alle';
-  var grid=document.getElementById('char-grid');
-  var sub=document.getElementById('char-subtitle');
-  if(grid)grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:22px;padding:60px;grid-column:1/-1;text-align:center">⏳</div>';
-  if(sub)sub.textContent='Lade...';
-  fetchCharsFromScript();
+  if(ai.loading&&ai.msgs&&ai.msgs.length){
+    var ld2=div({display:"flex",alignItems:"center",gap:"8px"});
+    var dot2=mk("span",{display:"inline-block",width:"8px",height:"8px",borderRadius:"50%",background:C.teal,animation:"pulse 1s infinite"});
+    ld2.appendChild(dot2);ld2.appendChild(mk("span",{fontSize:"12px",color:C.teal},["…"]));
+    msgs.appendChild(ld2);
+  }
+  box.appendChild(msgs);
+  var row=div({display:"flex",gap:"6px",marginTop:"8px"});
+  var ci=mk("input",Object.assign({},INP,{flex:"1",padding:"6px 10px"}));
+  ci.placeholder="Nachfragen…";ci.value=ai.input||"";
+  ci.addEventListener("input",function(){state.ai[key]=state.ai[key]||{};state.ai[key].input=ci.value;});
+  ci.addEventListener("keydown",function(e){if(e.key==="Enter"){var v=(state.ai[key]||{}).input||"";if(v.trim())callAI(key,v);}});
+  row.appendChild(ci);
+  row.appendChild(btn("→",C.accent,function(){var v=(state.ai[key]||{}).input||"";if(v.trim())callAI(key,v);},false,false,false));
+  box.appendChild(row);
+  wrap.appendChild(box);
+  return wrap;
 }
 
-function closeCharView(){
-  document.getElementById('char-container').classList.remove('open');
-  location.hash='';
+// ── Render field ──
+function mkField(f){
+  var wrap=div({marginBottom:"20px",borderBottom:"1px solid "+C.border,paddingBottom:"18px"});
+  wrap.appendChild(mk("label",{display:"block",fontSize:"13px",fontWeight:"700",color:C.accent,marginBottom:"2px"},[f.label+(f.optional?" · optional":"")]));
+  wrap.appendChild(div({fontSize:"12px",color:C.muted,marginBottom:"6px",fontStyle:"italic"},[f.hint]));
+  if(f.key==="appearance"){
+    var iw=div({marginBottom:"8px"});
+    if(state.imgPreview){
+      var img=document.createElement("img");
+      img.src=state.imgPreview;
+      img.style.maxHeight="150px";
+      img.style.borderRadius="8px";
+      img.style.display="block";
+      img.style.marginBottom="8px";
+      img.style.border="2px solid "+C.border;
+      iw.appendChild(img);
+      iw.appendChild(btn("🔄 Anderes Bild",C.teal,function(){qs("imgInput").click();},true,true,false));
+    } else {
+      iw.appendChild(btn("📷 Bild hochladen",C.teal,function(){qs("imgInput").click();},true,true,false));
+    }
+    wrap.appendChild(iw);
+  }
+  var inp=document.createElement(f.multi?"textarea":"input");
+  Object.assign(inp.style,INP);
+  if(f.multi){inp.style.resize="vertical";inp.rows=3;}
+  inp.value=state.char[f.key]||"";
+  inp.placeholder=f.hint;
+  inp.addEventListener("input",function(){state.char[f.key]=inp.value;});
+  wrap.appendChild(inp);
+  wrap.appendChild(mkAI(f.key,f.label,state.char[f.key]));
+  return wrap;
 }
 
-function switchCharTab(type,btn){
-  charActiveType=type;
-  location.hash='chars-'+type;
-  document.querySelectorAll('.char-tab').forEach(function(t){t.classList.remove('active');});
-  if(btn)btn.classList.add('active');
-  charPlayerFilter='alle';
-  charRenderFiltered();
-  buildPlayerFilter();
-}
-
-function reloadChars(){
-  charFetched=false;
-  var grid=document.getElementById('char-grid');
-  if(grid)grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:22px;padding:60px;grid-column:1/-1;text-align:center">⏳</div>';
-  fetchCharsFromScript(null);
-}
-
-async function fetchCharsFromScript(){
-  try{
-    var r=await fetch(SCRIPT_URL);
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    var data=await r.json();
-    if(!Array.isArray(data)||!data.length)throw new Error('leer');
-    // Mapping
-    var fresh=data.filter(function(c){return c.name;}).map(function(c){
-      var t=(c.type||'').toLowerCase();
-      if(t.indexOf('neben')>-1)t='neben';
-      else if(t.indexOf('statist')>-1||t.indexOf('rand')>-1||t.indexOf('passant')>-1)t='statist';
-      else t='haupt';
-      return{n:c.name||'',p:c.player||'',type:t,u:c.threadUrl||'',h:c.home||'',img:c.portraitUrl||'',age:c.age||'',job:c.job||'',lastSeenName:c.lastSeenName||'',lastSeenUrl:c.lastSeenUrl||''};
+// ── Render sheet ──
+function mkSheet(){
+  var wrap=div({});
+  wrap.appendChild(div({fontSize:"10px",fontWeight:"800",letterSpacing:"3px",color:C.teal,marginBottom:"18px"},["CHARAKTERBLATT"]));
+  var sheet=div({border:"1px solid "+C.border,borderRadius:"10px",overflow:"hidden"});
+  var hdr=div({background:"linear-gradient(135deg,"+C.card2+","+C.border+")",padding:"18px 20px",display:"flex",gap:"16px",alignItems:"flex-start",borderBottom:"1px solid "+C.border});
+  if(state.imgPreview){
+    var sheetImg=document.createElement("img");
+    sheetImg.src=state.imgPreview;
+    sheetImg.style.width="90px";
+    sheetImg.style.height="110px";
+    sheetImg.style.objectFit="cover";
+    sheetImg.style.borderRadius="8px";
+    sheetImg.style.border="2px solid "+C.accent;
+    sheetImg.style.flexShrink="0";
+    hdr.appendChild(sheetImg);
+  }
+  var hi=div({flex:"1"});
+  hi.appendChild(div({fontSize:"22px",fontWeight:"900",color:C.accent},[state.char.name||"—"]));
+  var sub=[state.char.age&&state.char.age+" Jahre",state.char.gender,state.char.occult].filter(Boolean).join(" · ");
+  if(sub)hi.appendChild(div({fontSize:"13px",color:C.muted,marginTop:"2px"},[sub]));
+  if(state.char.job)hi.appendChild(div({fontSize:"13px",color:C.teal,marginTop:"4px"},[state.char.job]));
+  if(state.char.origin)hi.appendChild(div({fontSize:"12px",color:C.muted,marginTop:"2px"},["aus "+state.char.origin]));
+  hdr.appendChild(hi);sheet.appendChild(hdr);
+  var body=div({padding:"18px"});
+  var skip=["name","age","gender","occult","job","origin"];
+  SECTIONS.slice(0,-1).forEach(function(sec){
+    var sf=sec.fields.map(function(k){return FIELDS.find(function(f){return f.key===k;});}).filter(function(f){return f&&state.char[f.key]&&skip.indexOf(f.key)===-1;});
+    if(!sf.length)return;
+    var sd=div({marginBottom:"18px"});
+    sd.appendChild(div({fontSize:"9px",fontWeight:"800",letterSpacing:"3px",color:C.teal,borderBottom:"1px solid "+C.border,paddingBottom:"4px",marginBottom:"10px"},[sec.title.toUpperCase()]));
+    sf.forEach(function(f){
+      var row=div({marginBottom:"8px",display:"grid",gridTemplateColumns:"130px 1fr",gap:"8px"});
+      row.appendChild(span({fontWeight:"700",color:C.muted,fontSize:"12px"},[f.label]));
+      row.appendChild(span({color:C.text,fontSize:"13px",whiteSpace:"pre-wrap"},[state.char[f.key]]));
+      sd.appendChild(row);
     });
-    if(fresh.length>0){
-      CHARS.length=0;
-      fresh.forEach(function(c){CHARS.push(c);});
-      charFetched=true;
-    }
-  }catch(e){}
-  charRenderFiltered();
-  buildPlayerFilter();
-}
-
-function toggleCharSort(){
-  charSortAZ=!charSortAZ;
-  var btn=document.getElementById('char-sort-btn');
-  if(btn)btn.classList.toggle('active',charSortAZ);
-  charRenderFiltered();
-}
-
-function charRenderFiltered(){
-  var list=CHARS.filter(function(c){return c.type===charActiveType;});
-  if(charPlayerFilter&&charPlayerFilter!=='alle')list=list.filter(function(c){return c.p===charPlayerFilter;});
-  if(charSortAZ)list=list.slice().sort(function(a,b){return a.n.localeCompare(b.n,'de');});
-  charRender(list);
-}
-
-function buildPlayerFilter(){
-  var list=CHARS.filter(function(c){return c.type===charActiveType;});
-  var players=['alle'];
-  list.forEach(function(c){if(c.p&&players.indexOf(c.p)===-1)players.push(c.p);});
-  var bar=document.getElementById('char-filter-bar');
-  if(!bar)return;
-  var btns='';
-  players.forEach(function(p){
-    var active=p===charPlayerFilter?' active':'';
-    var label=p==='alle'?'Alle':p;
-    btns+='<button class="char-filter'+active+'" onclick="setCharPlayerFilter(this)">'+label+'</button>';
+    body.appendChild(sd);
   });
-  bar.innerHTML=btns;
+  sheet.appendChild(body);wrap.appendChild(sheet);
+  var btns=div({marginTop:"12px",display:"flex",gap:"8px",flexWrap:"wrap"});
+  btns.appendChild(btn("⬇ Als Word herunterladen",C.accent,downloadDoc,false,false,false));
+  btns.appendChild(btn("📋 Text kopieren",C.teal,function(){
+    var t=FIELDS.filter(function(f){return state.char[f.key];}).map(function(f){return f.label.toUpperCase()+":\n"+state.char[f.key];}).join("\n\n");
+    navigator.clipboard?navigator.clipboard.writeText(t):(function(){var e=mk("textarea");e.value=t;document.body.appendChild(e);e.select();document.execCommand("copy");document.body.removeChild(e);})();
+    alert("Kopiert!");
+  },false,true,false));
+  btns.appendChild(btn("🗺 In ATLAS registrieren",C.teal,function(){state.showAtlas=true;draw();},false,false,false));
+  btns.appendChild(btn("↺ Neu starten",C.muted,function(){
+    if(!confirm("Neuen Charakter erstellen? Alle Eingaben werden gelöscht."))return;
+    FIELDS.forEach(function(f){state.char[f.key]="";});
+    state.imgPreview=null;state.imgB64=null;state.imgMime=null;state.ai={};state.step=0;draw();
+  },false,true,false));
+  wrap.appendChild(btns);
+  return wrap;
 }
 
-function setCharPlayerFilter(btn){
-  charPlayerFilter=btn.textContent==='Alle'?'alle':btn.textContent;
-  buildPlayerFilter();
-  charRenderFiltered();
+// ── Modals ──
+function mkImportModal(){
+  var ov=div({position:"fixed",inset:"0",background:"rgba(0,0,0,0.55)",zIndex:"200",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"});
+  var box=div({background:C.card,border:"1px solid "+C.border,borderRadius:"14px",padding:"24px",width:"100%",maxWidth:"560px"});
+  box.appendChild(div({fontSize:"14px",fontWeight:"800",color:C.accent,marginBottom:"8px"},["📋 Bogen importieren"]));
+  box.appendChild(div({background:"rgba(77,122,77,0.1)",border:"1px solid rgba(77,122,77,0.3)",borderRadius:"8px",padding:"10px 12px",marginBottom:"12px",fontSize:"12px",color:C.muted,lineHeight:"1.6"},["Hast du deinen Charakterbogen bereits irgendwo geschrieben? Kopiere den ganzen Text und füge ihn hier ein. Die KI erkennt automatisch welche Information in welches Feld gehört.\n⚠ Keine Links – nur den Textinhalt des Bogens."]));
+  var ta=mk("textarea",Object.assign({},INP,{resize:"vertical",display:"block",marginBottom:"12px"}));
+  ta.rows=10;ta.placeholder="Bogen hier einfügen…";ta.value=state.importText;
+  ta.addEventListener("input",function(){state.importText=ta.value;});
+  box.appendChild(ta);
+  var row=div({display:"flex",gap:"8px",justifyContent:"flex-end"});
+  row.appendChild(btn("Abbrechen",C.muted,function(){state.showImport=false;draw();},false,true,false));
+  var ibtn=btn(state.importing?"⏳ Lädt…":"✓ Felder befüllen",C.accent,function(){if(state.importText.trim())doImport();},false,false,state.importing);
+  row.appendChild(ibtn);
+  box.appendChild(row);
+  ov.addEventListener("click",function(e){if(e.target===ov){state.showImport=false;draw();}});
+  ov.appendChild(box);return ov;
 }
 
-function charRender(list){
-  var grid=document.getElementById('char-grid');
-  var sub=document.getElementById('char-subtitle');
-  if(!grid||!sub)return;
-  sub.textContent=list.length+' Charaktere';
-  grid.innerHTML='';
-  if(!list.length){
-    grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:12px;padding:40px;grid-column:1/-1;text-align:center">Keine Charaktere gefunden.</div>';
-    return;
+function mkCtxModal(){
+  var ov=div({position:"fixed",inset:"0",background:"rgba(0,0,0,0.55)",zIndex:"200",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"});
+  var box=div({background:C.card,border:"1px solid "+C.border,borderRadius:"14px",padding:"24px",width:"100%",maxWidth:"580px",maxHeight:"85vh",overflowY:"auto"});
+  box.appendChild(div({fontSize:"14px",fontWeight:"800",color:C.accent,marginBottom:"6px"},["👥 Bekannte Charaktere"]));
+  box.appendChild(div({background:"rgba(61,111,138,0.1)",border:"1px solid rgba(61,111,138,0.3)",borderRadius:"8px",padding:"10px 12px",marginBottom:"16px",fontSize:"12px",color:C.muted,lineHeight:"1.6"},["Füge Bögen oder Infos zu verwandten Charakteren ein. Die KI liest diese mit.\nDer Name wird automatisch ins Familien-Feld eingetragen.\n⚠ Keine Links – nur Text."]));
+  state.ctxEntries.forEach(function(e,i){
+    var row=div({background:C.input,border:"1px solid "+C.border,borderRadius:"8px",padding:"10px 12px",display:"flex",gap:"8px",marginBottom:"8px"});
+    var info=div({flex:"1"});
+    info.appendChild(div({fontSize:"13px",fontWeight:"700",color:C.accent,marginBottom:"3px"},[e.label]));
+    info.appendChild(div({fontSize:"12px",color:C.muted,maxHeight:"50px",overflow:"hidden"},[e.text.slice(0,180)+(e.text.length>180?"…":"")]));
+    row.appendChild(info);
+    var db=mk("button",{background:"transparent",border:"none",color:C.danger,cursor:"pointer",fontSize:"16px"});
+    db.textContent="✕";
+    (function(idx){db.addEventListener("click",function(){state.ctxEntries.splice(idx,1);draw();});})(i);
+    row.appendChild(db);box.appendChild(row);
+  });
+  var ab=div({background:C.card2,border:"1px solid "+C.border,borderRadius:"10px",padding:"14px"});
+  ab.appendChild(div({fontSize:"12px",fontWeight:"700",color:C.teal,marginBottom:"10px"},["Neuen Charakter hinzufügen"]));
+  var li=mk("input",Object.assign({},INP,{marginBottom:"8px",display:"block"}));
+  li.placeholder='Name / Beziehung (z.B. "Mutter – Nicky")';li.value=state.ctxLabel;
+  li.addEventListener("input",function(){state.ctxLabel=li.value;});
+  ab.appendChild(li);
+  var lt=mk("textarea",Object.assign({},INP,{resize:"vertical",display:"block",marginBottom:"10px"}));
+  lt.rows=5;lt.placeholder="Charakterbogen oder kurze Beschreibung – kein Link!";lt.value=state.ctxText;
+  lt.addEventListener("input",function(){state.ctxText=lt.value;});
+  ab.appendChild(lt);
+  ab.appendChild(btn("+ Hinzufügen",C.teal,function(){
+    var label=state.ctxLabel.trim(),text=state.ctxText.trim();
+    if(!label||!text)return;
+    state.ctxEntries.push({label:label,text:text});
+    var cur=state.char.family||"";
+    if(!cur.split("\n").some(function(l){return l.trim()===label;}))state.char.family=cur?cur+"\n"+label:label;
+    state.ctxLabel="";state.ctxText="";draw();
+  },false,false,false));
+  box.appendChild(ab);
+  var ft=div({display:"flex",justifyContent:"flex-end",marginTop:"16px"});
+  ft.appendChild(btn("Fertig",C.accent,function(){state.showCtx=false;draw();},false,false,false));
+  box.appendChild(ft);
+  ov.addEventListener("click",function(e){if(e.target===ov){state.showCtx=false;draw();}});
+  ov.appendChild(box);return ov;
+}
+
+// ── ATLAS Registrierung ──
+var APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbw2QtXNxsvSaD4xzwZcX3U5EebauDQjxfX4LtSHhLViR9RB2jBsmvJWEqhM9Agdqvvo/exec";
+var SHEET_CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRRllRkwaCacdM0WZZT0cVQflhxJ9Fw5mgId-v615_kE2GdKdbwHMUYCG03HC8gUXfg7lucTs1Mqhg1/pub?output=csv";
+
+function mkAtlasModal(){
+  var ov=div({position:"fixed",inset:"0",background:"rgba(0,0,0,0.6)",zIndex:"200",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"});
+  var box=div({background:C.card,border:"1px solid "+C.border,borderRadius:"14px",padding:"24px",width:"100%",maxWidth:"500px"});
+
+  if(state.atlasSaved){
+    box.appendChild(div({fontSize:"22px",textAlign:"center",marginBottom:"8px"},["✅"]));
+    box.appendChild(div({fontSize:"15px",fontWeight:"700",color:C.accent,textAlign:"center",marginBottom:"6px"},["Charakter registriert!"]));
+    box.appendChild(div({fontSize:"12px",color:C.muted,textAlign:"center",marginBottom:"16px"},["Er erscheint beim nächsten Öffnen des ATLAS-Charakter-Panels."]));
+    box.appendChild(div({display:"flex",justifyContent:"center"},[btn("Schliessen",C.accent,function(){state.showAtlas=false;state.atlasSaved=false;draw();},false,false,false)]));
+    ov.appendChild(box);return ov;
   }
-  list.forEach(function(c){
-    var card=document.createElement('div');
-    card.className='char-card';
-    card.setAttribute('data-url',c.u);
-    card.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
-    var portrait=c.img
-      ?'<img class="char-portrait" src="'+c.img+'" alt="'+c.n+'">'
-      :'<div class="char-portrait-ph">&#128100;</div>';
-    card.innerHTML='<div class="char-portrait-wrap">'+portrait+'</div>'
-      +'<div class="char-info">'
-      +'<div class="char-name">'+c.n+'</div>'
-      +'<div class="char-player">von '+c.p+'</div>'
-      +(c.h?'<div class="char-location">'+c.h+'</div>':'')
-      +'</div>';
-    // Hover card
-    card.addEventListener('mouseenter',function(e){showCharHover(c,e.currentTarget);});
-    card.addEventListener('mouseleave',hideCharHover);
-    grid.appendChild(card);
+
+  box.appendChild(div({fontSize:"14px",fontWeight:"800",color:C.teal,marginBottom:"4px"},["🗺 In ATLAS registrieren"]));
+  box.appendChild(div({background:"rgba(61,111,138,0.1)",border:"1px solid rgba(61,111,138,0.3)",borderRadius:"8px",padding:"10px 12px",marginBottom:"16px",fontSize:"12px",color:C.muted,lineHeight:"1.6"},["Nach dem Posten im Forum hier eintragen. Der Charakter erscheint dann automatisch im ATLAS-Charakterpanel."]));
+
+  function field(label,val,setter,ph){
+    var w=div({marginBottom:"12px"});
+    w.appendChild(div({fontSize:"12px",fontWeight:"700",color:C.accent,marginBottom:"4px"},[label]));
+    var i=mk("input",Object.assign({},INP));i.value=val;i.placeholder=ph||"";
+    i.addEventListener("input",function(){setter(i.value);});
+    w.appendChild(i);return w;
+  }
+
+  box.appendChild(field("Dein Forum-Username *","",function(v){state.atlasPlayer=v;},"z.B. Ripzha"));
+  box.appendChild(field("Thread-URL des Charakterbogens *","",function(v){state.atlasThread=v;},"https://www.simsforumrpg.de/t..."));
+  box.appendChild(field("Portrait-URL (erstes Bild im Post)","",function(v){state.atlasPortrait=v;},"https://files.homepagemodules.de/..."));
+
+  var tw=div({marginBottom:"16px"});
+  tw.appendChild(div({fontSize:"12px",fontWeight:"700",color:C.accent,marginBottom:"6px"},["Typ *"]));
+  var trow=div({display:"flex",gap:"8px"});
+  ["haupt","neben","statist"].forEach(function(t){
+    var b=btn(t.charAt(0).toUpperCase()+t.slice(1),state.atlasType===t?C.accent:C.muted,function(){state.atlasType=t;draw();},true,state.atlasType!==t,false);
+    trow.appendChild(b);
+  });
+  tw.appendChild(trow);box.appendChild(tw);
+
+  var row=div({display:"flex",gap:"8px",justifyContent:"flex-end"});
+  row.appendChild(btn("Abbrechen",C.muted,function(){state.showAtlas=false;draw();},false,true,false));
+  row.appendChild(btn(state.atlasSaving?"⏳ Speichert…":"💾 Speichern",C.accent,function(){
+    if(!state.atlasPlayer.trim()||!state.atlasThread.trim()){alert("Bitte Username und Thread-URL angeben.");return;}
+    saveToAtlas();
+  },false,false,state.atlasSaving));
+  box.appendChild(row);
+  ov.addEventListener("click",function(e){if(e.target===ov){state.showAtlas=false;draw();}});
+  ov.appendChild(box);return ov;
+}
+
+function saveToAtlas(){
+  state.atlasSaving=true;draw();
+  var payload={
+    name:state.char.name||"Unbekannt",
+    player:state.atlasPlayer.trim(),
+    type:state.atlasType,
+    threadUrl:state.atlasThread.trim(),
+    portraitUrl:state.atlasPortrait.trim(),
+    home:state.char.home||"",
+    job:state.char.job||"",
+    age:state.char.age||""
+  };
+  fetch(APPS_SCRIPT_URL,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(payload)
+  }).then(function(){
+    state.atlasSaving=false;state.atlasSaved=true;
+    state.atlasPlayer="";state.atlasThread="";state.atlasPortrait="";
+    draw();
+  }).catch(function(e){
+    state.atlasSaving=false;
+    alert("Fehler: "+e.message+"\n\nBitte Apps Script URL in der Datei konfigurieren.");
+    draw();
   });
 }
 
-// Hover card
-var _hoverTimeout=null;
-function showCharHover(c,card){
-  clearTimeout(_hoverTimeout);
-  var hc=document.getElementById('char-hover-card');
-  document.getElementById('chc-name').textContent=c.n;
-  document.getElementById('chc-player').textContent='gespielt von '+c.p;
-  var details=[];
-  if(c.age)details.push('🎂 '+c.age+' Jahre');
-  if(c.job)details.push('💼 '+c.job);
-  if(c.h)details.push('🏠 '+c.h);
-  document.getElementById('chc-details').innerHTML=details.join('<br>')||'<span style="color:rgba(255,255,255,0.2)">Keine Infos</span>';
-  var ls=document.getElementById('chc-lastseen');
-  if(c.lastSeenName&&c.lastSeenUrl){
-    ls.innerHTML='📍 Zuletzt in: <a href="'+c.lastSeenUrl+'" target="_blank" style="color:#4aaa6a;text-decoration:none">'+c.lastSeenName+'</a>';
-  } else if(c.lastSeenName){
-    ls.textContent='📍 Zuletzt in: '+c.lastSeenName;
+// ── Main draw ──
+function draw(){
+  // ── App shell (only once) ──
+  var app=qs("app");
+  if(!qs("main-wrap")){
+    app.innerHTML="";
+    var wrap=div({maxWidth:"700px",margin:"0 auto",padding:"20px 16px",background:C.bg,minHeight:"100vh"});
+    wrap.id="main-wrap";
+    // header
+    var hdr=div({textAlign:"center",marginBottom:"24px"});
+    hdr.appendChild(div({fontSize:"11px",letterSpacing:"4px",color:C.muted,marginBottom:"4px"},["✦ SIMSFORUMRPG.DE ✦"]));
+    hdr.appendChild(div({fontSize:"26px",fontWeight:"900",letterSpacing:"2px",color:C.accent},["CHARAKTERBOGEN"]));
+    hdr.appendChild(div({width:"60px",height:"2px",background:"linear-gradient(90deg,transparent,"+C.teal+",transparent)",margin:"8px auto 12px"}));
+    var hbtns=div({display:"flex",gap:"8px",justifyContent:"center",flexWrap:"wrap"});
+    hbtns.appendChild(btn("📋 Bogen importieren",C.muted,function(){state.showImport=true;draw();},true,true,false));
+    hbtns.appendChild(btn("👥 Bekannte Charaktere",C.muted,function(){state.showCtx=true;draw();},true,true,false));
+    hdr.appendChild(hbtns);
+    wrap.appendChild(hdr);
+    var tabs=div({display:"flex",gap:"3px",marginBottom:"20px"});tabs.id="tabs";wrap.appendChild(tabs);
+    var ca=div({background:C.card,borderRadius:"12px",padding:"22px",border:"1px solid "+C.border,minHeight:"300px"});ca.id="content";wrap.appendChild(ca);
+    var nav=div({display:"flex",justifyContent:"space-between",marginTop:"14px"});nav.id="nav";wrap.appendChild(nav);
+    app.appendChild(wrap);
+  }
+
+  // ── Tabs ──
+  var tabs=qs("tabs");tabs.innerHTML="";
+  SECTIONS.forEach(function(s,i){
+    var t=mk("button",{flex:"1",padding:"8px 4px",borderRadius:"6px",border:"1px solid "+(i===state.step?C.accent:C.border),cursor:"pointer",fontSize:"11px",fontWeight:"700",
+      background:i===state.step?C.accent:i<state.step?"rgba(77,122,77,0.2)":C.card,
+      color:i===state.step?"#fff":i<state.step?C.accent:C.muted});
+    t.textContent=s.title;
+    (function(idx){t.addEventListener("click",function(){state.step=idx;draw();});})(i);
+    tabs.appendChild(t);
+  });
+
+  // ── Content ──
+  var ca=qs("content");ca.innerHTML="";
+  var sec=SECTIONS[state.step];
+  if(state.step<SECTIONS.length-1){
+    ca.appendChild(div({fontSize:"10px",fontWeight:"800",letterSpacing:"3px",color:C.teal,marginBottom:"18px"},[sec.title.toUpperCase()]));
+    sec.fields.forEach(function(k){var f=FIELDS.find(function(f){return f.key===k;});if(f)ca.appendChild(mkField(f));});
   } else {
-    ls.textContent='';
+    ca.appendChild(mkSheet());
   }
-  document.getElementById('chc-link').textContent='Charakterbogen öffnen →';
-  // Position
-  var rect=card.getBoundingClientRect();
-  var hcw=200,pad=8;
-  var left=rect.right+pad;
-  if(left+hcw>window.innerWidth)left=rect.left-hcw-pad;
-  var top=rect.top;
-  if(top+180>window.innerHeight)top=window.innerHeight-190;
-  hc.style.left=left+'px';hc.style.top=top+'px';
-  hc.classList.add('visible');
-}
-function hideCharHover(){
-  _hoverTimeout=setTimeout(function(){
-    document.getElementById('char-hover-card').classList.remove('visible');
-  },150);
+
+  // ── Nav ──
+  var nav=qs("nav");nav.innerHTML="";
+  nav.appendChild(btn("← Zurück",C.muted,function(){state.step=Math.max(0,state.step-1);draw();},false,true,state.step===0));
+  nav.appendChild(btn("Weiter →",C.accent,function(){state.step=Math.min(SECTIONS.length-1,state.step+1);draw();},false,false,state.step===SECTIONS.length-1));
+
+  // ── Modals ──
+  var modals=qs("modals");modals.innerHTML="";
+  if(state.showImport)modals.appendChild(mkImportModal());
+  if(state.showCtx)modals.appendChild(mkCtxModal());
+  if(state.showAtlas)modals.appendChild(mkAtlasModal());
 }
 
-// URL-Hash: Refresh behält die Ansicht
-window.addEventListener('hashchange',function(){
-  var h=location.hash;
-  if(h==='#chars-haupt')openCharView('haupt');
-  else if(h==='#chars-neben')openCharView('neben');
-  else if(h==='#chars-statist')openCharView('statist');
-  else if(!h&&document.getElementById('char-container').classList.contains('open'))closeCharView();
-});
-if(location.hash==='#chars-haupt'||location.hash==='#chars-neben'||location.hash==='#chars-statist'){
-  window.addEventListener('load',function(){openCharView(location.hash.replace('#chars-',''));});
-}
-
-
-document.querySelectorAll('.sheet').forEach(sheet=>{
-let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive:true});sheet.addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-sy>60)closeSheet();},{passive:true});});
+setupImgInput();
+draw();
 </script>
 </body>
 </html>
