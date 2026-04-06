@@ -92,8 +92,10 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .cluster-label{position:absolute;top:14px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;font-weight:500;text-shadow:0 1px 4px #000;pointer-events:none}
 .cluster-popup{position:absolute;bottom:25px;left:50%;transform:translateX(-50%);background:rgba(5,12,22,0.97);border:0.5px solid rgba(255,165,0,0.4);border-radius:8px;padding:8px;z-index:40;display:none;min-width:170px;box-shadow:0 6px 24px rgba(0,0,0,0.8)}
 .cluster-dot.open .cluster-popup{display:block}
-.cluster-item{padding:6px 8px;font-size:11px;cursor:pointer;border-radius:4px;display:flex;align-items:center;gap:7px;color:#fff}
+.cluster-item{padding:6px 8px;font-size:11px;cursor:pointer;border-radius:4px;display:flex;align-items:center;gap:7px;color:#fff;position:relative}
 .cluster-item:hover{background:rgba(255,255,255,0.08)}
+.cluster-item-preview{position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);width:150px;height:100px;object-fit:cover;border-radius:6px;display:none;pointer-events:none;z-index:60;box-shadow:0 4px 16px rgba(0,0,0,0.9);border:0.5px solid rgba(255,255,255,0.15)}
+.cluster-item:hover .cluster-item-preview{display:block}
 .cluster-pip{width:5px;height:5px;border-radius:50%;flex-shrink:0}
 .building-dot .cluster-inner{background:rgba(100,160,255,0.2)!important;border-color:rgba(100,160,255,0.6)!important}
 .cluster-hover{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(5,12,22,0.97);border-radius:9px;overflow:hidden;z-index:30;pointer-events:none;min-width:165px;display:none}
@@ -444,7 +446,7 @@ const worldLots={
     {name:"Nr. 7 - Restaurant Panorama",x:77.8,y:40.4,url:BASE+"t30f51778-Willow-Creek-Nr-Restaurant-Panorama.html",active:false,img:IMG+"f51778t30p211n2_hzFedUlK.png"},
     {name:"Nr. 11 - Archiv",x:85.4,y:52.8,url:BASE+"t13f51778-Willow-Creek-Nr-Archiv-von-Willow-Creek.html",active:false,img:IMG+"f15060t13p50n2_ohFYWDgT.png"},
     {name:"Nr. 12 - Familie Komarow",x:70.6,y:65.4,url:BASE+"t212f51778-Willow-Creek-Nr-Familie-Komarow.html",active:false,img:IMG+"f51778t212p2694n6_DpoPUmuQ.png"},
-    {name:"Nr. 14 - Phil Hermann",x:58.7,y:64.6,url:BASE+"t34f51778-Willow-Creek-Nr-Haus-von-Phil-Hermann.html",active:false,img:IMG+"f51778t34p5889n2_gHQslvqN.png"},
+    {name:"Nr. 14 - Phil Hermann",x:58.7,y:64.6,url:BASE+"t34f51778-Willow-Creek-Nr-Haus-von-Phil-Hermann.html",active:false,img:IMG+"f51778t34p230n2_dLhNcPVe.png"},
     {name:"Nr. 16 - Haus Darkholme",x:75.5,y:81.3,url:BASE+"t72f51778-Willow-Creek-Nr-Haus-Darkholme.html",active:false,img:IMG+"f51778t72p630n12_OPosmXBZ.png"},
     {name:"Nr. 17 - Magnolienblüten Park",x:37.5,y:57.8,url:BASE+"t36f51778-Willow-Creek-Nr-Magnolienblueten-Park.html",active:false,img:IMG+"f51778t36p244n2_kighvlSC.jpg"},
     {name:"Nadine's Haus",nr:"Nr. 9",x:70.2,y:49.3,url:BASE+"t159f51778-Willow-Creek-Nadine-s-Haus.html",active:false,img:IMG+"f51778t159p2250n8_MQOKRYAe.png"},
@@ -456,14 +458,11 @@ const worldLots={
     {name:"Nr. 5",x:49.9,y:44.4,url:BASE+"f51778-Willow-Creek.html",active:false},
     {name:"Nr. 6",x:59.2,y:39.5,url:BASE+"f51778-Willow-Creek.html",active:false},
     {name:"Nr. 8",x:89.1,y:44.5,url:BASE+"f51778-Willow-Creek.html",active:false},
-    {name:"Nr. 9",x:70.2,y:49.3,url:BASE+"f51778-Willow-Creek.html",active:false},
     {name:"Nr. 10",x:77.8,y:51.9,url:BASE+"f51778-Willow-Creek.html",active:false},
     {name:"Nr. 13",x:82.9,y:72.4,url:BASE+"f51778-Willow-Creek.html",active:false},
-    {name:"Nr. 15",x:63.3,y:74.1,url:BASE+"f51778-Willow-Creek.html",active:false},
     {name:"Nr. 18",x:17.3,y:68,url:BASE+"f51778-Willow-Creek.html",active:false},
     {name:"Nr. 19",x:25.1,y:73.5,url:BASE+"f51778-Willow-Creek.html",active:false},
     {name:"Nr. 20",x:33.2,y:77.8,url:BASE+"f51778-Willow-Creek.html",active:false},
-    {name:"Nr. 21",x:41.3,y:82.9,url:BASE+"f51778-Willow-Creek.html",active:false},
   ],
   "Oasis Springs":[
     {name:"Oasis Springs (Strassen)",x:40.5,y:60.6,url:BASE+"t166f51779-Oasis-Springs.html",active:true,outdoor:true},
@@ -1108,7 +1107,7 @@ function renderLots(w){
       cd.className='cluster-dot'+(isBuilding?' building-dot':'');
       cd.style.cssText=`left:${group.x}%;top:${group.y}%`;
       const lbl=isBuilding?buildings[0].split('-')[0].trim():group.lots[0].name.split('-').pop().trim().split(' ').slice(0,2).join(' ');
-      const itemsHtml=group.lots.map(l=>`<div class="cluster-item" onclick="window.open('${l.url}','_blank');event.stopPropagation()"><div class="cluster-pip" style="background:${l.active?'#4aaa6a':'rgba(255,255,255,0.4)'}"></div>${l.name}</div>`).join('');
+      const itemsHtml=group.lots.map(l=>`<div class="cluster-item" onclick="window.open('${l.url}','_blank');event.stopPropagation()">${l.img?`<img class="cluster-item-preview" src="${l.img}">`:''}><div class="cluster-pip" style="background:${l.active?'#4aaa6a':'rgba(255,255,255,0.4)'}"></div>${parseLotLabel(l).num}${parseLotLabel(l).sub?` <span style="color:rgba(255,255,255,0.45);font-size:10px">– ${parseLotLabel(l).sub}</span>`:''}</div>`).join('');
       const lotsWithImg=group.lots.filter(l=>l.img);
       const clusterHoverHtml=(!isBuilding&&lotsWithImg.length>0)?`<div class="cluster-hover" style="border:1px solid ${color}88;box-shadow:0 6px 28px ${color}44"><div style="display:flex;gap:1px">${lotsWithImg.map(l=>`<div style="position:relative;flex:1;min-width:0"><img src="${l.img}" style="width:100%;height:75px;object-fit:cover;display:block"><div style="position:absolute;bottom:3px;left:5px;font-size:8px;font-weight:600;text-shadow:0 1px 3px #000;color:#fff">${parseLotLabel(l).num}</div></div>`).join('')}</div><div class="hover-footer"><span class="hover-type">${group.lots.length} Orte</span><span class="hover-action" style="color:${color}">Klicken →</span></div></div>`:'';
       cd.innerHTML=`<div class="cluster-inner" style="color:${color};border-color:${color};box-shadow:0 0 8px ${color}44">${isBuilding?'🏢':group.lots.length}</div><div class="cluster-label">${lbl}</div>${clusterHoverHtml}${isBuilding?'':` <div class="cluster-popup"><div style="font-size:10px;color:rgba(255,165,0,0.7);margin-bottom:6px;padding:0 4px">📦 ${group.lots.length} Orte</div>${itemsHtml}</div>`}`;
