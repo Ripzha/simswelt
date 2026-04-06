@@ -355,7 +355,30 @@ function mkField(f){
 // ── Render sheet ──
 function mkSheet(){
   var wrap=div({});
-  wrap.appendChild(div({fontSize:"10px",fontWeight:"800",letterSpacing:"3px",color:C.teal,marginBottom:"18px"},["CHARAKTERBLATT"]));
+
+  // ── Anleitung ──
+  var guide=div({background:"rgba(61,111,138,0.12)",border:"1px solid rgba(61,111,138,0.35)",borderRadius:"10px",padding:"16px 18px",marginBottom:"20px"});
+  guide.appendChild(div({fontSize:"11px",fontWeight:"800",letterSpacing:"2px",color:C.teal,marginBottom:"10px"},["SO GEHT'S — LIES DAS ZUERST"]));
+  var steps=[
+    ["1","Bogen prüfen","Schau deinen Charakterbogen unten durch. Alles vollständig? Dann weiter."],
+    ["2","Im Forum posten","Klicke auf \"📤 Im Forum posten\", wähle den Typ deines Charakters, und klicke \"BBCode kopieren & Forum öffnen\"."],
+    ["3","Einloggen falls nötig","Falls du noch nicht eingeloggt bist, logge dich zuerst im Forum ein. Dein Bogen bleibt hier gespeichert."],
+    ["4","Bogen einfügen","Im Forum: Titel eingeben (z.B. den Namen deines Charakters), dann Ctrl+V (oder Cmd+V auf Mac) um den Bogen einzufügen. Auf Absenden klicken."],
+    ["5","In ATLAS registrieren","Nach dem Posten: kopiere die URL deines neuen Threads, komm zurück hier, klicke \"🗺 In ATLAS registrieren\" und füge die URL ein."]
+  ];
+  steps.forEach(function(s){
+    var row=div({display:"flex",gap:"10px",marginBottom:"8px",alignItems:"flex-start"});
+    var num=div({background:C.teal,color:"#fff",borderRadius:"50%",width:"20px",height:"20px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"11px",fontWeight:"800",flexShrink:"0",marginTop:"1px"});
+    num.textContent=s[0];
+    var text=div({flex:"1"});
+    text.appendChild(div({fontSize:"12px",fontWeight:"700",color:C.text,marginBottom:"1px"},[s[1]]));
+    text.appendChild(div({fontSize:"11px",color:C.muted,lineHeight:"1.5"},[s[2]]));
+    row.appendChild(num);row.appendChild(text);
+    guide.appendChild(row);
+  });
+  wrap.appendChild(guide);
+
+  wrap.appendChild(div({fontSize:"10px",fontWeight:"800",letterSpacing:"3px",color:C.teal,marginBottom:"18px"},["DEIN CHARAKTERBLATT"]));
   var sheet=div({border:"1px solid "+C.border,borderRadius:"10px",overflow:"hidden"});
   var hdr=div({background:"linear-gradient(135deg,"+C.card2+","+C.border+")",padding:"18px 20px",display:"flex",gap:"16px",alignItems:"flex-start",borderBottom:"1px solid "+C.border});
   if(state.imgPreview){
