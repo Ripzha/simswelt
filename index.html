@@ -966,24 +966,24 @@ function groupLots(lots){
 // ═══════════════════════════════════════════
 // WELT-DOTS
 // ═══════════════════════════════════════════
-// Dynamically size map-image-area to match actual image dimensions
+const mapC=document.getElementById('map-container');
+const mapIA=document.getElementById('map-image-area');
+
+// Size map-image-area to match actual image aspect ratio
 (function(){
   const mapImg=document.querySelector('#map-bg img');
-  const mapIA=document.getElementById('map-image-area');
   function sizeMapArea(){
-    const iw=mapImg.naturalWidth||550,ih=mapImg.naturalHeight||550;
+    const iw=mapImg.naturalWidth||1,ih=mapImg.naturalHeight||1;
+    if(!iw||!ih)return;
     const cw=mapC.clientWidth,ch=mapC.clientHeight;
     const scale=Math.min(cw/iw,ch/ih);
     mapIA.style.width=Math.round(iw*scale)+'px';
     mapIA.style.height=Math.round(ih*scale)+'px';
   }
-  if(mapImg.complete&&mapImg.naturalWidth)sizeMapArea();
+  if(mapImg.complete&&mapImg.naturalWidth>0)sizeMapArea();
   else mapImg.addEventListener('load',sizeMapArea);
   window.addEventListener('resize',sizeMapArea);
 })();
-
-const mapC=document.getElementById('map-container');
-const mapIA=document.getElementById('map-image-area');
 worlds.forEach(w=>{
   const el=document.createElement('div');
   el.className='world-dot';
