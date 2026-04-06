@@ -1,0 +1,38 @@
+name: Charaktere aktualisieren
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # alle 6 Stunden automatisch
+  workflow_dispatch:          # manuell auslösbar via GitHub UI
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sheet als CSV laden
+        run: |
+          curl -L "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRllRkwaCacdM0WZZT0cVQflhxJ9Fw5mgId-v615_kE2GdKdbwHMUYCG03HC8gUXfg7lucTs1Mqhg1/pub?output=csv" \
+            -o chars_raw.csv
+
+      - name: CSV zu JSON konvertieren
+        run: |
+          python3 << 'EOF'
+          import csv, json
+          with open('chars_raw.csv', encoding='utf-8') as f:
+              reader = csv.DictReader(f)
+              data = [row for row in reader if row.get('name','').strip()]
+          with open('chars.json', 'w', encoding='utf-8') as f:
+              json.dump(data, f, ensure_ascii=False, indent=2)
+          print(f"Gespeichert: {len(data)} Charaktere")
+          EOF
+
+      - name: Commit und Push falls Änderungen
+        run: |
+          git config user.email "github-actions@github.com"
+          git config user.name "GitHub Actions"
+          git add chars.json
+          git diff --staged --quiet && echo "Keine Änderungen" || (git commit -m "chars: automatisches Update" && git push)
