@@ -735,19 +735,11 @@ const worldLots={
     {name:"Nr. 5",x:58,y:57,url:BASE+"f51795-Moonwood-Mill.html",active:false},
   ],
   "Copperdale":[
-    {name:"Copperdale (Strassen)",x:40,y:40,url:BASE+"t221f51796-Copperdale.html",active:true,outdoor:true},
-    {name:"A - Schule",x:43,y:15,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"B - Schule",x:49,y:13,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 1",x:33,y:28,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 2",x:24,y:34,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 3",x:36,y:33,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 4",x:28,y:41,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 5",x:26,y:48,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 6",x:63,y:46,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 7",x:72,y:44,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 8",x:78,y:49,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 9",x:54,y:62,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 10",x:61,y:66,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Copperdale",x:50,y:50,url:BASE+"t221f51796-Copperdale.html",active:true,outdoor:true},
+    {name:"Haus Familie Sølberg",x:85,y:20,url:BASE+"t465f51796-Copperdale-Haus-Familie-S-oslash-lberg.html",active:true,img:IMG+"f51796t465p3768n2_Pemwndps.png"},
+    {name:"Haus der Familie Sievers",x:85,y:35,url:BASE+"t581f51796-Copperdale-Haus-der-Familie-Sievers.html",active:true,img:IMG+"f51796t581p5152n2_yNfApmuL.png"},
+    {name:"Villa Bärenklau",x:85,y:50,url:BASE+"t341f51796-Copperdale-Villa-Baerenklau.html",active:true,img:IMG+"f51796t341p3284n41_vYzIkfua.png"},
+    {name:"Johns Bar",x:85,y:65,url:BASE+"t260f51796-Copperdale-Johns-Bar.html",active:true,img:IMG+"f51796t260p3115n2_SjLxKFcP.png"},
   ],
   "San Sequoia":[
     {name:"San Sequoia (Strassen)",x:47.5,y:41.9,url:BASE+"t246f51797-San-Sequoia.html",active:true,outdoor:true},
@@ -839,17 +831,32 @@ let posMode=false,posModeCallback=null,pendingPos=null;
 let customLots=JSON.parse(localStorage.getItem('sw_custom_lots')||'{}');
 let suggestions=JSON.parse(localStorage.getItem('sw_suggestions')||'[]');
 let hiddenLots=JSON.parse(localStorage.getItem('sw_hidden_lots')||'{}');
+let renamedLots=JSON.parse(localStorage.getItem('sw_renamed_lots')||'{}');
 let adminWorldFilter=worlds[0].name,adminTab='lots';
 function saveLots(){localStorage.setItem('sw_custom_lots',JSON.stringify(customLots))}
 function saveSugs(){localStorage.setItem('sw_suggestions',JSON.stringify(suggestions))}
 function saveHidden(){localStorage.setItem('sw_hidden_lots',JSON.stringify(hiddenLots))}
+function saveRenamed(){localStorage.setItem('sw_renamed_lots',JSON.stringify(renamedLots))}
 
 function getLots(wname){
   const hidden=hiddenLots[wname]||[];
-  const hard=(worldLots[wname]||[]).filter(l=>!hidden.includes(l.name)).map(l=>({...l,_src:'hard'}));
+  const renamed=renamedLots[wname]||{};
+  const hard=(worldLots[wname]||[]).filter(l=>!hidden.includes(l.name)).map(l=>({...l,name:renamed[l.name]||l.name,_origName:l.name,_src:'hard'}));
   const cust=(customLots[wname]||[]).map(l=>({...l,_src:'custom'}));
   const all=[...hard,...cust];
   return all.length?all:[{name:'Forum öffnen',x:50,y:50,url:worlds.find(w=>w.name===wname)?.url||BASE,active:false}];
+}
+function renameLot(wname,origName,custIdx){
+  const current = custIdx!=null ? customLots[wname][custIdx].name : (renamedLots[wname]?.[origName]||origName);
+  const neu=prompt('Neuer Name:',current);
+  if(!neu||neu===current)return;
+  if(custIdx!=null){
+    customLots[wname][custIdx].name=neu;saveLots();
+  } else {
+    if(!renamedLots[wname])renamedLots[wname]={};
+    renamedLots[wname][origName]=neu;saveRenamed();
+  }
+  if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();
 }
 function hideHardLot(wname,lotName){
   if(!hiddenLots[wname])hiddenLots[wname]=[];
@@ -1094,11 +1101,13 @@ function renderLotsTab(){
   const worldOpts=worlds.map(w=>`<option value="${w.name}" ${w.name===wname?'selected':''}>${w.name}</option>`).join('');
   const hardHtml=hardLots.map(l=>{
     const isHidden=hidden.includes(l.name);
-    return `<div class="lot-entry" style="opacity:${isHidden?0.4:1}"><div style="flex:1;min-width:0"><div class="lot-entry-name">${l.name}</div><div class="lot-entry-sub">x:${l.x} y:${l.y} <span class="badge badge-hard">Hard</span>${l.active?' <span class="badge badge-active">Aktiv</span>':''}</div></div>${isHidden?`<button class="a-btn a-btn-ghost" style="font-size:9px;padding:3px 7px" onclick="restoreHardLot('${wname}','${l.name.replace(/'/g,"\\'")}')">↩</button>`:`<button class="a-btn a-btn-danger" style="font-size:9px;padding:3px 7px" onclick="hideHardLot('${wname}','${l.name.replace(/'/g,"\\'")}')">✕</button>`}</div>`;
+    const displayName=(renamedLots[wname]||{})[l.name]||l.name;
+    const isRenamed=displayName!==l.name;
+    return `<div class="lot-entry" style="opacity:${isHidden?0.4:1}"><div style="flex:1;min-width:0"><div class="lot-entry-name">${displayName}${isRenamed?` <span style="font-size:9px;color:rgba(255,200,0,0.6)">(war: ${l.name})</span>`:''}</div><div class="lot-entry-sub">x:${l.x} y:${l.y} <span class="badge badge-hard">Hard</span>${l.active?' <span class="badge badge-active">Aktiv</span>':''}</div></div><button class="a-btn a-btn-ghost" style="font-size:9px;padding:3px 7px" onclick="renameLot('${wname}','${l.name.replace(/'/g,"\\'")}',null)" title="Umbenennen">✏️</button>${isHidden?`<button class="a-btn a-btn-ghost" style="font-size:9px;padding:3px 7px" onclick="restoreHardLot('${wname}','${l.name.replace(/'/g,"\\'")}')">↩</button>`:`<button class="a-btn a-btn-danger" style="font-size:9px;padding:3px 7px" onclick="hideHardLot('${wname}','${l.name.replace(/'/g,"\\'")}')">✕</button>`}</div>`;
   }).join('');
   const custHtml=custLots.map((l,i)=>{
     const needsCalib=l._needsCalib||(l.x===50&&l.y===50);
-    return `<div class="lot-entry" style="border-color:${needsCalib?'rgba(255,200,0,0.3)':'rgba(255,255,255,0.07)'}"><div style="flex:1;min-width:0"><div class="lot-entry-name">${l.name}</div><div class="lot-entry-sub">x:${l.x} y:${l.y} <span class="badge badge-custom">Custom</span>${needsCalib?' <span class="badge" style="background:rgba(255,200,0,0.15);color:#ffcc44">📍 pos fehlt</span>':''}</div></div><button class="a-btn a-btn-pos" style="font-size:9px;padding:3px 7px" onclick="startPosForLot('${wname}',${i})" title="Position auf Karte setzen">📍</button><button class="a-btn a-btn-ghost" style="font-size:9px;padding:3px 7px" onclick="toggleCustomActive('${wname}',${i})">${l.active?'Inaktiv':'Aktiv'}</button><button class="a-btn a-btn-danger" style="font-size:9px;padding:3px 7px" onclick="removeCustomLot('${wname}',${i})">✕</button></div>`;
+    return `<div class="lot-entry" style="border-color:${needsCalib?'rgba(255,200,0,0.3)':'rgba(255,255,255,0.07)'}"><div style="flex:1;min-width:0"><div class="lot-entry-name">${l.name}</div><div class="lot-entry-sub">x:${l.x} y:${l.y} <span class="badge badge-custom">Custom</span>${needsCalib?' <span class="badge" style="background:rgba(255,200,0,0.15);color:#ffcc44">📍 pos fehlt</span>':''}</div></div><button class="a-btn a-btn-ghost" style="font-size:9px;padding:3px 7px" onclick="renameLot('${wname}',null,${i})" title="Umbenennen">✏️</button><button class="a-btn a-btn-pos" style="font-size:9px;padding:3px 7px" onclick="startPosForLot('${wname}',${i})" title="Position setzen">📍</button><button class="a-btn a-btn-ghost" style="font-size:9px;padding:3px 7px" onclick="toggleCustomActive('${wname}',${i})">${l.active?'Inaktiv':'Aktiv'}</button><button class="a-btn a-btn-danger" style="font-size:9px;padding:3px 7px" onclick="removeCustomLot('${wname}',${i})">✕</button></div>`;
   }).join('');
   return `<div class="a-form-row"><div class="a-label">Welt</div><select class="a-select" onchange="adminWorldFilter=this.value;renderAdminContent()">${worldOpts}</select></div><div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:8px">${hardLots.length-hidden.length} sichtbar · ${hidden.length} versteckt · ${custLots.length} custom</div>${hardHtml}${custHtml}<div style="border-top:0.5px solid rgba(255,255,255,0.08);margin:14px 0 12px"></div><div style="font-size:11px;color:#ffcc44;font-weight:500;margin-bottom:10px">+ Ort hinzufügen</div><div class="a-form-row"><div class="a-label">Name</div><input class="a-input" id="a-new-name" placeholder="z.B. Nr. 5 - Meine Wohnung"></div><div class="a-form-row"><div class="a-label">Thread-URL</div><input class="a-input" id="a-new-url" placeholder="https://www.simsforumrpg.de/t..."></div><div class="a-form-row" style="display:flex;gap:8px;align-items:center"><div style="flex:1"><div class="a-label">Position</div><div id="a-pos-display" style="font-size:10px;color:rgba(255,255,255,0.4)">${pendingPos?`x:${pendingPos.x}, y:${pendingPos.y} ✓`:'Noch nicht gesetzt'}</div></div><button class="a-btn a-btn-pos" onclick="startPosMode()" style="margin-top:14px">${currentWorld?'📍 Setzen':'Erst Welt betreten'}</button></div><div class="a-form-row" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="a-new-active"><label for="a-new-active" style="font-size:11px;color:rgba(255,255,255,0.6)">Als aktiv markieren</label></div><button class="a-btn a-btn-primary" style="width:100%;margin-top:4px" onclick="addCustomLot()">Ort hinzufügen</button>`;
 }
@@ -1133,7 +1142,7 @@ function removeCustomLot(wname,idx){if(!confirm(`"${customLots[wname][idx].name}
 function toggleCustomActive(wname,idx){customLots[wname][idx].active=!customLots[wname][idx].active;saveLots();if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();}
 function approveSuggestion(i){const pending=suggestions.filter(s=>s.status==='pending');const s=pending[i];const wname=s.world;if(!customLots[wname])customLots[wname]=[];customLots[wname].push({name:s.name,url:s.url,x:50,y:50,active:false,_needsCalib:true});s.status='approved';saveLots();saveSugs();updateSuggestBadge();if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();alert(`✓ "${s.name}" hinzugefügt.\n\nPosition setzen:\n1. Welt "${wname}" betreten\n2. Admin-Panel öffnen → Ort in Liste finden\n3. Den 📍-Button klicken\n4. Auf die richtige Stelle im Weltbild klicken`);}
 function rejectSuggestion(i){suggestions.filter(s=>s.status==='pending')[i].status='rejected';saveSugs();updateSuggestBadge();renderAdminContent();}
-function copyExport(){const combined={};[...Object.keys(worldLots),...Object.keys(customLots)].forEach(k=>{combined[k]=[...(worldLots[k]||[]).filter(l=>!(hiddenLots[k]||[]).includes(l.name)),...(customLots[k]||[]).map(l=>{const c={...l};delete c._src;delete c._needsCalib;return c;})];});navigator.clipboard.writeText('const worldLots='+JSON.stringify(combined,null,2)+';').then(()=>alert('✓ Kopiert! Jetzt in GitHub einfügen.'));}
+function copyExport(){const combined={};[...Object.keys(worldLots),...Object.keys(customLots)].forEach(k=>{const renamed=renamedLots[k]||{};combined[k]=[...(worldLots[k]||[]).filter(l=>!(hiddenLots[k]||[]).includes(l.name)).map(l=>({...l,name:renamed[l.name]||l.name})),...(customLots[k]||[]).map(l=>{const c={...l};delete c._src;delete c._needsCalib;return c;})];});navigator.clipboard.writeText('const worldLots='+JSON.stringify(combined,null,2)+';').then(()=>alert('✓ Kopiert! Jetzt in GitHub einfügen.'));}
 function clearAllCustom(){if(!confirm('Alle custom Lots löschen?'))return;customLots={};localStorage.removeItem('sw_custom_lots');if(currentWorld)renderLots(currentWorld);renderAdminContent();}
 
 // ═══════════════════════════════════════════
