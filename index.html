@@ -231,6 +231,11 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
           <div id="building-name" style="font-size:15px;font-weight:500"></div>
           <div style="font-size:10px;color:rgba(255,255,255,0.45);margin-top:2px">Wohnungen — klick zum Öffnen</div>
         </div>
+        <div id="floor-nav" style="position:absolute;top:12px;right:12px;z-index:10;display:none;align-items:center;gap:6px">
+          <button id="floor-up-btn" onclick="changeBuildingFloor(-1)" style="background:rgba(0,0,0,0.6);border:0.5px solid rgba(255,255,255,0.2);border-radius:5px;color:#fff;font-size:11px;padding:4px 10px;cursor:pointer">↑</button>
+          <span id="floor-label" style="font-size:10px;color:rgba(255,255,255,0.5);min-width:32px;text-align:center"></span>
+          <button id="floor-down-btn" onclick="changeBuildingFloor(1)" style="background:rgba(0,0,0,0.6);border:0.5px solid rgba(255,255,255,0.2);border-radius:5px;color:#fff;font-size:11px;padding:4px 10px;cursor:pointer">↓</button>
+        </div>
         <div id="building-no-img">
           <div style="font-size:12px;color:rgba(255,255,255,0.4)">🏗 Grundriss noch ausstehend</div>
           <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:4px">Threads über Leiste öffnen</div>
@@ -360,19 +365,19 @@ const IMG='https://files.homepagemodules.de/b855163/resize/1920x1200/';
 // GEBÄUDE-DATEN (SM + EH)
 // ═══════════════════════════════════════════
 const BUILDINGS = {
-  "Culpepper-Apartments":  {img:'',lots:[{name:"Wohnung 1",x:30,y:75,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 2",x:50,y:25,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 3",x:70,y:65,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 4",x:50,y:88,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Jasmin-Studios":        {img:'',lots:[{name:"Studio 5",x:35,y:35,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Studio 6",x:60,y:75,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Medina-Studios":        {img:'',lots:[{name:"Studio 9",x:30,y:60,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Studio 10",x:60,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Studio 11",x:55,y:75,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Hakim-Haus":            {img:'',lots:[{name:"Wohnung 13",x:50,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 14",x:50,y:78,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Landgraab-Apartments":  {img:'',lots:[{name:"Wohnung 17",x:40,y:35,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 18",x:55,y:72,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Alto-Apartments":       {img:'',lots:[{name:"Wohnung 21",x:40,y:40,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 22",x:55,y:78,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "ZenView-Apartments":    {img:'',lots:[{name:"Wohnung 24",x:50,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 25",x:50,y:72,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Luxusallee-21":         {img:'',lots:[{name:"Wohnung 26",x:60,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 27",x:30,y:60,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 28",x:55,y:80,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Kieferhügel-Apartments":{img:'',lots:[
+  "Culpepper-Apartments":  {imgs:[IMG+"pictures_u1170_BtwAdlUp.png"],lots:[{name:"Wohnung 1",x:30,y:75,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 2",x:50,y:25,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 3",x:70,y:65,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 4",x:50,y:88,url:BASE+'f51783-San-Myshuno.html',active:false}]},
+  "Jasmin-Studios":        {imgs:[IMG+"pictures_u1173_glSvpdsr.png"],lots:[{name:"Studio 5",x:35,y:35,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Studio 6",x:60,y:75,url:BASE+'f51783-San-Myshuno.html',active:false}]},
+  "Medina-Studios":        {imgs:[IMG+"pictures_u1176_qXcTrNaj.png"],lots:[{name:"Studio 9",x:30,y:60,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Studio 10",x:60,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Studio 11",x:55,y:75,url:BASE+'f51783-San-Myshuno.html',active:false}]},
+  "Hakim-Haus":            {imgs:[IMG+"pictures_u1172_jgdhOcVw.png"],lots:[{name:"Wohnung 13",x:50,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 14",x:50,y:78,url:BASE+'f51783-San-Myshuno.html',active:false}]},
+  "Landgraab-Apartments":  {imgs:[IMG+"pictures_u1175_bPvqCfdS.png",IMG+"pictures_u1174_eIzqUPZL.png"],lots:[{name:"Wohnung 17",x:40,y:35,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 18",x:55,y:72,url:BASE+'f51783-San-Myshuno.html',active:false}]},
+  "Alto-Apartments":       {imgs:[IMG+"pictures_u1171_CbejBpJu.png"],lots:[{name:"Wohnung 21",x:40,y:40,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 22",x:55,y:78,url:BASE+'f51783-San-Myshuno.html',active:false}]},
+  "ZenView-Apartments":    {imgs:[IMG+"pictures_u1181_hVjZGEkW.png",IMG+"pictures_u1180_LhvsFNlx.png"],lots:[{name:"Wohnung 24",x:50,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 25",x:50,y:72,url:BASE+'f51783-San-Myshuno.html',active:false}]},
+  "Spitzen-Apartments":    {imgs:[IMG+"pictures_u1178_odPXQNxE.png",IMG+"pictures_u1179_KecVnlEU.png"],lots:[{name:"Wohnung 16",x:50,y:50,url:BASE+'f51783-San-Myshuno.html',active:false}]},lots:[{name:"Wohnung 26",x:60,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 27",x:30,y:60,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 28",x:55,y:80,url:BASE+'f51783-San-Myshuno.html',active:false}]},
+  "Kieferhügel-Apartments":{imgs:[''],lots:[
     {name:"Nr. 12 - Jarred Cunningham",x:35,y:45,url:BASE+'t621f51791-Evergreen-Harbor-Nr-Wohnung-Jarred-Cunningham.html',active:false},
     {name:"Nr. 13 - WG Tom & Valentin",x:65,y:70,url:BASE+'t233f51791-Evergreen-Harbor-Nr-WG-Tom-Valentin.html',active:false},
   ]},
-  "Steinweg-Apartments":   {img:'',lots:[
+  "Steinweg-Apartments":   {imgs:[''],lots:[
     {name:"Nr. 14 - Familie Engel",x:35,y:50,url:BASE+'t55f51791-Evergreen-Harbor-Nr-Familie-Engel.html',active:false},
     {name:"Nr. 15 - Wohnung Joachim Winter",x:65,y:65,url:BASE+'f51791-Evergreen-Harbor.html',active:false},
   ]},
@@ -533,7 +538,7 @@ const worldLots={
     {name:"Nr. 8",x:34.4,y:30,url:BASE+"f51783-San-Myshuno.html",active:false},
     {name:"Nr. 12",x:70.1,y:23.8,url:BASE+"f51783-San-Myshuno.html",active:false},
     {name:"Nr. 15",x:80.5,y:23.5,url:BASE+"f51783-San-Myshuno.html",active:false},
-    {name:"Nr. 16",x:48.9,y:40.7,url:BASE+"f51783-San-Myshuno.html",active:false},
+    {name:"Nr. 16",x:48.9,y:40.7,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Spitzen-Apartments"},
     {name:"Nr. 19",x:46.8,y:62.6,url:BASE+"f51783-San-Myshuno.html",active:false},
     {name:"Nr. 20",x:56.9,y:59.8,url:BASE+"f51783-San-Myshuno.html",active:false},
     {name:"Nr. 23",x:15.2,y:37.8,url:BASE+"f51783-San-Myshuno.html",active:false},
@@ -934,19 +939,19 @@ function enterWorld(w){
   if(adminMode)renderAdminContent();
 }
 
+let buildingFloorIdx=0,currentBuildingKey=null;
+
 function enterBuilding(buildingKey,lots){
+  buildingFloorIdx=0;currentBuildingKey=buildingKey;
   const bc=document.getElementById('building-container');
   const data=BUILDINGS[buildingKey];
   bc.style.display='block';
   document.getElementById('building-name').textContent=buildingKey;
-  const bg=document.getElementById('building-bg');
-  if(data?.img){
-    bg.innerHTML=`<img src="${data.img}" alt="${buildingKey}">`;
-    document.getElementById('building-no-img').style.display='none';
-  } else {
-    bg.innerHTML=`<div style="position:absolute;inset:0;background:linear-gradient(135deg,#0a1a2a,#1a2a3a)"></div>`;
-    document.getElementById('building-no-img').style.display='block';
-  }
+  const imgs=data?.imgs||[];
+  const nav=document.getElementById('floor-nav');
+  if(imgs.length>1){nav.style.display='flex';updateFloorNav(imgs);}
+  else{nav.style.display='none';}
+  renderBuildingBg(imgs);
   bc.querySelectorAll('.apt-dot').forEach(d=>d.remove());
   const aptLots=data?.lots||lots;
   aptLots.forEach(apt=>{
@@ -957,6 +962,23 @@ function enterBuilding(buildingKey,lots){
     d.addEventListener('click',e=>{e.stopPropagation();window.open(apt.url,'_blank');});
     bc.appendChild(d);
   });
+}
+function renderBuildingBg(imgs){
+  const img=imgs[buildingFloorIdx]||'';
+  const bg=document.getElementById('building-bg');
+  if(img){bg.innerHTML=`<img src="${img}" style="width:100%;height:100%;object-fit:cover;filter:brightness(0.65)">`;document.getElementById('building-no-img').style.display='none';}
+  else{bg.innerHTML=`<div style="position:absolute;inset:0;background:linear-gradient(135deg,#0a1a2a,#1a2a3a)"></div>`;document.getElementById('building-no-img').style.display='block';}
+}
+function changeBuildingFloor(dir){
+  const data=BUILDINGS[currentBuildingKey];
+  const imgs=data?.imgs||[];
+  buildingFloorIdx=Math.max(0,Math.min(imgs.length-1,buildingFloorIdx+dir));
+  renderBuildingBg(imgs);updateFloorNav(imgs);
+}
+function updateFloorNav(imgs){
+  document.getElementById('floor-label').textContent=`${buildingFloorIdx+1} / ${imgs.length}`;
+  document.getElementById('floor-up-btn').style.opacity=buildingFloorIdx>0?'1':'0.3';
+  document.getElementById('floor-down-btn').style.opacity=buildingFloorIdx<imgs.length-1?'1':'0.3';
 }
 function exitBuilding(){const bc=document.getElementById('building-container');if(bc)bc.style.display='none';}
 
