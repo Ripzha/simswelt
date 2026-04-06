@@ -230,17 +230,14 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .char-name{font-size:11px;font-weight:600;color:#fff;margin-bottom:2px;line-height:1.3}
 .char-player{font-size:9px;color:rgba(255,255,255,0.35);margin-bottom:2px}
 .char-location{font-size:9px;color:#4aaa6a}
-/* Hover card */
-#char-hover-card{position:fixed;z-index:400;background:#0d1f2d;border:0.5px solid rgba(100,180,120,0.3);border-radius:10px;width:220px;box-shadow:0 8px 32px rgba(0,0,0,0.6);pointer-events:none;opacity:0;transition:opacity 0.15s;display:flex;gap:0;overflow:hidden}
+#char-hover-card{position:fixed;z-index:400;background:#0d1f2d;border:0.5px solid rgba(100,180,120,0.3);border-radius:10px;width:200px;box-shadow:0 8px 32px rgba(0,0,0,0.6);pointer-events:none;opacity:0;transition:opacity 0.15s;overflow:hidden}
 #char-hover-card.visible{opacity:1}
-#chc-portrait-wrap{width:80px;flex-shrink:0;background:#0a1520;position:relative}
-#chc-portrait-wrap img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
-#chc-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:24px;color:rgba(255,255,255,0.1)}
-#chc-body{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:4px;min-height:120px}
+#chc-body{padding:12px 14px;display:flex;flex-direction:column;gap:5px}
 #chc-name{font-size:12px;font-weight:700;color:#fff;line-height:1.3}
 #chc-player{font-size:10px;color:#4aaa6a}
-#chc-details{font-size:10px;color:rgba(255,255,255,0.45);line-height:1.6;flex:1}
-#chc-link{font-size:9px;color:rgba(100,180,120,0.6);margin-top:auto}
+#chc-details{font-size:10px;color:rgba(255,255,255,0.45);line-height:1.7;margin-top:2px}
+#chc-lastseen{font-size:10px;color:rgba(100,180,120,0.7);margin-top:2px}
+#chc-link{font-size:9px;color:rgba(255,255,255,0.25);margin-top:4px;border-top:0.5px solid rgba(255,255,255,0.06);padding-top:6px}
 @media(max-width:600px){#char-grid{grid-template-columns:repeat(3,1fr);gap:8px;padding:10px}#char-header{gap:6px}#char-create-btn{display:none}}
 </style>
 </head>
@@ -270,7 +267,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
   <div id="left">
     <div class="sec-label">Navigation</div>
     <a class="nav-item" href="https://www.simsforumrpg.de/forum.php" target="_blank">📋 Forum</a>
-    <a class="nav-item" onclick="openCharView()" style="cursor:pointer">👤 Hauptcharaktere</a>    <a class="nav-item" href="https://www.simsforumrpg.de/f51850-Nebencharaktere.html" target="_blank">👥 Nebencharaktere</a>
+    <a class="nav-item" onclick="openCharView()" style="cursor:pointer">👤 Charaktere</a>
     <a class="nav-item" href="https://www.simsforumrpg.de/f58642-Kreationen-und-Geschichten.html" target="_blank">🎨 Kreativ-Ecke</a>
     <a class="nav-item" href="https://www.simsforumrpg.de/f15070-Forenspiele.html" target="_blank">🎲 Forenspiele</a>
     <a class="nav-item" href="https://www.simsforumrpg.de/blog-c1386-Simstagram.html" target="_blank">📸 Simstagram</a>
@@ -448,18 +445,18 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
           <div id="char-subtitle"></div>
         </div>
         <div id="char-filter-bar"></div>
-        <a id="char-create-btn" href="https://ripzha.github.io/simswelt/rpg_char.html" target="_blank">✚ Charakter erstellen</a>
+        <a id="char-create-btn" href="https://ripzha.github.io/simswelt/rpg_char_html.html" target="_blank">✚ Charakter erstellen</a>
         <button id="char-sort-btn" onclick="toggleCharSort()" title="Alphabetisch sortieren">A–Z</button>
         <button id="char-reload" onclick="reloadChars()" title="Aktualisieren">↺</button>
         <button id="char-close" onclick="closeCharView()">✕</button>
       </div>
       <div id="char-grid"></div>
       <div id="char-hover-card">
-        <div id="chc-portrait-wrap"><img id="chc-img" src="" alt=""><div id="chc-ph">👤</div></div>
         <div id="chc-body">
           <div id="chc-name"></div>
           <div id="chc-player"></div>
           <div id="chc-details"></div>
+          <div id="chc-lastseen"></div>
           <div id="chc-link">Bogen öffnen →</div>
         </div>
       </div>
@@ -475,8 +472,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 <div class="sheet" id="sheet-nav">
   <div class="sheet-handle"></div><div class="sheet-title">Navigation</div>
   <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/forum.php" target="_blank">📋 Forum</a>
-  <a class="nav-item" style="margin-bottom:6px;cursor:pointer" onclick="openCharView();closeSheet()">👤 Hauptcharaktere</a>
-  <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/f51850-Nebencharaktere.html" target="_blank">👥 Nebencharaktere</a>
+  <a class="nav-item" style="margin-bottom:6px;cursor:pointer" onclick="openCharView();closeSheet()">👤 Charaktere</a>
   <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/page-simsweltnews.html" target="_blank">📰 SimsWelt News</a>
   <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/gallery.php" target="_blank">🖼️ Bildergalerie</a>
 </div>
@@ -1575,19 +1571,16 @@ function openCharView(type){
   charActiveType=type||'haupt';
   location.hash='chars-'+charActiveType;
   document.getElementById('char-container').classList.add('open');
-  // Tab aktiv setzen
   document.querySelectorAll('.char-tab').forEach(function(t){
-    var map={'haupt':'Haupt','neben':'Neben','statist':'Stat'}; t.classList.toggle('active',t.textContent.indexOf(map[charActiveType]||charActiveType)>-1);
+    var map={'haupt':'Haupt','neben':'Neben','statist':'Stat'};
+    t.classList.toggle('active',t.textContent.indexOf(map[charActiveType]||charActiveType)>-1);
   });
   charPlayerFilter='alle';
-  // Ladeanzeige
   var grid=document.getElementById('char-grid');
   var sub=document.getElementById('char-subtitle');
   if(grid)grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:22px;padding:60px;grid-column:1/-1;text-align:center">⏳</div>';
   if(sub)sub.textContent='Lade...';
-  // Fallback nach 5s falls fetch hängt
-  var fb=setTimeout(function(){charRenderFiltered();},5000);
-  fetchCharsFromScript(fb);
+  fetchCharsFromScript();
 }
 
 function closeCharView(){
@@ -1612,12 +1605,11 @@ function reloadChars(){
   fetchCharsFromScript(null);
 }
 
-async function fetchCharsFromScript(fallbackTimer){
+async function fetchCharsFromScript(){
   try{
     var r=await fetch(SCRIPT_URL);
     if(!r.ok)throw new Error('HTTP '+r.status);
     var data=await r.json();
-    if(fallbackTimer)clearTimeout(fallbackTimer);
     if(!Array.isArray(data)||!data.length)throw new Error('leer');
     // Mapping
     var fresh=data.filter(function(c){return c.name;}).map(function(c){
@@ -1625,16 +1617,14 @@ async function fetchCharsFromScript(fallbackTimer){
       if(t.indexOf('neben')>-1)t='neben';
       else if(t.indexOf('statist')>-1||t.indexOf('rand')>-1||t.indexOf('passant')>-1)t='statist';
       else t='haupt';
-      return{n:c.name||'',p:c.player||'',type:t,u:c.threadUrl||'',h:c.home||'',img:c.portraitUrl||'',age:c.age||'',job:c.job||''};
+      return{n:c.name||'',p:c.player||'',type:t,u:c.threadUrl||'',h:c.home||'',img:c.portraitUrl||'',age:c.age||'',job:c.job||'',lastSeenName:c.lastSeenName||'',lastSeenUrl:c.lastSeenUrl||''};
     });
     if(fresh.length>0){
       CHARS.length=0;
       fresh.forEach(function(c){CHARS.push(c);});
       charFetched=true;
     }
-  }catch(e){
-    if(fallbackTimer)clearTimeout(fallbackTimer);
-  }
+  }catch(e){}
   charRenderFiltered();
   buildPlayerFilter();
 }
@@ -1710,24 +1700,29 @@ var _hoverTimeout=null;
 function showCharHover(c,card){
   clearTimeout(_hoverTimeout);
   var hc=document.getElementById('char-hover-card');
-  var img=document.getElementById('chc-img');
-  var ph=document.getElementById('chc-ph');
   document.getElementById('chc-name').textContent=c.n;
   document.getElementById('chc-player').textContent='gespielt von '+c.p;
   var details=[];
-  if(c.age)details.push(c.age+' Jahre');
-  if(c.h)details.push('📍 '+c.h);
+  if(c.age)details.push('🎂 '+c.age+' Jahre');
   if(c.job)details.push('💼 '+c.job);
-  document.getElementById('chc-details').innerHTML=details.join('<br>');
-  if(c.img){img.src=c.img;img.style.display='block';ph.style.display='none';}
-  else{img.style.display='none';ph.style.display='flex';}
+  if(c.h)details.push('🏠 '+c.h);
+  document.getElementById('chc-details').innerHTML=details.join('<br>')||'<span style="color:rgba(255,255,255,0.2)">Keine Infos</span>';
+  var ls=document.getElementById('chc-lastseen');
+  if(c.lastSeenName&&c.lastSeenUrl){
+    ls.innerHTML='📍 Zuletzt in: <a href="'+c.lastSeenUrl+'" target="_blank" style="color:#4aaa6a;text-decoration:none">'+c.lastSeenName+'</a>';
+  } else if(c.lastSeenName){
+    ls.textContent='📍 Zuletzt in: '+c.lastSeenName;
+  } else {
+    ls.textContent='';
+  }
+  document.getElementById('chc-link').textContent='Charakterbogen öffnen →';
   // Position
   var rect=card.getBoundingClientRect();
-  var hcw=220,pad=8;
+  var hcw=200,pad=8;
   var left=rect.right+pad;
   if(left+hcw>window.innerWidth)left=rect.left-hcw-pad;
   var top=rect.top;
-  if(top+200>window.innerHeight)top=window.innerHeight-210;
+  if(top+180>window.innerHeight)top=window.innerHeight-190;
   hc.style.left=left+'px';hc.style.top=top+'px';
   hc.classList.add('visible');
 }
