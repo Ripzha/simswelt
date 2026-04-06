@@ -240,6 +240,16 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
           <div style="font-size:12px;color:rgba(255,255,255,0.4)">🏗 Grundriss noch ausstehend</div>
           <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:4px">Threads über Leiste öffnen</div>
         </div>
+        <button class="calib-btn" id="calib-building-btn" onclick="toggleBuildingCalib()" style="bottom:12px;right:12px">⚙ Dots kalibrieren</button>
+        <div class="calib-panel" id="calib-building-panel" style="bottom:50px;top:auto;right:10px;left:auto">
+          <h4>⚙ Apartment-Dots setzen</h4>
+          <div class="calib-info">Klick auf die Stelle im Grundriss für jeden Dot.</div>
+          <div class="calib-next-line">👉 Jetzt: <span id="calib-building-next" style="color:#fff;font-weight:500">—</span></div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:4px">Fortschritt: <span id="calib-building-count">0</span> gesetzt</div>
+          <div class="calib-log" id="calib-building-log">Noch keine Klicks...</div>
+          <button class="calib-copy" onclick="copyBuildingCalib()">📋 Kopieren</button>
+          <button class="calib-clear" onclick="clearBuildingCalib()">🗑 Reset</button>
+        </div>
       </div>
       <button class="legend-btn" onclick="toggleLegend(this)">≡ Legende</button>
       <div class="legend-box">
@@ -1011,7 +1021,7 @@ function renderLots(w){
     h.textContent='⚠ Noch kalibrieren';bar.appendChild(h);
   }
   groupLots(lots).forEach(group=>{
-    if(group.lots.length===1){
+    if(group.lots.length===1 && !group.lots[0].building){
       const lot=group.lots[0];
       const ld=document.createElement('div');
       ld.className='lot-dot'+(lot.active?' isactive':'')+(lot.outdoor?' isoutdoor':'');
@@ -1182,7 +1192,52 @@ function copySuggest(){navigator.clipboard.writeText(document.getElementById('su
 // ═══════════════════════════════════════════
 function openSheet(id){document.getElementById('sheet-overlay').classList.add('open');['nav','info'].forEach(s=>document.getElementById('sheet-'+s).classList.toggle('open',s===id));}
 function closeSheet(){document.getElementById('sheet-overlay').classList.remove('open');document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('open'));}
-document.querySelectorAll('.sheet').forEach(sheet=>{let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive:true});sheet.addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-sy>60)closeSheet();},{passive:true});});
+let calibBuildingMode=false,calibBuildingData=[];
+
+function toggleBuildingCalib(){
+  calibBuildingMode=!calibBuildingMode;
+  const panel=document.getElementById('calib-building-panel');
+  const bc=document.getElementById('building-container');
+  panel.style.display=calibBuildingMode?'block':'none';
+  bc.style.cursor=calibBuildingMode?'crosshair':'default';
+  if(calibBuildingMode){
+    calibBuildingData=[];
+    const lots=BUILDINGS[currentBuildingKey]?.lots||[];
+    document.getElementById('calib-building-next').textContent=lots[0]?.name||'—';
+    document.getElementById('calib-building-count').textContent='0';
+    document.getElementById('calib-building-log').textContent='Noch keine Klicks...';
+  }
+}
+function clearBuildingCalib(){
+  calibBuildingData=[];
+  document.getElementById('calib-building-next').textContent=BUILDINGS[currentBuildingKey]?.lots[0]?.name||'—';
+  document.getElementById('calib-building-count').textContent='0';
+  document.getElementById('calib-building-log').textContent='Noch keine Klicks...';
+}
+function copyBuildingCalib(){
+  const txt=calibBuildingData.map(d=>`{name:"${d.name}",x:${d.x},y:${d.y}}`).join(',\n');
+  navigator.clipboard.writeText(txt).then(()=>alert('✓ Kopiert!'));
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('building-container').addEventListener('click',function(e){
+    if(!calibBuildingMode)return;
+    if(e.target.closest('.calib-panel')||e.target.closest('.calib-btn')||e.target.closest('#floor-nav'))return;
+    const bc=document.getElementById('building-container');
+    const r=bc.getBoundingClientRect();
+    const x=+((e.clientX-r.left)/r.width*100).toFixed(1);
+    const y=+((e.clientY-r.top)/r.height*100).toFixed(1);
+    const lots=BUILDINGS[currentBuildingKey]?.lots||[];
+    const idx=calibBuildingData.length;
+    if(idx>=lots.length){alert('Alle gesetzt!');return;}
+    calibBuildingData.push({name:lots[idx].name,x,y});
+    const log=document.getElementById('calib-building-log');
+    log.innerHTML=calibBuildingData.map(d=>`<div style="color:#ffcc44">${d.name}</div><div style="color:#777">x:${d.x}, y:${d.y}</div>`).join('');
+    log.scrollTop=log.scrollHeight;
+    document.getElementById('calib-building-next').textContent=lots[idx+1]?.name||'✅ Fertig!';
+    document.getElementById('calib-building-count').textContent=calibBuildingData.length;
+  });
+});let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive:true});sheet.addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-sy>60)closeSheet();},{passive:true});});
 </script>
 </body>
 </html>
