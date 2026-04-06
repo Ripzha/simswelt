@@ -471,7 +471,7 @@ const worldLots = {
     {name:"Nr. 15",x:29,y:48,url:BASE+"f51780-Newcrest.html",active:false},
   ],
   "Magnolia Promenade":[
-    {name:"Nr. 3 - Möbelhaus",x:33,y:38,url:BASE+"t752f51781-Magnolia-Promenade-Nr-Moebelhaus.html",active:true},
+    {name:"Nr. 3 - Möbelhaus",x:33,y:38,url:BASE+"t752f51781-Magnolia-Promenade-Nr-Moebelhaus.html",active:true,img:'https://files.homepagemodules.de/b855163/resize/1920x1200/f51781t752p7348n2_VlqyHTXa.png'},
     {name:"Nr. 1",x:34,y:29,url:BASE+"f51781-Magnolia-Promenade.html",active:false},
     {name:"Nr. 2",x:47,y:32,url:BASE+"f51781-Magnolia-Promenade.html",active:false},
     {name:"Nr. 4",x:42,y:41,url:BASE+"f51781-Magnolia-Promenade.html",active:false},
@@ -767,7 +767,12 @@ function renderLots(w){
       const ld=document.createElement('div');
       ld.className='lot-dot'+(lot.active?' isactive':'');
       ld.style.cssText=`left:${lot.x}%;top:${lot.y}%`;
-      ld.innerHTML=`<div class="lot-pulse"></div><div class="lot-inner" style="width:9px;height:9px;background:${lot.active?'#4aaa6a':'rgba(255,255,255,0.5)'};box-shadow:${lot.active?'0 0 10px #4aaa6a':'none'}"></div><div class="lot-label">${lot.name}</div><div class="lot-tooltip" style="border:0.5px solid ${lot.active?'#4aaa6a':'rgba(255,255,255,0.2)'}"><div style="font-weight:500;margin-bottom:2px">${lot.name}</div><div style="font-size:10px;color:${lot.active?'#4aaa6a':'rgba(255,255,255,0.4)'}">${lot.active?'● Aktiv':'↗ Thread öffnen'}</div></div>`;
+      const _tb=`border:0.5px solid ${lot.active?'#4aaa6a':'rgba(255,255,255,0.2)'}`;
+      const _ti=`<div style="font-weight:500;margin-bottom:2px">${lot.name}</div><div style="font-size:10px;color:${lot.active?'#4aaa6a':'rgba(255,255,255,0.4)'}">${lot.active?'● Aktiv':'↗ Thread öffnen'}</div>`;
+      const _tt=lot.img
+        ?`<div class="lot-tooltip" style="${_tb};padding:0;overflow:hidden;min-width:160px"><img src="${lot.img}" style="width:100%;height:90px;object-fit:cover;display:block"><div style="padding:7px 10px">${_ti}</div></div>`
+        :`<div class="lot-tooltip" style="${_tb}">${_ti}</div>`;
+      ld.innerHTML=`<div class="lot-pulse"></div><div class="lot-inner" style="width:9px;height:9px;background:${lot.active?'#4aaa6a':'rgba(255,255,255,0.5)'};box-shadow:${lot.active?'0 0 10px #4aaa6a':'none'}"></div><div class="lot-label">${lot.name}</div>${_tt}`;
       ld.addEventListener('click',e=>{e.stopPropagation();if(!calibWorldMode&&!posMode)window.open(lot.url,'_blank');});
       wc.appendChild(ld);
     } else {
