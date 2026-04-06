@@ -81,13 +81,13 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .lot-dot:hover .lot-inner,.lot-dot:active .lot-inner{width:13px!important;height:13px!important}
 .lot-pulse{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:50%;border:1.5px solid #4aaa6a;animation:pulse 1.4s infinite;pointer-events:none;display:none}
 .lot-dot.isactive .lot-pulse{display:block}
-.lot-label{position:absolute;top:11px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;font-weight:500;text-shadow:0 1px 4px #000,0 0 8px #000;pointer-events:none;text-align:center;line-height:1.3}
-.lot-sublabel{font-size:8px;color:rgba(255,255,255,0.7);font-weight:400;display:block}
+.lot-label{position:absolute;top:13px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:11px;font-weight:500;text-shadow:0 1px 4px #000,0 0 8px #000;pointer-events:none;text-align:center;line-height:1.3}
+.lot-sublabel{font-size:10px;color:rgba(255,255,255,0.7);font-weight:400;display:block}
 .lot-tooltip{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.95);border-radius:6px;font-size:11px;white-space:nowrap;z-index:20;pointer-events:none;display:none;box-shadow:0 4px 14px rgba(0,0,0,0.6)}
 .lot-dot:hover .lot-tooltip{display:block}
 .lot-dot.isoutdoor .lot-inner{background:rgba(80,190,170,0.75)!important;border-color:rgba(80,190,170,1)!important;box-shadow:none!important}
 .cluster-dot{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:15}
-.cluster-inner{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;border:1.5px solid rgba(255,165,0,0.6);transition:all 0.15s;background:rgba(255,165,0,0.2)}
+.cluster-inner{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;border:1.5px solid rgba(255,165,0,0.6);transition:all 0.15s;background:rgba(255,165,0,0.2)}
 .cluster-dot:hover .cluster-inner{width:26px;height:26px}
 .cluster-label{position:absolute;top:14px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;font-weight:500;text-shadow:0 1px 4px #000;pointer-events:none}
 .cluster-popup{position:absolute;bottom:25px;left:50%;transform:translateX(-50%);background:rgba(5,12,22,0.97);border:0.5px solid rgba(255,165,0,0.4);border-radius:8px;padding:8px;z-index:40;display:none;min-width:170px;box-shadow:0 6px 24px rgba(0,0,0,0.8)}
@@ -517,39 +517,36 @@ const worldLots={
     {name:"Café \"The Purrfect Time\"",nr:"Nr. 8",x:76.4,y:63.7,url:BASE+"t50f51780-Newcrest.html",active:false,img:IMG+"f51780t50p608n2_ztCPsOVu.png"},
   ],
   "Windenburg":[
-    {name:"Windenburg (Strassen)",x:49.1,y:53.7,url:BASE+"t167f51782-Windenburg.html",active:true,outdoor:true},
-    {name:"Friedhof Windenburg",nr:"Nr. 1",x:22.5,y:30.6,url:BASE+"t57f51782-Windenburg-Nr-Friedhof-Windenburg.html",active:false,img:IMG+"f51782t57p615n2_mjnMCfri.png"},
-    {name:"Nr. 2",x:26.8,y:34.7,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"Nr. 3",x:31.5,y:38.1,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"Nr. 4",x:38.3,y:38.8,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"Nr. 5",x:45.2,y:31.5,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"Eventhalle",nr:"Nr. 5",x:45.2,y:31.5,url:BASE+"t576f51782-Windenburg-Eventhalle.html",active:false,img:IMG+"f51782t576p5130n2_hCZgyFYd.png"},
-    {name:"Familie Jaspers",nr:"Nr. 6",x:47.7,y:39.2,url:BASE+"t74f51782-Windenburg-Nr-Familie-Jaspers.html",active:false,img:IMG+"f51782t74p632n2_hoxlkMzT.png"},
-    {name:"Kleinkinderspielplatz",nr:"Nr. 7",x:61.4,y:47.9,url:BASE+"t123f51782-Windenburg-Nr-Kleinkinderspielplatz.html",active:false,img:IMG+"f51782t123p1413n2_WTdtgBAc.png"},
-    {name:"Narwal Arms",nr:"Nr. 8",x:68.8,y:44.9,url:BASE+"t6f51782-Windenburg-Nr-Narwal-Arms.html",active:false,img:IMG+"f15060t6p18n2_fxlFUbiY.png"},
-        {name:"Nr. 10",x:76.6,y:38.7,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"Wohnung Arnim & Mayve",nr:"Nr. 11",x:82.5,y:42,url:BASE+"t494f51782-Windenburg-Nr-Wohnung-von-Arnim-und-Mayve.html",active:false,img:IMG+"f51782t494p4235n2_PtNTRLdu.png"},
-    {name:"Wohnung Doris & Marvin",nr:"Nr. 11",x:82.5,y:42,url:BASE+"t602f51782-Windenburg-Nr-Wohnung-von-Doris-und-Marvin-Minze.html",active:false,img:IMG+"f51782t602p5301n2_ebPmoaUj.png"},
-    {name:"Dienstwohnung Phönix Bright",nr:"Nr. 11",x:82.5,y:42,url:BASE+"t540f51782-Windenburg-Nr-Dienstwohnung-von-Phoenix-Bright.html",active:false,img:IMG+"f51782t540p4588n11_nlqhaQEM.png"},
-    {name:"Luigi's Pizza",nr:"Nr. 12",x:90.2,y:51.6,url:BASE+"t14f51782-Windenburg-Nr-Luigi-s-Pizza.html",active:false,img:IMG+"f51782t14p59n2_ARXEztSn.png"},
-    {name:"Nr. 13",x:81.4,y:53.1,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"Tierarztpraxis",nr:"Nr. 13",x:81.4,y:53.1,url:BASE+"t546f51782-Windenburg-Tierarztpraxis-Windenburg.html",active:false,img:IMG+"f51782t546p4743n2_DMYxedGX.png"},
-    {name:"Nr. 14",x:68.8,y:54,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"Schwimmbad Aqua Paradise",nr:"Nr. 15",x:62.6,y:69.5,url:BASE+"t76f51782-Windenburg-Nr-Schwimmbad-Aqua-Paradise.html",active:false,img:IMG+"f51782t76p634n2_EBlqxbRP.png"},
-    {name:"Tattoo-Studio",nr:"Nr. 16",x:73.5,y:65.3,url:BASE+"t420f51782-Windenburg-Nr-Tattoo-Studio.html",active:false,img:IMG+"f51782t420p3599n2_EOjnqRNC.png"},
-    {name:"Café zum Waschbär",nr:"Nr. 17",x:83.2,y:69.6,url:BASE+"t33f51782-Windenburg-Nr-Cafe-zum-Waschbaer.html",active:false,img:IMG+"f51782t33p223n2_IaRFSiZo.png"},
-    {name:"Krankenhaus",nr:"Nr. 18",x:87.1,y:78.2,url:BASE+"t156f51782-Windenburg-Nr-Krankenhaus.html",active:false,img:IMG+"f51782t156p2182n25_EBhfbZRP.png"},
-    {name:"Hot & Spicy Restaurant",nr:"Nr. 19",x:73.1,y:80.2,url:BASE+"t119f51782-Windenburg-Nr-Hot-amp-Spicy-Restaurant.html",active:false,img:IMG+"f51782t119p1342n7_sLiBAhCd.png"},
-    {name:"Nr. 20",x:35.7,y:67.5,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"Nr. 21",x:28.2,y:78.2,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"Nr. 22",x:18.5,y:76.2,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"Nr. 23",x:20.9,y:68,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"Neue Wege Klinik",nr:"Nr. 23",x:20.9,y:68,url:BASE+"t352f51782-Windenburg-Neue-Wege-Klinik.html",active:false,img:IMG+"f51782t352p3337n17_LtzWbSml.png"},
-    {name:"Park von Windenburg",nr:"Nr. 24",x:15.7,y:61.5,url:BASE+"t740f51782-Windenburg-Nr-Park-von-Windenburg.html",active:false,img:IMG+"f51782t740p7211n3_cYqojUQl.png"},
-    {name:"Palazzo",nr:"Nr. 9",x:5.1,y:39.7,url:BASE+"t648f51782-Windenburg-Palazzo-Dinner-Tanz-amp-Show.html",active:false,img:IMG+"f51782t648p5987n2_RbSyLPFr.png"},
-    {name:"A",x:29.1,y:55.6,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"B",x:36.4,y:23.8,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"C - Alte Ruine",x:64.7,y:37.5,url:BASE+"t351f51782-Windenburg-alte-Ruine.html",active:false,img:IMG+"f51782t351p3335n2_MpfxoUiL.png"},
+    {name:"Windenburg (Strassen)",x:49,y:51.7,url:BASE+"t167f51782-Windenburg.html",active:true,outdoor:true},
+    {name:"Friedhof Windenburg",nr:"Nr. 1",x:24.8,y:30.2,url:BASE+"t57f51782-Windenburg-Nr-Friedhof-Windenburg.html",active:false,img:IMG+"f51782t57p615n2_mjnMCfri.png"},
+    {name:"Nr. 2",x:28.9,y:34.8,url:BASE+"f51782-Windenburg.html",active:false},
+    {name:"Nr. 3",x:33.1,y:37.9,url:BASE+"f51782-Windenburg.html",active:false},
+    {name:"Nr. 4",x:39.2,y:38.5,url:BASE+"f51782-Windenburg.html",active:false},
+        {name:"Eventhalle",nr:"Nr. 5",x:46.3,y:32.2,url:BASE+"t576f51782-Windenburg-Eventhalle.html",active:false,img:IMG+"f51782t576p5130n2_hCZgyFYd.png"},
+    {name:"Familie Jaspers",nr:"Nr. 6",x:48.3,y:39.8,url:BASE+"t74f51782-Windenburg-Nr-Familie-Jaspers.html",active:false,img:IMG+"f51782t74p632n2_hoxlkMzT.png"},
+    {name:"Kleinkinderspielplatz",nr:"Nr. 7",x:60.5,y:48.2,url:BASE+"t123f51782-Windenburg-Nr-Kleinkinderspielplatz.html",active:false,img:IMG+"f51782t123p1413n2_WTdtgBAc.png"},
+    {name:"Narwal Arms",nr:"Nr. 8",x:67.2,y:44.7,url:BASE+"t6f51782-Windenburg-Nr-Narwal-Arms.html",active:false,img:IMG+"f15060t6p18n2_fxlFUbiY.png"},
+    {name:"Palazzo",nr:"Nr. 9",x:72.3,y:42.9,url:BASE+"t648f51782-Windenburg-Palazzo-Dinner-Tanz-amp-Show.html",active:false,img:IMG+"f51782t648p5987n2_RbSyLPFr.png"},
+    {name:"Nr. 10",x:74.9,y:39.1,url:BASE+"f51782-Windenburg.html",active:false},
+    {name:"Wohnung Arnim & Mayve",nr:"Nr. 11",x:80.6,y:42.1,url:BASE+"t494f51782-Windenburg-Nr-Wohnung-von-Arnim-und-Mayve.html",active:false,img:IMG+"f51782t494p4235n2_PtNTRLdu.png"},
+    {name:"Wohnung Doris & Marvin",nr:"Nr. 11",x:80.6,y:42.1,url:BASE+"t602f51782-Windenburg-Nr-Wohnung-von-Doris-und-Marvin-Minze.html",active:false,img:IMG+"f51782t602p5301n2_ebPmoaUj.png"},
+    {name:"Dienstwohnung Phönix Bright",nr:"Nr. 11",x:80.6,y:42.1,url:BASE+"t540f51782-Windenburg-Nr-Dienstwohnung-von-Phoenix-Bright.html",active:false,img:IMG+"f51782t540p4588n11_nlqhaQEM.png"},
+    {name:"Luigi's Pizza",nr:"Nr. 12",x:87.5,y:51.7,url:BASE+"t14f51782-Windenburg-Nr-Luigi-s-Pizza.html",active:false,img:IMG+"f51782t14p59n2_ARXEztSn.png"},
+        {name:"Tierarztpraxis",nr:"Nr. 13",x:78.8,y:53.1,url:BASE+"t546f51782-Windenburg-Tierarztpraxis-Windenburg.html",active:false,img:IMG+"f51782t546p4743n2_DMYxedGX.png"},
+    {name:"Nr. 14",x:67.4,y:54,url:BASE+"f51782-Windenburg.html",active:false},
+    {name:"Schwimmbad Aqua Paradise",nr:"Nr. 15",x:61.7,y:69.4,url:BASE+"t76f51782-Windenburg-Nr-Schwimmbad-Aqua-Paradise.html",active:false,img:IMG+"f51782t76p634n2_EBlqxbRP.png"},
+    {name:"Tattoo-Studio",nr:"Nr. 16",x:71.5,y:65.8,url:BASE+"t420f51782-Windenburg-Nr-Tattoo-Studio.html",active:false,img:IMG+"f51782t420p3599n2_EOjnqRNC.png"},
+    {name:"Café zum Waschbär",nr:"Nr. 17",x:80.4,y:69.6,url:BASE+"t33f51782-Windenburg-Nr-Cafe-zum-Waschbaer.html",active:false,img:IMG+"f51782t33p223n2_IaRFSiZo.png"},
+    {name:"Krankenhaus",nr:"Nr. 18",x:84.1,y:78.3,url:BASE+"t156f51782-Windenburg-Nr-Krankenhaus.html",active:false,img:IMG+"f51782t156p2182n25_EBhfbZRP.png"},
+    {name:"Hot & Spicy Restaurant",nr:"Nr. 19",x:70.9,y:80.3,url:BASE+"t119f51782-Windenburg-Nr-Hot-amp-Spicy-Restaurant.html",active:false,img:IMG+"f51782t119p1342n7_sLiBAhCd.png"},
+    {name:"Nr. 20",x:36.6,y:68,url:BASE+"f51782-Windenburg.html",active:false},
+    {name:"Nr. 21",x:29.6,y:78.1,url:BASE+"f51782-Windenburg.html",active:false},
+    {name:"Nr. 22",x:21.2,y:76.5,url:BASE+"f51782-Windenburg.html",active:false},
+        {name:"Neue Wege Klinik",nr:"Nr. 23",x:23.4,y:68.6,url:BASE+"t352f51782-Windenburg-Neue-Wege-Klinik.html",active:false,img:IMG+"f51782t352p3337n17_LtzWbSml.png"},
+    {name:"Park von Windenburg",nr:"Nr. 24",x:18.8,y:61.9,url:BASE+"t740f51782-Windenburg-Nr-Park-von-Windenburg.html",active:false,img:IMG+"f51782t740p7211n3_cYqojUQl.png"},
+    {name:"A",x:30.7,y:56.1,url:BASE+"f51782-Windenburg.html",active:false},
+    {name:"B",x:37.5,y:23.7,url:BASE+"f51782-Windenburg.html",active:false},
+    {name:"C - Alte Ruine",x:63.6,y:37.9,url:BASE+"t351f51782-Windenburg-alte-Ruine.html",active:false,img:IMG+"f51782t351p3335n2_MpfxoUiL.png"},
   ],
   "San Myshuno":[
     {name:"San Myshuno (Strassen)",x:54.1,y:31.5,url:BASE+"t169f51783-San-Myshuno.html",active:true,outdoor:true},
@@ -674,11 +671,9 @@ const worldLots={
     {name:"Nr. 1",x:16.2,y:57.3,url:BASE+"f51790-Britechester.html",active:false},
     {name:"Nr. 2",x:23.1,y:56.9,url:BASE+"f51790-Britechester.html",active:false},
     {name:"Nr. 3",x:20.4,y:44.5,url:BASE+"f51790-Britechester.html",active:false},
-    {name:"Nr. 4",x:28.6,y:44,url:BASE+"f51790-Britechester.html",active:false},
-    {name:"Alex' Arztpraxis",nr:"Nr. 4",x:28.6,y:44,url:BASE+"t612f51790-Britechester-Alex-Arztpraxis.html",active:false},
+        {name:"Alex' Arztpraxis",nr:"Nr. 4",x:28.6,y:44,url:BASE+"t612f51790-Britechester-Alex-Arztpraxis.html",active:false},
     {name:"Nr. 5 - Tanzschule",x:48.2,y:48.6,url:BASE+"t27f51790-Britechester-Nr-Tanzschule.html",active:false},
-    {name:"Nr. 6",x:54.2,y:36.9,url:BASE+"f51790-Britechester.html",active:false},
-    {name:"Vereinshalle Tigers",nr:"Nr. 6",x:54.2,y:36.9,url:BASE+"t582f51790-Britechester-Vereinshalle-Britechester-Tigers.html",active:false},
+        {name:"Vereinshalle Tigers",nr:"Nr. 6",x:54.2,y:36.9,url:BASE+"t582f51790-Britechester-Vereinshalle-Britechester-Tigers.html",active:false},
     {name:"Pine Hill University",nr:"Nr. 6",x:54.2,y:36.9,url:BASE+"t235f51790-Britechester-Pine-Hill-University.html",active:false},
     {name:"Nr. 7 - Violas Hütte",x:65,y:45.8,url:BASE+"t659f51790-Britechester-Nr-Violas-kleine-Huette.html",active:false},
     {name:"Nr. 8",x:55.3,y:58.6,url:BASE+"f51790-Britechester.html",active:false},
@@ -736,8 +731,7 @@ const worldLots={
     {name:"Nr. 4",x:15.4,y:39.1,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
     {name:"Nr. 5",x:47.7,y:48.4,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
     {name:"Nr. 6",x:64.5,y:35,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
-    {name:"Nr. 7",x:76.8,y:39,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
-    {name:"Nr. 8",x:84.1,y:47.6,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+        {name:"Nr. 8",x:84.1,y:47.6,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
     {name:"Nr. 9",x:53,y:76.1,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
     {name:"Nr. 10",x:60.9,y:88.6,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
     {name:"Nr. 11",x:69.6,y:82.7,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
@@ -770,8 +764,7 @@ const worldLots={
     {name:"Haus der Familie Sievers",x:92.3,y:34,url:BASE+"t581f51796-Copperdale-Haus-der-Familie-Sievers.html",active:true,img:IMG+"f51796t581p5152n2_yNfApmuL.png"},
     {name:"Villa Bärenklau",x:92.6,y:38.8,url:BASE+"t341f51796-Copperdale-Villa-Baerenklau.html",active:true,img:IMG+"f51796t341p3284n41_vYzIkfua.png"},
     {name:"Johns Bar",x:92.6,y:43.8,url:BASE+"t260f51796-Copperdale-Johns-Bar.html",active:true,img:IMG+"f51796t260p3115n2_SjLxKFcP.png"},
-    {name:"Nr. 1",x:29.1,y:34.8,url:BASE+"f51796-Copperdale.html",active:false},
-    {name:"Nr. 2",x:18.5,y:46.2,url:BASE+"f51796-Copperdale.html",active:false},
+        {name:"Nr. 2",x:18.5,y:46.2,url:BASE+"f51796-Copperdale.html",active:false},
     {name:"Nr. 3",x:34.6,y:44,url:BASE+"f51796-Copperdale.html",active:false},
     {name:"Nr. 4",x:24,y:52.9,url:BASE+"f51796-Copperdale.html",active:false},
     {name:"Nr. 5",x:22.1,y:61.8,url:BASE+"f51796-Copperdale.html",active:false},
@@ -802,15 +795,13 @@ const worldLots={
     {name:"Chestnut Ridge",x:49.2,y:45.4,url:BASE+"f55177-Chestnut-Ridge.html",active:true,outdoor:true},
     {name:"Pferderanch",nr:"Nr. 8",x:82.4,y:58.1,url:BASE+"t470f55177-Chestnut-Ridge-Pferderanch.html",active:true,img:IMG+"f55177t470p3808n2_wfPDvTYH.png"},
     {name:"Phönix Bright 'Canyon Retreat'",nr:"Nr. 1",x:32.2,y:17.5,url:BASE+"t519f55177-Chestnut-Ridge.html",active:true,img:IMG+"f55177t519p4326n2_LBtnixkg.png"},
-    {name:"Nr. 1",x:32.2,y:17.5,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 2",x:22.7,y:22.3,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+        {name:"Nr. 2",x:22.7,y:22.3,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
     {name:"Nr. 3",x:16.8,y:31.6,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
     {name:"Nr. 4",x:34.3,y:47.2,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
     {name:"Nr. 5",x:45.1,y:35.9,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
     {name:"Nr. 6",x:57.8,y:32.5,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
     {name:"Nr. 7",x:67.7,y:46.1,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 8",x:82.4,y:58.1,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
-    {name:"Nr. 9",x:84.6,y:74.1,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+        {name:"Nr. 9",x:84.6,y:74.1,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
     {name:"Nr. 10",x:68.5,y:70.4,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
     {name:"Nr. 11",x:74.3,y:85.1,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
     {name:"Nr. 12",x:59.3,y:82.5,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
@@ -878,8 +869,7 @@ const worldLots={
     {name:"Nr. 3",x:48,y:72.8,url:BASE+"f51798-Granite-Falls.html",active:false},
     {name:"Nr. 4",x:56.7,y:60.3,url:BASE+"f51798-Granite-Falls.html",active:false},
     {name:"Nr. 5",x:55.8,y:47.2,url:BASE+"f51798-Granite-Falls.html",active:false},
-    {name:"Nr. 6",x:74.7,y:25.8,url:BASE+"f51798-Granite-Falls.html",active:false},
-  ],
+      ],
   "Selvadorada":[
     {name:"Nr. 1",x:21.6,y:62.5,url:BASE+"f51799-Selvadorada.html",active:false},
     {name:"Nr. 2",x:31.5,y:53.5,url:BASE+"f51799-Selvadorada.html",active:false},
@@ -972,7 +962,7 @@ worlds.forEach(w=>{
   const el=document.createElement('div');
   el.className='world-dot';
   el.style.cssText=`left:${w.x}%;top:${w.y}%`;
-  el.innerHTML=`<div class="dot-pulse" style="width:28px;height:28px;border-color:${w.color}"></div><div class="dot-inner" style="width:8px;height:8px;background:${w.color};box-shadow:0 0 5px ${w.color}"></div><div class="dot-label">${w.name}</div><div class="hover-card" style="border:1px solid ${w.color}88;box-shadow:0 6px 28px ${w.color}44"><div style="position:relative">${w.img?`<img class="hover-img" src="${w.img}" onerror="this.style.display='none'">`:''}<div class="hover-gradient"></div><div class="hover-name">${w.name}</div></div><div class="hover-footer"><span class="hover-type">${w.type}</span><span class="hover-action" style="color:${w.color}">Klicken →</span></div></div>`;
+  el.innerHTML=`<div class="dot-pulse" style="width:34px;height:34px;border-color:${w.color}"></div><div class="dot-inner" style="width:11px;height:11px;background:${w.color};box-shadow:0 0 5px ${w.color}"></div><div class="dot-label">${w.name}</div><div class="hover-card" style="border:1px solid ${w.color}88;box-shadow:0 6px 28px ${w.color}44"><div style="position:relative">${w.img?`<img class="hover-img" src="${w.img}" onerror="this.style.display='none'">`:''}<div class="hover-gradient"></div><div class="hover-name">${w.name}</div></div><div class="hover-footer"><span class="hover-type">${w.type}</span><span class="hover-action" style="color:${w.color}">Klicken →</span></div></div>`;
   el.addEventListener('click',e=>{e.stopPropagation();if(!calibMapMode)enterWorld(w);});
   mapC.appendChild(el);
 });
@@ -1097,7 +1087,7 @@ function renderLots(w){
       const _tt=lot.img
         ?`<div class="lot-tooltip" style="${_tb};padding:0;overflow:hidden;min-width:160px"><img src="${lot.img}" style="width:100%;height:90px;object-fit:cover;display:block"><div style="padding:7px 10px">${_ti}</div></div>`
         :`<div class="lot-tooltip" style="${_tb};padding:6px 10px">${_ti}</div>`;
-      ld.innerHTML=`<div class="lot-pulse"></div><div class="lot-inner" style="width:9px;height:9px;background:${_dotBg};box-shadow:${_dotShadow}"></div><div class="lot-label">${(()=>{const p=parseLotLabel(lot);return p.sub?`${p.num}<span class="lot-sublabel">${p.sub}</span>`:p.num;})()}</div>${_tt}`;
+      ld.innerHTML=`<div class="lot-pulse"></div><div class="lot-inner" style="width:12px;height:12px;background:${_dotBg};box-shadow:${_dotShadow}"></div><div class="lot-label">${(()=>{const p=parseLotLabel(lot);return p.sub?`${p.num}<span class="lot-sublabel">${p.sub}</span>`:p.num;})()}</div>${_tt}`;
       ld.addEventListener('click',e=>{e.stopPropagation();if(!calibWorldMode&&!posMode)window.open(lot.url,'_blank');});
       wc.appendChild(ld);
     } else {
