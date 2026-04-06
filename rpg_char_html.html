@@ -95,20 +95,16 @@ var FORUM_IDS={haupt:"51849",neben:"51850",randfigur:"51851",passant:"52617"};
 function generateBBCode(){
   var c=state.char;
   var lines=[];
-  // Bild ganz oben
-  if(state.imgUrl&&state.imgUrl.trim()){
-    lines.push("[center][img]"+state.imgUrl.trim()+"[/img][/center]");
-    lines.push("");
-  }
   lines.push("[center][size=5][b][color=#4d7a4d]"+(c.name||"???")+"[/color][/b][/size]");
   var sub=[c.age&&c.age+" Jahre",c.gender,c.occult].filter(Boolean).join(" · ");
-  if(sub)lines.push("[i]"+sub+"[/i]");
-  if(c.job)lines.push("[color=#3d6f8a]"+c.job+"[/color]");
-  if(c.origin)lines.push("aus "+c.origin);
-  lines.push("[/center][hr]");
+  if(sub)lines.push("[center][i]"+sub+"[/i][/center]");
+  if(c.job)lines.push("[center][color=#3d6f8a]"+c.job+"[/color][/center]");
+  if(c.origin)lines.push("[center]aus "+c.origin+"[/center]");
+  lines.push("[hr]");
   var skip=["name","age","gender","occult","job","origin"];
   SECTIONS.slice(0,-1).forEach(function(sec){
-    var sf=sec.fields.map(function(k){return FIELDS.find(function(f){return f.key===k;});}).filter(function(f){return f&&c[f.key]&&skip.indexOf(f.key)===-1;});
+    var sf=sec.fields.map(function(k){return FIELDS.find(function(f){return f.key===k;});})
+      .filter(function(f){return f&&c[f.key]&&c[f.key].trim&&c[f.key].trim()&&skip.indexOf(f.key)===-1;});
     if(!sf.length)return;
     lines.push("\n[b][color=#3d6f8a]— "+sec.title.toUpperCase()+" —[/color][/b]");
     sf.forEach(function(f){lines.push("[b]"+f.label+":[/b]\n"+c[f.key]);});
@@ -341,16 +337,6 @@ function mkField(f){
     } else {
       iw.appendChild(btn("📷 Vorschau hochladen",C.teal,function(){qs("imgInput").click();},true,true,false));
     }
-    // Bild-URL für Forum
-    var urlBox=div({marginTop:"10px",padding:"10px 12px",background:"rgba(61,111,138,0.08)",border:"1px solid rgba(61,111,138,0.25)",borderRadius:"8px"});
-    urlBox.appendChild(div({fontSize:"11px",fontWeight:"700",color:C.teal,marginBottom:"4px"},["🔗 Bild-URL für Forum-Post (wichtig!)"]));
-    urlBox.appendChild(div({fontSize:"11px",color:C.muted,marginBottom:"6px",lineHeight:"1.5"},["Lade dein Bild zuerst im Forum hoch (in einem beliebigen Post → Bild einfügen → URL kopieren), dann hier einfügen. Das Bild erscheint dann ganz oben im Charakterbogen-Post."]));
-    var urlInp=mk("input",Object.assign({},INP,{marginBottom:"0"}));
-    urlInp.placeholder="https://files.homepagemodules.de/...";
-    urlInp.value=state.imgUrl||"";
-    urlInp.addEventListener("input",function(){state.imgUrl=urlInp.value;saveLocalDraft();});
-    urlBox.appendChild(urlInp);
-    iw.appendChild(urlBox);
     wrap.appendChild(iw);
   }
   var inp=document.createElement(f.multi?"textarea":"input");
@@ -586,20 +572,37 @@ function mkPostModal(){
   box.appendChild(div({fontSize:"14px",fontWeight:"800",color:C.accent,marginBottom:"12px"},["📤 Im Forum posten"]));
 
   if(state.postCopied){
-    box.appendChild(div({background:"rgba(77,122,77,0.15)",border:"1px solid rgba(77,122,77,0.4)",borderRadius:"8px",padding:"12px 14px",marginBottom:"14px",fontSize:"13px",color:C.accent},
-      ["✅ Forum geöffnet — Titel eingeben und Absenden klicken."]));
-    box.appendChild(div({fontSize:"12px",fontWeight:"700",color:C.accent,marginBottom:"6px"},["Thread-URL nach dem Posten hier einfügen:"]));
-    box.appendChild(div({fontSize:"11px",color:C.muted,marginBottom:"8px"},["(Aus der Adresszeile des Browsers kopieren, nachdem du gepostet hast)"]));
+    // Schritt 1: Posten bestätigen
+    box.appendChild(div({background:"rgba(77,122,77,0.15)",border:"1px solid rgba(77,122,77,0.4)",borderRadius:"8px",padding:"12px 14px",marginBottom:"12px",fontSize:"13px",color:C.accent,lineHeight:"1.6"},
+      ["✅ Das Forum wurde geöffnet.\n\n1. Titel eingeben (Name deines Charakters)\n2. Absenden klicken\n3. Thread-URL unten einfügen"]));
+    // Bild-Hinweis
+    box.appendChild(div({background:"rgba(61,111,138,0.1)",border:"1px solid rgba(61,111,138,0.3)",borderRadius:"8px",padding:"10px 12px",marginBottom:"12px",fontSize:"11px",color:C.muted,lineHeight:"1.6"},
+      ["📷 Bild hinzufügen (nach dem Registrieren):\nGehe zu deinem Post → Bearbeiten → Bild einfügen → hochladen → URL kopieren → hier als Portrait-URL eintragen."]));
+    // Username
+    box.appendChild(div({fontSize:"12px",fontWeight:"700",color:C.accent,marginBottom:"4px"},["Dein Forum-Username *"]));
+    var playerInp=mk("input",Object.assign({},INP,{marginBottom:"10px",display:"block"}));
+    playerInp.placeholder="z.B. Ripzha";
+    playerInp.value=state.atlasPlayer||"";
+    playerInp.addEventListener("input",function(){state.atlasPlayer=playerInp.value;});
+    box.appendChild(playerInp);
+    // Thread-URL
+    box.appendChild(div({fontSize:"12px",fontWeight:"700",color:C.accent,marginBottom:"4px"},["Thread-URL deines Bogens *"]));
+    box.appendChild(div({fontSize:"10px",color:C.muted,marginBottom:"6px"},["Aus der Adresszeile kopieren nachdem du gepostet hast"]));
     var urlInp=mk("input",Object.assign({},INP,{marginBottom:"10px",display:"block"}));
     urlInp.placeholder="https://www.simsforumrpg.de/t...";
     urlInp.value=state.atlasThread||"";
     urlInp.addEventListener("input",function(){state.atlasThread=urlInp.value;});
     box.appendChild(urlInp);
+    // Portrait-URL optional
+    box.appendChild(div({fontSize:"12px",fontWeight:"700",color:C.accent,marginBottom:"4px"},["Portrait-URL (optional, später eintragbar)"]));
+    var imgInp=mk("input",Object.assign({},INP,{marginBottom:"12px",display:"block"}));
+    imgInp.placeholder="https://files.homepagemodules.de/...";
+    imgInp.value=state.atlasPortrait||"";
+    imgInp.addEventListener("input",function(){state.atlasPortrait=imgInp.value;});
+    box.appendChild(imgInp);
     var row=div({display:"flex",gap:"8px",flexWrap:"wrap"});
     row.appendChild(btn("In ATLAS speichern ✓",C.accent,function(){
-      if(!state.atlasThread.trim()){alert("Bitte erst im Forum posten und dann die Thread-URL einfügen.");return;}
-      if(!state.atlasPlayer.trim()){state.atlasPlayer=state.char.name||"";}
-      state.atlasPortrait=state.imgUrl||"";
+      if(!state.atlasThread.trim()||!state.atlasPlayer.trim()){alert("Bitte Username und Thread-URL ausfüllen.");return;}
       state.atlasType=state.postType;
       saveToAtlas();
       state.showPost=false;state.postCopied=false;
