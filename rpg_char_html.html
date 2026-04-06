@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Charakterbogen – simsforumrpg.de</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#b8c2b8;font-family:'Segoe UI',sans-serif;color:#1a1a1a;min-height:100vh}
+input,textarea,button{font-family:inherit}
+input:focus,textarea:focus{border-color:#3d6f8a!important;outline:none}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:#b8c2b8}
+::-webkit-scrollbar-thumb{background:#96a896;border-radius:3px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modals"></div>
+<input id="imgInput" type="file" accept="image/*" style="display:none"/>
+<script>
+var MISTRAL_KEY="2sFqjZLioWcFFuILhASGZJwVhxnjss4r";
+
+var C={bg:"#b8c2b8",card:"#c8d0c8",card2:"#bec8be",border:"#96a896",accent:"#4d7a4d",teal:"#3d6f8a",text:"#1a1a1a",muted:"#4a564a",input:"#d4dcd4",danger:"#902020"};
+
+var FIELDS=[
+  {key:"name",label:"Name",hint:"Wie heisst dein Charakter? Hat er einen Kosenamen?",multi:false},
+  {key:"age",label:"Alter",hint:"Wie alt ist dein Charakter? Geburtsdatum?",multi:false},
+  {key:"gender",label:"Geschlecht",hint:"Männlich, weiblich, divers?",multi:false},
+  {key:"orientation",label:"Orientierung",hint:"Zu welchem Geschlecht fühlt sich der Charakter hingezogen?",multi:false,optional:true},
+  {key:"occult",label:"Okkultismus",hint:"Vampir, Magier, Meersim oder Alien?",multi:false,optional:true},
+  {key:"job",label:"Beruf",hint:"Was arbeitet dein Charakter?",multi:false},
+  {key:"wealth",label:"Einkommen / Vermögen",hint:"Reich, arm, durchschnittlich?",multi:false},
+  {key:"goals",label:"Ziele",hint:"Welches Ziel verfolgt dein Sim?",multi:true},
+  {key:"group",label:"Gruppierung",hint:"In einer Gruppe? Angesehen oder verrufen?",multi:false,optional:true},
+  {key:"origin",label:"Herkunft",hint:"Wo kommt dein Charakter her?",multi:false},
+  {key:"hobbies",label:"Hobbies",hint:"Was macht dein Charakter in der Freizeit?",multi:true},
+  {key:"home",label:"Wohnort / Haus",hint:"Wähle eine noch freie Kartennummer.",multi:false},
+  {key:"livingSit",label:"Wohnsituation",hint:"Allein, WG, bei den Eltern, mit Partner?",multi:false},
+  {key:"family",label:"Familie / Tiere / NPCs",hint:"Verwandtschaft, Freunde, Feinde?",multi:true},
+  {key:"skills",label:"Fähigkeiten",hint:"Was kann dein Charakter besonders gut?",multi:true},
+  {key:"appearance",label:"Aussehen",hint:"Wie gross? Besondere Merkmale?",multi:true},
+  {key:"voice",label:"Stimme",hint:"Hoch, tief, rau, sanft?",multi:false},
+  {key:"scent",label:"Geruch / Duft",hint:"Wie riecht der Charakter?",multi:false},
+  {key:"personality",label:"Persönlichkeit",hint:"Lustig? Verschlossen? Draufgänger?",multi:true},
+  {key:"history",label:"Geschichte",hint:"Was hat dein Charakter bisher erlebt?",multi:true}
+];
+
+var SECTIONS=[
+  {title:"Identität",fields:["name","age","gender","orientation","occult"]},
+  {title:"Leben",fields:["job","wealth","goals","group","origin","hobbies"]},
+  {title:"Zuhause",fields:["home","livingSit","family"]},
+  {title:"Charakter",fields:["skills","appearance","voice","scent","personality","history"]},
+  {title:"Blatt",fields:[]}
+];
+
+var SYS="Du bist ein kreativer Autor-Assistent für das Forum-RPG auf simsforumrpg.de (Sims 4 basiert).\nHilf dem Nutzer ein Feld im Charakterbogen zu füllen oder zu vertiefen.\nAntworte auf Deutsch. Kein Markdown, keine Sternchen.\nGib 1-2 kurze Autoren-Tipps für dieses Feld, dann 2-3 Fragen die der Nutzer sich stellen kann.\nKeine fertigen Texte zum Einfügen – der Nutzer schreibt selbst.";
+
+var state={
+  step:0,
+  char:(function(){var o={};FIELDS.forEach(function(f){o[f.key]="";});return o;}()),
+  imgPreview:null,imgB64:null,imgMime:null,
+  ai:{},
+  importText:"",importing:false,showImport:false,
+  ctxEntries:[],ctxLabel:"",ctxText:"",showCtx:false
+};
+
+// ── helpers ──
+function qs(id){return document.getElementById(id);}
+function mk(tag,style,children){
+  var e=document.createElement(tag);
+  if(style){
+    Object.keys(style).forEach(function(k){
+      if(k==="src"||k==="href"||k==="id"||k==="type"||k==="accept"||k==="rows"||k==="placeholder"||k==="value"){
+        e[k]=style[k];
+      } else if(k==="style"&&typeof style[k]==="object"){
+        Object.assign(e.style,style[k]);
+      } else if(k==="style"&&typeof style[k]==="string"){
+        e.style.cssText=style[k];
+      } else {
+        e.style[k]=style[k];
+      }
+    });
+  }
+  if(children)children.forEach(function(c){if(c!=null)e.appendChild(typeof c==="string"?document.createTextNode(c):c);});
+  return e;
+}
+function div(s,c){return mk("div",s,c);}
+function span(s,c){return mk("span",s,c);}
+var INP={width:"100%",padding:"8px 11px",borderRadius:"6px",border:"1px solid "+C.border,fontSize:"13px",background:C.input,color:C.text,boxSizing:"border-box"};
+function btn(label,bg,cb,sm,out,dis){
+  var e=mk("button",{background:out?"transparent":(bg||C.accent),color:out?(bg||C.accent):"#fff",border:"1px solid "+(bg||C.accent),borderRadius:"7px",padding:sm?"4px 10px":"7px 14px",fontSize:sm?"11px":"13px",fontWeight:"600",cursor:dis?"not-allowed":"pointer",opacity:dis?"0.5":"1",whiteSpace:"nowrap"});
+  e.textContent=label;
+  if(!dis&&cb)e.addEventListener("click",cb);
+  return e;
+}
+function stripMd(t){return(t||"").replace(/\*\*(.*?)\*\*/g,"$1").replace(/\*(.*?)\*/g,"$1").replace(/^#+\s/gm,"");}
+function toStr(v){if(v==null)return"";if(Array.isArray(v))return v.map(toStr).join("\n");if(typeof v==="object")return Object.values(v).map(toStr).join("\n");return String(v);}
+function charCtx(){
+  var m=FIELDS.filter(function(f){return state.char[f.key];}).map(function(f){return f.label+": "+state.char[f.key];}).join("\n");
+  var r=state.ctxEntries.length?"\n\n--- VERWANDTE CHARAKTERE ---\n"+state.ctxEntries.map(function(e){return"["+e.label+"]\n"+e.text;}).join("\n\n"):"";
+  return m+r;
+}
+
+// ── API ──
+function mistral(messages,model,maxTok,cb){
+  fetch("https://api.mistral.ai/v1/chat/completions",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+MISTRAL_KEY},
+    body:JSON.stringify({model:model||"mistral-small-latest",max_tokens:maxTok||800,messages:messages})
+  }).then(function(r){return r.json();}).then(function(d){
+    if(d.error)cb(d.error.message||"API Fehler",null);
+    else cb(null,(d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content)||"");
+  }).catch(function(e){cb(e.message,null);});
+}
+
+function callAI(key,msg,histOverride){
+  var ai=state.ai[key]||{msgs:[],history:[],input:"",open:false};
+  ai.loading=true;ai.open=true;
+  state.ai[key]=ai;
+  draw();
+  var hist=histOverride!==undefined?histOverride:(ai.history||[]);
+  var newHist=hist.concat([{role:"user",content:msg}]);
+  var sysMsg={role:"system",content:SYS+"\n\nCharakterbogen:\n"+charCtx()};
+
+  var model="mistral-small-latest";
+  var sendHist=hist.concat([{role:"user",content:msg}]);
+  mistral([sysMsg].concat(sendHist),model,800,function(err,text){
+    var ai2=state.ai[key]||{msgs:[],history:[]};
+    ai2.loading=false;
+    if(err){
+      ai2.msgs=(ai2.msgs||[]).concat([{role:"assistant",content:"⚠️ "+err}]);
+    } else {
+      var t=stripMd(text);
+      ai2.history=newHist.concat([{role:"assistant",content:t}]);
+      ai2.msgs=(ai2.msgs||[]).concat([{role:"user",content:msg},{role:"assistant",content:t}]);
+    }
+    state.ai[key]=ai2;draw();
+  });
+}
+
+// ── Image upload ──
+function setupImgInput(){
+  var inp=qs("imgInput");
+  inp.addEventListener("change",function(){
+    var file=inp.files[0];
+    if(!file)return;
+    var reader=new FileReader();
+    reader.addEventListener("load",function(){
+      var result=reader.result;
+      if(!result||result.indexOf("data:")===-1){alert("Fehler: Bild konnte nicht gelesen werden.");return;}
+      state.imgPreview=result;
+      state.imgB64=result.split(",")[1];
+      state.imgMime=file.type||"image/png";
+      inp.value="";
+      // Remove old preview if exists
+      var existing=qs("preview-img");
+      if(existing)existing.parentNode.removeChild(existing);
+      // Redraw content only – shell stays
+      var ca=qs("content");
+      if(ca){
+        ca.innerHTML="";
+        var sec=SECTIONS[state.step];
+        if(state.step<SECTIONS.length-1){
+          ca.appendChild(div({fontSize:"10px",fontWeight:"800",letterSpacing:"3px",color:C.teal,marginBottom:"18px"},[sec.title.toUpperCase()]));
+          sec.fields.forEach(function(k){var f=FIELDS.find(function(f){return f.key===k;});if(f)ca.appendChild(mkField(f));});
+        } else {
+          ca.appendChild(mkSheet());
+        }
+      }
+    });
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── Import ──
+function doImport(){
+  var txt=state.importText;
+  if(!txt.trim())return;
+  state.importing=true;draw();
+  var fl=FIELDS.map(function(f){return'"'+f.key+'":"'+f.label+'"';}).join(",");
+  mistral([
+    {role:"system",content:"Analysiere einen Charakterbogen. Gib NUR ein JSON-Objekt zurück, keine Backticks, kein Markdown. Alle Werte als Strings. Felder: {"+fl+"}"},
+    {role:"user",content:"Charakterbogen:\n\n"+txt}
+  ],"mistral-small-latest",2000,function(err,raw){
+    if(err){alert("Fehler: "+err);state.importing=false;draw();return;}
+    try{
+      var p=JSON.parse(raw.replace(/```json|```/g,"").trim());
+      FIELDS.forEach(function(f){if(p[f.key]!=null)state.char[f.key]=toStr(p[f.key]);});
+      state.importing=false;state.showImport=false;state.importText="";
+    }catch(e){alert("Parse-Fehler: "+e.message);state.importing=false;}
+    draw();
+  });
+}
+
+// ── Download ──
+function downloadDoc(){
+  var name=state.char.name||"Charakter";
+  var skip=["name","age","gender","occult","job","origin"];
+  var h=['<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:Calibri,sans-serif;margin:40px}h1{color:#4d7a4d;font-size:22pt}h2{color:#3d6f8a;font-size:12pt;margin:16px 0 4px;border-bottom:1px solid #96a896;padding-bottom:2px}p{font-size:11pt;white-space:pre-wrap;margin:2px 0 8px}.s{color:#4a564a;font-size:10pt}</style></head><body>'];
+  h.push("<h1>"+name+"</h1>");
+  var sub=[state.char.age&&state.char.age+" Jahre",state.char.gender,state.char.occult].filter(Boolean).join(" · ");
+  if(sub)h.push('<p class="s">'+sub+"</p>");
+  if(state.char.job)h.push('<p class="s" style="color:#3d6f8a">'+state.char.job+"</p>");
+  if(state.char.origin)h.push('<p class="s">aus '+state.char.origin+"</p>");
+  h.push('<hr style="border:none;border-top:2px solid #4d7a4d;margin:8px 0 16px"/>');
+  SECTIONS.slice(0,-1).forEach(function(sec){
+    var sf=sec.fields.map(function(k){return FIELDS.find(function(f){return f.key===k;});}).filter(function(f){return f&&state.char[f.key]&&skip.indexOf(f.key)===-1;});
+    if(!sf.length)return;
+    h.push("<h2>"+sec.title.toUpperCase()+"</h2>");
+    sf.forEach(function(f){h.push("<p><strong>"+f.label+":</strong><br/>"+state.char[f.key].replace(/</g,"&lt;").replace(/\n/g,"<br/>")+"</p>");});
+  });
+  h.push("</body></html>");
+  var blob=new Blob([h.join("")],{type:"application/msword"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a");a.href=url;a.download=name+"_Charakterbogen.doc";
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+
+// ── Render AI block ──
+function mkAI(key,label,val){
+  var ai=state.ai[key]||{msgs:[],loading:false,input:"",open:false};
+  var wrap=div({marginTop:"6px"});
+  var hasContent=(ai.msgs&&ai.msgs.length>0)||ai.loading;
+  var firstLoad=ai.loading&&(!ai.msgs||!ai.msgs.length);
+  var startPrompt=key==="appearance"
+    ?'Feld: "Aussehen". Bisheriger Inhalt: "'+(val||"leer")+'". Stelle 3-4 konkrete Fragen die helfen das Aussehen des Charakters zu beschreiben – z.B. zu Körperbau, Haaren, Augen, besonderen Merkmalen, Narben, wie er sich bewegt oder wirkt. Kein Beschreibungstext, nur Fragen.'
+    :'Feld: "'+label+'". Bisheriger Inhalt: "'+(val||"leer")+'". Gib 1-2 kurze Autoren-Tipps für dieses Feld, dann 2-3 Fragen die der Nutzer sich stellen kann um das Feld zu füllen.';
+
+  if(!hasContent){
+    wrap.appendChild(btn("✨ Tipps & Fragen",C.teal,function(){callAI(key,startPrompt,[]);},true,true,false));
+    return wrap;
+  }
+  if(firstLoad){
+    var ld=div({display:"inline-flex",alignItems:"center",gap:"8px",background:"rgba(61,111,138,0.12)",border:"1px solid "+C.teal,borderRadius:"7px",padding:"4px 12px"});
+    var dot=mk("span",{display:"inline-block",width:"10px",height:"10px",borderRadius:"50%",background:C.teal,animation:"pulse 1s infinite"});
+    ld.appendChild(dot);ld.appendChild(mk("span",{fontSize:"12px",color:C.teal},["KI denkt nach…"]));
+    wrap.appendChild(ld);return wrap;
+  }
+  var count=Math.ceil((ai.msgs||[]).length/2);
+  var tog=btn((ai.open?"▲ ausblenden":"▼ Tipps & Fragen")+(count>0?" ("+count+")":""),C.muted,function(){
+    state.ai[key]=state.ai[key]||{};state.ai[key].open=!state.ai[key].open;draw();
+  },true,true,false);
+  wrap.appendChild(tog);
+  if(!ai.open)return wrap;
+
+  var box=div({marginTop:"8px",background:C.input,border:"1px solid "+C.border,borderRadius:"10px",padding:"12px"});
+  var msgs=div({maxHeight:"300px",overflowY:"auto",display:"flex",flexDirection:"column",gap:"8px"});
+  (ai.msgs||[]).forEach(function(m){
+    if(m.role==="user"){
+      var ub=div({textAlign:"right"});
+      ub.appendChild(span({background:C.accent,color:"#fff",borderRadius:"8px",padding:"4px 10px",fontSize:"12px",display:"inline-block",maxWidth:"80%"},[typeof m.content==="string"?m.content:"[Bild + Text]"]));
+      msgs.appendChild(ub);
+    } else {
+      msgs.appendChild(div({background:C.card2,borderRadius:"8px",padding:"10px 12px",fontSize:"13px",color:C.text,whiteSpace:"pre-wrap",lineHeight:"1.7",border:"1px solid "+C.border},[m.content]));
+    }
+  });
+  if(ai.loading&&ai.msgs&&ai.msgs.length){
+    var ld2=div({display:"flex",alignItems:"center",gap:"8px"});
+    var dot2=mk("span",{display:"inline-block",width:"8px",height:"8px",borderRadius:"50%",background:C.teal,animation:"pulse 1s infinite"});
+    ld2.appendChild(dot2);ld2.appendChild(mk("span",{fontSize:"12px",color:C.teal},["…"]));
+    msgs.appendChild(ld2);
+  }
+  box.appendChild(msgs);
+  var row=div({display:"flex",gap:"6px",marginTop:"8px"});
+  var ci=mk("input",Object.assign({},INP,{flex:"1",padding:"6px 10px"}));
+  ci.placeholder="Nachfragen…";ci.value=ai.input||"";
+  ci.addEventListener("input",function(){state.ai[key]=state.ai[key]||{};state.ai[key].input=ci.value;});
+  ci.addEventListener("keydown",function(e){if(e.key==="Enter"){var v=(state.ai[key]||{}).input||"";if(v.trim())callAI(key,v);}});
+  row.appendChild(ci);
+  row.appendChild(btn("→",C.accent,function(){var v=(state.ai[key]||{}).input||"";if(v.trim())callAI(key,v);},false,false,false));
+  box.appendChild(row);
+  wrap.appendChild(box);
+  return wrap;
+}
+
+// ── Render field ──
+function mkField(f){
+  var wrap=div({marginBottom:"20px",borderBottom:"1px solid "+C.border,paddingBottom:"18px"});
+  wrap.appendChild(mk("label",{display:"block",fontSize:"13px",fontWeight:"700",color:C.accent,marginBottom:"2px"},[f.label+(f.optional?" · optional":"")]));
+  wrap.appendChild(div({fontSize:"12px",color:C.muted,marginBottom:"6px",fontStyle:"italic"},[f.hint]));
+  if(f.key==="appearance"){
+    var iw=div({marginBottom:"8px"});
+    if(state.imgPreview){
+      var img=document.createElement("img");
+      img.src=state.imgPreview;
+      img.style.maxHeight="150px";
+      img.style.borderRadius="8px";
+      img.style.display="block";
+      img.style.marginBottom="8px";
+      img.style.border="2px solid "+C.border;
+      iw.appendChild(img);
+      iw.appendChild(btn("🔄 Anderes Bild",C.teal,function(){qs("imgInput").click();},true,true,false));
+    } else {
+      iw.appendChild(btn("📷 Bild hochladen",C.teal,function(){qs("imgInput").click();},true,true,false));
+    }
+    wrap.appendChild(iw);
+  }
+  var inp=document.createElement(f.multi?"textarea":"input");
+  Object.assign(inp.style,INP);
+  if(f.multi){inp.style.resize="vertical";inp.rows=3;}
+  inp.value=state.char[f.key]||"";
+  inp.placeholder=f.hint;
+  inp.addEventListener("input",function(){state.char[f.key]=inp.value;});
+  wrap.appendChild(inp);
+  wrap.appendChild(mkAI(f.key,f.label,state.char[f.key]));
+  return wrap;
+}
+
+// ── Render sheet ──
+function mkSheet(){
+  var wrap=div({});
+  wrap.appendChild(div({fontSize:"10px",fontWeight:"800",letterSpacing:"3px",color:C.teal,marginBottom:"18px"},["CHARAKTERBLATT"]));
+  var sheet=div({border:"1px solid "+C.border,borderRadius:"10px",overflow:"hidden"});
+  var hdr=div({background:"linear-gradient(135deg,"+C.card2+","+C.border+")",padding:"18px 20px",display:"flex",gap:"16px",alignItems:"flex-start",borderBottom:"1px solid "+C.border});
+  if(state.imgPreview){
+    var sheetImg=document.createElement("img");
+    sheetImg.src=state.imgPreview;
+    sheetImg.style.width="90px";
+    sheetImg.style.height="110px";
+    sheetImg.style.objectFit="cover";
+    sheetImg.style.borderRadius="8px";
+    sheetImg.style.border="2px solid "+C.accent;
+    sheetImg.style.flexShrink="0";
+    hdr.appendChild(sheetImg);
+  }
+  var hi=div({flex:"1"});
+  hi.appendChild(div({fontSize:"22px",fontWeight:"900",color:C.accent},[state.char.name||"—"]));
+  var sub=[state.char.age&&state.char.age+" Jahre",state.char.gender,state.char.occult].filter(Boolean).join(" · ");
+  if(sub)hi.appendChild(div({fontSize:"13px",color:C.muted,marginTop:"2px"},[sub]));
+  if(state.char.job)hi.appendChild(div({fontSize:"13px",color:C.teal,marginTop:"4px"},[state.char.job]));
+  if(state.char.origin)hi.appendChild(div({fontSize:"12px",color:C.muted,marginTop:"2px"},["aus "+state.char.origin]));
+  hdr.appendChild(hi);sheet.appendChild(hdr);
+  var body=div({padding:"18px"});
+  var skip=["name","age","gender","occult","job","origin"];
+  SECTIONS.slice(0,-1).forEach(function(sec){
+    var sf=sec.fields.map(function(k){return FIELDS.find(function(f){return f.key===k;});}).filter(function(f){return f&&state.char[f.key]&&skip.indexOf(f.key)===-1;});
+    if(!sf.length)return;
+    var sd=div({marginBottom:"18px"});
+    sd.appendChild(div({fontSize:"9px",fontWeight:"800",letterSpacing:"3px",color:C.teal,borderBottom:"1px solid "+C.border,paddingBottom:"4px",marginBottom:"10px"},[sec.title.toUpperCase()]));
+    sf.forEach(function(f){
+      var row=div({marginBottom:"8px",display:"grid",gridTemplateColumns:"130px 1fr",gap:"8px"});
+      row.appendChild(span({fontWeight:"700",color:C.muted,fontSize:"12px"},[f.label]));
+      row.appendChild(span({color:C.text,fontSize:"13px",whiteSpace:"pre-wrap"},[state.char[f.key]]));
+      sd.appendChild(row);
+    });
+    body.appendChild(sd);
+  });
+  sheet.appendChild(body);wrap.appendChild(sheet);
+  var btns=div({marginTop:"12px",display:"flex",gap:"8px",flexWrap:"wrap"});
+  btns.appendChild(btn("⬇ Als Word herunterladen",C.accent,downloadDoc,false,false,false));
+  btns.appendChild(btn("📋 Text kopieren",C.teal,function(){
+    var t=FIELDS.filter(function(f){return state.char[f.key];}).map(function(f){return f.label.toUpperCase()+":\n"+state.char[f.key];}).join("\n\n");
+    navigator.clipboard?navigator.clipboard.writeText(t):(function(){var e=mk("textarea");e.value=t;document.body.appendChild(e);e.select();document.execCommand("copy");document.body.removeChild(e);})();
+    alert("Kopiert!");
+  },false,true,false));
+  btns.appendChild(btn("↺ Neu starten",C.muted,function(){
+    if(!confirm("Neuen Charakter erstellen? Alle Eingaben werden gelöscht."))return;
+    FIELDS.forEach(function(f){state.char[f.key]="";});
+    state.imgPreview=null;state.imgB64=null;state.imgMime=null;state.ai={};state.step=0;draw();
+  },false,true,false));
+  wrap.appendChild(btns);
+  return wrap;
+}
+
+// ── Modals ──
+function mkImportModal(){
+  var ov=div({position:"fixed",inset:"0",background:"rgba(0,0,0,0.55)",zIndex:"200",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"});
+  var box=div({background:C.card,border:"1px solid "+C.border,borderRadius:"14px",padding:"24px",width:"100%",maxWidth:"560px"});
+  box.appendChild(div({fontSize:"14px",fontWeight:"800",color:C.accent,marginBottom:"8px"},["📋 Bogen importieren"]));
+  box.appendChild(div({background:"rgba(77,122,77,0.1)",border:"1px solid rgba(77,122,77,0.3)",borderRadius:"8px",padding:"10px 12px",marginBottom:"12px",fontSize:"12px",color:C.muted,lineHeight:"1.6"},["Hast du deinen Charakterbogen bereits irgendwo geschrieben? Kopiere den ganzen Text und füge ihn hier ein. Die KI erkennt automatisch welche Information in welches Feld gehört.\n⚠ Keine Links – nur den Textinhalt des Bogens."]));
+  var ta=mk("textarea",Object.assign({},INP,{resize:"vertical",display:"block",marginBottom:"12px"}));
+  ta.rows=10;ta.placeholder="Bogen hier einfügen…";ta.value=state.importText;
+  ta.addEventListener("input",function(){state.importText=ta.value;});
+  box.appendChild(ta);
+  var row=div({display:"flex",gap:"8px",justifyContent:"flex-end"});
+  row.appendChild(btn("Abbrechen",C.muted,function(){state.showImport=false;draw();},false,true,false));
+  var ibtn=btn(state.importing?"⏳ Lädt…":"✓ Felder befüllen",C.accent,function(){if(state.importText.trim())doImport();},false,false,state.importing);
+  row.appendChild(ibtn);
+  box.appendChild(row);
+  ov.addEventListener("click",function(e){if(e.target===ov){state.showImport=false;draw();}});
+  ov.appendChild(box);return ov;
+}
+
+function mkCtxModal(){
+  var ov=div({position:"fixed",inset:"0",background:"rgba(0,0,0,0.55)",zIndex:"200",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"});
+  var box=div({background:C.card,border:"1px solid "+C.border,borderRadius:"14px",padding:"24px",width:"100%",maxWidth:"580px",maxHeight:"85vh",overflowY:"auto"});
+  box.appendChild(div({fontSize:"14px",fontWeight:"800",color:C.accent,marginBottom:"6px"},["👥 Bekannte Charaktere"]));
+  box.appendChild(div({background:"rgba(61,111,138,0.1)",border:"1px solid rgba(61,111,138,0.3)",borderRadius:"8px",padding:"10px 12px",marginBottom:"16px",fontSize:"12px",color:C.muted,lineHeight:"1.6"},["Füge Bögen oder Infos zu verwandten Charakteren ein. Die KI liest diese mit.\nDer Name wird automatisch ins Familien-Feld eingetragen.\n⚠ Keine Links – nur Text."]));
+  state.ctxEntries.forEach(function(e,i){
+    var row=div({background:C.input,border:"1px solid "+C.border,borderRadius:"8px",padding:"10px 12px",display:"flex",gap:"8px",marginBottom:"8px"});
+    var info=div({flex:"1"});
+    info.appendChild(div({fontSize:"13px",fontWeight:"700",color:C.accent,marginBottom:"3px"},[e.label]));
+    info.appendChild(div({fontSize:"12px",color:C.muted,maxHeight:"50px",overflow:"hidden"},[e.text.slice(0,180)+(e.text.length>180?"…":"")]));
+    row.appendChild(info);
+    var db=mk("button",{background:"transparent",border:"none",color:C.danger,cursor:"pointer",fontSize:"16px"});
+    db.textContent="✕";
+    (function(idx){db.addEventListener("click",function(){state.ctxEntries.splice(idx,1);draw();});})(i);
+    row.appendChild(db);box.appendChild(row);
+  });
+  var ab=div({background:C.card2,border:"1px solid "+C.border,borderRadius:"10px",padding:"14px"});
+  ab.appendChild(div({fontSize:"12px",fontWeight:"700",color:C.teal,marginBottom:"10px"},["Neuen Charakter hinzufügen"]));
+  var li=mk("input",Object.assign({},INP,{marginBottom:"8px",display:"block"}));
+  li.placeholder='Name / Beziehung (z.B. "Mutter – Nicky")';li.value=state.ctxLabel;
+  li.addEventListener("input",function(){state.ctxLabel=li.value;});
+  ab.appendChild(li);
+  var lt=mk("textarea",Object.assign({},INP,{resize:"vertical",display:"block",marginBottom:"10px"}));
+  lt.rows=5;lt.placeholder="Charakterbogen oder kurze Beschreibung – kein Link!";lt.value=state.ctxText;
+  lt.addEventListener("input",function(){state.ctxText=lt.value;});
+  ab.appendChild(lt);
+  ab.appendChild(btn("+ Hinzufügen",C.teal,function(){
+    var label=state.ctxLabel.trim(),text=state.ctxText.trim();
+    if(!label||!text)return;
+    state.ctxEntries.push({label:label,text:text});
+    var cur=state.char.family||"";
+    if(!cur.split("\n").some(function(l){return l.trim()===label;}))state.char.family=cur?cur+"\n"+label:label;
+    state.ctxLabel="";state.ctxText="";draw();
+  },false,false,false));
+  box.appendChild(ab);
+  var ft=div({display:"flex",justifyContent:"flex-end",marginTop:"16px"});
+  ft.appendChild(btn("Fertig",C.accent,function(){state.showCtx=false;draw();},false,false,false));
+  box.appendChild(ft);
+  ov.addEventListener("click",function(e){if(e.target===ov){state.showCtx=false;draw();}});
+  ov.appendChild(box);return ov;
+}
+
+// ── Main draw ──
+function draw(){
+  // ── App shell (only once) ──
+  var app=qs("app");
+  if(!qs("main-wrap")){
+    app.innerHTML="";
+    var wrap=div({maxWidth:"700px",margin:"0 auto",padding:"20px 16px",background:C.bg,minHeight:"100vh"});
+    wrap.id="main-wrap";
+    // header
+    var hdr=div({textAlign:"center",marginBottom:"24px"});
+    hdr.appendChild(div({fontSize:"11px",letterSpacing:"4px",color:C.muted,marginBottom:"4px"},["✦ SIMSFORUMRPG.DE ✦"]));
+    hdr.appendChild(div({fontSize:"26px",fontWeight:"900",letterSpacing:"2px",color:C.accent},["CHARAKTERBOGEN"]));
+    hdr.appendChild(div({width:"60px",height:"2px",background:"linear-gradient(90deg,transparent,"+C.teal+",transparent)",margin:"8px auto 12px"}));
+    var hbtns=div({display:"flex",gap:"8px",justifyContent:"center",flexWrap:"wrap"});
+    hbtns.appendChild(btn("📋 Bogen importieren",C.muted,function(){state.showImport=true;draw();},true,true,false));
+    hbtns.appendChild(btn("👥 Bekannte Charaktere",C.muted,function(){state.showCtx=true;draw();},true,true,false));
+    hdr.appendChild(hbtns);
+    wrap.appendChild(hdr);
+    var tabs=div({display:"flex",gap:"3px",marginBottom:"20px"});tabs.id="tabs";wrap.appendChild(tabs);
+    var ca=div({background:C.card,borderRadius:"12px",padding:"22px",border:"1px solid "+C.border,minHeight:"300px"});ca.id="content";wrap.appendChild(ca);
+    var nav=div({display:"flex",justifyContent:"space-between",marginTop:"14px"});nav.id="nav";wrap.appendChild(nav);
+    app.appendChild(wrap);
+  }
+
+  // ── Tabs ──
+  var tabs=qs("tabs");tabs.innerHTML="";
+  SECTIONS.forEach(function(s,i){
+    var t=mk("button",{flex:"1",padding:"8px 4px",borderRadius:"6px",border:"1px solid "+(i===state.step?C.accent:C.border),cursor:"pointer",fontSize:"11px",fontWeight:"700",
+      background:i===state.step?C.accent:i<state.step?"rgba(77,122,77,0.2)":C.card,
+      color:i===state.step?"#fff":i<state.step?C.accent:C.muted});
+    t.textContent=s.title;
+    (function(idx){t.addEventListener("click",function(){state.step=idx;draw();});})(i);
+    tabs.appendChild(t);
+  });
+
+  // ── Content ──
+  var ca=qs("content");ca.innerHTML="";
+  var sec=SECTIONS[state.step];
+  if(state.step<SECTIONS.length-1){
+    ca.appendChild(div({fontSize:"10px",fontWeight:"800",letterSpacing:"3px",color:C.teal,marginBottom:"18px"},[sec.title.toUpperCase()]));
+    sec.fields.forEach(function(k){var f=FIELDS.find(function(f){return f.key===k;});if(f)ca.appendChild(mkField(f));});
+  } else {
+    ca.appendChild(mkSheet());
+  }
+
+  // ── Nav ──
+  var nav=qs("nav");nav.innerHTML="";
+  nav.appendChild(btn("← Zurück",C.muted,function(){state.step=Math.max(0,state.step-1);draw();},false,true,state.step===0));
+  nav.appendChild(btn("Weiter →",C.accent,function(){state.step=Math.min(SECTIONS.length-1,state.step+1);draw();},false,false,state.step===SECTIONS.length-1));
+
+  // ── Modals ──
+  var modals=qs("modals");modals.innerHTML="";
+  if(state.showImport)modals.appendChild(mkImportModal());
+  if(state.showCtx)modals.appendChild(mkCtxModal());
+}
+
+setupImgInput();
+draw();
+</script>
+</body>
+</html>
