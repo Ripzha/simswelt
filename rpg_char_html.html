@@ -267,7 +267,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
   <div id="left">
     <div class="sec-label">Navigation</div>
     <a class="nav-item" href="https://www.simsforumrpg.de/forum.php" target="_blank">📋 Forum</a>
-    <a class="nav-item" onclick="openCharView()" style="cursor:pointer">👤 Hauptcharaktere</a>    <a class="nav-item" href="https://www.simsforumrpg.de/f51850-Nebencharaktere.html" target="_blank">👥 Nebencharaktere</a>
+    <a class="nav-item" onclick="openCharView()" style="cursor:pointer">👤 Charaktere</a>
     <a class="nav-item" href="https://www.simsforumrpg.de/f58642-Kreationen-und-Geschichten.html" target="_blank">🎨 Kreativ-Ecke</a>
     <a class="nav-item" href="https://www.simsforumrpg.de/f15070-Forenspiele.html" target="_blank">🎲 Forenspiele</a>
     <a class="nav-item" href="https://www.simsforumrpg.de/blog-c1386-Simstagram.html" target="_blank">📸 Simstagram</a>
@@ -472,8 +472,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 <div class="sheet" id="sheet-nav">
   <div class="sheet-handle"></div><div class="sheet-title">Navigation</div>
   <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/forum.php" target="_blank">📋 Forum</a>
-  <a class="nav-item" style="margin-bottom:6px;cursor:pointer" onclick="openCharView();closeSheet()">👤 Hauptcharaktere</a>
-  <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/f51850-Nebencharaktere.html" target="_blank">👥 Nebencharaktere</a>
+  <a class="nav-item" style="margin-bottom:6px;cursor:pointer" onclick="openCharView();closeSheet()">👤 Charaktere</a>
   <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/page-simsweltnews.html" target="_blank">📰 SimsWelt News</a>
   <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/gallery.php" target="_blank">🖼️ Bildergalerie</a>
 </div>
@@ -1572,19 +1571,16 @@ function openCharView(type){
   charActiveType=type||'haupt';
   location.hash='chars-'+charActiveType;
   document.getElementById('char-container').classList.add('open');
-  // Tab aktiv setzen
   document.querySelectorAll('.char-tab').forEach(function(t){
-    var map={'haupt':'Haupt','neben':'Neben','statist':'Stat'}; t.classList.toggle('active',t.textContent.indexOf(map[charActiveType]||charActiveType)>-1);
+    var map={'haupt':'Haupt','neben':'Neben','statist':'Stat'};
+    t.classList.toggle('active',t.textContent.indexOf(map[charActiveType]||charActiveType)>-1);
   });
   charPlayerFilter='alle';
-  // Ladeanzeige
   var grid=document.getElementById('char-grid');
   var sub=document.getElementById('char-subtitle');
   if(grid)grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:22px;padding:60px;grid-column:1/-1;text-align:center">⏳</div>';
   if(sub)sub.textContent='Lade...';
-  // Fallback nach 5s falls fetch hängt
-  var fb=setTimeout(function(){charRenderFiltered();},5000);
-  fetchCharsFromScript(fb);
+  fetchCharsFromScript();
 }
 
 function closeCharView(){
@@ -1609,12 +1605,11 @@ function reloadChars(){
   fetchCharsFromScript(null);
 }
 
-async function fetchCharsFromScript(fallbackTimer){
+async function fetchCharsFromScript(){
   try{
     var r=await fetch(SCRIPT_URL);
     if(!r.ok)throw new Error('HTTP '+r.status);
     var data=await r.json();
-    if(fallbackTimer)clearTimeout(fallbackTimer);
     if(!Array.isArray(data)||!data.length)throw new Error('leer');
     // Mapping
     var fresh=data.filter(function(c){return c.name;}).map(function(c){
@@ -1629,9 +1624,7 @@ async function fetchCharsFromScript(fallbackTimer){
       fresh.forEach(function(c){CHARS.push(c);});
       charFetched=true;
     }
-  }catch(e){
-    if(fallbackTimer)clearTimeout(fallbackTimer);
-  }
+  }catch(e){}
   charRenderFiltered();
   buildPlayerFilter();
 }
