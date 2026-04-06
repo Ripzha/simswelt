@@ -97,6 +97,18 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .calib-log{font-size:10px;color:#aaa;max-height:140px;overflow-y:auto;margin-top:7px;font-family:monospace;line-height:1.5;background:rgba(255,255,255,0.04);border-radius:3px;padding:5px}
 .calib-copy{margin-top:7px;background:#ffcc44;color:#000;border:none;border-radius:4px;padding:5px 9px;cursor:pointer;font-size:10px;font-weight:500;width:100%}
 .calib-clear{margin-top:3px;background:rgba(255,80,80,0.12);border:0.5px solid rgba(255,80,80,0.3);border-radius:4px;padding:5px 9px;cursor:pointer;font-size:10px;color:#ff8888;width:100%}
+/* Legende */
+.legend-btn{position:absolute;top:50px;left:12px;background:rgba(0,0,0,0.55);border:0.5px solid rgba(255,255,255,0.12);border-radius:6px;padding:4px 10px;font-size:10px;color:rgba(255,255,255,0.45);cursor:pointer;z-index:15;user-select:none;-webkit-tap-highlight-color:transparent}
+.legend-btn:hover{color:#fff}
+.legend-box{position:absolute;top:78px;left:12px;background:rgba(0,0,0,0.9);border:0.5px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 13px;z-index:15;display:none;min-width:180px}
+.legend-box.open{display:block}
+.leg-row{display:flex;align-items:center;gap:9px;margin-bottom:7px;font-size:10px;color:rgba(255,255,255,0.65)}
+.leg-row:last-child{margin-bottom:0}
+.leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.leg-cluster{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0}
+/* Öffentlicher Raum */
+.lot-dot.isoutdoor .lot-inner{background:rgba(80,190,170,0.75)!important;border-color:rgba(80,190,170,1)!important;box-shadow:none!important}
+.lot-dot.isoutdoor.isactive .lot-inner{background:#3abba0!important;box-shadow:0 0 10px #3abba0!important}
 .calib-mode-bar{position:fixed;top:42px;left:0;right:0;background:rgba(255,200,0,0.9);color:#000;text-align:center;font-size:11px;font-weight:500;padding:5px;z-index:600;display:none}
 #admin-panel{position:fixed;top:0;right:0;bottom:0;width:min(340px,100vw);background:rgba(4,10,20,0.99);border-left:1px solid rgba(255,200,0,0.3);z-index:400;display:none;flex-direction:column;box-shadow:-8px 0 32px rgba(0,0,0,0.7)}
 #admin-panel.open{display:flex}
@@ -227,6 +239,14 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
           <div style="font-size:12px;color:rgba(255,255,255,0.4)">🏗 Grundriss noch ausstehend</div>
           <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:4px">Threads über Liste öffnen</div>
         </div>
+      </div>
+      <button class="legend-btn" onclick="toggleLegend(this)">≡ Legende</button>
+      <div class="legend-box">
+        <div class="leg-row"><div class="leg-dot" style="background:#4aaa6a;box-shadow:0 0 5px #4aaa6a"></div>Aktiver Ort</div>
+        <div class="leg-row"><div class="leg-dot" style="background:rgba(255,255,255,0.35);border:1px solid rgba(255,255,255,0.5)"></div>Inaktiver Ort / Leerstand</div>
+        <div class="leg-row"><div class="leg-dot" style="background:rgba(80,190,170,0.75);border:1px solid rgba(80,190,170,1)"></div>Öffentlicher Raum</div>
+        <div class="leg-row"><div class="leg-cluster" style="background:rgba(255,165,0,0.2);border:1.5px solid rgba(255,165,0,0.6);color:rgba(255,165,0,0.9)">3</div>Mehrere Orte (Cluster)</div>
+        <div class="leg-row"><div class="leg-cluster" style="background:rgba(100,160,255,0.2);border:1.5px solid rgba(100,160,255,0.6);font-size:10px">🏢</div>Wohnblock (Apartments)</div>
       </div>
       <button class="calib-btn" id="calib-world-btn" onclick="toggleCalib('world')">⚙ Orte kalibrieren</button>
       <div class="calib-panel" id="calib-world-panel">
@@ -471,9 +491,10 @@ const worldLots = {
     {name:"Nr. 15",x:29,y:48,url:BASE+"f51780-Newcrest.html",active:false},
   ],
   "Magnolia Promenade":[
+    {name:"Magnolia Promenade",x:49,y:52,url:BASE+"f51781-Magnolia-Promenade.html",active:true,outdoor:true},
+    {name:"Nr. 1 - Kleiner Lebensmittelladen",x:43.9,y:43.5,url:BASE+"t16f51781-Magnolia-Promenade-Nr-Kleiner-Lebensmittelladen.html",active:false,img:'https://files.homepagemodules.de/b855163/resize/1920x1200/f51781t16p65n2_qVzxAWyO.png'},
+    {name:"Nr. 2 - Shopping District",x:59.8,y:50,url:BASE+"t24f51781-Magnolia-Promenade-Nr-Shopping-District.html",active:false,img:'https://files.homepagemodules.de/b855163/resize/1920x1200/f51781t24p139n2_bEWilIGu.png'},
     {name:"Nr. 3 - Möbelhaus",x:42,y:57.8,url:BASE+"t752f51781-Magnolia-Promenade-Nr-Moebelhaus.html",active:true,img:'https://files.homepagemodules.de/b855163/resize/1920x1200/f51781t752p7348n2_VlqyHTXa.png'},
-    {name:"Nr. 1",x:43.9,y:43.5,url:BASE+"f51781-Magnolia-Promenade.html",active:false},
-    {name:"Nr. 2",x:59.8,y:50,url:BASE+"f51781-Magnolia-Promenade.html",active:false},
     {name:"Nr. 4",x:53.5,y:63.5,url:BASE+"f51781-Magnolia-Promenade.html",active:false},
   ],
   "Windenburg":[
@@ -733,6 +754,8 @@ function exitBuilding(){
   if(bc)bc.style.display='none';
 }
 
+function toggleLegend(btn){btn.nextElementSibling.classList.toggle('open');}
+document.addEventListener('click',e=>{document.querySelectorAll('.legend-box.open').forEach(b=>{if(!b.previousElementSibling.contains(e.target)&&!b.contains(e.target))b.classList.remove('open');});});
 function goBack(){
   const bc=document.getElementById('building-container');
   if(bc&&bc.style.display!=='none'){exitBuilding();return;}
