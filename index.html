@@ -1519,8 +1519,18 @@ const CHAR_TTL=30*60*1000;
 
 function openCharView(){
   document.getElementById('char-container').classList.add('open');
-  if(!charData||Date.now()-charCacheTs>CHAR_TTL)loadCharacters();
-  else renderCharGrid();
+  // Set loading state immediately so user sees something
+  document.getElementById('char-grid').innerHTML='<div style="color:rgba(255,255,255,0.4);font-size:13px;padding:40px;grid-column:1/-1;text-align:center">⏳ Lade Charaktere...</div>';
+  document.getElementById('char-subtitle').textContent='Verbinde...';
+  if(!charData||Date.now()-charCacheTs>CHAR_TTL){
+    loadCharacters().catch(e=>{
+      document.getElementById('char-grid').innerHTML=`<div style="color:rgba(255,100,100,0.7);font-size:12px;padding:40px;grid-column:1/-1;text-align:center">
+        ❌ Fehler: ${e.message}<br><br>
+        <a href="https://www.simsforumrpg.de/f51849-Hauptcharaktere.html" target="_blank" style="color:#4aaa6a">→ Forum öffnen</a>
+      </div>`;
+      document.getElementById('char-subtitle').textContent='Fehler';
+    });
+  } else renderCharGrid();
 }
 function closeCharView(){document.getElementById('char-container').classList.remove('open');}
 
