@@ -63,7 +63,8 @@ var state={
   imgPreview:null,imgB64:null,imgMime:null,
   ai:{},
   importText:"",importing:false,showImport:false,
-  ctxEntries:[],ctxLabel:"",ctxText:"",showCtx:false
+  ctxEntries:[],ctxLabel:"",ctxText:"",showCtx:false,
+  showAtlas:false,atlasPlayer:"",atlasThread:"",atlasPortrait:"",atlasType:"haupt",atlasSaving:false,atlasSaved:false
 };
 
 // ── helpers ──
@@ -355,6 +356,7 @@ function mkSheet(){
     navigator.clipboard?navigator.clipboard.writeText(t):(function(){var e=mk("textarea");e.value=t;document.body.appendChild(e);e.select();document.execCommand("copy");document.body.removeChild(e);})();
     alert("Kopiert!");
   },false,true,false));
+  btns.appendChild(btn("🗺 In ATLAS registrieren",C.teal,function(){state.showAtlas=true;draw();},false,false,false));
   btns.appendChild(btn("↺ Neu starten",C.muted,function(){
     if(!confirm("Neuen Charakter erstellen? Alle Eingaben werden gelöscht."))return;
     FIELDS.forEach(function(f){state.char[f.key]="";});
@@ -425,6 +427,84 @@ function mkCtxModal(){
   ov.appendChild(box);return ov;
 }
 
+// ── ATLAS Registrierung ──
+var APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbw2QtXNxsvSaD4xzwZcX3U5EebauDQjxfX4LtSHhLViR9RB2jBsmvJWEqhM9Agdqvvo/exec";
+var SHEET_CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRRllRkwaCacdM0WZZT0cVQflhxJ9Fw5mgId-v615_kE2GdKdbwHMUYCG03HC8gUXfg7lucTs1Mqhg1/pub?output=csv";
+
+function mkAtlasModal(){
+  var ov=div({position:"fixed",inset:"0",background:"rgba(0,0,0,0.6)",zIndex:"200",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"});
+  var box=div({background:C.card,border:"1px solid "+C.border,borderRadius:"14px",padding:"24px",width:"100%",maxWidth:"500px"});
+
+  if(state.atlasSaved){
+    box.appendChild(div({fontSize:"22px",textAlign:"center",marginBottom:"8px"},["✅"]));
+    box.appendChild(div({fontSize:"15px",fontWeight:"700",color:C.accent,textAlign:"center",marginBottom:"6px"},["Charakter registriert!"]));
+    box.appendChild(div({fontSize:"12px",color:C.muted,textAlign:"center",marginBottom:"16px"},["Er erscheint beim nächsten Öffnen des ATLAS-Charakter-Panels."]));
+    box.appendChild(div({display:"flex",justifyContent:"center"},[btn("Schliessen",C.accent,function(){state.showAtlas=false;state.atlasSaved=false;draw();},false,false,false)]));
+    ov.appendChild(box);return ov;
+  }
+
+  box.appendChild(div({fontSize:"14px",fontWeight:"800",color:C.teal,marginBottom:"4px"},["🗺 In ATLAS registrieren"]));
+  box.appendChild(div({background:"rgba(61,111,138,0.1)",border:"1px solid rgba(61,111,138,0.3)",borderRadius:"8px",padding:"10px 12px",marginBottom:"16px",fontSize:"12px",color:C.muted,lineHeight:"1.6"},["Nach dem Posten im Forum hier eintragen. Der Charakter erscheint dann automatisch im ATLAS-Charakterpanel."]));
+
+  function field(label,val,setter,ph){
+    var w=div({marginBottom:"12px"});
+    w.appendChild(div({fontSize:"12px",fontWeight:"700",color:C.accent,marginBottom:"4px"},[label]));
+    var i=mk("input",Object.assign({},INP));i.value=val;i.placeholder=ph||"";
+    i.addEventListener("input",function(){setter(i.value);});
+    w.appendChild(i);return w;
+  }
+
+  box.appendChild(field("Dein Forum-Username *","",function(v){state.atlasPlayer=v;},"z.B. Ripzha"));
+  box.appendChild(field("Thread-URL des Charakterbogens *","",function(v){state.atlasThread=v;},"https://www.simsforumrpg.de/t..."));
+  box.appendChild(field("Portrait-URL (erstes Bild im Post)","",function(v){state.atlasPortrait=v;},"https://files.homepagemodules.de/..."));
+
+  var tw=div({marginBottom:"16px"});
+  tw.appendChild(div({fontSize:"12px",fontWeight:"700",color:C.accent,marginBottom:"6px"},["Typ *"]));
+  var trow=div({display:"flex",gap:"8px"});
+  ["haupt","neben","statist"].forEach(function(t){
+    var b=btn(t.charAt(0).toUpperCase()+t.slice(1),state.atlasType===t?C.accent:C.muted,function(){state.atlasType=t;draw();},true,state.atlasType!==t,false);
+    trow.appendChild(b);
+  });
+  tw.appendChild(trow);box.appendChild(tw);
+
+  var row=div({display:"flex",gap:"8px",justifyContent:"flex-end"});
+  row.appendChild(btn("Abbrechen",C.muted,function(){state.showAtlas=false;draw();},false,true,false));
+  row.appendChild(btn(state.atlasSaving?"⏳ Speichert…":"💾 Speichern",C.accent,function(){
+    if(!state.atlasPlayer.trim()||!state.atlasThread.trim()){alert("Bitte Username und Thread-URL angeben.");return;}
+    saveToAtlas();
+  },false,false,state.atlasSaving));
+  box.appendChild(row);
+  ov.addEventListener("click",function(e){if(e.target===ov){state.showAtlas=false;draw();}});
+  ov.appendChild(box);return ov;
+}
+
+function saveToAtlas(){
+  state.atlasSaving=true;draw();
+  var payload={
+    name:state.char.name||"Unbekannt",
+    player:state.atlasPlayer.trim(),
+    type:state.atlasType,
+    threadUrl:state.atlasThread.trim(),
+    portraitUrl:state.atlasPortrait.trim(),
+    home:state.char.home||"",
+    job:state.char.job||"",
+    age:state.char.age||""
+  };
+  fetch(APPS_SCRIPT_URL,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(payload)
+  }).then(function(){
+    state.atlasSaving=false;state.atlasSaved=true;
+    state.atlasPlayer="";state.atlasThread="";state.atlasPortrait="";
+    draw();
+  }).catch(function(e){
+    state.atlasSaving=false;
+    alert("Fehler: "+e.message+"\n\nBitte Apps Script URL in der Datei konfigurieren.");
+    draw();
+  });
+}
+
 // ── Main draw ──
 function draw(){
   // ── App shell (only once) ──
@@ -479,6 +559,7 @@ function draw(){
   var modals=qs("modals");modals.innerHTML="";
   if(state.showImport)modals.appendChild(mkImportModal());
   if(state.showCtx)modals.appendChild(mkCtxModal());
+  if(state.showAtlas)modals.appendChild(mkAtlasModal());
 }
 
 setupImgInput();
