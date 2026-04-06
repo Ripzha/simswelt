@@ -1485,8 +1485,8 @@ const _worldZoom=makePinchZoom(document.getElementById('world-image-area'),{
 const _mapZoom=makePinchZoom(document.getElementById('map-image-area'));
 
 // Reset zoom on world exit
-const _origExit=exitWorld;
-window.exitWorld=function(){_worldZoom.reset();if(_origExit)_origExit();};
+window._origExitWorld=window.exitWorld||null;
+window.exitWorld=function(){if(_worldZoom)_worldZoom.reset();if(window._origExitWorld)window._origExitWorld();};
 
 // Mobile bottom bar
 let _mobileDotUrl='';
