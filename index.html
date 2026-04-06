@@ -1525,8 +1525,17 @@ var CHARS=[
 function openCharView(){
   var el=document.getElementById('char-container');
   if(el)el.classList.add('open');
-  charRender(CHARS);
-  fetchCharSheet(); // im Hintergrund aktualisieren
+  var grid=document.getElementById('char-grid');
+  var sub=document.getElementById('char-subtitle');
+  if(grid)grid.innerHTML='<div style="color:rgba(255,255,255,0.35);font-size:13px;padding:60px;grid-column:1/-1;text-align:center">⏳</div>';
+  if(sub)sub.textContent='Lade...';
+  // Timeout: falls Sheet nicht antwortet, Fallback zeigen
+  var fallbackTimer=setTimeout(function(){
+    if(grid&&grid.children.length<=1&&grid.innerHTML.indexOf('⏳')>-1){
+      charRender(CHARS);
+    }
+  },5000);
+  fetchCharSheet(fallbackTimer);
 }
 
 function closeCharView(){
@@ -1559,27 +1568,30 @@ function charRender(list){
   }
 }
 
-async function fetchCharSheet(){
+async function fetchCharSheet(fallbackTimer){
   var SCRIPT_URL='https://script.google.com/macros/s/AKfycbw2QtXNxsvSaD4xzwZcX3U5EebauDQjxfX4LtSHhLViR9RB2jBsmvJWEqhM9Agdqvvo/exec';
   try{
     var r=await fetch(SCRIPT_URL);
-    if(!r.ok)return;
+    if(!r.ok)throw new Error('HTTP '+r.status);
     var data=await r.json();
-    if(!Array.isArray(data)||!data.length)return;
+    if(fallbackTimer)clearTimeout(fallbackTimer);
+    if(!Array.isArray(data)||!data.length)throw new Error('leer');
     var fresh=data.filter(function(c){return c.name;}).map(function(c){return{
       n:c.name||'',
-      p:c.player||c.Spieler||'',
-      u:c.threadUrl||c['Thread-URL']||'',
-      h:c.home||c.Wohnort||'',
-      img:c.portraitUrl||c.Portrait||''
+      p:c.player||'',
+      u:c.threadUrl||'',
+      h:c.home||'',
+      img:c.portraitUrl||''
     };});
     if(fresh.length>0){
       CHARS.length=0;
       fresh.forEach(function(c){CHARS.push(c);});
       charRender(CHARS);
-      document.getElementById('char-subtitle').textContent=CHARS.length+' Charaktere';
     }
-  }catch(e){/* fallback bleibt */}
+  }catch(e){
+    if(fallbackTimer)clearTimeout(fallbackTimer);
+    charRender(CHARS); // Fallback
+  }
 }
 
 
