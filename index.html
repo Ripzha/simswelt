@@ -1542,8 +1542,19 @@ async function loadCharacters(force=false){
   grid.innerHTML='<div style="color:rgba(255,255,255,0.4);font-size:13px;padding:40px;grid-column:1/-1;text-align:center">⏳ Lade Charaktere...</div>';
   try{
     const url=CHAR_SHEET_CSV+'&t='+Date.now();
-    const r=await fetch(url);
-    if(!r.ok)throw new Error('HTTP '+r.status);
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),8000);
+    let r;
+    try{
+      r=await fetch(url,{signal:controller.signal});
+      clearTimeout(timer);
+    }catch(fe){
+      clearTimeout(timer);
+      throw new Error(fe.name==='AbortError'
+        ?'Timeout — Google Sheets nicht erreichbar (CSP blockiert?)'
+        :'Fetch-Fehler: '+fe.message);
+    }
+    if(!r.ok)throw new Error('HTTP '+r.status+' beim Laden des Sheets');
     const csv=await r.text();
     if(!csv||csv.trim().length<10)throw new Error('Sheet ist leer oder nicht erreichbar');
     charData=parseCharCSV(csv);
