@@ -1286,7 +1286,8 @@ document.addEventListener('DOMContentLoaded',function(){
     document.getElementById('calib-building-next').textContent=lots[idx+1]?.name||'✅ Fertig!';
     document.getElementById('calib-building-count').textContent=calibBuildingData.length;
   });
-});let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive:true});sheet.addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-sy>60)closeSheet();},{passive:true});});
+});
+document.querySelectorAll('.sheet').forEach(sheet=>{let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive:true});sheet.addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-sy>60)closeSheet();},{passive:true});});
 </script>
 </body>
 </html>
