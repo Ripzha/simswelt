@@ -347,6 +347,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 <script>
 const ADMIN_PASS = 'admin0987';
 const BASE = 'https://www.simsforumrpg.de/';
+const IMG  = 'https://files.homepagemodules.de/b855163/resize/1920x1200/';
 
 // ═══════════════════════════════════════════
 // SAN MYSHUNO GEBÄUDE-DATEN
@@ -367,34 +368,34 @@ const SM_BUILDINGS = {
 // WELTEN
 // ═══════════════════════════════════════════
 const worlds = [
-  {name:"Innisgreen",x:5,y:17,color:"#4a8a5a",type:"Feen-Insel",url:BASE+"f59907-Innisgreen.html",img:BASE+"resize/1920x1200/f59907t701p6857n6_GhgTkzIe.png"},
-  {name:"Nordhaven",x:28,y:25,color:"#4a8aaa",type:"Fjordstadt",url:BASE+"f59567-Nordhaven.html",img:BASE+"resize/1920x1200/f51848t674p6442n2_KpoqhcPI.png"},
-  {name:"Ravenwood",x:44,y:23,color:"#5a5a3a",type:"Nebelhochland",url:BASE+"f59271-Ravenwood.html",img:BASE+"resize/1920x1200/f59271t650p5999n7_rDMbUQwt.png"},
-  {name:"Granite Falls",x:52,y:20,color:"#3a6a3a",type:"Nationalpark",url:BASE+"f51798-Granite-Falls.html",img:BASE+"resize/1920x1200/f51798t245p3096n42_IrNAYjfx.png"},
-  {name:"Chestnut Ridge",x:73,y:17,color:"#aa7a2a",type:"Ranch",url:BASE+"f55177-Chestnut-Ridge.html",img:BASE+"resize/1920x1200/f55177t466p3785n32_rOXCxANG.png"},
-  {name:"Strangerville",x:83,y:26,color:"#8a3a5a",type:"Mysteriös",url:BASE+"f51787-Strangerville.html",img:BASE+"resize/1920x1200/f51787t181p2466n2_gfRrAMHE.png"},
-  {name:"Evergreen Harbor",x:92,y:33,color:"#3a5a5a",type:"Hafen",url:BASE+"f51791-Evergreen-Harbor.html",img:BASE+"resize/1920x1200/f51791t234p2910n2_oKurUAPW.png"},
-  {name:"San Sequoia",x:30,y:36,color:"#3a6a5a",type:"Pazifik",url:BASE+"f51797-San-Sequoia.html",img:BASE+"resize/1920x1200/f51797t246p3097n2_IcEpQsxW.png"},
-  {name:"Britechester",x:44,y:34,color:"#7a8a5a",type:"Universität",url:BASE+"f51790-Britechester.html",img:BASE+"resize/1920x1200/f51790t35p233n2_BAkTRtjw.png"},
-  {name:"Forgotten Hollow",x:60,y:32,color:"#6a3a8a",type:"Vampire",url:BASE+"f51784-Forgotten-Hollow.html",img:BASE+"resize/1920x1200/f51784t120p1370n28_ZBEYwHqf.png"},
-  {name:"Copperdale",x:50,y:40,color:"#5a7a5a",type:"Kleinstadt",url:BASE+"f51796-Copperdale.html",img:BASE+"resize/1920x1200/f51796t221p2770n2_IpAVFBvk.png"},
-  {name:"Henford-on-Bagley",x:63,y:38,color:"#6a8a3a",type:"England",url:BASE+"f51793-Henford-on-Bagley.html",img:BASE+"resize/1920x1200/f51793t157p2223n105_OYrMHvJZ.png"},
-  {name:"Glimmerbrook",x:56,y:48,color:"#7a3a9a",type:"Magie",url:BASE+"f51789-Glimmerbrook.html",img:BASE+"resize/1920x1200/f51789t243p3090n21_dypBDxZG.png"},
-  {name:"Mt. Komorebi",x:60,y:44,color:"#9aaabb",type:"Gebirge",url:BASE+"f51792-Mt-Komorebi.html",img:BASE+"resize/1920x1200/f51792t216p2710n2_wULZCEnk.png"},
-  {name:"Moonwood Mill",x:74,y:43,color:"#2a4a5a",type:"Werwölfe",url:BASE+"f51795-Moonwood-Mill.html",img:BASE+"resize/1920x1200/f51795t251p3100n2_MianYHlj.png"},
-  {name:"Brindleton Bay",x:82,y:46,color:"#3a7a7a",type:"Küste",url:BASE+"f51785-Brindleton-Bay.html",img:BASE+"resize/1920x1200/f51785t137p1856n68_teKkqyYo.png"},
-  {name:"San Myshuno",x:55,y:53,color:"#3a4a7a",type:"Grossstadt",url:BASE+"f51783-San-Myshuno.html",img:BASE+"resize/1920x1200/f51848t204p3065n2_bDAZuVYK.png"},
-  {name:"Magnolia Promenade",x:61,y:53,color:"#7a6a5a",type:"Promenade",url:BASE+"f51781-Magnolia-Promenade.html",img:BASE+"resize/1920x1200/f51848t204p3063n2_adLzKDsI.png"},
-  {name:"Willow Creek",x:72,y:52,color:"#4a8a3a",type:"Südstaaten",url:BASE+"f51778-Willow-Creek.html",img:BASE+"resize/1920x1200/f51848t204p3060n2_PxOvMDpj.png"},
-  {name:"Newcrest",x:64,y:58,color:"#7a8a5a",type:"Vorstadt",url:BASE+"f51780-Newcrest.html",img:BASE+"resize/1920x1200/f51848t204p3062n2_otgEqnkR.png"},
-  {name:"Windenburg",x:76,y:62,color:"#5a6a7a",type:"Altstadt",url:BASE+"f51782-Windenburg.html",img:BASE+"resize/1920x1200/f51848t204p3064n2_psJRBMPY.png"},
-  {name:"Del Sol Valley",x:54,y:62,color:"#c8a02a",type:"Hollywood",url:BASE+"f51786-Del-Sol-Valley.html",img:BASE+"resize/1920x1200/f51786t83p767n15_KcbvhHqF.png"},
-  {name:"Oasis Springs",x:63,y:67,color:"#c87a2a",type:"Wüste",url:BASE+"f51779-Oasis-Springs.html",img:BASE+"resize/1920x1200/f51848t204p3061n2_zxcBGyYe.png"},
-  {name:"Sulani",x:89,y:60,color:"#2a9a8a",type:"Tropeninsel",url:BASE+"f51788-Sulani.html",img:BASE+"resize/1920x1200/f51788t170p2427n2_XDLcAuVK.png"},
-  {name:"Selvadorada",x:16,y:67,color:"#2a5a2a",type:"Dschungel",url:BASE+"f51799-Selvadorada.html",img:BASE+"resize/1920x1200/f51799t188p2490n2_gyTPfLHp.png"},
-  {name:"Tomarang",x:48,y:57,color:"#2a7a5a",type:"Südostasien",url:BASE+"f58300-Tomarang.html",img:BASE+"resize/1920x1200/f58300t555p4823n18_xhRAIYaO.png"},
-  {name:"Ciudad Enamorada",x:60,y:73,color:"#aa4a3a",type:"Latein",url:BASE+"f58925-Ciudad-Enamorada.html",img:BASE+"resize/1920x1200/f58925t630p5729n2_SlKGjfbm.png"},
-  {name:"Tartosa",x:65,y:80,color:"#b06a3a",type:"Mittelmeer",url:BASE+"f51794-Tartosa.html",img:BASE+"resize/1920x1200/f51794t252p3104n2_spbMdixK.png"},
+  {name:"Innisgreen",x:5,y:17,color:"#4a8a5a",type:"Feen-Insel",url:BASE+"f59907-Innisgreen.html",img:IMG+"f59907t701p6857n6_GhgTkzIe.png"},
+  {name:"Nordhaven",x:28,y:25,color:"#4a8aaa",type:"Fjordstadt",url:BASE+"f59567-Nordhaven.html",img:IMG+"f51848t674p6442n2_KpoqhcPI.png"},
+  {name:"Ravenwood",x:44,y:23,color:"#5a5a3a",type:"Nebelhochland",url:BASE+"f59271-Ravenwood.html",img:IMG+"f59271t650p5999n7_rDMbUQwt.png"},
+  {name:"Granite Falls",x:52,y:20,color:"#3a6a3a",type:"Nationalpark",url:BASE+"f51798-Granite-Falls.html",img:IMG+"f51798t245p3096n42_IrNAYjfx.png"},
+  {name:"Chestnut Ridge",x:73,y:17,color:"#aa7a2a",type:"Ranch",url:BASE+"f55177-Chestnut-Ridge.html",img:IMG+"f55177t466p3785n32_rOXCxANG.png"},
+  {name:"Strangerville",x:83,y:26,color:"#8a3a5a",type:"Mysteriös",url:BASE+"f51787-Strangerville.html",img:IMG+"f51787t181p2466n2_gfRrAMHE.png"},
+  {name:"Evergreen Harbor",x:92,y:33,color:"#3a5a5a",type:"Hafen",url:BASE+"f51791-Evergreen-Harbor.html",img:IMG+"f51791t234p2910n2_oKurUAPW.png"},
+  {name:"San Sequoia",x:30,y:36,color:"#3a6a5a",type:"Pazifik",url:BASE+"f51797-San-Sequoia.html",img:IMG+"f51797t246p3097n2_IcEpQsxW.png"},
+  {name:"Britechester",x:44,y:34,color:"#7a8a5a",type:"Universität",url:BASE+"f51790-Britechester.html",img:IMG+"f51790t35p233n2_BAkTRtjw.png"},
+  {name:"Forgotten Hollow",x:60,y:32,color:"#6a3a8a",type:"Vampire",url:BASE+"f51784-Forgotten-Hollow.html",img:IMG+"f51784t120p1370n28_ZBEYwHqf.png"},
+  {name:"Copperdale",x:50,y:40,color:"#5a7a5a",type:"Kleinstadt",url:BASE+"f51796-Copperdale.html",img:IMG+"f51796t221p2770n2_IpAVFBvk.png"},
+  {name:"Henford-on-Bagley",x:63,y:38,color:"#6a8a3a",type:"England",url:BASE+"f51793-Henford-on-Bagley.html",img:IMG+"f51793t157p2223n105_OYrMHvJZ.png"},
+  {name:"Glimmerbrook",x:56,y:48,color:"#7a3a9a",type:"Magie",url:BASE+"f51789-Glimmerbrook.html",img:IMG+"f51789t243p3090n21_dypBDxZG.png"},
+  {name:"Mt. Komorebi",x:60,y:44,color:"#9aaabb",type:"Gebirge",url:BASE+"f51792-Mt-Komorebi.html",img:IMG+"f51792t216p2710n2_wULZCEnk.png"},
+  {name:"Moonwood Mill",x:74,y:43,color:"#2a4a5a",type:"Werwölfe",url:BASE+"f51795-Moonwood-Mill.html",img:IMG+"f51795t251p3100n2_MianYHlj.png"},
+  {name:"Brindleton Bay",x:82,y:46,color:"#3a7a7a",type:"Küste",url:BASE+"f51785-Brindleton-Bay.html",img:IMG+"f51785t137p1856n68_teKkqyYo.png"},
+  {name:"San Myshuno",x:55,y:53,color:"#3a4a7a",type:"Grossstadt",url:BASE+"f51783-San-Myshuno.html",img:IMG+"f51848t204p3065n2_bDAZuVYK.png"},
+  {name:"Magnolia Promenade",x:61,y:53,color:"#7a6a5a",type:"Promenade",url:BASE+"f51781-Magnolia-Promenade.html",img:IMG+"f51848t204p3063n2_adLzKDsI.png"},
+  {name:"Willow Creek",x:72,y:52,color:"#4a8a3a",type:"Südstaaten",url:BASE+"f51778-Willow-Creek.html",img:IMG+"f51848t204p3060n2_PxOvMDpj.png"},
+  {name:"Newcrest",x:64,y:58,color:"#7a8a5a",type:"Vorstadt",url:BASE+"f51780-Newcrest.html",img:IMG+"f51848t204p3062n2_otgEqnkR.png"},
+  {name:"Windenburg",x:76,y:62,color:"#5a6a7a",type:"Altstadt",url:BASE+"f51782-Windenburg.html",img:IMG+"f51848t204p3064n2_psJRBMPY.png"},
+  {name:"Del Sol Valley",x:54,y:62,color:"#c8a02a",type:"Hollywood",url:BASE+"f51786-Del-Sol-Valley.html",img:IMG+"f51786t83p767n15_KcbvhHqF.png"},
+  {name:"Oasis Springs",x:63,y:67,color:"#c87a2a",type:"Wüste",url:BASE+"f51779-Oasis-Springs.html",img:IMG+"f51848t204p3061n2_zxcBGyYe.png"},
+  {name:"Sulani",x:89,y:60,color:"#2a9a8a",type:"Tropeninsel",url:BASE+"f51788-Sulani.html",img:IMG+"f51788t170p2427n2_XDLcAuVK.png"},
+  {name:"Selvadorada",x:16,y:67,color:"#2a5a2a",type:"Dschungel",url:BASE+"f51799-Selvadorada.html",img:IMG+"f51799t188p2490n2_gyTPfLHp.png"},
+  {name:"Tomarang",x:48,y:57,color:"#2a7a5a",type:"Südostasien",url:BASE+"f58300-Tomarang.html",img:IMG+"f58300t555p4823n18_xhRAIYaO.png"},
+  {name:"Ciudad Enamorada",x:60,y:73,color:"#aa4a3a",type:"Latein",url:BASE+"f58925-Ciudad-Enamorada.html",img:IMG+"f58925t630p5729n2_SlKGjfbm.png"},
+  {name:"Tartosa",x:65,y:80,color:"#b06a3a",type:"Mittelmeer",url:BASE+"f51794-Tartosa.html",img:IMG+"f51794t252p3104n2_spbMdixK.png"},
   {name:"Ondarion",x:72,y:75,color:"#8a7a3a",type:"Königreich",url:BASE+"f51848-Orte.html",img:""},
 ];
 
