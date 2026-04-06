@@ -231,7 +231,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .char-player{font-size:9px;color:rgba(255,255,255,0.35);margin-bottom:2px}
 .char-location{font-size:9px;color:#4aaa6a}
 #char-hover-card{position:fixed;z-index:400;background:#0d1f2d;border:0.5px solid rgba(100,180,120,0.3);border-radius:10px;width:200px;box-shadow:0 8px 32px rgba(0,0,0,0.6);pointer-events:none;opacity:0;transition:opacity 0.15s;overflow:hidden}
-#char-hover-card.visible{opacity:1}
+#char-hover-card.visible{opacity:1;pointer-events:auto}
 #chc-body{padding:12px 14px;display:flex;flex-direction:column;gap:5px}
 #chc-name{font-size:12px;font-weight:700;color:#fff;line-height:1.3}
 #chc-player{font-size:10px;color:#4aaa6a}
@@ -1695,7 +1695,6 @@ function charRender(list){
   });
 }
 
-// Hover card
 var _hoverTimeout=null;
 function showCharHover(c,card){
   clearTimeout(_hoverTimeout);
@@ -1709,14 +1708,11 @@ function showCharHover(c,card){
   document.getElementById('chc-details').innerHTML=details.join('<br>')||'<span style="color:rgba(255,255,255,0.2)">Keine Infos</span>';
   var ls=document.getElementById('chc-lastseen');
   if(c.lastSeenName&&c.lastSeenUrl){
-    ls.innerHTML='📍 Zuletzt in: <a href="'+c.lastSeenUrl+'" target="_blank" style="color:#4aaa6a;text-decoration:none">'+c.lastSeenName+'</a>';
+    ls.innerHTML='📍 Zuletzt in: <a href="'+c.lastSeenUrl+'" target="_blank" style="color:#4aaa6a;text-decoration:none;cursor:pointer">'+c.lastSeenName+'</a>';
   } else if(c.lastSeenName){
     ls.textContent='📍 Zuletzt in: '+c.lastSeenName;
-  } else {
-    ls.textContent='';
-  }
+  } else {ls.textContent='';}
   document.getElementById('chc-link').textContent='Charakterbogen öffnen →';
-  // Position
   var rect=card.getBoundingClientRect();
   var hcw=200,pad=8;
   var left=rect.right+pad;
@@ -1725,11 +1721,14 @@ function showCharHover(c,card){
   if(top+180>window.innerHeight)top=window.innerHeight-190;
   hc.style.left=left+'px';hc.style.top=top+'px';
   hc.classList.add('visible');
+  // Hover card selbst bleibt offen wenn man drüber fährt
+  hc.onmouseenter=function(){clearTimeout(_hoverTimeout);};
+  hc.onmouseleave=function(){hideCharHover();};
 }
 function hideCharHover(){
   _hoverTimeout=setTimeout(function(){
     document.getElementById('char-hover-card').classList.remove('visible');
-  },150);
+  },200);
 }
 
 // URL-Hash: Refresh behält die Ansicht
