@@ -224,7 +224,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .char-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative}
 .char-card:hover{background:rgba(255,255,255,0.08);border-color:rgba(100,180,120,0.4);transform:translateY(-2px)}
 .char-portrait-wrap{width:100%;aspect-ratio:3/4;overflow:hidden;background:#0a1520}
-.char-portrait{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
+.char-portrait{width:100%;height:100%;object-fit:cover;object-position:50% 15%;display:block}
 .char-portrait-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;color:rgba(255,255,255,0.08)}
 .char-info{padding:7px 9px}
 .char-name{font-size:11px;font-weight:600;color:#fff;margin-bottom:2px;line-height:1.3}
@@ -238,7 +238,20 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 #chc-details{font-size:10px;color:rgba(255,255,255,0.45);line-height:1.7;margin-top:2px}
 #chc-lastseen{font-size:10px;color:rgba(100,180,120,0.7);margin-top:2px}
 #chc-link{font-size:9px;color:rgba(255,255,255,0.25);margin-top:4px;border-top:0.5px solid rgba(255,255,255,0.06);padding-top:6px}
-@media(max-width:600px){#char-grid{grid-template-columns:repeat(3,1fr);gap:8px;padding:10px}#char-header{gap:6px}#char-create-btn{display:none}}
+@media(max-width:600px){
+  #char-grid{grid-template-columns:repeat(2,1fr);gap:8px;padding:10px}
+  #char-header{flex-direction:column;align-items:stretch;padding:10px 12px;gap:8px}
+  #char-header>div:first-child{display:flex;align-items:center;justify-content:space-between}
+  #char-tabs{flex:1;overflow-x:auto;display:flex;gap:3px;scrollbar-width:none}
+  #char-tabs::-webkit-scrollbar{display:none}
+  .char-tab{font-size:10px;padding:4px 8px;white-space:nowrap}
+  #char-filter-bar{order:3;width:100%;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;padding-bottom:2px}
+  #char-filter-bar::-webkit-scrollbar{display:none}
+  .char-filter{white-space:nowrap;font-size:10px}
+  #char-create-btn{display:none}
+  #char-sort-btn{font-size:10px;padding:4px 8px}
+  #char-subtitle{font-size:9px}
+}
 </style>
 </head>
 <body>
@@ -436,19 +449,19 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 </div>
     <div id="char-container">
       <div id="char-header">
-        <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;width:100%;min-width:0">
           <div id="char-tabs">
-            <button class="char-tab active" onclick="switchCharTab('haupt',this)">Hauptcharaktere</button>
-            <button class="char-tab" onclick="switchCharTab('neben',this)">Nebencharaktere</button>
+            <button class="char-tab active" onclick="switchCharTab('haupt',this)">Haupt</button>
+            <button class="char-tab" onclick="switchCharTab('neben',this)">Neben</button>
             <button class="char-tab" onclick="switchCharTab('statist',this)">Statisten</button>
           </div>
-          <div id="char-subtitle"></div>
+          <div id="char-subtitle" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+          <a id="char-create-btn" href="https://ripzha.github.io/simswelt/rpg_char_html.html" target="_blank">✚ Charakter erstellen</a>
+          <button id="char-sort-btn" onclick="toggleCharSort()" title="Alphabetisch sortieren">A–Z</button>
+          <button id="char-reload" onclick="reloadChars()" title="Aktualisieren">↺</button>
+          <button id="char-close" onclick="closeCharView()">✕</button>
         </div>
         <div id="char-filter-bar"></div>
-        <a id="char-create-btn" href="https://ripzha.github.io/simswelt/rpg_char_html.html" target="_blank">✚ Charakter erstellen</a>
-        <button id="char-sort-btn" onclick="toggleCharSort()" title="Alphabetisch sortieren">A–Z</button>
-        <button id="char-reload" onclick="reloadChars()" title="Aktualisieren">↺</button>
-        <button id="char-close" onclick="closeCharView()">✕</button>
       </div>
       <div id="char-grid"></div>
       <div id="char-hover-card">
@@ -1497,6 +1510,8 @@ function makePinchZoom(el,opts={}){
       tx=e.touches[0].clientX-p1x;
       ty=e.touches[0].clientY-p1y;
       clampPan();apply();e.preventDefault();
+    } else if(e.touches.length===1&&sc<=1.05){
+      // scale=1: allow natural page scroll, do nothing
     }
     if(e.touches.length===2){
       const a=e.touches[0],b=e.touches[1];
