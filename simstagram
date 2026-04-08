@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Simstagram</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Pacifico&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────────
+   TOKENS
+───────────────────────────────────────────────────── */
+:root {
+  --bg:     #0d0d12;
+  --s1:     #14141c;
+  --s2:     #1b1b27;
+  --s3:     #222232;
+  --bdr:    #2c2c40;
+  --acc:    #c47aff;
+  --acc2:   #ff79c6;
+  --acc3:   #6ef7d4;
+  --red:    #ff5e7d;
+  --txt:    #f0eeff;
+  --sub:    #8080a2;
+  --dim:    #48486a;
+  --max-w:  480px;
+}
+
+/* ─────────────────────────────────────────────────────
+   BASE
+───────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%; background: var(--bg);
+  color: var(--txt); font-family: 'DM Sans', sans-serif; font-size: 14px;
+  overflow: hidden; /* we scroll inside #app */
+}
+a { color: inherit; text-decoration: none; }
+img { user-select: none; display: block; }
+button {
+  font-family: inherit; background: none; border: none;
+  cursor: pointer; color: var(--sub);
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 9px; padding: 6px;
+  transition: color .16s, transform .14s, opacity .16s;
+}
+button:hover { color: var(--txt); transform: scale(1.1); }
+button:active { transform: scale(.95); }
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-thumb { background: var(--bdr); border-radius: 3px; }
+
+/* ─────────────────────────────────────────────────────
+   APP SHELL  –  full-viewport, centred column
+───────────────────────────────────────────────────── */
+#app {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column; align-items: center;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* ─────────────────────────────────────────────────────
+   HEADER
+───────────────────────────────────────────────────── */
+.hdr {
+  width: 100%; max-width: var(--max-w); flex-shrink: 0;
+  background: rgba(13,13,18,.94); backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--bdr);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 16px;
+  position: relative; z-index: 10;
+}
+.logo {
+  font-family: 'Pacifico', cursive; font-size: 24px;
+  background: linear-gradient(120deg, var(--acc) 0%, var(--acc2) 55%, #ffb86c 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hdr-btns { display: flex; gap: 8px; }
+.hdr-btns button { color: var(--sub); }
+
+/* ─────────────────────────────────────────────────────
+   SCROLLABLE CONTENT
+───────────────────────────────────────────────────── */
+.scroll-area {
+  width: 100%; max-width: var(--max-w);
+  flex: 1; overflow-y: auto;
+  padding-bottom: 80px;
+}
+
+/* ─────────────────────────────────────────────────────
+   STORIES
+───────────────────────────────────────────────────── */
+.stories-wrap {
+  overflow-x: auto; padding: 14px 0 10px;
+  scrollbar-width: none;
+}
+.stories-wrap::-webkit-scrollbar { display: none; }
+.stories { display: flex; gap: 11px; padding: 0 12px; width: max-content; }
+.story { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+.s-ring {
+  width: 58px; height: 58px; border-radius: 50%; padding: 2.5px;
+  background: linear-gradient(135deg, var(--acc), var(--acc2), #ffb86c);
+}
+.s-ring.seen { background: var(--bdr); }
+.s-av {
+  width: 100%; height: 100%; border-radius: 50%;
+  background: var(--s2); border: 2.5px solid var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 19px; overflow: hidden;
+}
+.s-av img { width: 100%; height: 100%; object-fit: cover; }
+.s-nm { font-size: 10.5px; color: var(--sub); max-width: 58px;
+  text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.hdiv { height: 1px; background: var(--bdr); }
+
+/* ─────────────────────────────────────────────────────
+   POST CARD
+───────────────────────────────────────────────────── */
+.card { border-bottom: 1px solid var(--bdr); animation: cardIn .3s ease both; }
+@keyframes cardIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+.card:nth-child(1){animation-delay:.03s} .card:nth-child(2){animation-delay:.07s}
+.card:nth-child(3){animation-delay:.11s} .card:nth-child(4){animation-delay:.15s}
+.card:nth-child(5){animation-delay:.19s}
+
+/* card header */
+.ch { display: flex; align-items: center; gap: 9px; padding: 10px 12px 8px; }
+.av {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--s2); border: 1.5px solid var(--bdr);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; overflow: hidden; flex-shrink: 0;
+}
+.av img { width: 100%; height: 100%; object-fit: cover; }
+.cn { font-size: 13.5px; font-weight: 600; }
+.cd { font-size: 11px; color: var(--dim); margin-top: 1px; }
+.ch button { margin-left: auto; padding: 4px; }
+
+/* card image */
+.ci {
+  width: 100%; aspect-ratio: 1/1;
+  background: var(--s2); overflow: hidden; cursor: pointer;
+}
+.ci img { width: 100%; height: 100%; object-fit: cover; transition: transform .38s ease; }
+.ci:hover img { transform: scale(1.03); }
+
+/* card actions */
+.ca { display: flex; align-items: center; gap: 10px; padding: 8px 12px 4px; }
+.ca button { padding: 4px 3px; gap: 5px; font-size: 13px; }
+.ca button:hover { transform: scale(1.1); }
+.lk-btn.on { color: var(--red) !important; }
+.lk-btn.on svg { fill: var(--red); stroke: var(--red); }
+
+/* card caption */
+.cc { padding: 2px 12px 4px; font-size: 13.5px; line-height: 1.55; }
+.cc strong { font-size: 14px; display: block; margin-bottom: 1px; }
+.cc .an { font-weight: 600; margin-right: 5px; }
+.cc .ct { color: rgba(240,238,255,.8); }
+.cm-link { padding: 0 12px 11px; font-size: 12px; color: var(--dim); cursor: pointer; transition: color .16s; }
+.cm-link:hover { color: var(--acc); }
+
+/* ─────────────────────────────────────────────────────
+   STATUS / SPINNER
+───────────────────────────────────────────────────── */
+.status { display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding: 60px 20px; color: var(--sub); text-align: center; font-size: 14px; }
+.spin { width: 30px; height: 30px; border-radius: 50%;
+  border: 3px solid var(--bdr); border-top-color: var(--acc);
+  animation: sp .75s linear infinite; }
+@keyframes sp { to { transform: rotate(360deg); } }
+
+/* ─────────────────────────────────────────────────────
+   BOTTOM NAV
+───────────────────────────────────────────────────── */
+.bnav {
+  position: fixed; bottom: 0;
+  width: 100%; max-width: var(--max-w);
+  background: rgba(13,13,18,.94); backdrop-filter: blur(18px);
+  border-top: 1px solid var(--bdr);
+  display: flex; justify-content: space-around;
+  padding: 9px 0 max(9px, env(safe-area-inset-bottom));
+  z-index: 10;
+}
+.bnav button { padding: 7px 18px; color: var(--dim); }
+.bnav button.act { color: var(--acc); }
+
+/* FAB */
+.fab {
+  position: fixed;
+  bottom: max(70px, calc(70px + env(safe-area-inset-bottom)));
+  right: max(16px, calc(50vw - 222px));
+  width: 50px; height: 50px; border-radius: 50%; padding: 0;
+  background: linear-gradient(135deg, var(--acc), var(--acc2));
+  color: #fff !important; box-shadow: 0 4px 20px rgba(196,122,255,.5);
+  transition: transform .2s, box-shadow .2s !important;
+  z-index: 20;
+}
+.fab:hover { transform: scale(1.12) translateY(-2px) !important; box-shadow: 0 8px 28px rgba(196,122,255,.65) !important; }
+
+/* ─────────────────────────────────────────────────────
+   MODAL OVERLAY
+───────────────────────────────────────────────────── */
+.ov {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,.82); backdrop-filter: blur(8px);
+  align-items: center; justify-content: center;
+}
+.ov.open { display: flex; }
+
+/* ─────────────────────────────────────────────────────
+   POST DETAIL MODAL
+───────────────────────────────────────────────────── */
+.pm {
+  width: min(95vw, 860px); height: min(94dvh, 620px);
+  background: var(--s1); border-radius: 16px;
+  display: flex; overflow: hidden;
+  animation: zoomin .2s ease;
+}
+@keyframes zoomin { from { opacity:0; transform:scale(.93); } to { opacity:1; transform:scale(1); } }
+
+@media (max-width: 600px) {
+  .pm { width: 100vw; height: 100dvh; border-radius: 0; flex-direction: column; }
+}
+
+.pm-img { flex: 0 0 min(50%, 430px); background: #000;
+  display: flex; align-items: center; justify-content: center; overflow: hidden; }
+@media (max-width:600px) { .pm-img { flex: 0 0 auto; max-height: 50vw; } }
+.pm-img img { width: 100%; height: 100%; object-fit: contain; }
+
+.pm-side { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+.pm-top { display: flex; align-items: center; gap: 9px;
+  padding: 12px 13px 10px; border-bottom: 1px solid var(--bdr); flex-shrink: 0; }
+.pm-top button { margin-left: auto; }
+
+.pm-scroll { flex: 1; overflow-y: auto; padding: 13px;
+  scrollbar-width: thin; scrollbar-color: var(--bdr) transparent; }
+.pm-cap { font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+.pm-cap strong { display: block; font-size: 15px; margin-bottom: 5px; }
+.pm-cap .an { font-weight: 600; margin-right: 5px; }
+
+.cmts-hd { font-size: 11px; color: var(--dim); text-transform: uppercase;
+  letter-spacing: .7px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+.cmt { display: flex; gap: 8px; margin-bottom: 11px; }
+.cmt .av { width: 26px; height: 26px; font-size: 11px; flex-shrink: 0; }
+.cmt-body { font-size: 13px; line-height: 1.5; }
+.cmt-body .an { font-weight: 600; margin-right: 4px; }
+.cmt-body .ct-dim { color: var(--dim); font-size: 11px; display: block; margin-top: 2px; }
+
+.pm-bot { border-top: 1px solid var(--bdr); padding: 10px 13px;
+  flex-shrink: 0; display: flex; gap: 8px; align-items: center; }
+.cmt-open-btn {
+  flex: 1; background: var(--s2); border: 1.5px solid var(--bdr);
+  border-radius: 20px; padding: 8px 14px;
+  color: var(--dim); font-family: inherit; font-size: 13px;
+  text-align: left; cursor: pointer; transition: border-color .16s, color .16s !important;
+}
+.cmt-open-btn:hover { border-color: var(--acc); color: var(--sub); transform: none !important; }
+
+/* ─────────────────────────────────────────────────────
+   COMPOSE MODAL  (bottom sheet)
+───────────────────────────────────────────────────── */
+.cov { align-items: flex-end; }
+@media (min-width: 601px) { .cov { align-items: center; } }
+
+.cs {
+  width: min(100vw, var(--max-w));
+  background: var(--s1); border-radius: 20px 20px 0 0;
+  display: flex; flex-direction: column; max-height: 94dvh;
+  animation: sheetup .26s cubic-bezier(.22,.61,.36,1);
+}
+@media (min-width: 601px) { .cs { border-radius: 20px; } }
+@keyframes sheetup { from { transform: translateY(100%); opacity:0; } to { transform: none; opacity:1; } }
+
+.cs-handle { width: 34px; height: 4px; border-radius: 3px;
+  background: var(--bdr); margin: 10px auto 13px; flex-shrink: 0; }
+.cs-top { display: flex; align-items: center; justify-content: space-between;
+  padding: 0 15px 12px; border-bottom: 1px solid var(--bdr); flex-shrink: 0; }
+.cs-top h2 { font-size: 15.5px; font-weight: 600; color: var(--txt); }
+.cs-body { overflow-y: auto; padding: 15px; flex: 1; }
+
+/* image zone */
+.imgz {
+  width: 100%; aspect-ratio: 4/3; background: var(--s2);
+  border: 2px dashed var(--bdr); border-radius: 11px;
+  position: relative; overflow: hidden; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; color: var(--sub); margin-bottom: 14px;
+  transition: border-color .18s, background .18s;
+}
+.imgz:hover, .imgz.drag { border-color: var(--acc); background: rgba(196,122,255,.07); }
+.imgz svg { opacity: .45; }
+.imgz span { font-size: 13px; }
+.imgz input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.imgz .prev { position: absolute; inset: 0; background: #000;
+  display: flex; align-items: center; justify-content: center; }
+.imgz .prev img { max-width:100%; max-height:100%; object-fit:contain; }
+.rm-prev { position: absolute; top: 7px; right: 7px;
+  background: rgba(0,0,0,.72) !important; border-radius: 50%;
+  width: 26px; height: 26px; padding: 0;
+  color: #fff !important; transition: background .16s !important; }
+.rm-prev:hover { background: var(--red) !important; transform: none !important; }
+
+/* fields */
+.field { margin-bottom: 13px; }
+.field label { display: block; font-size: 11px; font-weight: 600;
+  color: var(--sub); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px; }
+.field input, .field textarea {
+  width: 100%; background: var(--s2); border: 1.5px solid var(--bdr);
+  border-radius: 9px; padding: 9px 12px; color: var(--txt);
+  font-family: inherit; font-size: 14px; outline: none; resize: none;
+  transition: border-color .18s;
+}
+.field input:focus, .field textarea:focus { border-color: var(--acc); }
+.field textarea { min-height: 84px; line-height: 1.5; }
+.field input::placeholder, .field textarea::placeholder { color: var(--dim); }
+.f-err { border-color: var(--red) !important; }
+
+/* info box */
+.infobox {
+  background: rgba(196,122,255,.08); border: 1px solid rgba(196,122,255,.25);
+  border-radius: 10px; padding: 10px 12px; font-size: 12.5px;
+  color: var(--sub); line-height: 1.6; margin-bottom: 14px;
+}
+.infobox strong { color: var(--acc); }
+
+/* submit button */
+.post-btn {
+  width: calc(100% - 30px); margin: 0 15px 18px;
+  background: linear-gradient(128deg, var(--acc), var(--acc2));
+  border: none; border-radius: 11px;
+  color: #fff !important; font-size: 15px; font-weight: 600;
+  padding: 13px; gap: 8px; flex-shrink: 0;
+  transition: opacity .18s, transform .15s !important;
+}
+.post-btn:hover { opacity: .9; transform: translateY(-1px) !important; }
+.post-btn:disabled { opacity: .4; cursor: default; transform: none !important; }
+
+/* ─────────────────────────────────────────────────────
+   POPUP OVERLAY (waiting for Xobor popup)
+───────────────────────────────────────────────────── */
+.popup-wait {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,.88); backdrop-filter: blur(10px);
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 18px;
+}
+.popup-wait.open { display: flex; }
+.popup-wait p { color: var(--sub); font-size: 14px; text-align: center; max-width: 280px; line-height: 1.6; }
+.popup-wait strong { color: var(--txt); }
+.popup-cancel { margin-top: 4px; color: var(--dim) !important; font-size: 13px; }
+.popup-cancel:hover { color: var(--red) !important; }
+
+/* ─────────────────────────────────────────────────────
+   TOAST
+───────────────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%);
+  background: var(--s2); border: 1px solid var(--bdr);
+  padding: 9px 18px; border-radius: 22px; font-size: 13px;
+  opacity: 0; pointer-events: none; transition: opacity .22s;
+  white-space: nowrap; z-index: 999;
+}
+.toast.show { opacity: 1; }
+.toast.ok  { border-color: var(--acc3); color: var(--acc3); }
+.toast.err { border-color: var(--red); color: var(--red); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <header class="hdr">
+    <span class="logo">Simstagram</span>
+    <div class="hdr-btns">
+      <button id="btn-compose" title="Neuer Post" onclick="openCompose()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <button title="Neu laden" onclick="loadFeed(true)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- SCROLLABLE FEED -->
+  <div class="scroll-area">
+    <div class="stories-wrap"><div class="stories" id="stories"></div></div>
+    <div class="hdiv"></div>
+    <div id="feed"></div>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" onclick="openCompose()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bnav">
+    <button class="act" title="Feed">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    </button>
+    <button title="Neuer Post" onclick="openCompose()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 8v8M8 12h8"/></svg>
+    </button>
+    <button title="Forum" onclick="window.open(XOBOR+'/forum.php','_blank')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </button>
+    <button title="Profil" onclick="window.open(XOBOR+'/member.php','_blank')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </button>
+  </nav>
+
+  <!-- ═══ POST DETAIL MODAL ═══ -->
+  <div class="ov" id="pm-ov" onclick="if(event.target===this)closePM()">
+    <div class="pm">
+      <div class="pm-img" id="pm-img" style="display:none">
+        <img id="pm-img-el" src="" alt="">
+      </div>
+      <div class="pm-side">
+        <div class="pm-top">
+          <div class="av" id="pm-av"></div>
+          <div>
+            <div class="cn" id="pm-name"></div>
+            <div class="cd" id="pm-date"></div>
+          </div>
+          <button onclick="closePM()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="pm-scroll">
+          <div class="pm-cap" id="pm-cap"></div>
+          <div class="cmts-hd">
+            <span>Kommentare</span>
+            <button style="padding:2px 6px;font-size:11px;color:var(--acc)" id="pm-cmt-refresh" onclick="refreshCmts()">↺ Aktualisieren</button>
+          </div>
+          <div id="pm-cmts"><span style="color:var(--dim);font-size:12px">Lade…</span></div>
+        </div>
+        <div class="pm-bot">
+          <button class="cmt-open-btn" onclick="openCommentPopup()">
+            Kommentar schreiben… (öffnet Xobor)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ COMPOSE MODAL ═══ -->
+  <div class="ov cov" id="co-ov" onclick="if(event.target===this)closeCompose()">
+    <div class="cs">
+      <div class="cs-handle"></div>
+      <div class="cs-top">
+        <h2>Neuer Simstagram-Post</h2>
+        <button onclick="closeCompose()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="cs-body">
+        <div class="imgz" id="imgz"
+          ondragover="event.preventDefault();this.classList.add('drag')"
+          ondragleave="this.classList.remove('drag')"
+          ondrop="onDrop(event)">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <span>Bild auswählen oder hierher ziehen</span>
+          <input type="file" id="img-file" accept="image/*" onchange="onFileSelect(event)">
+        </div>
+        <div class="field">
+          <label>Titel</label>
+          <input type="text" id="p-title" placeholder="Titel des Posts" maxlength="120">
+        </div>
+        <div class="field">
+          <label>Caption / Text</label>
+          <textarea id="p-text" placeholder="Was möchtest du teilen?"></textarea>
+        </div>
+        <div class="infobox">
+          <strong>So funktioniert's:</strong> Dein Titel und Text werden vorausgefüllt. Es öffnet sich ein kleines Xobor-Fenster — dort lädst du das Bild hoch und klickst <strong>Absenden</strong>. Das Fenster schließt sich danach automatisch.
+        </div>
+      </div>
+      <button class="post-btn" id="p-btn" onclick="submitPost()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Weiter zum Posten
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ POPUP WAITING SCREEN ═══ -->
+  <div class="popup-wait" id="pw">
+    <div class="spin"></div>
+    <p id="pw-txt">Warte auf das Xobor-Fenster…</p>
+    <button class="popup-cancel" onclick="cancelPopupWait()">Abbrechen</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div><!-- /#app -->
+
+<script>
+// ╔══════════════════════════════════════════════════════════╗
+//   CONFIG  –  Beide Domains, Umschaltung via ?test in URL
+// ╚══════════════════════════════════════════════════════════╝
+const IS_TEST   = new URLSearchParams(location.search).has('test');
+const XOBOR     = IS_TEST
+  ? 'https://simsspielwiesetest.xobor.de'
+  : 'https://simsforumrpg.de';
+const BLOG_CAT  = '1386';   // Simstagram-Kategorie-ID
+const APPSSCRIPT = 'https://script.google.com/macros/s/AKfycbw2QtXNxsvSaD4xzwZcX3U5EebauDQjxfX4LtSHhLViR9RB2jBsmvJWEqhM9Agdqvvo/exec';
+
+// ╔══════════════════════════════════════════════════════════╗
+//   STATE
+// ╚══════════════════════════════════════════════════════════╝
+let posts    = [];
+let liked    = JSON.parse(localStorage.getItem('sim_liked') || '{}');
+let curPost  = null;   // currently open post in modal
+let imgFile  = null;   // selected image file
+let xPopup   = null;   // reference to Xobor popup window
+let pwTimer  = null;   // popup-watch interval
+
+// ╔══════════════════════════════════════════════════════════╗
+//   LOAD FEED
+// ╚══════════════════════════════════════════════════════════╝
+async function loadFeed(showSpinner = true) {
+  const feed = $('feed');
+  if (showSpinner) feed.innerHTML = `<div class="status"><div class="spin"></div><span>Posts laden…</span></div>`;
+  try {
+    const res  = await fetch(APPSSCRIPT);
+    const data = await res.json();
+    posts = Array.isArray(data) ? data : (data.posts || data.items || data.data || []);
+    if (!posts.length) throw new Error('Keine Posts gefunden');
+    buildStories();
+    buildFeed();
+  } catch(e) {
+    feed.innerHTML = `<div class="status">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--dim)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+      <span>Posts konnten nicht geladen werden.<br><small style="color:var(--dim);font-size:12px">Apps Script URL prüfen</small></span>
+    </div>`;
+    console.error('[Simstagram] Feed error:', e);
+  }
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+//   STORIES
+// ╚══════════════════════════════════════════════════════════╝
+function buildStories() {
+  const seen = new Map();
+  posts.forEach(p => { const n=F(p,'author'); if(!seen.has(n)) seen.set(n,p); });
+  let i=0;
+  $('stories').innerHTML = [...seen.entries()].map(([name,p]) => {
+    const ava = F(p,'avatar');
+    const cls = (i++ > 1) ? 'seen' : '';
+    return `<div class="story" onclick="jumpTo(${Q(name)})">
+      <div class="s-ring ${cls}">
+        <div class="s-av">${ava ? `<img src="${X(ava)}" onerror="this.outerHTML='${IC(name)}'">` : IC(name)}</div>
+      </div>
+      <span class="s-nm">${X(name)}</span>
+    </div>`;
+  }).join('');
+}
+
+function jumpTo(name) {
+  const el = document.querySelector(`.card[data-a="${CSS.escape(name)}"]`);
+  if (el) {
+    el.scrollIntoView({behavior:'smooth',block:'start'});
+    el.style.outline = '2px solid var(--acc)';
+    setTimeout(() => el.style.outline = '', 1100);
+  }
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+//   BUILD FEED
+// ╚══════════════════════════════════════════════════════════╝
+function buildFeed() {
+  $('feed').innerHTML = posts.map((p,i) => buildCard(p,i)).join('');
+}
+
+function buildCard(p, i) {
+  const id    = F(p,'id') || i;
+  const title = F(p,'title');
+  const auth  = F(p,'author');
+  const date  = F(p,'date');
+  const cont  = F(p,'content');
+  const img   = F(p,'image');
+  const cmts  = parseInt(F(p,'comments') || 0, 10);
+  const ava   = F(p,'avatar');
+  const on    = !!liked[id];
+  const short = cont.length > 160 ? cont.slice(0, 160) + '…' : cont;
+
+  return `<article class="card" data-id="${X(id)}" data-a="${X(auth)}" data-i="${i}">
+    <div class="ch">
+      <div class="av">${ava ? `<img src="${X(ava)}" onerror="this.outerHTML='${IC(auth)}'">` : IC(auth)}</div>
+      <div>
+        <div class="cn">${X(auth)}</div>
+        <div class="cd">${X(date)}</div>
+      </div>
+      <button onclick="openPost(${i})" title="Post öffnen">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+      </button>
+    </div>
+
+    ${img ? `<div class="ci" onclick="openPost(${i})">
+      <img src="${X(img)}" loading="lazy" alt="${X(title)}"
+           onerror="this.closest('.ci').style.display='none'">
+    </div>` : ''}
+
+    <div class="ca">
+      <button class="lk-btn${on?' on':''}" onclick="toggleLike(${Q(String(id))},this)" title="Gefällt mir">
+        <svg width="22" height="22" viewBox="0 0 24 24"
+          fill="${on?'var(--red)':'none'}"
+          stroke="${on?'var(--red)':'currentColor'}"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </button>
+      <button onclick="openPost(${i})" title="Kommentare">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        ${cmts > 0 ? `<span style="font-size:13px">${cmts}</span>` : ''}
+      </button>
+    </div>
+
+    <div class="cc">
+      <strong>${X(title)}</strong>
+      <span class="an">${X(auth)}</span><span class="ct">${X(short)}</span>
+    </div>
+    ${cont.length > 160 ? `<div class="cm-link" onclick="openPost(${i})">Alles anzeigen</div>` : '<div style="height:10px"></div>'}
+  </article>`;
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+//   LIKE
+// ╚══════════════════════════════════════════════════════════╝
+function toggleLike(id, btn) {
+  liked[id] = !liked[id];
+  localStorage.setItem('sim_liked', JSON.stringify(liked));
+  const on = liked[id];
+  btn.classList.toggle('on', on);
+  const svg = btn.querySelector('svg');
+  svg.setAttribute('fill',   on ? 'var(--red)' : 'none');
+  svg.setAttribute('stroke', on ? 'var(--red)' : 'currentColor');
+  btn.style.transform = 'scale(1.45)';
+  setTimeout(() => btn.style.transform = '', 210);
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+//   POST DETAIL MODAL
+// ╚══════════════════════════════════════════════════════════╝
+async function openPost(i) {
+  const p = posts[i]; if (!p) return;
+  curPost = { p, i, url: F(p,'url') };
+
+  const img   = F(p,'image'), title = F(p,'title'), auth = F(p,'author');
+  const date  = F(p,'date'),  cont  = F(p,'content'), ava = F(p,'avatar');
+
+  // Image panel
+  const imgCol = $('pm-img');
+  if (img) { imgCol.style.display=''; $('pm-img-el').src = img; $('pm-img-el').alt = title; }
+  else { imgCol.style.display='none'; }
+
+  $('pm-av').innerHTML   = ava ? `<img src="${X(ava)}" onerror="this.outerHTML='${IC(auth)}'">` : IC(auth);
+  $('pm-name').textContent = auth;
+  $('pm-date').textContent = date;
+  $('pm-cap').innerHTML    = `<strong>${X(title)}</strong><span class="an">${X(auth)}</span>${X(cont)}`;
+  $('pm-cmts').innerHTML   = '<span style="color:var(--dim);font-size:12px">Lade Kommentare…</span>';
+
+  $('pm-ov').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Fetch comments
+  if (curPost.url) await fetchComments(curPost.url);
+}
+
+async function fetchComments(url) {
+  const div = $('pm-cmts');
+  try {
+    // Fetch via Apps Script proxy to avoid CORS (add action=comments&url=... to your script)
+    // Fallback: direct fetch (works if Xobor allows cross-origin reads, unlikely)
+    let html;
+    try {
+      const proxyUrl = `${APPSSCRIPT}?action=comments&url=${encodeURIComponent(url)}`;
+      const r = await fetch(proxyUrl);
+      const d = await r.json();
+      if (d.comments) {
+        renderComments(d.comments, div); return;
+      }
+    } catch(_) {}
+
+    // Direct fetch fallback (may fail due to CORS)
+    const r   = await fetch(url);
+    html = await r.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+
+    // Try various Xobor comment selectors
+    let items = [...doc.querySelectorAll('.blog_comment_entry,.comment_entry,[id^="comment_"]')];
+    if (!items.length) {
+      const anchor = doc.querySelector('#com,[name="com"]');
+      if (anchor) {
+        let el = anchor.nextElementSibling;
+        while (el && items.length < 60) {
+          if ((el.textContent||'').trim().length > 3) items.push(el);
+          el = el.nextElementSibling;
+        }
+      }
+    }
+    if (!items.length) { div.innerHTML = '<span style="color:var(--dim);font-size:12px">Noch keine Kommentare.</span>'; return; }
+
+    const cmts = items.map(el => {
+      const raw  = (el.textContent||'').replace(/\s+/g,' ').trim();
+      if (!raw || raw.length < 3) return null;
+      const authEl = el.querySelector('a[href*="/u"],strong,b,.username');
+      const an = authEl ? authEl.textContent.trim() : '';
+      return { author: an, text: an ? raw.replace(an,'').trim() : raw };
+    }).filter(Boolean);
+
+    renderComments(cmts, div);
+  } catch(e) {
+    div.innerHTML = `<span style="color:var(--dim);font-size:12px">
+      Kommentare nicht verfügbar.
+      <a href="${url}#com" target="_blank" style="color:var(--acc);display:block;margin-top:4px">Auf Xobor ansehen →</a>
+    </span>`;
+  }
+}
+
+function renderComments(cmts, div) {
+  if (!cmts.length) { div.innerHTML = '<span style="color:var(--dim);font-size:12px">Noch keine Kommentare.</span>'; return; }
+  div.innerHTML = cmts.map(c => `
+    <div class="cmt">
+      <div class="av" style="font-size:11px">${IC(c.author||'?')}</div>
+      <div class="cmt-body">
+        ${c.author ? `<span class="an">${X(c.author)}</span>` : ''}${X(c.text)}
+      </div>
+    </div>`
+  ).join('');
+}
+
+function refreshCmts() {
+  if (curPost?.url) {
+    $('pm-cmts').innerHTML = '<span style="color:var(--dim);font-size:12px">Lade…</span>';
+    fetchComments(curPost.url);
+  }
+}
+
+function closePM() {
+  $('pm-ov').classList.remove('open');
+  document.body.style.overflow = '';
+  curPost = null;
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+//   COMMENT via Xobor popup
+// ╚══════════════════════════════════════════════════════════╝
+function openCommentPopup() {
+  if (!curPost?.url) return;
+  // Open Xobor post page at the comment anchor
+  const url = curPost.url + (curPost.url.includes('#') ? '' : '#com');
+  openXoborPopup(url, 'kommentieren');
+  showPopupWait('Schreibe deinen Kommentar im Xobor-Fenster und klick <strong>Abschicken</strong>.<br>Danach schließt es sich automatisch.', () => {
+    refreshCmts();
+    toast('Kommentare aktualisiert', 'ok');
+  });
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+//   COMPOSE
+// ╚══════════════════════════════════════════════════════════╝
+function openCompose() {
+  $('co-ov').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeCompose() {
+  $('co-ov').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function onFileSelect(e) { if (e.target.files[0]) previewImg(e.target.files[0]); }
+function onDrop(e) {
+  e.preventDefault();
+  $('imgz').classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f?.type.startsWith('image/')) previewImg(f);
+}
+function previewImg(file) {
+  imgFile = file;
+  const url = URL.createObjectURL(file);
+  $('imgz').innerHTML = `<div class="prev">
+    <img src="${url}" alt="Vorschau">
+    <button class="rm-prev" onclick="clearImg()" type="button">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>`;
+}
+function clearImg() {
+  imgFile = null;
+  $('imgz').innerHTML = `
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    <span>Bild auswählen oder hierher ziehen</span>
+    <input type="file" id="img-file" accept="image/*" onchange="onFileSelect(event)">`;
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+//   SUBMIT POST → open Xobor popup pre-filled
+// ╚══════════════════════════════════════════════════════════╝
+function submitPost() {
+  const title = $('p-title').value.trim();
+  const text  = $('p-text').value.trim();
+
+  if (!title) {
+    $('p-title').classList.add('f-err');
+    setTimeout(() => $('p-title').classList.remove('f-err'), 1400);
+    return;
+  }
+
+  // Build pre-fill URL for Xobor blog editor
+  // Xobor accepts: subject= and message= as URL params for the blog form
+  const params = new URLSearchParams();
+  params.set('subject',  title);
+  if (text) params.set('message', text);
+  params.set('category', BLOG_CAT);
+
+  const url = `${XOBOR}/blog-a.html?${params}`;
+
+  closeCompose();
+
+  // Open styled popup
+  openXoborPopup(url, 'neuer-post');
+
+  showPopupWait(
+    `Titel und Text sind vorausgefüllt.<br>Lade jetzt dein <strong>Bild</strong> hoch und klick <strong>Absenden</strong>.`,
+    () => {
+      // After popup closes → clear form + reload feed
+      clearImg();
+      $('p-title').value = '';
+      $('p-text').value  = '';
+      imgFile = null;
+      setTimeout(() => loadFeed(false), 1200);
+      toast('Post veröffentlicht! 🎉', 'ok');
+    }
+  );
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+//   XOBOR POPUP MANAGEMENT
+// ╚══════════════════════════════════════════════════════════╝
+function openXoborPopup(url, name) {
+  // Size & position: centered, 680×720
+  const w = 680, h = 720;
+  const left = Math.max(0, (screen.width  - w) / 2);
+  const top  = Math.max(0, (screen.height - h) / 2);
+  xPopup = window.open(url, `xobor-${name}`,
+    `width=${w},height=${h},left=${left},top=${top},scrollbars=yes,resizable=yes`);
+}
+
+function showPopupWait(message, onClose) {
+  const pw = $('pw');
+  $('pw-txt').innerHTML = message;
+  pw.classList.add('open');
+
+  // Poll for popup closed
+  clearInterval(pwTimer);
+  pwTimer = setInterval(() => {
+    if (!xPopup || xPopup.closed) {
+      clearInterval(pwTimer);
+      pw.classList.remove('open');
+      xPopup = null;
+      if (onClose) onClose();
+    }
+  }, 800);
+}
+
+function cancelPopupWait() {
+  clearInterval(pwTimer);
+  $('pw').classList.remove('open');
+  if (xPopup && !xPopup.closed) xPopup.close();
+  xPopup = null;
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+//   UTILS
+// ╚══════════════════════════════════════════════════════════╝
+
+// Flexible field getter – handles different Apps Script naming conventions
+const ALIASES = {
+  id:       ['id','blogId','blog_id','postId','post_id','nr','entryId'],
+  title:    ['title','subject','betreff','headline','name'],
+  author:   ['author','user','username','autor','by','name'],
+  date:     ['date','created','datum','time','timestamp','created_at','posted'],
+  content:  ['content','text','body','message','summary','excerpt','inhalt','teaser','description'],
+  image:    ['image','img','imageUrl','image_url','thumbnail','photo','bild','src','picture','cover'],
+  avatar:   ['avatar','avatarUrl','avatar_url','profilePic','profile_pic','userAvatar','authorAvatar'],
+  url:      ['url','link','href','postUrl','post_url','blogUrl','blog_url','permalink'],
+  comments: ['comments','commentCount','comment_count','kommentare','replies','numComments'],
+};
+function F(obj, field) {
+  for (const k of (ALIASES[field] || [field])) {
+    if (obj[k] != null && obj[k] !== '') return String(obj[k]);
+  }
+  return '';
+}
+
+const EMOJIS = ['🌸','🎮','✨','🦋','🌙','🌻','⚡','🎀','🌊','🎭','🍀','💫','🦄','🌈','⭐','🎪'];
+function IC(name) {
+  const idx = [...(name||'')].reduce((a,c) => a + c.charCodeAt(0), 0) % EMOJIS.length;
+  return `<span style="font-size:16px">${EMOJIS[idx]}</span>`;
+}
+function X(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function Q(s) { return JSON.stringify(s); }
+function $(id) { return document.getElementById(id); }
+
+let _tt;
+function toast(msg, type = '') {
+  const el = $('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + type;
+  clearTimeout(_tt);
+  _tt = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closePM(); closeCompose(); cancelPopupWait(); }
+});
+
+// ╔══════════════════════════════════════════════════════════╗
+//   INIT
+// ╚══════════════════════════════════════════════════════════╝
+
+// Show which domain is active (for debugging)
+if (IS_TEST) console.info('[Simstagram] TEST-Modus → ' + XOBOR);
+else         console.info('[Simstagram] Produktion → ' + XOBOR);
+
+loadFeed();
+</script>
+</body>
+</html>
