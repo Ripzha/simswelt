@@ -536,7 +536,7 @@ const BLOG_URL   = 'https://simsforumrpg.de/blog-a.html';
 const BLOG_CAT   = '1386';
 
 // ← HIER die URL des neuen Simstagram-Apps-Scripts eintragen:
-const APPSSCRIPT     = 'https://script.google.com/macros/s/AKfycbz-lPAoQBklJ6pbvgF0qp40GE-gl4PdIYkJfFnHWA2kl07VaslLwSlFOk-LaoMB5_fJSw/exec';
+const APPSSCRIPT     = 'NEUE_APPS_SCRIPT_URL_HIER_EINTRAGEN';
 const APPSSCRIPT_FEED = APPSSCRIPT + '?action=feed';
 
 // ╔══════════════════════════════════════════════════════════╗
@@ -692,27 +692,35 @@ function toggleLike(id, btn) {
 // ╚══════════════════════════════════════════════════════════╝
 async function openPost(i) {
   const p = posts[i]; if (!p) return;
-  curPost = { p, i, url: F(p,'url') };
-
   const img   = F(p,'image'), title = F(p,'title'), auth = F(p,'author');
   const date  = F(p,'date'),  cont  = F(p,'content'), ava = F(p,'avatar');
+  const url   = F(p,'url');
+  curPost = { p, i, url };
 
-  // Image panel
-  const imgCol = $('pm-img');
-  if (img) { imgCol.style.display=''; $('pm-img-el').src = img; $('pm-img-el').alt = title; }
-  else { imgCol.style.display='none'; }
+  const ic = $('pm-img'), ie = $('pm-img-el');
+  if (img) { ic.style.display=''; ie.src=img; ie.alt=title; } else { ic.style.display='none'; }
 
-  $('pm-av').innerHTML   = ava ? `<img src="${X(ava)}" onerror="this.outerHTML='${IC(auth)}'">` : IC(auth);
+  $('pm-av').innerHTML     = ava ? `<img src="${X(ava)}" onerror="this.outerHTML='${IC(auth)}'">` : IC(auth);
   $('pm-name').textContent = auth;
   $('pm-date').textContent = date;
-  $('pm-cap').innerHTML    = `<strong>${X(title)}</strong><span class="an">${X(auth)}</span>${X(cont)}`;
+  $('pm-cap').innerHTML    = `<strong>${X(title)}</strong><span class="an">${X(auth)}</span>${X(cont || '')}`;
   $('pm-cmts').innerHTML   = '<span style="color:var(--dim);font-size:12px">Lade Kommentare…</span>';
 
   $('pm-ov').classList.add('open');
   document.body.style.overflow = 'hidden';
 
-  // Fetch comments
-  if (curPost.url) await fetchComments(curPost.url);
+  if (url) {
+    // Vollständigen Text nachladen wenn leer
+    if (!cont) {
+      fetch(`${APPSSCRIPT}?action=post&url=${encodeURIComponent(url)}`)
+        .then(r => r.json())
+        .then(d => {
+          if (d.content) $('pm-cap').innerHTML = `<strong>${X(title)}</strong><span class="an">${X(auth)}</span>${X(d.content)}`;
+          if (d.image && !img) { $('pm-img-el').src = d.image; $('pm-img').style.display = ''; }
+        }).catch(() => {});
+    }
+    fetchComments(url);
+  }
 }
 
 async function fetchComments(url) {
@@ -828,32 +836,31 @@ function submitPost() {
     return;
   }
 
-  // Build pre-fill URL for Xobor blog editor
-  // Xobor accepts: subject= and message= as URL params for the blog form
-  const params = new URLSearchParams();
-  params.set('subject',  title);
-  if (text) params.set('message', text);
-  params.set('category', BLOG_CAT);
-
-  const url = `${BLOG_URL}?${params}`;
-
   closeCompose();
 
-  // Open styled popup
-  openXoborPopup(url, 'neuer-post');
+  // Xobor akzeptiert keine URL-Parameter bei blog-a.html → einfach öffnen
+  openXoborPopup('https://simsforumrpg.de/blog-a.html', 'neuer-post');
 
-  showPopupWait(
-    `Titel und Text sind vorausgefüllt.<br>Lade jetzt dein <strong>Bild</strong> hoch und klick <strong>Absenden</strong>.`,
-    () => {
-      // After popup closes → clear form + reload feed
-      clearImg();
-      $('p-title').value = '';
-      $('p-text').value  = '';
-      imgFile = null;
-      setTimeout(() => loadFeed(false), 1200);
-      toast('Post veröffentlicht! 🎉', 'ok');
-    }
-  );
+  // Hilfstexte für Copy-Paste im Wartedialog anzeigen
+  const hint = `Kopiere diese Infos ins Xobor-Fenster:<br><br>
+    <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:10px;margin-bottom:8px;font-size:12px">
+      <div style="color:var(--sub);margin-bottom:3px">TITEL:</div>
+      <div style="color:var(--txt);font-weight:600;user-select:all">${X(title)}</div>
+    </div>
+    ${text ? `<div style="background:rgba(255,255,255,.07);border-radius:8px;padding:10px;margin-bottom:8px;font-size:12px">
+      <div style="color:var(--sub);margin-bottom:3px">TEXT:</div>
+      <div style="color:var(--txt);user-select:all">${X(text)}</div>
+    </div>` : ''}
+    <div style="font-size:12px;color:var(--sub);margin-top:4px">Dann Bild hochladen → <strong style="color:var(--txt)">Absenden</strong></div>`;
+
+  showPopupWait(hint, () => {
+    clearImg();
+    $('p-title').value = '';
+    $('p-text').value  = '';
+    imgFile = null;
+    setTimeout(() => loadFeed(false), 1200);
+    toast('Post veröffentlicht! 🎉', 'ok');
+  });
 }
 
 // ╔══════════════════════════════════════════════════════════╗
