@@ -519,10 +519,10 @@ button:active { transform: scale(.95); }
 
 <script>
 // ╔══════════════════════════════════════════════════════════╗
-//   CONFIG  –  Umschaltung via URL-Parameter:
-//   ?test   → Testforum  (simsspielwiesetest.xobor.de)
-//   ?debug  → zeigt rohe JSON-Daten vom Apps Script
-//   Beides kombinierbar: ?test&debug
+//   CONFIG
+//   APPSSCRIPT = URL des NEUEN, separaten Simstagram-Scripts
+//                (nicht das Atlas-Script!)
+//   Nach dem Deploy des neuen Scripts diese URL eintragen.
 // ╚══════════════════════════════════════════════════════════╝
 const _params    = new URLSearchParams(location.search);
 const IS_TEST    = _params.has('test');
@@ -532,14 +532,12 @@ const XOBOR      = IS_TEST
   ? 'https://simsspielwiesetest.xobor.de'
   : 'https://simsforumrpg.de';
 
-// ⚠️  Wichtig: Das Testforum hat KEINEN Blog – Blog-Posts nur auf simsforumrpg.de möglich!
-// Für den Test mit Blog: IS_TEST entfernen oder auf simsforumrpg.de testen.
-const BLOG_URL   = IS_TEST
-  ? 'https://simsforumrpg.de/blog-a.html'   // Blog immer auf Produktion
-  : 'https://simsforumrpg.de/blog-a.html';
+const BLOG_URL   = 'https://simsforumrpg.de/blog-a.html';
+const BLOG_CAT   = '1386';
 
-const BLOG_CAT   = '1386';   // Simstagram-Kategorie-ID auf simsforumrpg.de
-const APPSSCRIPT = 'https://script.google.com/macros/s/AKfycbw2QtXNxsvSaD4xzwZcX3U5EebauDQjxfX4LtSHhLViR9RB2jBsmvJWEqhM9Agdqvvo/exec';
+// ← HIER die URL des neuen Simstagram-Apps-Scripts eintragen:
+const APPSSCRIPT     = 'https://script.google.com/macros/s/AKfycbz-lPAoQBklJ6pbvgF0qp40GE-gl4PdIYkJfFnHWA2kl07VaslLwSlFOk-LaoMB5_fJSw/exec';
+const APPSSCRIPT_FEED = APPSSCRIPT + '?action=feed';
 
 // ╔══════════════════════════════════════════════════════════╗
 //   STATE
@@ -558,7 +556,7 @@ async function loadFeed(showSpinner = true) {
   const feed = $('feed');
   if (showSpinner) feed.innerHTML = `<div class="status"><div class="spin"></div><span>Posts laden…</span></div>`;
   try {
-    const res  = await fetch(APPSSCRIPT);
+    const res  = await fetch(APPSSCRIPT_FEED);
     const raw  = await res.text();
     let data;
     try { data = JSON.parse(raw); }
