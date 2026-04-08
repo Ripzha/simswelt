@@ -566,7 +566,7 @@ const APPSSCRIPT_FEED = APPSSCRIPT + '?action=feed';
 //   STATE
 // ╚══════════════════════════════════════════════════════════╝
 let posts    = [];
-const PER_PAGE = 10;
+const PER_PAGE = 5;
 let curPage  = 0; // 0-indexed
 let liked    = JSON.parse(localStorage.getItem('sim_liked') || '{}');
 let curPost  = null;   // currently open post in modal
@@ -666,6 +666,39 @@ function goPage(p) {
   curPage = p;
   buildFeed();
   document.querySelector('.scroll-area').scrollTo({top:0, behavior:'smooth'});
+  // Lazy-load images for posts on this page that don't have images yet
+  lazyLoadImages();
+}
+
+async function lazyLoadImages() {
+  const start = curPage * PER_PAGE;
+  const pagePosts = posts.slice(start, start + PER_PAGE);
+  for (let i = 0; i < pagePosts.length; i++) {
+    const p = pagePosts[i];
+    if (F(p,'image')) continue; // already has image
+    const url = F(p,'url');
+    if (!url) continue;
+    try {
+      const r = await fetch(`${APPSSCRIPT}?action=post&url=${encodeURIComponent(url)}`);
+      const d = await r.json();
+      if (d.image) {
+        p.image = d.image;
+        // Update the card's image without full rebuild
+        const card = document.querySelector(`.card[data-i="${start+i}"]`);
+        if (card && !card.querySelector('.ci')) {
+          const actDiv = card.querySelector('.ca');
+          if (actDiv) {
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'ci';
+            imgDiv.onclick = () => openPost(start+i);
+            imgDiv.innerHTML = `<img src="${X(d.image)}" loading="lazy" alt="">`;
+            card.insertBefore(imgDiv, actDiv);
+          }
+        }
+      }
+      if (d.content && !F(p,'content')) p.content = d.content;
+    } catch(_) {}
+  }
 }
 
 function buildCard(p, i) {
@@ -851,27 +884,34 @@ function closePM() {
 function openCommentPopup() {
   if (!curPost?.url) return;
   const text = $('cmtIn').value.trim();
-  // Xobor akzeptiert ?message= für Vorausfüllen (wie bei Forum-Posts)
-  // ?message= funktioniert nicht für Blog-Kommentare → nur #com öffnen
-  const url = curPost.url + '#com';
-  const w = 560, h = 500;
-  const left = Math.max(0, (screen.width  - w) / 2);
-  const top  = Math.max(0, (screen.height - h) / 2);
+  const url  = curPost.url + '#com';
+
+  // Auto-copy comment text to clipboard → user just Ctrl+V in Xobor editor
+  if (text && navigator.clipboard) {
+    navigator.clipboard.writeText(text)
+      .then(() => toast('📋 Kommentar kopiert — Ctrl+V im Fenster einfügen', 'ok'))
+      .catch(() => {});
+  }
+
+  // Open popup positioned beside our UI (not on top)
+  const w = 540, h = 480;
+  const left = Math.min(screen.width - w - 10, window.screenX + window.outerWidth + 10);
+  const top  = Math.max(10, window.screenY + 80);
   xPopup = window.open(url, 'xobor-comment',
     `width=${w},height=${h},left=${left},top=${top},scrollbars=yes,resizable=yes`);
-  showPopupWait(
-    text
-      ? `<div style="font-size:12px;color:var(--sub);margin-bottom:6px">Dein Kommentar zum Einfügen:</div>
-         <div style="background:rgba(255,255,255,.1);border:1px solid var(--acc);border-radius:8px;padding:10px;font-size:13px;color:var(--txt);cursor:pointer;word-break:break-word" onclick="navigator.clipboard&&navigator.clipboard.writeText(${JSON.stringify(text)})">${X(text)}</div>
-         <div style="font-size:11px;color:var(--dim);margin-top:6px">📋 Drauf klicken zum Kopieren → im Xobor-Fenster einfügen → <strong style="color:var(--txt)">Kommentar speichern</strong></div>`
-      : `Schreib deinen Kommentar im Xobor-Fenster und klick <strong>Kommentar speichern</strong>.`,
-    () => {
+
+  // No blocking overlay — just watch for popup close
+  clearInterval(pwTimer);
+  pwTimer = setInterval(() => {
+    if (!xPopup || xPopup.closed) {
+      clearInterval(pwTimer);
+      xPopup = null;
       $('cmtIn').value = '';
       autoH($('cmtIn'));
-      refreshCmts();
+      setTimeout(() => refreshCmts(), 800);
       toast('Kommentare aktualisiert ✓', 'ok');
     }
-  );
+  }, 1000);
 }
 
 // ╔══════════════════════════════════════════════════════════╗
@@ -941,14 +981,27 @@ function submitPost() {
          style="background:rgba(255,255,255,.08);border:1px solid var(--bdr);border-radius:8px;padding:10px;font-size:12px;color:var(--txt);cursor:pointer;word-break:break-word;margin-bottom:8px">${X(text)}</div>` : ''}
     <div style="font-size:12px;color:var(--sub)">📎 <strong style="color:var(--txt)">Datei anhängen</strong> für Bild → <strong style="color:var(--txt)">Jetzt veröffentlichen</strong></div>`;
 
-  showPopupWait(hint, () => {
-    clearImg();
-    $('p-title').value = '';
-    $('p-text').value  = '';
-    imgFile = null;
-    setTimeout(() => loadFeed(false), 1200);
-    toast('Post veröffentlicht! 🎉', 'ok');
-  });
+  // Auto-copy caption to clipboard → user just pastes in Xobor editor
+  if (text && navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      toast('📋 Caption kopiert — einfach Ctrl+V im Editor einfügen', 'ok');
+    }).catch(() => {});
+  }
+
+  showPopupWait(
+    `✅ Titel vorausgefüllt.<br>
+     ${text ? `📋 <strong>Caption ist in der Zwischenablage</strong> — im Editor <strong>Ctrl+V</strong> drücken.<br>` : ''}
+     📎 Bild anhängen → <strong>Jetzt veröffentlichen</strong>`,
+    () => {
+      closeCompose();
+      clearImg();
+      $('p-title').value = '';
+      $('p-text').value  = '';
+      imgFile = null;
+      setTimeout(() => loadFeed(false), 1200);
+      toast('Post veröffentlicht! 🎉', 'ok');
+    }
+  );
 }
 
 // ╔══════════════════════════════════════════════════════════╗
