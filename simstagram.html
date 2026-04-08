@@ -514,7 +514,7 @@ button:active { transform: scale(.95); }
           <textarea id="p-text" placeholder="Was möchtest du teilen?"></textarea>
         </div>
         <div class="infobox">
-          <strong>So funktioniert's:</strong> Dein Titel und Text werden vorausgefüllt. Es öffnet sich ein kleines Xobor-Fenster — dort lädst du das Bild hoch und klickst <strong>Absenden</strong>. Das Fenster schließt sich danach automatisch.
+          <strong>So funktioniert's:</strong> Der Titel wird vorausgefüllt. Im Xobor-Fenster den <strong>Caption-Text einfügen</strong>, Bild hochladen (📎 Datei anhängen) und <strong>Jetzt veröffentlichen</strong> klicken.
         </div>
       </div>
       <button class="post-btn" id="p-btn" onclick="submitPost()">
@@ -555,7 +555,7 @@ const XOBOR      = IS_TEST
   ? 'https://simsspielwiesetest.xobor.de'
   : 'https://simsforumrpg.de';
 
-const BLOG_URL   = 'https://www.simsforumrpg.de/blog-a.html';
+const BLOG_URL   = XOBOR + '/blog_new.php';
 const BLOG_CAT   = '1386';
 
 // ← HIER die URL des neuen Simstagram-Apps-Scripts eintragen:
@@ -566,6 +566,8 @@ const APPSSCRIPT_FEED = APPSSCRIPT + '?action=feed';
 //   STATE
 // ╚══════════════════════════════════════════════════════════╝
 let posts    = [];
+const PER_PAGE = 10;
+let curPage  = 0; // 0-indexed
 let liked    = JSON.parse(localStorage.getItem('sim_liked') || '{}');
 let curPost  = null;   // currently open post in modal
 let imgFile  = null;   // selected image file
@@ -594,6 +596,7 @@ async function loadFeed(showSpinner = true) {
     }
 
     if (!posts.length) throw new Error('Keine Posts gefunden. Das Apps Script gibt ein leeres Array zurück.');
+    curPage = 0;
     buildStories();
     buildFeed();
   } catch(e) {
@@ -638,7 +641,31 @@ function jumpTo(name) {
 //   BUILD FEED
 // ╚══════════════════════════════════════════════════════════╝
 function buildFeed() {
-  $('feed').innerHTML = posts.map((p,i) => buildCard(p,i)).join('');
+  const start = curPage * PER_PAGE;
+  const pagePosts = posts.slice(start, start + PER_PAGE);
+  const totalPages = Math.ceil(posts.length / PER_PAGE);
+
+  $('feed').innerHTML = pagePosts.map((p, i) => buildCard(p, start + i)).join('') + buildPager(totalPages);
+}
+
+function buildPager(totalPages) {
+  if (totalPages <= 1) return '';
+  const btns = [];
+  for (let p = 0; p < totalPages; p++) {
+    btns.push(`<button onclick="goPage(${p})" style="
+      padding:8px 14px;border-radius:8px;font-size:13px;
+      background:${p===curPage?'var(--acc)':'var(--s2)'};
+      color:${p===curPage?'#fff':'var(--sub)'};
+      border:1px solid var(--bdr);cursor:pointer;
+    ">${p + 1}</button>`);
+  }
+  return `<div style="display:flex;gap:8px;justify-content:center;padding:20px 12px;flex-wrap:wrap">${btns.join('')}</div>`;
+}
+
+function goPage(p) {
+  curPage = p;
+  buildFeed();
+  document.querySelector('.scroll-area').scrollTo({top:0, behavior:'smooth'});
 }
 
 function buildCard(p, i) {
@@ -834,8 +861,10 @@ function openCommentPopup() {
     `width=${w},height=${h},left=${left},top=${top},scrollbars=yes,resizable=yes`);
   showPopupWait(
     text
-      ? `<div style="background:rgba(255,255,255,.07);border-radius:8px;padding:10px;margin-bottom:8px;font-size:13px;user-select:all;color:var(--txt)">${X(text)}</div>Text kopieren → im Xobor-Fenster einfügen → <strong>Abschicken</strong>.`
-      : `Schreib deinen Kommentar und klick <strong>Abschicken</strong>.`,
+      ? `<div style="font-size:12px;color:var(--sub);margin-bottom:6px">Dein Kommentar zum Einfügen:</div>
+         <div style="background:rgba(255,255,255,.1);border:1px solid var(--acc);border-radius:8px;padding:10px;font-size:13px;color:var(--txt);cursor:pointer;word-break:break-word" onclick="navigator.clipboard&&navigator.clipboard.writeText(${JSON.stringify(text)})">${X(text)}</div>
+         <div style="font-size:11px;color:var(--dim);margin-top:6px">📋 Drauf klicken zum Kopieren → im Xobor-Fenster einfügen → <strong style="color:var(--txt)">Kommentar speichern</strong></div>`
+      : `Schreib deinen Kommentar im Xobor-Fenster und klick <strong>Kommentar speichern</strong>.`,
     () => {
       $('cmtIn').value = '';
       autoH($('cmtIn'));
@@ -898,19 +927,19 @@ function submitPost() {
   closeCompose();
 
   // Xobor akzeptiert keine URL-Parameter bei blog-a.html → einfach öffnen
-  openXoborPopup('https://www.simsforumrpg.de/blog-a.html', 'neuer-post');
+  // blog_new.php field name is "new_title" (confirmed via element inspection)
+  const blogParams = new URLSearchParams();
+  if (title) blogParams.set('new_title', title);
+  // Text goes into rich editor (can't pre-fill via URL) → shown as copy-paste in popup
+  const blogUrl = XOBOR + '/blog_new.php?' + blogParams.toString();
+  openXoborPopup(blogUrl, 'neuer-post');
 
-  // Hilfstexte für Copy-Paste im Wartedialog anzeigen
-  const hint = `Kopiere diese Infos ins Xobor-Fenster:<br><br>
-    <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:10px;margin-bottom:8px;font-size:12px">
-      <div style="color:var(--sub);margin-bottom:3px">TITEL:</div>
-      <div style="color:var(--txt);font-weight:600;user-select:all">${X(title)}</div>
-    </div>
-    ${text ? `<div style="background:rgba(255,255,255,.07);border-radius:8px;padding:10px;margin-bottom:8px;font-size:12px">
-      <div style="color:var(--sub);margin-bottom:3px">TEXT:</div>
-      <div style="color:var(--txt);user-select:all">${X(text)}</div>
-    </div>` : ''}
-    <div style="font-size:12px;color:var(--sub);margin-top:4px">Dann Bild hochladen → <strong style="color:var(--txt)">Absenden</strong></div>`;
+  // Titel wird via URL pre-filled (new_title param), Text als Copy-Paste
+  const hint = `✅ <strong>Titel</strong> ist vorausgefüllt.<br><br>
+    ${text ? `<div style="font-size:11px;color:var(--sub);margin-bottom:4px">📋 Caption — klicken zum Kopieren, dann in <strong style="color:var(--txt)">Artikel-Text</strong> einfügen:</div>
+    <div onclick="navigator.clipboard&&navigator.clipboard.writeText(${JSON.stringify(text)}).then(()=>{this.style.borderColor='var(--acc3)'})" 
+         style="background:rgba(255,255,255,.08);border:1px solid var(--bdr);border-radius:8px;padding:10px;font-size:12px;color:var(--txt);cursor:pointer;word-break:break-word;margin-bottom:8px">${X(text)}</div>` : ''}
+    <div style="font-size:12px;color:var(--sub)">📎 <strong style="color:var(--txt)">Datei anhängen</strong> für Bild → <strong style="color:var(--txt)">Jetzt veröffentlichen</strong></div>`;
 
   showPopupWait(hint, () => {
     clearImg();
