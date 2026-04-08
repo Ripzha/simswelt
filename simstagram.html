@@ -246,6 +246,24 @@ button:active { transform: scale(.95); }
 
 .pm-bot { border-top: 1px solid var(--bdr); padding: 10px 13px;
   flex-shrink: 0; display: flex; gap: 8px; align-items: center; }
+.cmt-in {
+  flex: 1; background: var(--s2) !important; border: 1.5px solid var(--bdr) !important;
+  border-radius: 20px; padding: 8px 14px;
+  color: var(--txt) !important; font-family: inherit; font-size: 13px;
+  outline: none !important; resize: none; max-height: 72px; line-height: 1.4;
+  -webkit-appearance: none; appearance: none;
+  transition: border-color .18s;
+}
+.cmt-in:focus { border-color: var(--acc) !important; }
+.cmt-in::placeholder { color: var(--dim) !important; }
+.pm-send {
+  background: var(--acc) !important; color: #fff !important; border: none;
+  border-radius: 50%; width: 36px; height: 36px; min-width: 36px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: opacity .17s, transform .15s !important; padding: 0;
+}
+.pm-send:hover { opacity: .85; transform: scale(1.08) !important; }
+.pm-send:disabled { opacity: .35 !important; cursor: default; }
 .cmt-open-btn {
   flex: 1; background: var(--s2); border: 1.5px solid var(--bdr);
   border-radius: 20px; padding: 8px 14px;
@@ -537,7 +555,7 @@ const XOBOR      = IS_TEST
   ? 'https://simsspielwiesetest.xobor.de'
   : 'https://simsforumrpg.de';
 
-const BLOG_URL   = 'https://simsforumrpg.de/blog-a.html';
+const BLOG_URL   = 'https://www.simsforumrpg.de/blog-a.html';
 const BLOG_CAT   = '1386';
 
 // ← HIER die URL des neuen Simstagram-Apps-Scripts eintragen:
@@ -807,8 +825,8 @@ function openCommentPopup() {
   if (!curPost?.url) return;
   const text = $('cmtIn').value.trim();
   // Xobor akzeptiert ?message= für Vorausfüllen (wie bei Forum-Posts)
-  const params = text ? `?message=${encodeURIComponent(text)}` : '';
-  const url = curPost.url + params + '#com';
+  // ?message= funktioniert nicht für Blog-Kommentare → nur #com öffnen
+  const url = curPost.url + '#com';
   const w = 560, h = 500;
   const left = Math.max(0, (screen.width  - w) / 2);
   const top  = Math.max(0, (screen.height - h) / 2);
@@ -816,7 +834,7 @@ function openCommentPopup() {
     `width=${w},height=${h},left=${left},top=${top},scrollbars=yes,resizable=yes`);
   showPopupWait(
     text
-      ? `Dein Text ist vorausgefüllt — einfach <strong>Abschicken</strong> klicken.`
+      ? `<div style="background:rgba(255,255,255,.07);border-radius:8px;padding:10px;margin-bottom:8px;font-size:13px;user-select:all;color:var(--txt)">${X(text)}</div>Text kopieren → im Xobor-Fenster einfügen → <strong>Abschicken</strong>.`
       : `Schreib deinen Kommentar und klick <strong>Abschicken</strong>.`,
     () => {
       $('cmtIn').value = '';
@@ -880,7 +898,7 @@ function submitPost() {
   closeCompose();
 
   // Xobor akzeptiert keine URL-Parameter bei blog-a.html → einfach öffnen
-  openXoborPopup('https://simsforumrpg.de/blog-a.html', 'neuer-post');
+  openXoborPopup('https://www.simsforumrpg.de/blog-a.html', 'neuer-post');
 
   // Hilfstexte für Copy-Paste im Wartedialog anzeigen
   const hint = `Kopiere diese Infos ins Xobor-Fenster:<br><br>
