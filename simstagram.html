@@ -452,8 +452,13 @@ button:active { transform: scale(.95); }
           <div id="pm-cmts"><span style="color:var(--dim);font-size:12px">Lade…</span></div>
         </div>
         <div class="pm-bot">
-          <button class="cmt-open-btn" onclick="openCommentPopup()">
-            Kommentar schreiben… (öffnet Xobor)
+          <textarea class="cmt-in" id="cmtIn" rows="1"
+            placeholder="Kommentar tippen…"
+            oninput="autoH(this)"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();openCommentPopup()}">
+          </textarea>
+          <button class="pm-send" onclick="openCommentPopup()" title="Abschicken">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           </button>
         </div>
       </div>
@@ -796,20 +801,29 @@ function closePM() {
 }
 
 // ╔══════════════════════════════════════════════════════════╗
-//   COMMENT via Xobor popup  –  klein, direkt beim #com Anker
+//   COMMENT via Xobor popup  –  Text vorausgefüllt via URL param
 // ╚══════════════════════════════════════════════════════════╝
 function openCommentPopup() {
   if (!curPost?.url) return;
-  const url = curPost.url + '#com';
-  // Kleines schmales Popup – direkt beim Kommentarfeld
+  const text = $('cmtIn').value.trim();
+  // Xobor akzeptiert ?message= für Vorausfüllen (wie bei Forum-Posts)
+  const params = text ? `?message=${encodeURIComponent(text)}` : '';
+  const url = curPost.url + params + '#com';
   const w = 560, h = 500;
   const left = Math.max(0, (screen.width  - w) / 2);
   const top  = Math.max(0, (screen.height - h) / 2);
   xPopup = window.open(url, 'xobor-comment',
     `width=${w},height=${h},left=${left},top=${top},scrollbars=yes,resizable=yes`);
   showPopupWait(
-    'Schreib deinen Kommentar und klick <strong>Abschicken</strong>.<br><span style="color:var(--dim);font-size:12px">Das Fenster schließt sich danach automatisch.</span>',
-    () => { refreshCmts(); toast('Kommentare aktualisiert ✓', 'ok'); }
+    text
+      ? `Dein Text ist vorausgefüllt — einfach <strong>Abschicken</strong> klicken.`
+      : `Schreib deinen Kommentar und klick <strong>Abschicken</strong>.`,
+    () => {
+      $('cmtIn').value = '';
+      autoH($('cmtIn'));
+      refreshCmts();
+      toast('Kommentare aktualisiert ✓', 'ok');
+    }
   );
 }
 
