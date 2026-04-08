@@ -769,14 +769,17 @@ async function fetchComments(url) {
 
 function renderComments(cmts, div) {
   if (!cmts.length) { div.innerHTML = '<span style="color:var(--dim);font-size:12px">Noch keine Kommentare.</span>'; return; }
-  div.innerHTML = cmts.map(c => `
-    <div class="cmt">
-      <div class="av" style="font-size:11px">${IC(c.author||'?')}</div>
+  div.innerHTML = cmts.map(c => {
+    const ava = c.avatar
+      ? `<img src="${X(c.avatar)}" onerror="this.outerHTML='${IC(c.author||'?')}'" style="width:100%;height:100%;object-fit:cover">`
+      : IC(c.author||'?');
+    return `<div class="cmt">
+      <div class="av" style="font-size:11px;flex-shrink:0">${ava}</div>
       <div class="cmt-body">
         ${c.time ? `<span style="color:var(--dim);font-size:11px;display:block;margin-bottom:2px">${X(c.time)}</span>` : ''}${c.author ? `<span class="an">${X(c.author)}</span>` : ''}${Xnl(c.text)}
       </div>
-    </div>`
-  ).join('');
+    </div>`;
+  }).join('');
 }
 
 function refreshCmts() {
@@ -793,17 +796,21 @@ function closePM() {
 }
 
 // ╔══════════════════════════════════════════════════════════╗
-//   COMMENT via Xobor popup
+//   COMMENT via Xobor popup  –  klein, direkt beim #com Anker
 // ╚══════════════════════════════════════════════════════════╝
 function openCommentPopup() {
   if (!curPost?.url) return;
-  // Open Xobor post page at the comment anchor
-  const url = curPost.url + (curPost.url.includes('#') ? '' : '#com');
-  openXoborPopup(url, 'kommentieren');
-  showPopupWait('Schreibe deinen Kommentar im Xobor-Fenster und klick <strong>Abschicken</strong>.<br>Danach schließt es sich automatisch.', () => {
-    refreshCmts();
-    toast('Kommentare aktualisiert', 'ok');
-  });
+  const url = curPost.url + '#com';
+  // Kleines schmales Popup – direkt beim Kommentarfeld
+  const w = 560, h = 500;
+  const left = Math.max(0, (screen.width  - w) / 2);
+  const top  = Math.max(0, (screen.height - h) / 2);
+  xPopup = window.open(url, 'xobor-comment',
+    `width=${w},height=${h},left=${left},top=${top},scrollbars=yes,resizable=yes`);
+  showPopupWait(
+    'Schreib deinen Kommentar und klick <strong>Abschicken</strong>.<br><span style="color:var(--dim);font-size:12px">Das Fenster schließt sich danach automatisch.</span>',
+    () => { refreshCmts(); toast('Kommentare aktualisiert ✓', 'ok'); }
+  );
 }
 
 // ╔══════════════════════════════════════════════════════════╗
