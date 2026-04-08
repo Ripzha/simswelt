@@ -349,6 +349,25 @@ button:active { transform: scale(.95); }
 .popup-cancel:hover { color: var(--red) !important; }
 
 /* ─────────────────────────────────────────────────────
+   DEBUG PANEL
+───────────────────────────────────────────────────── */
+#debug-panel {
+  display: none; position: fixed; inset: 0; z-index: 9999;
+  background: #000; overflow: auto; padding: 20px;
+  font-family: monospace; font-size: 12px; color: #0f0;
+}
+#debug-panel pre { white-space: pre-wrap; word-break: break-all; }
+#debug-panel .dbg-close {
+  position: sticky; top: 0; background: #c00; color: #fff;
+  padding: 6px 14px; border-radius: 6px; margin-bottom: 14px;
+  cursor: pointer; display: inline-block; font-size: 13px;
+}
+#debug-panel h3 { color: #ff0; margin: 16px 0 6px; }
+#debug-panel .field-ok  { color: #0f0; }
+#debug-panel .field-bad { color: #f80; }
+#debug-panel .field-miss{ color: #f44; }
+
+/* ─────────────────────────────────────────────────────
    TOAST
 ───────────────────────────────────────────────────── */
 .toast {
@@ -492,15 +511,34 @@ button:active { transform: scale(.95); }
   <div class="toast" id="toast"></div>
 </div><!-- /#app -->
 
+<!-- DEBUG PANEL – activate with ?debug in URL -->
+<div id="debug-panel">
+  <span class="dbg-close" onclick="document.getElementById('debug-panel').style.display='none'">✕ Schließen</span>
+  <div id="debug-content"></div>
+</div>
+
 <script>
 // ╔══════════════════════════════════════════════════════════╗
-//   CONFIG  –  Beide Domains, Umschaltung via ?test in URL
+//   CONFIG  –  Umschaltung via URL-Parameter:
+//   ?test   → Testforum  (simsspielwiesetest.xobor.de)
+//   ?debug  → zeigt rohe JSON-Daten vom Apps Script
+//   Beides kombinierbar: ?test&debug
 // ╚══════════════════════════════════════════════════════════╝
-const IS_TEST   = new URLSearchParams(location.search).has('test');
-const XOBOR     = IS_TEST
+const _params    = new URLSearchParams(location.search);
+const IS_TEST    = _params.has('test');
+const IS_DEBUG   = _params.has('debug');
+
+const XOBOR      = IS_TEST
   ? 'https://simsspielwiesetest.xobor.de'
   : 'https://simsforumrpg.de';
-const BLOG_CAT  = '1386';   // Simstagram-Kategorie-ID
+
+// ⚠️  Wichtig: Das Testforum hat KEINEN Blog – Blog-Posts nur auf simsforumrpg.de möglich!
+// Für den Test mit Blog: IS_TEST entfernen oder auf simsforumrpg.de testen.
+const BLOG_URL   = IS_TEST
+  ? 'https://simsforumrpg.de/blog-a.html'   // Blog immer auf Produktion
+  : 'https://simsforumrpg.de/blog-a.html';
+
+const BLOG_CAT   = '1386';   // Simstagram-Kategorie-ID auf simsforumrpg.de
 const APPSSCRIPT = 'https://script.google.com/macros/s/AKfycbw2QtXNxsvSaD4xzwZcX3U5EebauDQjxfX4LtSHhLViR9RB2jBsmvJWEqhM9Agdqvvo/exec';
 
 // ╔══════════════════════════════════════════════════════════╗
@@ -521,15 +559,27 @@ async function loadFeed(showSpinner = true) {
   if (showSpinner) feed.innerHTML = `<div class="status"><div class="spin"></div><span>Posts laden…</span></div>`;
   try {
     const res  = await fetch(APPSSCRIPT);
-    const data = await res.json();
+    const raw  = await res.text();
+    let data;
+    try { data = JSON.parse(raw); }
+    catch(e) { throw new Error('Apps Script gibt kein gültiges JSON zurück.\n\nAntwort:\n' + raw.slice(0,300)); }
+
     posts = Array.isArray(data) ? data : (data.posts || data.items || data.data || []);
-    if (!posts.length) throw new Error('Keine Posts gefunden');
+
+    // ── DEBUG MODE ─────────────────────────────────────────
+    if (IS_DEBUG) {
+      showDebug(data, posts);
+      return;
+    }
+
+    if (!posts.length) throw new Error('Keine Posts gefunden. Das Apps Script gibt ein leeres Array zurück.');
     buildStories();
     buildFeed();
   } catch(e) {
     feed.innerHTML = `<div class="status">
       <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--dim)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
-      <span>Posts konnten nicht geladen werden.<br><small style="color:var(--dim);font-size:12px">Apps Script URL prüfen</small></span>
+      <span style="max-width:300px">${X(e.message)}</span>
+      <a href="${APPSSCRIPT}" target="_blank" style="color:var(--acc);font-size:12px">Apps Script direkt öffnen →</a>
     </div>`;
     console.error('[Simstagram] Feed error:', e);
   }
@@ -669,52 +719,25 @@ async function openPost(i) {
 
 async function fetchComments(url) {
   const div = $('pm-cmts');
+  if (!url) { div.innerHTML = '<span style="color:var(--dim);font-size:12px">Kein Link verfügbar.</span>'; return; }
   try {
-    // Fetch via Apps Script proxy to avoid CORS (add action=comments&url=... to your script)
-    // Fallback: direct fetch (works if Xobor allows cross-origin reads, unlikely)
-    let html;
-    try {
-      const proxyUrl = `${APPSSCRIPT}?action=comments&url=${encodeURIComponent(url)}`;
-      const r = await fetch(proxyUrl);
-      const d = await r.json();
-      if (d.comments) {
-        renderComments(d.comments, div); return;
-      }
-    } catch(_) {}
+    // Apps Script als Proxy – fetcht Xobor serverseitig (kein CORS-Problem)
+    const proxyUrl = `${APPSSCRIPT}?action=comments&url=${encodeURIComponent(url)}`;
+    const r = await fetch(proxyUrl);
+    const d = await r.json();
 
-    // Direct fetch fallback (may fail due to CORS)
-    const r   = await fetch(url);
-    html = await r.text();
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-
-    // Try various Xobor comment selectors
-    let items = [...doc.querySelectorAll('.blog_comment_entry,.comment_entry,[id^="comment_"]')];
-    if (!items.length) {
-      const anchor = doc.querySelector('#com,[name="com"]');
-      if (anchor) {
-        let el = anchor.nextElementSibling;
-        while (el && items.length < 60) {
-          if ((el.textContent||'').trim().length > 3) items.push(el);
-          el = el.nextElementSibling;
-        }
-      }
+    if (d.error) throw new Error(d.error);
+    if (!d.comments || !d.comments.length) {
+      div.innerHTML = '<span style="color:var(--dim);font-size:12px">Noch keine Kommentare.</span>';
+      return;
     }
-    if (!items.length) { div.innerHTML = '<span style="color:var(--dim);font-size:12px">Noch keine Kommentare.</span>'; return; }
-
-    const cmts = items.map(el => {
-      const raw  = (el.textContent||'').replace(/\s+/g,' ').trim();
-      if (!raw || raw.length < 3) return null;
-      const authEl = el.querySelector('a[href*="/u"],strong,b,.username');
-      const an = authEl ? authEl.textContent.trim() : '';
-      return { author: an, text: an ? raw.replace(an,'').trim() : raw };
-    }).filter(Boolean);
-
-    renderComments(cmts, div);
+    renderComments(d.comments, div);
   } catch(e) {
     div.innerHTML = `<span style="color:var(--dim);font-size:12px">
-      Kommentare nicht verfügbar.
-      <a href="${url}#com" target="_blank" style="color:var(--acc);display:block;margin-top:4px">Auf Xobor ansehen →</a>
+      Kommentare nicht geladen.
+      <a href="${X(url)}#com" target="_blank" style="color:var(--acc);display:block;margin-top:4px">Auf Xobor kommentieren →</a>
     </span>`;
+    console.warn('[Simstagram] Comments error:', e);
   }
 }
 
@@ -814,7 +837,7 @@ function submitPost() {
   if (text) params.set('message', text);
   params.set('category', BLOG_CAT);
 
-  const url = `${XOBOR}/blog-a.html?${params}`;
+  const url = `${BLOG_URL}?${params}`;
 
   closeCompose();
 
@@ -917,6 +940,70 @@ function toast(msg, type = '') {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { closePM(); closeCompose(); cancelPopupWait(); }
 });
+
+// ╔══════════════════════════════════════════════════════════╗
+//   DEBUG MODE  –  zeigt was das Apps Script zurückgibt
+// ╚══════════════════════════════════════════════════════════╝
+function showDebug(rawData, parsedPosts) {
+  const panel = $('debug-panel');
+  const content = $('debug-content');
+  panel.style.display = 'block';
+
+  const firstPost = parsedPosts[0] || rawData;
+  const keys = firstPost ? Object.keys(firstPost) : [];
+
+  // Check which fields we can find
+  const checks = {
+    title:    ['title','subject','betreff','headline','name'],
+    author:   ['author','user','username','autor','by'],
+    date:     ['date','created','datum','time','timestamp'],
+    content:  ['content','text','body','message','summary','excerpt','inhalt','teaser'],
+    image:    ['image','img','imageUrl','image_url','thumbnail','photo','bild','src','picture'],
+    avatar:   ['avatar','avatarUrl','avatar_url','profilePic','userAvatar','authorAvatar'],
+    url:      ['url','link','href','postUrl','blogUrl'],
+    comments: ['comments','commentCount','comment_count','kommentare','replies'],
+  };
+
+  let report = `<h3>📊 Apps Script gibt ${parsedPosts.length} Posts zurück</h3>`;
+
+  if (firstPost) {
+    report += `<h3>🔑 Felder im ersten Post-Objekt:</h3><pre>`;
+    keys.forEach(k => {
+      const val = String(firstPost[k] ?? '').slice(0, 80);
+      report += `  "${k}": "${val}"\n`;
+    });
+    report += `</pre>`;
+
+    report += `<h3>🔍 Feld-Mapping Analyse:</h3><pre>`;
+    for (const [field, aliases] of Object.entries(checks)) {
+      const found = aliases.find(a => firstPost[a] != null && firstPost[a] !== '');
+      if (found) {
+        const val = String(firstPost[found]).slice(0, 60);
+        report += `<span class="field-ok">  ✓ ${field.padEnd(10)} → "${found}" = "${val}"</span>\n`;
+      } else {
+        report += `<span class="field-miss">  ✗ ${field.padEnd(10)} → NICHT GEFUNDEN (gesucht: ${aliases.join(', ')})</span>\n`;
+      }
+    }
+    report += `</pre>`;
+  }
+
+  report += `<h3>📦 Rohe JSON-Daten (erste 3 Posts):</h3>`;
+  report += `<pre>${X(JSON.stringify(parsedPosts.slice(0,3), null, 2))}</pre>`;
+
+  report += `<h3>💡 Was du tun musst:</h3>
+  <p style="color:#ccc;line-height:1.7;margin-top:8px">
+    1. Schau dir die Felder oben an<br>
+    2. Welches Feld ist der <strong style="color:#ff0">Bild-URL</strong>? → Sag mir den Feldnamen<br>
+    3. Welches Feld ist der <strong style="color:#ff0">Text/Caption</strong>? → Sag mir den Feldnamen<br>
+    4. Welches Feld ist der <strong style="color:#ff0">Link zum Post</strong>? → Sag mir den Feldnamen<br>
+    Dann passe ich das Mapping an.
+  </p>`;
+
+  content.innerHTML = report;
+
+  // Also build normal feed behind debug panel
+  if (parsedPosts.length) { buildStories(); buildFeed(); }
+}
 
 // ╔══════════════════════════════════════════════════════════╗
 //   INIT
