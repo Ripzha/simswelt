@@ -536,7 +536,7 @@ const BLOG_URL   = 'https://simsforumrpg.de/blog-a.html';
 const BLOG_CAT   = '1386';
 
 // ← HIER die URL des neuen Simstagram-Apps-Scripts eintragen:
-const APPSSCRIPT     = 'https://script.google.com/macros/s/AKfycbz-lPAoQBklJ6pbvgF0qp40GE-gl4PdIYkJfFnHWA2kl07VaslLwSlFOk-LaoMB5_fJSw/exec';
+const APPSSCRIPT     = 'NEUE_APPS_SCRIPT_URL_HIER_EINTRAGEN';
 const APPSSCRIPT_FEED = APPSSCRIPT + '?action=feed';
 
 // ╔══════════════════════════════════════════════════════════╗
@@ -648,10 +648,9 @@ function buildCard(p, i) {
     </div>` : ''}
 
     <div class="ca">
-      <button class="lk-btn${on?' on':''}" onclick="toggleLike(${Q(String(id))},this)" title="Gefällt mir">
+      <button class="lk-btn" onclick="openLikePopup(${i})" title="Gefällt mir – auf Xobor liken">
         <svg width="22" height="22" viewBox="0 0 24 24"
-          fill="${on?'var(--red)':'none'}"
-          stroke="${on?'var(--red)':'currentColor'}"
+          fill="none" stroke="currentColor"
           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
         </svg>
@@ -673,18 +672,39 @@ function buildCard(p, i) {
 }
 
 // ╔══════════════════════════════════════════════════════════╗
-//   LIKE
+//   LIKE  –  öffnet Xobor-Post als kleines Popup zum echten Liken
 // ╚══════════════════════════════════════════════════════════╝
-function toggleLike(id, btn) {
-  liked[id] = !liked[id];
-  localStorage.setItem('sim_liked', JSON.stringify(liked));
-  const on = liked[id];
-  btn.classList.toggle('on', on);
-  const svg = btn.querySelector('svg');
-  svg.setAttribute('fill',   on ? 'var(--red)' : 'none');
-  svg.setAttribute('stroke', on ? 'var(--red)' : 'currentColor');
-  btn.style.transform = 'scale(1.45)';
-  setTimeout(() => btn.style.transform = '', 210);
+function openLikePopup(i) {
+  const p = posts[i]; if (!p) return;
+  const url = F(p,'url');
+  if (!url) return;
+
+  // Herz kurz aufleuchten lassen als visuelles Feedback
+  const card = document.querySelector(`.card[data-i="${i}"]`);
+  const btn  = card?.querySelector('.lk-btn');
+  if (btn) {
+    btn.style.color = 'var(--red)';
+    btn.querySelector('svg').setAttribute('fill', 'var(--red)');
+    btn.querySelector('svg').setAttribute('stroke', 'var(--red)');
+    btn.style.transform = 'scale(1.4)';
+    setTimeout(() => {
+      btn.style.transform = '';
+      // Farbe bleibt kurz, wird beim nächsten Feed-Load zurückgesetzt
+    }, 300);
+  }
+
+  // Kleines Popup mit dem Xobor-Post öffnen
+  openXoborPopup(url, 'like');
+  showPopupWait(
+    'Klick auf <strong>Gefällt mir</strong> im Xobor-Fenster.<br>Danach schließt es sich automatisch.',
+    () => {
+      // Nach dem Schließen: Herz rot lassen als Indikator
+      if (btn) {
+        btn.style.color = 'var(--red)';
+        btn.querySelector('svg').setAttribute('fill', 'var(--red)');
+      }
+    }
+  );
 }
 
 // ╔══════════════════════════════════════════════════════════╗
@@ -703,7 +723,7 @@ async function openPost(i) {
   $('pm-av').innerHTML     = ava ? `<img src="${X(ava)}" onerror="this.outerHTML='${IC(auth)}'">` : IC(auth);
   $('pm-name').textContent = auth;
   $('pm-date').textContent = date;
-  $('pm-cap').innerHTML    = `<strong>${X(title)}</strong><span class="an">${X(auth)}</span>${X(cont || '')}`;
+  $('pm-cap').innerHTML    = `<strong>${X(title)}</strong><span class="an">${X(auth)}</span>${Xnl(cont || '')}`;
   $('pm-cmts').innerHTML   = '<span style="color:var(--dim);font-size:12px">Lade Kommentare…</span>';
 
   $('pm-ov').classList.add('open');
@@ -715,7 +735,7 @@ async function openPost(i) {
       fetch(`${APPSSCRIPT}?action=post&url=${encodeURIComponent(url)}`)
         .then(r => r.json())
         .then(d => {
-          if (d.content) $('pm-cap').innerHTML = `<strong>${X(title)}</strong><span class="an">${X(auth)}</span>${X(d.content)}`;
+          if (d.content) $('pm-cap').innerHTML = `<strong>${X(title)}</strong><span class="an">${X(auth)}</span>${Xnl(d.content)}`;
           if (d.image && !img) { $('pm-img-el').src = d.image; $('pm-img').style.display = ''; }
         }).catch(() => {});
     }
@@ -753,7 +773,7 @@ function renderComments(cmts, div) {
     <div class="cmt">
       <div class="av" style="font-size:11px">${IC(c.author||'?')}</div>
       <div class="cmt-body">
-        ${c.author ? `<span class="an">${X(c.author)}</span>` : ''}${X(c.text)}
+        ${c.time ? `<span style="color:var(--dim);font-size:11px;display:block;margin-bottom:2px">${X(c.time)}</span>` : ''}${c.author ? `<span class="an">${X(c.author)}</span>` : ''}${Xnl(c.text)}
       </div>
     </div>`
   ).join('');
@@ -925,10 +945,14 @@ function F(obj, field) {
 const EMOJIS = ['🌸','🎮','✨','🦋','🌙','🌻','⚡','🎀','🌊','🎭','🍀','💫','🦄','🌈','⭐','🎪'];
 function IC(name) {
   const idx = [...(name||'')].reduce((a,c) => a + c.charCodeAt(0), 0) % EMOJIS.length;
-  return `<span style="font-size:16px">${EMOJIS[idx]}</span>`;
+  return `<span style='font-size:17px'>${EMOJIS[idx]}</span>`;
 }
 function X(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+// Like X() but also converts \n → <br> for multi-line text display
+function Xnl(s) {
+  return X(s).replace(/\n/g,'<br>');
 }
 function Q(s) { return JSON.stringify(s); }
 function $(id) { return document.getElementById(id); }
