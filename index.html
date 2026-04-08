@@ -223,9 +223,9 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 #char-grid{flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;align-content:start}
 .char-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative}
 .char-card:hover{background:rgba(255,255,255,0.08);border-color:rgba(100,180,120,0.4);transform:translateY(-2px)}
-.char-portrait-wrap{width:100%;aspect-ratio:3/4;overflow:hidden;background:#0a1520}
-.char-portrait{width:100%;height:100%;object-fit:cover;object-position:50% 15%;display:block}
-.char-portrait-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;color:rgba(255,255,255,0.08)}
+.char-portrait-wrap{width:100%;aspect-ratio:4/3;overflow:hidden;background:#0a1520}
+.char-portrait{width:100%;height:100%;object-fit:cover;object-position:50% 30%;display:block}
+.char-portrait-ph{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:28px;color:rgba(255,255,255,0.08)}
 .char-info{padding:7px 9px}
 .char-name{font-size:11px;font-weight:600;color:#fff;margin-bottom:2px;line-height:1.3}
 .char-player{font-size:9px;color:rgba(255,255,255,0.35);margin-bottom:2px}
@@ -239,7 +239,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 #chc-lastseen{font-size:10px;color:rgba(100,180,120,0.7);margin-top:2px}
 #chc-link{font-size:9px;color:rgba(255,255,255,0.25);margin-top:4px;border-top:0.5px solid rgba(255,255,255,0.06);padding-top:6px}
 @media(max-width:600px){
-  #char-grid{grid-template-columns:repeat(2,1fr);gap:8px;padding:10px}
+  #char-grid{grid-template-columns:repeat(2,1fr);gap:6px;padding:8px}
   #char-header{flex-direction:column;align-items:stretch;padding:10px 12px;gap:8px}
   #char-header>div:first-child{display:flex;align-items:center;justify-content:space-between}
   #char-tabs{flex:1;overflow-x:auto;display:flex;gap:3px;scrollbar-width:none}
@@ -1478,13 +1478,11 @@ function makePinchZoom(el,opts={}){
   function clampPan(){
     const ww=wrap.clientWidth,wh=wrap.clientHeight;
     const ew=el.offsetWidth,eh=el.offsetHeight;
-    // baseX/Y = natural centered offset of element within wrapper (when tx=ty=0)
-    const baseX=(ww-ew)/2,baseY=(wh-eh)/2;
     const sw=ew*sc,sh=eh*sc;
-    if(sw<=ww){tx=0;}
-    else{tx=clamp(tx,ww-baseX-sw,-baseX);}
-    if(sh<=wh){ty=0;}
-    else{ty=clamp(ty,wh-baseY-sh,-baseY);}
+    const maxTx=Math.max(0,(sw-ww)/2);
+    const maxTy=Math.max(0,(sh-wh)/2);
+    if(sw<=ww){tx=0;}else{tx=clamp(tx,-maxTx,maxTx);}
+    if(sh<=wh){ty=0;}else{ty=clamp(ty,-maxTy,maxTy);}
   }
   function reset(){tx=0;ty=0;sc=1;apply();}
   wrap.addEventListener('touchstart',e=>{
