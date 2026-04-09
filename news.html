@@ -106,11 +106,7 @@
         <span class="atlas-badge"><span class="atlas-dot"></span>Projekt Atlas</span>
       </div>
     </div>
-    <div class="header-stats">
-      <span class="stat">30 Ausgaben <span>gesamt</span></span>
-      <span class="stat">22 <span>blätterbar</span></span>
-      <span class="stat">8 <span>folgen bald</span></span>
-    </div>
+    <div class="header-stats" id="stats"></div>
   </header>
 
   <section>
@@ -185,6 +181,15 @@ const issues = [
 ];
 
 // ── HERO ───────────────────────────────────────────────────────────
+const total = issues.length;
+const blaetterbar = issues.filter(i => i.href).length;
+const bald = total - blaetterbar;
+document.getElementById('stats').innerHTML = `
+  <span class="stat">${total} Ausgaben <span>gesamt</span></span>
+  <span class="stat">${blaetterbar} <span>blätterbar</span></span>
+  ${bald > 0 ? `<span class="stat">${bald} <span>folgen bald</span></span>` : ''}
+`;
+
 const l = issues[0];
 document.getElementById('hero').innerHTML = `
   <a href="${l.href}" target="_blank" rel="noopener" style="text-decoration:none;display:block;max-width:700px;">
