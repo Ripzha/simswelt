@@ -1578,8 +1578,16 @@ function fitCharGrid(){
   var header=document.getElementById('char-header');
   var grid=document.getElementById('char-grid');
   if(!header||!grid)return;
-  var h=header.offsetHeight;
-  grid.style.height=(window.innerHeight-h)+'px';
+  // Grid height = viewport minus header
+  var gridH=window.innerHeight-header.offsetHeight;
+  grid.style.height=gridH+'px';
+  // Calculate exact column width and set row height = column width (square cards)
+  var isMobile=window.innerWidth<=768;
+  var cols=isMobile?2:4;
+  var padding=isMobile?16:20;
+  var gap=isMobile?6:8;
+  var colW=Math.floor((grid.clientWidth-padding-(cols-1)*gap)/cols);
+  if(colW>0)grid.style.gridAutoRows=colW+'px';
 }
 
 function closeCharView(){
