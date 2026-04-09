@@ -187,7 +187,8 @@ const issues = [
 // ── HERO ───────────────────────────────────────────────────────────
 const l = issues[0];
 document.getElementById('hero').innerHTML = `
-  <div class="hero-card" onclick="window.open('${l.href}','_blank')" style="cursor:pointer;">
+  <a href="${l.href}" target="_blank" rel="noopener" style="text-decoration:none;display:block;max-width:700px;">
+  <div class="hero-card">
     <div class="hero-cover">
       <img src="${l.shot}" alt="Cover Ausgabe ${l.nr}">
     </div>
@@ -199,7 +200,8 @@ document.getElementById('hero').innerHTML = `
       <p class="hero-desc">Das Magazin der SimsWelt — Stories, Kolumnen, Lokales und mehr aus allen Ecken von Simswelt.</p>
       <span class="hero-read">Jetzt lesen →</span>
     </div>
-  </div>`;
+  </div>
+  </a>`;
 
 // ── GRID ───────────────────────────────────────────────────────────
 const grid = document.getElementById('grid');
@@ -217,14 +219,16 @@ issues.forEach((issue, i) => {
        </div>`;
 
   card.innerHTML = `
-    <div class="card-inner" ${hasLink ? `onclick="window.open('${issue.href}','_blank')"` : ''} style="${hasLink ? 'cursor:pointer;' : ''}">
+    ${hasLink ? `<a href="${issue.href}" target="_blank" rel="noopener" style="text-decoration:none;display:block;color:inherit;">` : ''}
+    <div class="card-inner">
       <div class="card-cover">${coverHTML}</div>
       <div class="card-meta">
         <p class="card-nr">Ausgabe ${issue.nr}</p>
         ${issue.season ? `<p class="card-season">${issue.season}</p>` : ''}
         ${!hasLink ? `<p class="card-soon">Folgt bald</p>` : ''}
       </div>
-    </div>`;
+    </div>
+    ${hasLink ? '</a>' : ''}`;
   grid.appendChild(card);
 });
 
