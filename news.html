@@ -79,6 +79,70 @@
     .card-soon { font-family: 'Barlow Condensed', sans-serif; font-size: 9px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text3); opacity: 0.5; margin-top: 3px; }
     footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
     footer p { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text3); }
+
+    /* Atlas Teaser */
+    .atlas-teaser {
+      margin: 32px 0 0;
+      border: 1px solid rgba(61,184,160,0.2);
+      border-radius: 6px;
+      background: rgba(61,184,160,0.04);
+      overflow: hidden;
+      position: relative;
+    }
+    .atlas-teaser::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 0 0;
+      border-left: 3px solid var(--teal);
+      border-radius: 6px 0 0 6px;
+      pointer-events: none;
+    }
+    .atlas-teaser-inner {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .atlas-teaser-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .atlas-soon-pill {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      background: rgba(61,184,160,0.15);
+      color: var(--teal);
+      border: 1px solid rgba(61,184,160,0.3);
+      padding: 3px 8px;
+      border-radius: 20px;
+      animation: pulse-teal 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse-teal {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .atlas-teaser-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--teal);
+      text-transform: uppercase;
+    }
+    .atlas-teaser-text {
+      font-size: 12px;
+      font-weight: 300;
+      color: var(--text2);
+      line-height: 1.6;
+      flex: 1;
+      min-width: 200px;
+    }
     @media (max-width: 660px) {
       .wrap { padding: 0 16px 56px; } .masthead { font-size: 44px; }
       .hero-card { flex-direction: column; gap: 18px; padding: 20px; max-width: 100%; }
@@ -103,7 +167,7 @@
       </div>
       <div class="header-right">
         <p class="header-tagline">Das Magazin der SimsWelt.<br>Alle blätterbaren Ausgaben.</p>
-        <span class="atlas-badge"><span class="atlas-dot"></span>Projekt Atlas</span>
+        <span class="atlas-badge"><span class="atlas-dot"></span>Ein Projekt Atlas Feature</span>
       </div>
     </div>
     <div class="header-stats" id="stats"></div>
@@ -120,7 +184,7 @@
   </section>
 
   <footer>
-    <p>Sims Welt News · Projekt Atlas · simsforumrpg.de</p>
+    <p>Sims Welt News · simsforumrpg.de</p>
     <p>Alle Rechte vorbehalten</p>
   </footer>
 
