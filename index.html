@@ -191,12 +191,12 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 /* ── CHARACTER VIEW ── */
 #char-container{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:#050d18;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #char-container.open{display:block}
-#char-header{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:0.5px solid rgba(255,255,255,0.08);flex-wrap:wrap;background:#050d18;z-index:2}
+#char-header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:0.5px solid rgba(255,255,255,0.08);flex-wrap:wrap;background:#050d18}
 #char-tabs{display:flex;gap:4px;flex-shrink:0}
 .char-tab{background:transparent;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s}
 .char-tab.active{background:rgba(100,180,120,0.15);border-color:#4aaa6a;color:#4aaa6a}
 #char-subtitle{font-size:10px;color:rgba(255,255,255,0.25);white-space:nowrap;flex-shrink:0}
-#char-filter-bar{display:flex;gap:5px;flex-wrap:wrap;flex:1;justify-content:flex-end}
+#char-filter-bar{display:flex;gap:5px;flex-wrap:wrap}
 #char-age-toggle{background:transparent;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.35);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:10px;flex-shrink:0}
 #char-reset-btn{background:transparent;border:0.5px solid rgba(255,80,80,0.3);color:rgba(255,100,100,0.5);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:10px;flex-shrink:0;display:none}
 #char-reset-btn.visible{display:block}
@@ -440,24 +440,31 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 </div>
     <div id="char-container">
       <div id="char-header">
-        <div style="display:flex;align-items:center;gap:8px;width:100%;min-width:0">
-          <div id="char-tabs">
+        <!-- Zeile 1: Tabs + Anzahl -->
+        <div style="display:flex;align-items:center;gap:6px;width:100%;flex-wrap:nowrap">
+          <div id="char-tabs" style="display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap">
             <button class="char-tab active" onclick="switchCharTab('haupt',this)">Haupt</button>
             <button class="char-tab" onclick="switchCharTab('neben',this)">Nebencharaktere</button>
             <button class="char-tab" onclick="switchCharTab('randfigur',this)">Randfiguren</button>
             <button class="char-tab" onclick="switchCharTab('passant',this)">Passanten</button>
           </div>
-          <div id="char-subtitle" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+          <div id="char-subtitle" style="flex:1;min-width:0;font-size:10px;color:rgba(255,255,255,0.25)"></div>
+        </div>
+        <!-- Zeile 2: Aktionen -->
+        <div style="display:flex;align-items:center;gap:6px;width:100%;flex-wrap:wrap;margin-top:6px">
           <button id="char-age-toggle" onclick="toggleAgeFilter()" title="Nach Alter filtern">🎂 Alter</button>
           <button id="char-reset-btn" onclick="resetAllFilters()">✕ Filter</button>
           <a id="char-create-btn" href="https://ripzha.github.io/simswelt/rpg_char_html.html" target="_blank">✚ Charakter erstellen</a>
+          <div style="flex:1"></div>
           <button id="char-sort-btn" onclick="toggleCharSort()" title="Alphabetisch sortieren">A–Z</button>
           <button class="char-gender-filter" onclick="toggleGenderFilter(this,'m')">♂</button>
           <button class="char-gender-filter" onclick="toggleGenderFilter(this,'f')">♀</button>
           <button id="char-reload" onclick="reloadChars()" title="Aktualisieren">↺</button>
           <button id="char-close" onclick="closeCharView()">✕</button>
         </div>
-        <div id="char-filter-bar"></div>
+        <!-- Zeile 3: Spielerfilter -->
+        <div id="char-filter-bar" style="width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;white-space:nowrap;margin-top:4px"></div>
+        <!-- Zeile 4: Altersfilter (ausklappbar) -->
         <div id="char-age-bar"></div>
       </div>
       <div id="char-grid"></div>
