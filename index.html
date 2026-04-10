@@ -213,7 +213,9 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 #char-reload{background:transparent;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:13px;flex-shrink:0}
 #char-close{background:transparent;border:none;color:rgba(255,255,255,0.35);font-size:18px;cursor:pointer;padding:2px 6px;flex-shrink:0}
 #char-grid{overflow-y:scroll;-webkit-overflow-scrolling:touch;padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;align-content:start}
-.char-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative;aspect-ratio:1/1}
+.char-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative}
+.char-card::before{content:"";display:block;padding-bottom:100%}
+.char-portrait-wrap,.char-name-overlay{position:absolute;inset:0}
 #char-grid.az-mode{display:block}
 .char-letter-section{width:100%}
 .char-letter-divider{padding:12px 4px 6px;font-size:20px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:2px;border-bottom:0.5px solid rgba(255,255,255,0.07);margin-bottom:6px}
@@ -221,10 +223,10 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .char-gender-filter{padding:3px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);background:transparent;transition:all 0.15s;white-space:nowrap}
 .char-gender-filter.active{background:rgba(100,180,120,0.15);border-color:#4aaa6a;color:#4aaa6a}
 .char-card:hover{background:rgba(255,255,255,0.08);border-color:rgba(100,180,120,0.4)}
-.char-portrait-wrap{width:100%;height:100%;overflow:hidden;background:#0a1520}
+.char-portrait-wrap{overflow:hidden;background:#0a1520}
 .char-portrait{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%}
-.char-portrait-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;color:rgba(255,255,255,0.08)}
-.char-name-overlay{position:absolute;bottom:0;left:0;right:0;padding:20px 7px 6px;background:linear-gradient(transparent,rgba(0,0,0,0.85));pointer-events:none;z-index:2}
+.char-portrait-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;color:rgba(255,255,255,0.08);position:absolute;inset:0}
+.char-name-overlay{position:absolute;bottom:0;left:0;right:0;top:auto;padding:20px 7px 6px;background:linear-gradient(transparent,rgba(0,0,0,0.85));pointer-events:none;z-index:2}
 .char-name-overlay-name{font-size:11px;font-weight:600;color:#fff;display:block;line-height:1.3;text-shadow:0 1px 4px rgba(0,0,0,0.8);font-family:sans-serif}
 .char-okkult-badge{display:inline-block;margin-top:2px;font-size:8px;padding:1px 5px;background:rgba(100,180,120,0.25);border:0.5px solid rgba(100,180,120,0.5);border-radius:10px;color:#4aaa6a}
 #char-hover-card{position:fixed;z-index:400;background:#0d1f2d;border:0.5px solid rgba(100,180,120,0.3);border-radius:10px;width:200px;box-shadow:0 8px 32px rgba(0,0,0,0.6);pointer-events:none;opacity:0;transition:opacity 0.15s;overflow:hidden}
@@ -522,16 +524,12 @@ const BUILDINGS = {
     {name:"Nr. 15 - Wohnung Joachim Winter",x:65,y:65,url:BASE+'f51791-Evergreen-Harbor.html',active:false},
   ]},
   "Seeblick Appartments":   {imgs:[IMG+"pictures_u1188_HlaIWmsV.png"],lots:[
-    {name:"Nr. 15A",x:35,y:40,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 15B",x:65,y:40,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 15C",x:35,y:70,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 15D",x:65,y:70,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 15",x:35,y:50,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 16",x:65,y:50,url:BASE+"f60507-Ondarion.html",active:false},
   ]},
   "Sturmhöhe Appartments":  {imgs:[IMG+"pictures_u1187_RzFNAGjD.png"],lots:[
-    {name:"Nr. 16A",x:35,y:40,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 16B",x:65,y:40,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 16C",x:35,y:70,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 16D",x:65,y:70,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 17",x:35,y:50,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 18",x:65,y:50,url:BASE+"f60507-Ondarion.html",active:false},
   ]},
 };
 
@@ -576,41 +574,56 @@ const worlds=[
 // ═══════════════════════════════════════════
 const worldLots={
   "Innisgreen":[
-    {name:"Innisgreen",x:50,y:50,url:BASE+"t701f59907-Innisgreen.html",active:true,outdoor:true},
+    {name:"Innisgreen",x:51.1,y:44.8,url:BASE+"t701f59907-Innisgreen.html",active:true,outdoor:true},
+    {name:"Ort 1",x:15.5,y:34.8,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 2",x:19.9,y:45.8,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 3",x:28.9,y:26.4,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 4",x:39.7,y:27.6,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 5",x:37.1,y:45.8,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 6",x:53.7,y:21.3,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 7",x:58.1,y:30.5,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 8",x:69.2,y:24.6,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 9",x:83.6,y:26.1,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 10",x:75.1,y:37.1,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 11",x:55.3,y:61,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 12",x:66.6,y:52.6,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 13",x:53.3,y:69.5,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 14",x:64,y:68,url:BASE+"f59907-Innisgreen.html",active:false},
   ],
   "Gibbi Point":[
-    {name:"Gibbi Point (Strassen)",x:50,y:50,url:BASE+"f60506-Gibbi-Point.html",active:true,outdoor:true},
-    {name:"Nr. 1",x:15,y:25,url:BASE+"f60506-Gibbi-Point.html",active:false},
-    {name:"Nr. 2",x:30,y:25,url:BASE+"f60506-Gibbi-Point.html",active:false},
-    {name:"Nr. 3",x:45,y:25,url:BASE+"f60506-Gibbi-Point.html",active:false},
-    {name:"Nr. 4",x:60,y:25,url:BASE+"f60506-Gibbi-Point.html",active:false},
-    {name:"Nr. 5",x:75,y:25,url:BASE+"f60506-Gibbi-Point.html",active:false},
-    {name:"Nr. 6",x:15,y:50,url:BASE+"f60506-Gibbi-Point.html",active:false},
-    {name:"Nr. 7",x:30,y:50,url:BASE+"f60506-Gibbi-Point.html",active:false},
-    {name:"Nr. 8",x:45,y:50,url:BASE+"f60506-Gibbi-Point.html",active:false},
-    {name:"Nr. 9",x:60,y:50,url:BASE+"f60506-Gibbi-Point.html",active:false},
-    {name:"Nr. 10",x:75,y:50,url:BASE+"f60506-Gibbi-Point.html",active:false},
-    {name:"Nr. 11",x:25,y:75,url:BASE+"f60506-Gibbi-Point.html",active:false},
-    {name:"Nr. 12",x:50,y:75,url:BASE+"f60506-Gibbi-Point.html",active:false},
-    {name:"Nr. 13",x:70,y:75,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Gibbi Point (Strassen)",x:63.8,y:70.9,url:BASE+"f60506-Gibbi-Point.html",active:true,outdoor:true},
+    {name:"Nr. 1",x:19.7,y:22.8,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 2",x:32.4,y:21.5,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 3",x:21.5,y:33.9,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 4",x:36.7,y:30.6,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 5",x:63.3,y:16.6,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 6",x:79.5,y:22.1,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 7",x:68.1,y:31.3,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 8",x:78.4,y:29.9,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 9",x:74.4,y:39.6,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 10",x:54.1,y:61.2,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 11",x:66.8,y:57,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 12",x:70.6,y:64.4,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 13",x:78.2,y:73.4,url:BASE+"f60506-Gibbi-Point.html",active:false},
   ],
   "Ondarion":[
-    {name:"Ondarion (Strassen)",x:50,y:50,url:BASE+"f60507-Ondarion.html",active:true,outdoor:true},
-    {name:"Nr. 1",x:20,y:30,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 2",x:35,y:30,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 3",x:50,y:30,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 4",x:65,y:30,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 5",x:80,y:30,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 6",x:20,y:55,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 7",x:35,y:55,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 8",x:50,y:55,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 9",x:65,y:55,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 10",x:80,y:55,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 11",x:30,y:78,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 12",x:55,y:78,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 13",x:75,y:78,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 15 - Seeblick",x:40,y:45,url:BASE+"f60507-Ondarion.html",active:false,building:"Seeblick Appartments"},
-    {name:"Nr. 16 - Sturmhöhe",x:60,y:45,url:BASE+"f60507-Ondarion.html",active:false,building:"Sturmhöhe Appartments"},
+    {name:"Ondarion (Strassen)",x:48.6,y:44.8,url:BASE+"f60507-Ondarion.html",active:true,outdoor:true},
+    {name:"Nr. 1",x:15.7,y:21.8,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 2",x:30.7,y:19.3,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 3",x:25.8,y:24.5,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 4",x:22.6,y:34.9,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 5",x:35.4,y:27.1,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 6",x:39.5,y:32.1,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 7",x:54.4,y:34.5,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 8",x:56.9,y:23.7,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 9",x:71.3,y:21.9,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 10",x:74.3,y:32.9,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 11",x:40.6,y:71.2,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 12",x:45.4,y:66.8,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 13",x:49.6,y:76.8,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 14",x:50,y:50,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 15-16 - Seeblick",x:63.8,y:23.5,url:BASE+"f60507-Ondarion.html",active:false,building:"Seeblick Appartments"},
+    {name:"Nr. 17-18 - Sturmhöhe",x:57.9,y:61.5,url:BASE+"f60507-Ondarion.html",active:false,building:"Sturmhöhe Appartments"},
   ],
   "Willow Creek":[
     {name:"Nr. 2 - Gerichtsgebäude",x:25.2,y:44.7,url:BASE+"t42f51778-Willow-Creek-Nr-Gerichtsgebaeude.html",active:false,img:IMG+"f51778t42p480n2_hRnETHkO.png"},
