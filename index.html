@@ -189,9 +189,9 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 }
 @keyframes pulse{0%{transform:translate(-50%,-50%) scale(1);opacity:.5}50%{transform:translate(-50%,-50%) scale(2.2);opacity:.1}100%{transform:translate(-50%,-50%) scale(1);opacity:.5}}
 /* ── CHARACTER VIEW ── */
-#char-container{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:#050d18;display:none}
-#char-container.open{display:block}
-#char-header{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:0.5px solid rgba(255,255,255,0.08);flex-wrap:wrap;background:#050d18;z-index:2}
+#char-container{position:fixed;inset:0;z-index:300;background:#050d18;display:none;flex-direction:column;overflow:hidden}
+#char-container.open{display:flex}
+#char-header{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:0.5px solid rgba(255,255,255,0.08);flex-wrap:wrap;background:#050d18;z-index:2}
 #char-tabs{display:flex;gap:4px;flex-shrink:0}
 .char-tab{background:transparent;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s}
 .char-tab.active{background:rgba(100,180,120,0.15);border-color:#4aaa6a;color:#4aaa6a}
@@ -212,7 +212,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 #char-sort-btn.active{border-color:#4aaa6a;color:#4aaa6a}
 #char-reload{background:transparent;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:13px;flex-shrink:0}
 #char-close{background:transparent;border:none;color:rgba(255,255,255,0.35);font-size:18px;cursor:pointer;padding:2px 6px;flex-shrink:0}
-#char-grid{overflow-y:scroll;-webkit-overflow-scrolling:touch;padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;align-content:start}
+#char-grid{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;align-content:start;min-height:0}
 .char-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative}
 .char-card::before{content:"";display:block;padding-bottom:100%}
 .char-portrait-wrap,.char-name-overlay{position:absolute;inset:0}
