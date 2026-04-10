@@ -69,7 +69,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .leg-cluster{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0}
 #building-container{position:absolute;inset:0;z-index:25;display:none}
 #building-bg{position:absolute;inset:0;overflow:hidden}
-#building-bg{position:absolute;inset:0;overflow:hidden}#building-bg img{width:100%;height:100%;object-fit:contain;filter:brightness(0.65);background:#040d14}
+#building-bg{position:absolute;inset:0;overflow:hidden;display:flex;align-items:center;justify-content:center}#building-bg-inner{position:relative;aspect-ratio:1920/1200;max-width:100%;max-height:100%}#building-bg-inner img{width:100%;height:100%;object-fit:fill;filter:brightness(0.65);display:block}
 #building-header{position:absolute;top:0;left:0;right:0;padding:10px 14px;background:linear-gradient(rgba(0,0,0,0.7),transparent);z-index:5;pointer-events:none}
 #building-name{font-size:15px;font-weight:500}
 #building-no-img{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;display:none;z-index:6}
@@ -1329,20 +1329,11 @@ function enterBuilding(buildingKey,lots){
   renderBuildingBg(imgs);
   renderBuildingLots();
 }
-function getBuildingImgRect(){
-  const bc=document.getElementById('building-container');
-  const bcW=bc.clientWidth,bcH=bc.clientHeight;
-  const imgRatio=1920/1200;
-  const bcRatio=bcW/bcH;
-  let w,h,left,top;
-  if(bcRatio>imgRatio){h=bcH;w=h*imgRatio;left=(bcW-w)/2;top=0;}
-  else{w=bcW;h=w/imgRatio;top=(bcH-h)/2;left=0;}
-  return{w,h,left,top};
-}
 function renderBuildingLots(){
   const bc=document.getElementById('building-container');
   const data=BUILDINGS[currentBuildingKey];
-  bc.querySelectorAll('.apt-dot').forEach(d=>d.remove());
+  const dotParent=document.getElementById('building-bg-inner')||bc;
+  dotParent.querySelectorAll('.apt-dot').forEach(d=>d.remove());
   const aptLots=data?.lots||[];
   aptLots.forEach(apt=>{
     // Floor filter: if lot has floors array, only show on matching floor
@@ -1371,13 +1362,13 @@ function renderBuildingLots(){
     const _ttStyle=apt.img?'padding:0;overflow:hidden;min-width:160px;border:0.5px solid rgba(255,255,255,0.2)':'padding:6px 10px;border:0.5px solid rgba(255,255,255,0.2)';
     d.innerHTML=`<div class="lot-pulse"></div><div class="lot-inner" style="width:11px;height:11px;background:${_dotBg};box-shadow:${_shadow}"></div><div class="lot-label">${_labelHtml}</div><div class="lot-tooltip" style="${_ttStyle}">${_tooltipInner}</div>`;
     if(!isFree&&apt.url)d.addEventListener('click',e=>{e.stopPropagation();window.open(apt.url,'_blank');});
-    bc.appendChild(d);
+    dotParent.appendChild(d);
   });
 }
 function renderBuildingBg(imgs){
   const img=imgs[buildingFloorIdx]||'';
   const bg=document.getElementById('building-bg');
-  if(img){bg.innerHTML=`<img src="${img}" style="width:100%;height:100%;object-fit:contain;filter:brightness(0.65);background:#040d14">`;document.getElementById('building-no-img').style.display='none';}
+  if(img){bg.innerHTML=`<div id="building-bg-inner"><img src="${img}" alt=""></div>`;document.getElementById('building-no-img').style.display='none';}
   else{bg.innerHTML=`<div style="position:absolute;inset:0;background:linear-gradient(135deg,#0a1a2a,#1a2a3a)"></div>`;document.getElementById('building-no-img').style.display='block';}
 }
 function changeBuildingFloor(dir){
@@ -1697,13 +1688,11 @@ function copyBuildingCalib(){
   navigator.clipboard.writeText(txt).then(()=>alert('✓ Kopiert!'));
 }
 
-window.addEventListener('resize',function(){if(document.getElementById('building-container')&&document.getElementById('building-container').style.display!=='none')renderBuildingLots();});
-
 document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('building-container').addEventListener('click',function(e){
     if(!calibBuildingMode)return;
     if(e.target.closest('.calib-panel')||e.target.closest('.calib-btn')||e.target.closest('#floor-nav'))return;
-    const bc=document.getElementById('building-container');
+    const bc=document.getElementById('building-bg-inner')||document.getElementById('building-container');
     const r=bc.getBoundingClientRect();
     const x=+((e.clientX-r.left)/r.width*100).toFixed(1);
     const y=+((e.clientY-r.top)/r.height*100).toFixed(1);
