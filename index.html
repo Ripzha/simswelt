@@ -1727,6 +1727,8 @@ async function fetchCharsFromScript(){
   }catch(e){}
   charRenderFiltered();
   buildPlayerFilter();
+  // Rebuild age filter if open
+  if(document.getElementById('char-age-bar')&&document.getElementById('char-age-bar').classList.contains('open'))buildAgeFilter();
 }
 
 function toggleCharSort(){
