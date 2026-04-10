@@ -330,16 +330,16 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
         <div class="wh-sub" id="world-type-display"></div>
       </div>
       <div id="building-container">
-        <div id="building-bg"></div>
+        <div id="building-image-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div id="building-img-area" style="position:relative;aspect-ratio:1920/1200;max-width:100%;max-height:100%"><div id="building-bg" style="position:absolute;inset:0"></div></div></div>
         <div class="vignette"></div>
         <div id="building-header">
           <div id="building-name" style="font-size:15px;font-weight:500"></div>
           <div style="font-size:10px;color:rgba(255,255,255,0.45);margin-top:2px">Wohnungen — klick zum Öffnen</div>
         </div>
-        <div id="floor-nav" style="position:absolute;top:12px;right:12px;z-index:10;display:none;align-items:center;gap:6px">
-          <button id="floor-up-btn" onclick="changeBuildingFloor(-1)" style="background:rgba(0,0,0,0.6);border:0.5px solid rgba(255,255,255,0.2);border-radius:5px;color:#fff;font-size:11px;padding:4px 10px;cursor:pointer">↑</button>
-          <span id="floor-label" style="font-size:10px;color:rgba(255,255,255,0.5);min-width:32px;text-align:center"></span>
-          <button id="floor-down-btn" onclick="changeBuildingFloor(1)" style="background:rgba(0,0,0,0.6);border:0.5px solid rgba(255,255,255,0.2);border-radius:5px;color:#fff;font-size:11px;padding:4px 10px;cursor:pointer">↓</button>
+        <div id="floor-nav" style="position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:30;display:none;flex-direction:column;align-items:center;gap:6px;padding:10px 8px;background:rgba(5,13,24,0.85);border-radius:10px 0 0 10px;border:0.5px solid rgba(255,255,255,0.12);border-right:none;backdrop-filter:blur(8px)">
+          <button id="floor-up-btn" onclick="changeBuildingFloor(-1)" style="background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;font-size:20px;width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center">▲</button>
+          <span id="floor-label" style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);min-width:32px;text-align:center"></span>
+          <button id="floor-down-btn" onclick="changeBuildingFloor(1)" style="background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;font-size:20px;width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center">▼</button>
         </div>
         <div id="building-no-img">
           <div style="font-size:12px;color:rgba(255,255,255,0.4)">🏗 Grundriss noch ausstehend</div>
@@ -564,20 +564,20 @@ const BUILDINGS = {
     "https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t400p3507n2_QkAZHmvp.png"
   ],lots:[
     {name:"Schattenmarktviertel (Strassen)",x:48.6,y:65.8,floors:[0],url:BASE+"t400f53861-Bloodmoon-Valley-Schattenmarktviertel-Harghita.html",active:true,outdoor:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t400p3507n6_OndjlTce.png"},
-    {name:"Nr. 3 - Zum Sündigen Nachtvogel",x:62.7,y:63.1,floors:[0],url:BASE+"t486f53861-Bloodmoon-Valey-Schattenmarktviertel-Haus-Nr-Zum-Suendigen-Nachtvogel-Harhita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1000x9999/f53861t486p4068n4_NfYvjTMO.png"},
+    {name:"Nr. 3 - Zum Sündigen Nachtvogel",x:62.7,y:63.1,floors:[0,1,2],url:BASE+"t486f53861-Bloodmoon-Valey-Schattenmarktviertel-Haus-Nr-Zum-Suendigen-Nachtvogel-Harhita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1000x9999/f53861t486p4068n4_NfYvjTMO.png"},
     {name:"Nr. A - Andenken an Alucard",x:48.3,y:22.1,url:BASE+"t552f53861-Bloodmoon-Valey-Schattenmarktviertel-Haus-Nr-A-Andenken-an-Alucard-Harghita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t552p4813n12_IwZNGjMT.png"},
-    {name:"Nr. 1 - Frei",x:39.7,y:41.4,floors:[1],free:true,active:false},
-    {name:"Nr. 2 - Frei",x:63.9,y:51.5,floors:[1],free:true,active:false},
-    {name:"Nr. 4 - Frei",x:64.1,y:85.8,floors:[1],free:true,active:false},
-    {name:"Nr. 5 - Frei",x:33.2,y:85.6,floors:[1],free:true,active:false},
-    {name:"Nr. 6 - Frei",x:32.2,y:70.2,floors:[1],free:true,active:false},
-    {name:"Nr. 7 - Frei",x:32.9,y:61.2,floors:[1],free:true,active:false},
+    {name:"Nr. 1 - Frei",x:39.7,y:41.4,floors:[0,1],free:true,active:false},
+    {name:"Nr. 2 - Frei",x:63.9,y:51.5,floors:[0,1],free:true,active:false},
+    {name:"Nr. 4 - Frei",x:64.1,y:85.8,floors:[0,1,2],free:true,active:false},
+    {name:"Nr. 5 - Frei",x:33.2,y:85.6,floors:[0,1],free:true,active:false},
+    {name:"Nr. 6 - Frei",x:32.2,y:70.2,floors:[1,2],free:true,active:false},
+    {name:"Nr. 7 - Frei",x:32.9,y:61.2,floors:[1,2],free:true,active:false},
     {name:"Nr. 8 - Frei",x:34,y:48.7,floors:[1],free:true,active:false},
     {name:"Nr. 9 - Frei",x:32.1,y:31.2,floors:[1],free:true,active:false},
-    {name:"Nr. 10 - Frei",x:39.7,y:34.4,floors:[1],free:true,active:false},
-    {name:"Nr. 11 - Frei",x:51.1,y:41.9,floors:[1],free:true,active:false},
-    {name:"Nr. 12 - Frei",x:55.6,y:41.5,floors:[1],free:true,active:false},
-    {name:"Nr. 13 - Frei",x:63,y:21.6,floors:[1],free:true,active:false},
+    {name:"Nr. 10 - Frei",x:39.7,y:34.4,floors:[1,2],free:true,active:false},
+    {name:"Nr. 11 - Frei",x:51.1,y:41.9,floors:[1,2],free:true,active:false},
+    {name:"Nr. 12 - Frei",x:55.6,y:41.5,floors:[1,2],free:true,active:false},
+    {name:"Nr. 13 - Frei",x:63,y:21.6,floors:[1,2],free:true,active:false},
     {name:"Nr. 16 - Jacks Unterschlupf",x:32,y:48.2,floors:[2],url:BASE+"t398f53861-Bloodmoon-Valley-Schattenmarktviertel-Haus-Nr-Jacks-Unterschlupf-Harghita.html",active:false},
     {name:"Nr. 14 - Frei",x:62.4,y:45.7,floors:[2],free:true,active:false},
     {name:"Nr. 15 - Frei",x:33.6,y:83.7,floors:[2],free:true,active:false},
@@ -1278,7 +1278,9 @@ mapC.addEventListener('click',e=>{
 // NAVIGATION
 // ═══════════════════════════════════════════
 function enterWorld(w){
-  try{sessionStorage.setItem('atlas_world',w.name);}catch(e){}
+  // Only persist otherworlds (not simswelt) across reload
+  const isOther=otherworlds.some(function(o){return o.name===w.name;});
+  try{if(isOther)sessionStorage.setItem('atlas_world',w.name);else sessionStorage.removeItem('atlas_world');}catch(e){}
   currentWorld=w;
   mapC.classList.remove('active');
   const wc=document.getElementById('world-container');
@@ -1319,15 +1321,17 @@ function enterBuilding(buildingKey,lots){
 function renderBuildingLots(){
   const bc=document.getElementById('building-container');
   const data=BUILDINGS[currentBuildingKey];
-  bc.querySelectorAll('.apt-dot').forEach(d=>d.remove());
+  const imgArea=document.getElementById('building-img-area')||bc;
+  imgArea.querySelectorAll('.apt-dot').forEach(d=>d.remove());
   const aptLots=data?.lots||[];
   aptLots.forEach(apt=>{
     // Floor filter: if lot has floors array, only show on matching floor
     if(apt.floors&&!apt.floors.includes(buildingFloorIdx))return;
+    const imgArea=document.getElementById('building-img-area')||bc;
     const d=document.createElement('div');
     const isFree=apt.free||!apt.url;
     d.className='apt-dot lot-dot'+(apt.active?' isactive':'');
-    d.style.cssText=`left:${apt.x}%;top:${apt.y}%`;
+    d.style.cssText=`left:${apt.x}%;top:${apt.y}%;position:absolute;`;
     // Nr/Name label
     const _lbl=parseLotLabel(apt);
     const _labelHtml=_lbl.sub
@@ -1340,7 +1344,7 @@ function renderBuildingLots(){
     const _tooltipInner=`<div style="font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.35);margin-bottom:1px">${_lbl.num}</div><div style="font-weight:600;margin-bottom:3px">${_lbl.sub||_lbl.num}</div><div style="font-size:10px;color:${_statusColor}">${_statusText}</div>`;
     d.innerHTML=`<div class="lot-pulse"></div><div class="lot-inner" style="width:11px;height:11px;background:${_dotBg};box-shadow:${_shadow}"></div><div class="lot-label">${_labelHtml}</div><div class="lot-tooltip" style="padding:6px 10px;border:0.5px solid rgba(255,255,255,0.2)">${_tooltipInner}</div>`;
     if(!isFree&&apt.url)d.addEventListener('click',e=>{e.stopPropagation();window.open(apt.url,'_blank');});
-    bc.appendChild(d);
+    imgArea.appendChild(d);
   });
 }
 function renderBuildingBg(imgs){
