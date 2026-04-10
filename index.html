@@ -69,7 +69,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .leg-cluster{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0}
 #building-container{position:absolute;inset:0;z-index:25;display:none}
 #building-bg{position:absolute;inset:0;overflow:hidden}
-#building-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(0.65)}
+#building-bg img{width:100%;height:100%;object-fit:contain;filter:brightness(0.65);background:#040d14}
 #building-header{position:absolute;top:0;left:0;right:0;padding:10px 14px;background:linear-gradient(rgba(0,0,0,0.7),transparent);z-index:5;pointer-events:none}
 #building-name{font-size:15px;font-weight:500}
 #building-no-img{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;display:none;z-index:6}
@@ -1105,14 +1105,14 @@ const worldLots={
     {name:"Nr. 5",x:55.8,y:47.2,url:BASE+"f51798-Granite-Falls.html",active:false},
       ],
   "Bloodmoon Valley":[
-    {name:"Bloodmoon Valley (Eingang)",x:50,y:50,url:BASE+"t380f53861-Bloodmoon-Valley.html",active:true,outdoor:true},
-    {name:"Deathdealer Ausbildungslager",x:30,y:30,url:BASE+"t382f53861-Bloodmoon-Valley-Deathdealer-Ausbildungslager.html",active:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t382p3448n3_PzCaLcMb.png"},
-    {name:"Kerker-Ruine",x:40,y:30,url:BASE+"t609f53861-Bloodmoon-Valley-Kerker-Ruine.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t609p5380n2_MlDawgxc.jpg"},
-    {name:"Anwesen der Draculias",x:60,y:30,url:BASE+"t385f53861-Bloodmoon-Valley-Anwesen-der-Draculias.html",active:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t385p3451n2_BqadveJZ.png"},
-    {name:"Mirabelles Haus",x:70,y:30,url:BASE+"t492f53861-Bloodmoon-Valley-Mirabelles-Haus.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t492p4169n2_tIKSYmXG.png"},
-    {name:"Ruine",x:50,y:70,url:BASE+"t383f53861-Bloodmoon-Valley-Ruine.html",active:false},
-    {name:"Rabenfelsviertel",x:35,y:60,url:BASE+"t381f53861-Bloodmoon-Valley-Rabenfelsviertel-Harghita.html",active:true,building:"Rabenfelsviertel"},
-    {name:"Schattenmarktviertel",x:65,y:60,url:BASE+"t400f53861-Bloodmoon-Valley-Schattenmarktviertel-Harghita.html",active:true,building:"Schattenmarktviertel"},
+    {name:"Bloodmoon Valley (Eingang)",x:86.3,y:82.4,url:BASE+"t380f53861-Bloodmoon-Valley.html",active:true,outdoor:true},
+    {name:"Deathdealer Ausbildungslager",x:88.7,y:55.8,url:BASE+"t382f53861-Bloodmoon-Valley-Deathdealer-Ausbildungslager.html",active:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t382p3448n3_PzCaLcMb.png"},
+    {name:"Kerker-Ruine",x:69.2,y:46.2,url:BASE+"t609f53861-Bloodmoon-Valley-Kerker-Ruine.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t609p5380n2_MlDawgxc.jpg"},
+    {name:"Anwesen der Draculias",x:71.7,y:18,url:BASE+"t385f53861-Bloodmoon-Valley-Anwesen-der-Draculias.html",active:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t385p3451n2_BqadveJZ.png"},
+    {name:"Mirabelles Haus",x:15.6,y:89.5,url:BASE+"t492f53861-Bloodmoon-Valley-Mirabelles-Haus.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t492p4169n2_tIKSYmXG.png"},
+    {name:"Ruine",x:28.6,y:39.8,url:BASE+"t383f53861-Bloodmoon-Valley-Ruine.html",active:false},
+    {name:"Rabenfelsviertel",x:57.4,y:37.5,url:BASE+"t381f53861-Bloodmoon-Valley-Rabenfelsviertel-Harghita.html",active:true,building:"Rabenfelsviertel"},
+    {name:"Schattenmarktviertel",x:45.7,y:55.1,url:BASE+"t400f53861-Bloodmoon-Valley-Schattenmarktviertel-Harghita.html",active:true,building:"Schattenmarktviertel"},
   ],
   "Selvadorada":[
     {name:"Nr. 1",x:21.6,y:62.5,url:BASE+"f51799-Selvadorada.html",active:false},
