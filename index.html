@@ -214,7 +214,10 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 #char-close{background:transparent;border:none;color:rgba(255,255,255,0.35);font-size:18px;cursor:pointer;padding:2px 6px;flex-shrink:0}
 #char-grid{overflow-y:scroll;-webkit-overflow-scrolling:touch;padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;align-content:start}
 .char-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative;aspect-ratio:1/1}
-.char-letter-divider{grid-column:1/-1;padding:4px 4px 4px;font-size:22px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:2px;border-bottom:0.5px solid rgba(255,255,255,0.07);align-self:end}
+#char-grid.az-mode{display:block}
+.char-letter-section{width:100%}
+.char-letter-divider{padding:12px 4px 6px;font-size:20px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:2px;border-bottom:0.5px solid rgba(255,255,255,0.07);margin-bottom:6px}
+.char-subgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px}
 .char-gender-filter{padding:3px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);background:transparent;transition:all 0.15s;white-space:nowrap}
 .char-gender-filter.active{background:rgba(100,180,120,0.15);border-color:#4aaa6a;color:#4aaa6a}
 .char-card:hover{background:rgba(255,255,255,0.08);border-color:rgba(100,180,120,0.4)}
@@ -1784,45 +1787,59 @@ function getAgeGroup(ageStr){
   return a;
 }
 
+function makeCard(c){
+  var card=document.createElement('div');
+  card.className='char-card';
+  card.setAttribute('data-url',c.u);
+  card.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
+  var portrait=c.img
+    ?'<img class="char-portrait" src="'+c.img+'" alt="'+c.n+'">'
+    :'<div class="char-portrait-ph">&#128100;</div>';
+  card.innerHTML='<div class="char-portrait-wrap">'+portrait
+    +'<div class="char-name-overlay"><span class="char-name-overlay-name">'+c.n+'</span>'
+    +(c.okkult?'<span class="char-okkult-badge">'+c.okkult+'</span>':'')
+    +'</div></div>';
+  card.addEventListener('mouseenter',function(e){showCharHover(c,e.currentTarget);});
+  card.addEventListener('mouseleave',hideCharHover);
+  return card;
+}
+
 function charRender(list){
   var grid=document.getElementById('char-grid');
   var sub=document.getElementById('char-subtitle');
   if(!grid||!sub)return;
   sub.textContent=list.length+' Charaktere';
-  var lastLetter='';
   grid.innerHTML='';
   if(!list.length){
-    grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:12px;padding:40px;grid-column:1/-1;text-align:center">Keine Charaktere gefunden.</div>';
+    grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:12px;padding:40px;text-align:center">Keine Charaktere gefunden.</div>';
     return;
   }
-  list.forEach(function(c){
-    var card=document.createElement('div');
-    card.className='char-card';
-    card.setAttribute('data-url',c.u);
-    card.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
-    var portrait=c.img
-      ?'<img class="char-portrait" src="'+c.img+'" alt="'+c.n+'">'
-      :'<div class="char-portrait-ph">&#128100;</div>';
-    card.innerHTML='<div class="char-portrait-wrap">'+portrait
-      +'<div class="char-name-overlay"><span class="char-name-overlay-name">'+c.n+'</span>'
-      +(c.okkult?'<span class="char-okkult-badge">'+c.okkult+'</span>':'')
-      +'</div></div>';
-    // Hover card
-    card.addEventListener('mouseenter',function(e){showCharHover(c,e.currentTarget);});
-    card.addEventListener('mouseleave',hideCharHover);
-    // Letter divider when sorted A-Z
-    if(charSortAZ){
+  grid.classList.toggle('az-mode',charSortAZ);
+  if(charSortAZ){
+    // Group by first letter, render as sections
+    var groups={};
+    var order=[];
+    list.forEach(function(c){
       var fl=(c.n||'?')[0].toUpperCase();
-      if(fl!==lastLetter){
-        lastLetter=fl;
-        var ldiv=document.createElement('div');
-        ldiv.className='char-letter-divider';
-        ldiv.textContent=fl;
-        grid.appendChild(ldiv);
-      }
-    }
-    grid.appendChild(card);
-  });
+      if(!groups[fl]){groups[fl]=[];order.push(fl);}
+      groups[fl].push(c);
+    });
+    order.forEach(function(letter){
+      var section=document.createElement('div');
+      section.className='char-letter-section';
+      var heading=document.createElement('div');
+      heading.className='char-letter-divider';
+      heading.textContent=letter;
+      section.appendChild(heading);
+      var subgrid=document.createElement('div');
+      subgrid.className='char-subgrid';
+      groups[letter].forEach(function(c){subgrid.appendChild(makeCard(c));});
+      section.appendChild(subgrid);
+      grid.appendChild(section);
+    });
+  } else {
+    list.forEach(function(c){grid.appendChild(makeCard(c));});
+  }
 }
 
 var _hoverTimeout=null;
