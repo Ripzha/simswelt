@@ -3,16 +3,17 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Charakterbogen – simsforumrpg.de</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&display=swap" rel="stylesheet">
+<title>Charakterbogen – Projekt ATLAS</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#b8c2b8;font-family:'Segoe UI',sans-serif;color:#1a1a1a;min-height:100vh}
+body{background:#070f1a;font-family:'DM Sans','Segoe UI',sans-serif;color:#e0e8e0;min-height:100vh}
 input,textarea,button{font-family:inherit}
-input:focus,textarea:focus{border-color:#3d6f8a!important;outline:none}
+input:focus,textarea:focus{border-color:#4aaa6a!important;outline:none;box-shadow:0 0 0 2px rgba(74,170,106,0.15)}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
 ::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:#b8c2b8}
-::-webkit-scrollbar-thumb{background:#96a896;border-radius:3px}
+::-webkit-scrollbar-track{background:#0a1420}
+::-webkit-scrollbar-thumb{background:#2a4a3a;border-radius:3px}
 </style>
 </head>
 <body>
@@ -22,7 +23,7 @@ input:focus,textarea:focus{border-color:#3d6f8a!important;outline:none}
 <script>
 var MISTRAL_KEY="2sFqjZLioWcFFuILhASGZJwVhxnjss4r";
 
-var C={bg:"#b8c2b8",card:"#c8d0c8",card2:"#bec8be",border:"#96a896",accent:"#4d7a4d",teal:"#3d6f8a",text:"#1a1a1a",muted:"#4a564a",input:"#d4dcd4",danger:"#902020"};
+var C={bg:"#070f1a",card:"rgba(255,255,255,0.05)",card2:"rgba(255,255,255,0.08)",border:"rgba(255,255,255,0.1)",accent:"#4aaa6a",teal:"#3a8aaa",text:"#ddeedd",muted:"rgba(255,255,255,0.45)",input:"rgba(255,255,255,0.07)",danger:"#e05555"};
 
 var FIELDS=[
   {key:"name",label:"Name",hint:"Wie heisst dein Charakter? Hat er einen Kosenamen?",multi:false},
@@ -134,7 +135,7 @@ function mk(tag,style,children){
 }
 function div(s,c){return mk("div",s,c);}
 function span(s,c){return mk("span",s,c);}
-var INP={width:"100%",padding:"8px 11px",borderRadius:"6px",border:"1px solid "+C.border,fontSize:"13px",background:C.input,color:C.text,boxSizing:"border-box"};
+var INP={width:"100%",padding:"8px 11px",borderRadius:"6px",border:"1px solid "+C.border,fontSize:"13px",background:C.input,color:C.text,boxSizing:"border-box",colorScheme:"dark"};
 function btn(label,bg,cb,sm,out,dis){
   var e=mk("button",{background:out?"transparent":(bg||C.accent),color:out?(bg||C.accent):"#fff",border:"1px solid "+(bg||C.accent),borderRadius:"7px",padding:sm?"4px 10px":"7px 14px",fontSize:sm?"11px":"13px",fontWeight:"600",cursor:dis?"not-allowed":"pointer",opacity:dis?"0.5":"1",whiteSpace:"nowrap"});
   e.textContent=label;
@@ -244,7 +245,7 @@ function doImport(){
 function downloadDoc(){
   var name=state.char.name||"Charakter";
   var skip=["name","age","gender","occult","job","origin"];
-  var h=['<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:Calibri,sans-serif;margin:40px}h1{color:#4d7a4d;font-size:22pt}h2{color:#3d6f8a;font-size:12pt;margin:16px 0 4px;border-bottom:1px solid #96a896;padding-bottom:2px}p{font-size:11pt;white-space:pre-wrap;margin:2px 0 8px}.s{color:#4a564a;font-size:10pt}</style></head><body>'];
+  var h=['<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:Calibri,sans-serif;margin:40px}h1{color:#4aaa6a;font-size:22pt}h2{color:#3a8aaa;font-size:12pt;margin:16px 0 4px;border-bottom:1px solid #96a896;padding-bottom:2px}p{font-size:11pt;white-space:pre-wrap;margin:2px 0 8px}.s{color:#4a564a;font-size:10pt}</style></head><body>'];
   h.push("<h1>"+name+"</h1>");
   var sub=[state.char.age&&state.char.age+" Jahre",state.char.gender,state.char.occult].filter(Boolean).join(" · ");
   if(sub)h.push('<p class="s">'+sub+"</p>");
@@ -432,7 +433,7 @@ function mkImportModal(){
   var ov=div({position:"fixed",inset:"0",background:"rgba(0,0,0,0.55)",zIndex:"200",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"});
   var box=div({background:C.card,border:"1px solid "+C.border,borderRadius:"14px",padding:"24px",width:"100%",maxWidth:"560px"});
   box.appendChild(div({fontSize:"14px",fontWeight:"800",color:C.accent,marginBottom:"8px"},["📋 Bogen importieren"]));
-  box.appendChild(div({background:"rgba(77,122,77,0.1)",border:"1px solid rgba(77,122,77,0.3)",borderRadius:"8px",padding:"10px 12px",marginBottom:"12px",fontSize:"12px",color:C.muted,lineHeight:"1.6"},["Hast du deinen Charakterbogen bereits irgendwo geschrieben? Kopiere den ganzen Text und füge ihn hier ein. Die KI erkennt automatisch welche Information in welches Feld gehört.\n⚠ Keine Links – nur den Textinhalt des Bogens."]));
+  box.appendChild(div({background:"rgba(74,170,106,0.08)",border:"1px solid rgba(74,170,106,0.25)",borderRadius:"8px",padding:"10px 12px",marginBottom:"12px",fontSize:"12px",color:C.muted,lineHeight:"1.6"},["Hast du deinen Charakterbogen bereits irgendwo geschrieben? Kopiere den ganzen Text und füge ihn hier ein. Die KI erkennt automatisch welche Information in welches Feld gehört.\n⚠ Keine Links – nur den Textinhalt des Bogens."]));
   var ta=mk("textarea",Object.assign({},INP,{resize:"vertical",display:"block",marginBottom:"12px"}));
   ta.rows=10;ta.placeholder="Bogen hier einfügen…";ta.value=state.importText;
   ta.addEventListener("input",function(){state.importText=ta.value;});
@@ -622,7 +623,7 @@ function mkPostModal(){
     tw.appendChild(trow);box.appendChild(tw);
     // Login-Hinweis
     var loginBox=div({background:"rgba(61,111,138,0.1)",border:"1px solid rgba(61,111,138,0.3)",borderRadius:"8px",padding:"10px 12px",marginBottom:"14px",fontSize:"12px",color:C.muted,lineHeight:"1.6"});
-    var loginLink=mk("a",{href:"https://www.simsforumrpg.de/login.php",target:"_blank",style:"color:#3d6f8a;font-weight:700"});
+    var loginLink=mk("a",{href:"https://www.simsforumrpg.de/login.php",target:"_blank",style:"color:#3a8aaa;font-weight:700"});
     loginLink.textContent="Jetzt einloggen";
     loginBox.appendChild(document.createTextNode("Noch nicht eingeloggt? "));
     loginBox.appendChild(loginLink);
@@ -666,9 +667,9 @@ function draw(){
     wrap.id="main-wrap";
     // header
     var hdr=div({textAlign:"center",marginBottom:"24px"});
-    hdr.appendChild(div({fontSize:"11px",letterSpacing:"4px",color:C.muted,marginBottom:"4px"},["✦ SIMSFORUMRPG.DE ✦"]));
+    hdr.appendChild(div({fontSize:"11px",letterSpacing:"4px",color:C.muted,marginBottom:"4px"},["✦ PROJEKT ATLAS ✦"]));
     hdr.appendChild(div({fontSize:"26px",fontWeight:"900",letterSpacing:"2px",color:C.accent},["CHARAKTERBOGEN"]));
-    hdr.appendChild(div({width:"60px",height:"2px",background:"linear-gradient(90deg,transparent,"+C.teal+",transparent)",margin:"8px auto 12px"}));
+    hdr.appendChild(div({width:"60px",height:"2px",background:"linear-gradient(90deg,transparent,"+C.accent+",transparent)",margin:"8px auto 12px"}));
     var hbtns=div({display:"flex",gap:"8px",justifyContent:"center",flexWrap:"wrap"});
     hbtns.appendChild(btn("📋 Bogen importieren",C.muted,function(){state.showImport=true;draw();},true,true,false));
     hbtns.appendChild(btn("👥 Bekannte Charaktere",C.muted,function(){state.showCtx=true;draw();},true,true,false));
@@ -684,7 +685,7 @@ function draw(){
   var tabs=qs("tabs");tabs.innerHTML="";
   SECTIONS.forEach(function(s,i){
     var t=mk("button",{flex:"1",padding:"8px 4px",borderRadius:"6px",border:"1px solid "+(i===state.step?C.accent:C.border),cursor:"pointer",fontSize:"11px",fontWeight:"700",
-      background:i===state.step?C.accent:i<state.step?"rgba(77,122,77,0.2)":C.card,
+      background:i===state.step?C.accent:i<state.step?"rgba(74,170,106,0.12)":C.card,
       color:i===state.step?"#fff":i<state.step?C.accent:C.muted});
     t.textContent=s.title;
     (function(idx){t.addEventListener("click",function(){state.step=idx;draw();});})(i);
