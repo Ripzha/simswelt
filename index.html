@@ -1661,7 +1661,9 @@ function fitCharGrid(){
   var header=document.getElementById('char-header');
   var grid=document.getElementById('char-grid');
   if(!header||!grid)return;
-  grid.style.height=(window.innerHeight-header.offsetHeight)+'px';
+  var h=header.getBoundingClientRect().height;
+  if(h===0){requestAnimationFrame(fitCharGrid);return;}
+  grid.style.height=(window.innerHeight-h)+'px';
 }
 
 function closeCharView(){
