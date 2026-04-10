@@ -1832,10 +1832,22 @@ function toggleAgeFilter(){
 function buildAgeFilter(){
   var bar=document.getElementById('char-age-bar');
   if(!bar)return;
-  // Only show groups that have at least 1 char in current tab
-  var currentList=CHARS.filter(function(c){return c.type===charActiveType;});
+  // Start with tab filter
+  var base=CHARS.filter(function(c){return c.type===charActiveType;});
+  // Apply player filter
+  if(charPlayerFilter.length>0)base=base.filter(function(c){return charPlayerFilter.some(function(f){return f.toLowerCase()===(c.p||'').trim().toLowerCase();});});
+  // Apply gender filter
+  if(charGenderFilter.length>0)base=base.filter(function(c){
+    var g=(c.gender||'').toLowerCase();
+    return charGenderFilter.some(function(v){
+      if(v==='m')return g==='m'||g==='männlich'||g==='male';
+      if(v==='f')return g==='f'||g==='weiblich'||g==='female';
+      return true;
+    });
+  });
+  // Only show age groups with at least 1 match in this filtered base
   bar.innerHTML=AGE_GROUPS.filter(function(g){
-    return currentList.some(function(c){
+    return base.some(function(c){
       var a=parseInt(c.age);
       return !isNaN(a)&&a>=g.min&&a<=g.max;
     });
