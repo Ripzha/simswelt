@@ -1639,7 +1639,7 @@ async function fetchCharsFromScript(){
       else if(t.indexOf('passant')>-1)t='passant';
       else if(t.indexOf('statist')>-1)t='randfigur';
       else t='haupt';
-      return{n:c.name||'',p:c.player||'',type:t,u:c.threadUrl||'',h:c.home||'',img:c.portraitUrl||'',age:c.age||'',job:c.job||'',okkult:c.Okkult||c.okkult||'',gender:c.gender||c.Geschlecht||'',lastSeenName:c.lastSeenName||'',lastSeenUrl:c.lastSeenUrl||''};
+      return{n:c.name||'',p:(c.player||'').trim(),type:t,u:c.threadUrl||'',h:c.home||'',img:c.portraitUrl||'',age:c.age||'',job:c.job||'',okkult:c.Okkult||c.okkult||'',gender:c.gender||c.Geschlecht||'',lastSeenName:c.lastSeenName||'',lastSeenUrl:c.lastSeenUrl||''};
     });
     if(fresh.length>0){
       CHARS.length=0;
@@ -1661,7 +1661,7 @@ function toggleCharSort(){
 
 function charRenderFiltered(){
   var list=CHARS.filter(function(c){return c.type===charActiveType;});
-  if(charPlayerFilter.length>0)list=list.filter(function(c){return charPlayerFilter.indexOf(c.p)>-1;});
+  if(charPlayerFilter.length>0)list=list.filter(function(c){return charPlayerFilter.some(function(f){return f.toLowerCase()===(c.p||"").trim().toLowerCase();});});
   if(charGenderFilter.length>0){
     list=list.filter(function(c){
       var g=(c.gender||'').toLowerCase();
@@ -1688,13 +1688,19 @@ function charRenderFiltered(){
 
 function buildPlayerFilter(){
   var list=CHARS.filter(function(c){return c.type===charActiveType;});
+  var seen={};
   var players=[];
-  list.forEach(function(c){if(c.p&&players.indexOf(c.p)===-1)players.push(c.p);});
+  list.forEach(function(c){
+    if(!c.p)return;
+    var key=c.p.trim().toLowerCase();
+    if(!seen[key]){seen[key]=c.p.trim();players.push(c.p.trim());}
+  });
+  players.sort();
   var bar=document.getElementById('char-filter-bar');
   if(!bar)return;
   var btns='';
   players.forEach(function(p){
-    var active=charPlayerFilter.indexOf(p)>-1?' active':'';
+    var active=charPlayerFilter.some(function(f){return f.toLowerCase()===p.toLowerCase()})?' active':'';
     btns+='<button class="char-filter'+active+'" onclick="togglePlayerFilter(this)">'+p+'</button>';
   });
   bar.innerHTML=btns;
