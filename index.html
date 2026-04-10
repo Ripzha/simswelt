@@ -1582,7 +1582,9 @@ function openCharView(type){
     var map={'haupt':'Haupt','neben':'Nebencharaktere','randfigur':'Randfiguren','passant':'Passanten'};
     t.classList.toggle('active',t.textContent.indexOf(map[charActiveType]||charActiveType)>-1);
   });
-  charPlayerFilter='alle';
+  charPlayerFilter=[];
+  charGenderFilter=[];
+  charAgeFilter=[];
   var grid=document.getElementById('char-grid');
   var sub=document.getElementById('char-subtitle');
   if(grid)grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:22px;padding:60px;grid-column:1/-1;text-align:center">⏳</div>';
@@ -1608,7 +1610,7 @@ function switchCharTab(type,btn){
   location.hash='chars-'+type;
   document.querySelectorAll('.char-tab').forEach(function(t){t.classList.remove('active');});
   if(btn)btn.classList.add('active');
-  charPlayerFilter='alle';
+  charPlayerFilter=[];
   charRenderFiltered();
   buildPlayerFilter();
 }
