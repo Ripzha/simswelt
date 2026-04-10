@@ -511,6 +511,12 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
   <div class="sheet-handle"></div><div class="sheet-title">Navigation</div>
   <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/forum.php" target="_blank">📋 Forum</a>
   <a class="nav-item" style="margin-bottom:6px;cursor:pointer" onclick="openCharView();closeSheet()">👤 Charaktere</a>
+  <a class="nav-item" style="margin-bottom:6px;cursor:pointer" onclick="openOtherWorld();closeSheet()">🌑 Andere Welten</a>
+  <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/f58642-Kreationen-und-Geschichten.html" target="_blank">🎨 Kreativ-Ecke</a>
+  <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/f15070-Forenspiele.html" target="_blank">🎲 Forenspiele</a>
+  <a class="nav-item" style="margin-bottom:6px" href="https://ripzha.github.io/simswelt/simstagram.html">📸 Simstagram</a>
+  <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/blog-c1375-Metaverse.html" target="_blank">🌐 Metaverse</a>
+  <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/f15063-Foren-Hub-Neulinge-starten-hier.html" target="_blank">📖 RPG Hub</a>
   <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/page-simsweltnews.html" target="_blank">📰 SimsWelt News</a>
   <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/gallery.php" target="_blank">🖼️ Bildergalerie</a>
 </div>
@@ -564,19 +570,19 @@ const BUILDINGS = {
     "https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t400p3507n2_QkAZHmvp.png"
   ],lots:[
     {name:"Schattenmarktviertel (Strassen)",x:48.6,y:65.8,floors:[0],url:BASE+"t400f53861-Bloodmoon-Valley-Schattenmarktviertel-Harghita.html",active:true,outdoor:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t400p3507n6_OndjlTce.png"},
-    {name:"Nr. 3 - Zum Sündigen Nachtvogel",x:62.7,y:63.1,floors:[0,1,2],url:BASE+"t486f53861-Bloodmoon-Valey-Schattenmarktviertel-Haus-Nr-Zum-Suendigen-Nachtvogel-Harhita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1000x9999/f53861t486p4068n4_NfYvjTMO.png"},
-    {name:"Nr. A - Andenken an Alucard",x:48.3,y:22.1,url:BASE+"t552f53861-Bloodmoon-Valey-Schattenmarktviertel-Haus-Nr-A-Andenken-an-Alucard-Harghita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t552p4813n12_IwZNGjMT.png"},
-    {name:"Nr. 1 - Frei",x:39.7,y:41.4,floors:[0,1],free:true,active:false},
-    {name:"Nr. 2 - Frei",x:63.9,y:51.5,floors:[0,1],free:true,active:false},
-    {name:"Nr. 4 - Frei",x:64.1,y:85.8,floors:[0,1,2],free:true,active:false},
-    {name:"Nr. 5 - Frei",x:33.2,y:85.6,floors:[0,1],free:true,active:false},
+    {name:"Nr. 3 - Zum Sündigen Nachtvogel",x:62.6,y:60.4,floors:[0,1,2],url:BASE+"t486f53861-Bloodmoon-Valey-Schattenmarktviertel-Haus-Nr-Zum-Suendigen-Nachtvogel-Harhita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1000x9999/f53861t486p4068n4_NfYvjTMO.png"},
+    {name:"Nr. A - Andenken an Alucard",x:49.8,y:26,url:BASE+"t552f53861-Bloodmoon-Valey-Schattenmarktviertel-Haus-Nr-A-Andenken-an-Alucard-Harghita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t552p4813n12_IwZNGjMT.png"},
+    {name:"Nr. 1 - Frei",x:39.4,y:39.1,floors:[0,1],free:true,active:false},
+    {name:"Nr. 2 - Frei",x:64.5,y:49.9,floors:[0,1],free:true,active:false},
+    {name:"Nr. 4 - Frei",x:62.4,y:75.1,floors:[0,1,2],free:true,active:false},
+    {name:"Nr. 5 - Frei",x:34.1,y:79,floors:[0,1],free:true,active:false},
     {name:"Nr. 6 - Frei",x:32.2,y:70.2,floors:[1,2],free:true,active:false},
     {name:"Nr. 7 - Frei",x:32.9,y:61.2,floors:[1,2],free:true,active:false},
-    {name:"Nr. 8 - Frei",x:34,y:48.7,floors:[1],free:true,active:false},
+    {name:"Nr. 8 - Frei",x:35.4,y:53.3,floors:[1,2],free:true,active:false},
     {name:"Nr. 9 - Frei",x:32.1,y:31.2,floors:[1],free:true,active:false},
     {name:"Nr. 10 - Frei",x:39.7,y:34.4,floors:[1,2],free:true,active:false},
-    {name:"Nr. 11 - Frei",x:51.1,y:41.9,floors:[1,2],free:true,active:false},
-    {name:"Nr. 12 - Frei",x:55.6,y:41.5,floors:[1,2],free:true,active:false},
+    {name:"Nr. 11 - Frei",x:48.5,y:41.2,floors:[1,2],free:true,active:false},
+    {name:"Nr. 12 - Frei",x:53.7,y:43.1,floors:[1,2],free:true,active:false},
     {name:"Nr. 13 - Frei",x:63,y:21.6,floors:[1,2],free:true,active:false},
     {name:"Nr. 16 - Jacks Unterschlupf",x:32,y:48.2,floors:[2],url:BASE+"t398f53861-Bloodmoon-Valley-Schattenmarktviertel-Haus-Nr-Jacks-Unterschlupf-Harghita.html",active:false},
     {name:"Nr. 14 - Frei",x:62.4,y:45.7,floors:[2],free:true,active:false},
@@ -1353,8 +1359,12 @@ function renderBuildingLots(){
     const _shadow=apt.active?'0 0 10px #4aaa6a':apt.outdoor?'0 0 8px rgba(80,190,170,0.8)':'none';
     const _statusText=isFree?'○ Frei':apt.outdoor?'🌿 Öffentlicher Bereich':apt.active?'● Aktiv':'↗ Thread öffnen';
     const _statusColor=isFree?'rgba(255,255,255,0.3)':apt.outdoor?'rgba(80,190,170,0.9)':apt.active?'#4aaa6a':'rgba(255,255,255,0.4)';
-    const _tooltipInner=`<div style="font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.35);margin-bottom:1px">${_lbl.num}</div><div style="font-weight:600;margin-bottom:3px">${_lbl.sub||_lbl.num}</div><div style="font-size:10px;color:${_statusColor}">${_statusText}</div>`;
-    d.innerHTML=`<div class="lot-pulse"></div><div class="lot-inner" style="width:11px;height:11px;background:${_dotBg};box-shadow:${_shadow}"></div><div class="lot-label">${_labelHtml}</div><div class="lot-tooltip" style="padding:6px 10px;border:0.5px solid rgba(255,255,255,0.2)">${_tooltipInner}</div>`;
+    const _textInner=`<div style="font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.35);margin-bottom:1px">${_lbl.num}</div><div style="font-weight:600;margin-bottom:3px">${_lbl.sub||_lbl.num}</div><div style="font-size:10px;color:${_statusColor}">${_statusText}</div>`;
+    const _tooltipInner=apt.img
+      ?`<div style="padding:0;overflow:hidden;min-width:160px"><img src="${apt.img}" style="width:100%;height:90px;object-fit:cover;display:block"><div style="padding:7px 10px">${_textInner}</div></div>`
+      :`<div style="padding:6px 10px">${_textInner}</div>`;
+    const _ttStyle=apt.img?'padding:0;overflow:hidden;min-width:160px;border:0.5px solid rgba(255,255,255,0.2)':'padding:6px 10px;border:0.5px solid rgba(255,255,255,0.2)';
+    d.innerHTML=`<div class="lot-pulse"></div><div class="lot-inner" style="width:11px;height:11px;background:${_dotBg};box-shadow:${_shadow}"></div><div class="lot-label">${_labelHtml}</div><div class="lot-tooltip" style="${_ttStyle}">${_tooltipInner}</div>`;
     if(!isFree&&apt.url)d.addEventListener('click',e=>{e.stopPropagation();window.open(apt.url,'_blank');});
     bc.appendChild(d);
   });
