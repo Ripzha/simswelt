@@ -189,7 +189,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 }
 @keyframes pulse{0%{transform:translate(-50%,-50%) scale(1);opacity:.5}50%{transform:translate(-50%,-50%) scale(2.2);opacity:.1}100%{transform:translate(-50%,-50%) scale(1);opacity:.5}}
 /* ── CHARACTER VIEW ── */
-#char-container{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:#050d18;display:none}
+#char-container{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:#050d18;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #char-container.open{display:block}
 #char-header{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:0.5px solid rgba(255,255,255,0.08);flex-wrap:wrap;background:#050d18;z-index:2}
 #char-tabs{display:flex;gap:4px;flex-shrink:0}
@@ -212,7 +212,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 #char-sort-btn.active{border-color:#4aaa6a;color:#4aaa6a}
 #char-reload{background:transparent;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:13px;flex-shrink:0}
 #char-close{background:transparent;border:none;color:rgba(255,255,255,0.35);font-size:18px;cursor:pointer;padding:2px 6px;flex-shrink:0}
-#char-grid{overflow-y:scroll;-webkit-overflow-scrolling:touch;padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;align-content:start;max-width:100%}
+#char-grid{padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;align-content:start}
 .char-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative}
 #char-grid.az-mode{display:block}
 .char-letter-section{width:100%}
@@ -1661,7 +1661,6 @@ function fitCharGrid(){
   if(!grid.clientWidth||!header.offsetHeight){
     requestAnimationFrame(fitCharGrid);return;
   }
-  grid.style.height=(window.innerHeight-header.offsetHeight)+'px';
   var isMobile=window.innerWidth<=768;
   var gap=isMobile?6:8;
   var padding=isMobile?16:20;
@@ -1669,6 +1668,8 @@ function fitCharGrid(){
   var maxCols=isMobile?3:6;
   var cols=Math.min(maxCols,Math.max(2,Math.floor((availW+gap)/(120+gap))));
   var colW=Math.floor((availW-(cols-1)*gap)/cols);
+  // Sync CSS columns with JS calculation
+  grid.style.gridTemplateColumns='repeat('+cols+',1fr)';
   if(colW>0)grid.style.gridAutoRows=colW+'px';
 }
 
