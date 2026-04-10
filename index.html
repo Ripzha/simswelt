@@ -563,10 +563,27 @@ const BUILDINGS = {
     "https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t400p3507n3_tHoMvGaN.png",
     "https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t400p3507n2_QkAZHmvp.png"
   ],lots:[
-    {name:"Schattenmarktviertel (Strassen)",x:50,y:50,url:BASE+"t400f53861-Bloodmoon-Valley-Schattenmarktviertel-Harghita.html",active:true,outdoor:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t400p3507n6_OndjlTce.png"},
-    {name:"Nr. A - Andenken an Alucard",x:35,y:55,url:BASE+"t552f53861-Bloodmoon-Valey-Schattenmarktviertel-Haus-Nr-A-Andenken-an-Alucard-Harghita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t552p4813n12_IwZNGjMT.png"},
-    {name:"Nr. 3 - Zum Sündigen Nachtvogel",x:50,y:55,url:BASE+"t486f53861-Bloodmoon-Valey-Schattenmarktviertel-Haus-Nr-Zum-Suendigen-Nachtvogel-Harhita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1000x9999/f53861t486p4068n4_NfYvjTMO.png"},
-    {name:"Nr. 16 - Jacks Unterschlupf",x:65,y:55,url:BASE+"t398f53861-Bloodmoon-Valley-Schattenmarktviertel-Haus-Nr-Jacks-Unterschlupf-Harghita.html",active:false},
+    {name:"Schattenmarktviertel (Strassen)",x:48.5,y:68.4,url:BASE+"t400f53861-Bloodmoon-Valley-Schattenmarktviertel-Harghita.html",active:true,outdoor:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t400p3507n6_OndjlTce.png"},
+    {name:"Nr. A - Andenken an Alucard",x:49.2,y:16.9,url:BASE+"t552f53861-Bloodmoon-Valey-Schattenmarktviertel-Haus-Nr-A-Andenken-an-Alucard-Harghita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t552p4813n12_IwZNGjMT.png"},
+    {name:"Nr. 3 - Zum Sündigen Nachtvogel",x:64.1,y:66.3,url:BASE+"t486f53861-Bloodmoon-Valey-Schattenmarktviertel-Haus-Nr-Zum-Suendigen-Nachtvogel-Harhita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1000x9999/f53861t486p4068n4_NfYvjTMO.png"},
+    {name:"Nr. 16 - Jacks Unterschlupf",x:29.8,y:47.7,url:BASE+"t398f53861-Bloodmoon-Valley-Schattenmarktviertel-Haus-Nr-Jacks-Unterschlupf-Harghita.html",active:false},
+    {name:"Nr. 1 - Frei",x:20,y:30,free:true,active:false},
+    {name:"Nr. 2 - Frei",x:25,y:30,free:true,active:false},
+    {name:"Nr. 4 - Frei",x:30,y:30,free:true,active:false},
+    {name:"Nr. 5 - Frei",x:35,y:30,free:true,active:false},
+    {name:"Nr. 6 - Frei",x:40,y:30,free:true,active:false},
+    {name:"Nr. 7 - Frei",x:55,y:30,free:true,active:false},
+    {name:"Nr. 8 - Frei",x:60,y:30,free:true,active:false},
+    {name:"Nr. 9 - Frei",x:65,y:30,free:true,active:false},
+    {name:"Nr. 10 - Frei",x:70,y:30,free:true,active:false},
+    {name:"Nr. 11 - Frei",x:75,y:30,free:true,active:false},
+    {name:"Nr. 12 - Frei",x:20,y:45,free:true,active:false},
+    {name:"Nr. 13 - Frei",x:25,y:45,free:true,active:false},
+    {name:"Nr. 14 - Frei",x:30,y:45,free:true,active:false},
+    {name:"Nr. 15 - Frei",x:35,y:45,free:true,active:false},
+    {name:"Nr. 17 - Frei",x:40,y:45,free:true,active:false},
+    {name:"Nr. 18 - Frei",x:45,y:45,free:true,active:false},
+    {name:"Nr. 19 - Frei",x:50,y:45,free:true,active:false},
   ]},
   "Steinweg-Apartments":   {imgs:[''],lots:[
     {name:"Nr. 14 - Familie Engel",x:35,y:50,url:BASE+'t55f51791-Evergreen-Harbor-Nr-Familie-Engel.html',active:false},
@@ -1133,6 +1150,18 @@ const otherworlds=[
 ];
 
 // ═══════════════════════════════════════════
+// RELOAD PERSISTENCE
+window.addEventListener('load',function(){
+  try{
+    var saved=sessionStorage.getItem('atlas_world');
+    if(saved){
+      var w=worlds.find(function(x){return x.name===saved;});
+      if(!w)w=otherworlds.find(function(x){return x.name===saved;});
+      if(w)setTimeout(function(){enterWorld(w);},100);
+    }
+  }catch(e){}
+});
+// ═══════════════════════════════════════════
 // STATE & STORAGE
 // ═══════════════════════════════════════════
 let adminMode=false,logoClicks=0,logoTimer=null;
@@ -1251,6 +1280,7 @@ mapC.addEventListener('click',e=>{
 // NAVIGATION
 // ═══════════════════════════════════════════
 function enterWorld(w){
+  try{sessionStorage.setItem('atlas_world',w.name);}catch(e){}
   currentWorld=w;
   mapC.classList.remove('active');
   const wc=document.getElementById('world-container');
@@ -1394,7 +1424,11 @@ function renderLots(w){
       ld.className='lot-dot'+(lot.active?' isactive':'')+(lot.outdoor?' isoutdoor':'');
       ld.style.cssText=`left:${lot.x}%;top:${lot.y}%`;
       const _tb=`border:0.5px solid ${lot.outdoor?'rgba(80,190,170,0.8)':lot.active?'#4aaa6a':'rgba(255,255,255,0.2)'}`;
-      const _ti=`<div style="font-weight:500;margin-bottom:2px">${lot.name}</div><div style="font-size:10px;color:${lot.outdoor?'rgba(80,190,170,0.9)':lot.active?'#4aaa6a':'rgba(255,255,255,0.4)'}">${lot.outdoor?'🌿 Öffentlicher Bereich':lot.active?'● Aktiv':'↗ Thread öffnen'}</div>`;
+      const _lbl=parseLotLabel(lot);
+      const _nameHtml=_lbl.sub
+        ?`<div style="font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.4);margin-bottom:1px">${_lbl.num}</div><div style="font-weight:600;margin-bottom:2px">${_lbl.sub}</div>`
+        :`<div style="font-weight:500;margin-bottom:2px">${_lbl.num}</div>`;
+      const _ti=_nameHtml+`<div style="font-size:10px;color:${lot.outdoor?'rgba(80,190,170,0.9)':lot.active?'#4aaa6a':'rgba(255,255,255,0.4)'}">${lot.outdoor?'🌿 Öffentlicher Bereich':lot.active?'● Aktiv':'↗ Thread öffnen'}</div>`;
       const _dotBg=lot.outdoor?'rgba(80,190,170,0.75)':lot.active?'#4aaa6a':'rgba(255,255,255,0.5)';
       const _dotShadow=lot.outdoor?'0 0 8px rgba(80,190,170,0.6)':lot.active?'0 0 10px #4aaa6a':'none';
       const _tt=lot.img
