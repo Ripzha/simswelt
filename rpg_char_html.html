@@ -674,9 +674,13 @@ function draw(){
     wrap.id="main-wrap";
     // header
     var hdr=div({textAlign:"center",marginBottom:"24px"});
-    hdr.appendChild(div({fontSize:"11px",letterSpacing:"4px",color:C.muted,marginBottom:"4px"},["✦ PROJEKT ATLAS ✦"]));
     hdr.appendChild(div({fontSize:"26px",fontWeight:"900",letterSpacing:"2px",color:C.accent},["CHARAKTERBOGEN"]));
-    hdr.appendChild(div({width:"60px",height:"2px",background:"linear-gradient(90deg,transparent,"+C.accent+",transparent)",margin:"8px auto 12px"}));
+    hdr.appendChild(div({width:"60px",height:"2px",background:"linear-gradient(90deg,transparent,"+C.accent+",transparent)",margin:"8px auto 8px"}));
+    var badge=div({display:"inline-flex",alignItems:"center",gap:"5px",background:"rgba(74,170,106,0.1)",border:"0.5px solid rgba(74,170,106,0.3)",borderRadius:"20px",padding:"3px 10px",fontSize:"10px",color:"rgba(74,170,106,0.7)",letterSpacing:"1px",marginBottom:"12px"});
+    var dot=mk("span",{width:"5px",height:"5px",borderRadius:"50%",background:"#4aaa6a",display:"inline-block",flexShrink:"0"});
+    badge.appendChild(dot);
+    badge.appendChild(document.createTextNode("Ein Projekt ATLAS Feature"));
+    hdr.appendChild(div({textAlign:"center"},[badge]));
     var hbtns=div({display:"flex",gap:"8px",justifyContent:"center",flexWrap:"wrap"});
     hbtns.appendChild(btn("📋 Bogen importieren",C.muted,function(){state.showImport=true;draw();},true,true,false));
     hbtns.appendChild(btn("👥 Bekannte Charaktere",C.muted,function(){state.showCtx=true;draw();},true,true,false));
