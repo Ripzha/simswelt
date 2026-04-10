@@ -1830,7 +1830,14 @@ function toggleAgeFilter(){
 function buildAgeFilter(){
   var bar=document.getElementById('char-age-bar');
   if(!bar)return;
-  bar.innerHTML=AGE_GROUPS.map(function(g){
+  // Only show groups that have at least 1 char in current tab
+  var currentList=CHARS.filter(function(c){return c.type===charActiveType;});
+  bar.innerHTML=AGE_GROUPS.filter(function(g){
+    return currentList.some(function(c){
+      var a=parseInt(c.age);
+      return !isNaN(a)&&a>=g.min&&a<=g.max;
+    });
+  }).map(function(g){
     var active=charAgeFilter.indexOf(g.label)>-1?' active':'';
     var rangeStr=g.range?'<span style="opacity:0.55;margin-left:4px;font-size:9px">'+g.range+'</span>':'';
     return '<button class="char-age-filter'+active+'" data-label="'+g.label+'" data-min="'+g.min+'" data-max="'+g.max+'" onclick="toggleAgeGroup(this)">'+g.label+rangeStr+'</button>';
