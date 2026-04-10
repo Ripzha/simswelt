@@ -198,6 +198,8 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 #char-subtitle{font-size:10px;color:rgba(255,255,255,0.25);white-space:nowrap;flex-shrink:0}
 #char-filter-bar{display:flex;gap:5px;flex-wrap:wrap;flex:1;justify-content:flex-end}
 #char-age-toggle{background:transparent;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.35);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:10px;flex-shrink:0}
+#char-reset-btn{background:transparent;border:0.5px solid rgba(255,80,80,0.3);color:rgba(255,100,100,0.5);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:10px;flex-shrink:0;display:none}
+#char-reset-btn.visible{display:block}
 #char-age-toggle.active{border-color:#c8a96e;color:#c8a96e}
 #char-age-bar{display:none;width:100%;margin-top:4px;flex-wrap:wrap;gap:4px}
 #char-age-bar.open{display:flex}
@@ -211,15 +213,15 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 #char-reload{background:transparent;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:13px;flex-shrink:0}
 #char-close{background:transparent;border:none;color:rgba(255,255,255,0.35);font-size:18px;cursor:pointer;padding:2px 6px;flex-shrink:0}
 #char-grid{overflow-y:scroll;-webkit-overflow-scrolling:touch;padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;align-content:start}
-.char-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative;line-height:0;height:0;padding-bottom:100%}
-.char-letter-divider{grid-column:1/-1;padding:16px 4px 6px;font-size:22px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:2px;border-bottom:0.5px solid rgba(255,255,255,0.07);margin-bottom:2px}
+.char-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative;aspect-ratio:1/1}
+.char-letter-divider{grid-column:1/-1;padding:4px 4px 4px;font-size:22px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:2px;border-bottom:0.5px solid rgba(255,255,255,0.07);align-self:end}
 .char-gender-filter{padding:3px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);background:transparent;transition:all 0.15s;white-space:nowrap}
 .char-gender-filter.active{background:rgba(100,180,120,0.15);border-color:#4aaa6a;color:#4aaa6a}
 .char-card:hover{background:rgba(255,255,255,0.08);border-color:rgba(100,180,120,0.4)}
-.char-portrait-wrap{position:absolute;inset:0;overflow:hidden;background:#0a1520}
+.char-portrait-wrap{width:100%;height:100%;overflow:hidden;background:#0a1520}
 .char-portrait{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%}
-.char-portrait-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px;color:rgba(255,255,255,0.08)}
-.char-name-overlay{position:absolute;bottom:0;left:0;right:0;padding:24px 8px 7px;background:linear-gradient(transparent,rgba(0,0,0,0.85));pointer-events:none}
+.char-portrait-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;color:rgba(255,255,255,0.08)}
+.char-name-overlay{position:absolute;bottom:0;left:0;right:0;padding:20px 7px 6px;background:linear-gradient(transparent,rgba(0,0,0,0.85));pointer-events:none;z-index:2}
 .char-name-overlay-name{font-size:11px;font-weight:600;color:#fff;display:block;line-height:1.3;text-shadow:0 1px 4px rgba(0,0,0,0.8);font-family:sans-serif}
 .char-okkult-badge{display:inline-block;margin-top:2px;font-size:8px;padding:1px 5px;background:rgba(100,180,120,0.25);border:0.5px solid rgba(100,180,120,0.5);border-radius:10px;color:#4aaa6a}
 #char-hover-card{position:fixed;z-index:400;background:#0d1f2d;border:0.5px solid rgba(100,180,120,0.3);border-radius:10px;width:200px;box-shadow:0 8px 32px rgba(0,0,0,0.6);pointer-events:none;opacity:0;transition:opacity 0.15s;overflow:hidden}
@@ -444,6 +446,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
           </div>
           <div id="char-subtitle" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
           <button id="char-age-toggle" onclick="toggleAgeFilter()" title="Nach Alter filtern">🎂 Alter</button>
+          <button id="char-reset-btn" onclick="resetAllFilters()">✕ Filter</button>
           <a id="char-create-btn" href="https://ripzha.github.io/simswelt/rpg_char_html.html" target="_blank">✚ Charakter erstellen</a>
           <button id="char-sort-btn" onclick="toggleCharSort()" title="Alphabetisch sortieren">A–Z</button>
           <button class="char-gender-filter active" onclick="setGenderFilter(this,'alle')">Alle</button>
@@ -1673,15 +1676,15 @@ function charRenderFiltered(){
       return true;
     });
   }
-  if(charAgeFilter&&charAgeFilter!=='alle'){
-    var grp=AGE_GROUPS.find(function(g){return g.label===charAgeFilter;});
-    if(grp&&grp.min>0||grp&&grp.max<99999){
-      list=list.filter(function(c){
-        var a=parseInt(c.age);
-        if(isNaN(a))return false;
-        return a>=grp.min&&a<=grp.max;
+  if(charAgeFilter.length>0){
+    list=list.filter(function(c){
+      var a=parseInt(c.age);
+      if(isNaN(a))return false;
+      return charAgeFilter.some(function(label){
+        var grp=AGE_GROUPS.find(function(g){return g.label===label;});
+        return grp&&a>=grp.min&&a<=grp.max;
       });
-    }
+    });
   }
   if(charSortAZ)list=list.slice().sort(function(a,b){return a.n.localeCompare(b.n,'de');});
   charRender(list);
@@ -1705,20 +1708,21 @@ function buildPlayerFilter(){
 function setCharPlayerFilter(btn){
   charPlayerFilter=btn.textContent==='Alle'?'alle':btn.textContent;
   buildPlayerFilter();
+  updateResetBtn();
   charRenderFiltered();
 }
 
-var charAgeFilter='alle';
+var charAgeFilter=[];
 var charGenderFilter='alle';
 
 function setGenderFilter(btn,val){
   charGenderFilter=val;
   document.querySelectorAll('.char-gender-filter').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active');
+  updateResetBtn();
   charRenderFiltered();
 }
 var AGE_GROUPS=[
-  {label:'Alle',range:'',min:0,max:99999},
   {label:'Neugeborenes',range:'0-28 Tage',min:0,max:0},
   {label:'Säugling',range:'1-12 Monate',min:0,max:1},
   {label:'Kleinkind',range:'2-3 Jahre',min:2,max:3},
@@ -1748,16 +1752,37 @@ function buildAgeFilter(){
   var bar=document.getElementById('char-age-bar');
   if(!bar)return;
   bar.innerHTML=AGE_GROUPS.map(function(g){
-    var active=g.label===charAgeFilter?' active':'';
+    var active=charAgeFilter.indexOf(g.label)>-1?' active':'';
     var rangeStr=g.range?'<span style="opacity:0.55;margin-left:4px;font-size:9px">'+g.range+'</span>':'';
-    return '<button class="char-age-filter'+active+'" onclick="setAgeFilter(this,'+g.min+','+g.max+')">'+g.label+rangeStr+'</button>';
+    return '<button class="char-age-filter'+active+'" data-label="'+g.label+'" data-min="'+g.min+'" data-max="'+g.max+'" onclick="toggleAgeGroup(this)">'+g.label+rangeStr+'</button>';
   }).join('');
 }
 
-function setAgeFilter(btn,min,max){
-  charAgeFilter=btn.textContent;
-  document.querySelectorAll('.char-age-filter').forEach(function(b){b.classList.remove('active');});
-  btn.classList.add('active');
+function updateResetBtn(){
+  var hasFilter=charAgeFilter.length>0||charGenderFilter!=='alle'||charPlayerFilter!=='alle';
+  var btn=document.getElementById('char-reset-btn');
+  if(btn)btn.classList.toggle('visible',hasFilter);
+}
+
+function resetAllFilters(){
+  charAgeFilter=[];
+  charGenderFilter='alle';
+  charPlayerFilter='alle';
+  document.querySelectorAll('.char-gender-filter').forEach(function(b){b.classList.remove('active');});
+  var allGender=document.querySelector('.char-gender-filter');
+  if(allGender)allGender.classList.add('active');
+  buildAgeFilter();
+  buildPlayerFilter();
+  updateResetBtn();
+  charRenderFiltered();
+}
+
+function toggleAgeGroup(btn){
+  var label=btn.getAttribute('data-label');
+  var idx=charAgeFilter.indexOf(label);
+  if(idx>-1){charAgeFilter.splice(idx,1);btn.classList.remove('active');}
+  else{charAgeFilter.push(label);btn.classList.add('active');}
+  updateResetBtn();
   charRenderFiltered();
 }
 
