@@ -449,9 +449,8 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
           <button id="char-reset-btn" onclick="resetAllFilters()">✕ Filter</button>
           <a id="char-create-btn" href="https://ripzha.github.io/simswelt/rpg_char_html.html" target="_blank">✚ Charakter erstellen</a>
           <button id="char-sort-btn" onclick="toggleCharSort()" title="Alphabetisch sortieren">A–Z</button>
-          <button class="char-gender-filter active" onclick="setGenderFilter(this,'alle')">Alle</button>
-          <button class="char-gender-filter" onclick="setGenderFilter(this,'m')">♂</button>
-          <button class="char-gender-filter" onclick="setGenderFilter(this,'f')">♀</button>
+          <button class="char-gender-filter" onclick="toggleGenderFilter(this,'m')">♂</button>
+          <button class="char-gender-filter" onclick="toggleGenderFilter(this,'f')">♀</button>
           <button id="char-reload" onclick="reloadChars()" title="Aktualisieren">↺</button>
           <button id="char-close" onclick="closeCharView()">✕</button>
         </div>
@@ -1571,7 +1570,7 @@ var CHARS=[
   {n:"Jack Elliot",p:"S.Bin.",type:"haupt",u:"https://www.simsforumrpg.de/t682f51849-Jack.html",h:"Del Sol Valley",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51850t682p6595n6_FCvJRagV.png",age:"20",job:"Studentin"}
 ];
 var charActiveType='haupt';
-var charPlayerFilter='alle';
+var charPlayerFilter=[];
 var charSortAZ=false;
 var charFetched=false;
 
@@ -1596,17 +1595,7 @@ function fitCharGrid(){
   var header=document.getElementById('char-header');
   var grid=document.getElementById('char-grid');
   if(!header||!grid)return;
-  // Grid height = viewport minus header
-  var gridH=window.innerHeight-header.offsetHeight;
-  grid.style.height=gridH+'px';
-  // Count how many columns auto-fill created, then set row height = col width
-  var minCol=window.innerWidth<=768?140:180;
-  var gap=window.innerWidth<=768?6:8;
-  var padding=window.innerWidth<=768?16:20;
-  var availW=grid.clientWidth-padding;
-  var cols=Math.max(2,Math.floor((availW+gap)/(minCol+gap)));
-  var colW=Math.floor((availW-(cols-1)*gap)/cols);
-  if(colW>0)grid.style.gridAutoRows=colW+'px';
+  grid.style.height=(window.innerHeight-header.offsetHeight)+'px';
 }
 
 function closeCharView(){
@@ -1667,13 +1656,15 @@ function toggleCharSort(){
 
 function charRenderFiltered(){
   var list=CHARS.filter(function(c){return c.type===charActiveType;});
-  if(charPlayerFilter&&charPlayerFilter!=='alle')list=list.filter(function(c){return c.p===charPlayerFilter;});
-  if(charGenderFilter&&charGenderFilter!=='alle'){
+  if(charPlayerFilter.length>0)list=list.filter(function(c){return charPlayerFilter.indexOf(c.p)>-1;});
+  if(charGenderFilter.length>0){
     list=list.filter(function(c){
       var g=(c.gender||'').toLowerCase();
-      if(charGenderFilter==='m')return g==='m'||g==='männlich'||g==='male';
-      if(charGenderFilter==='f')return g==='f'||g==='weiblich'||g==='female';
-      return true;
+      return charGenderFilter.some(function(v){
+        if(v==='m')return g==='m'||g==='männlich'||g==='male';
+        if(v==='f')return g==='f'||g==='weiblich'||g==='female';
+        return true;
+      });
     });
   }
   if(charAgeFilter.length>0){
@@ -1692,33 +1683,34 @@ function charRenderFiltered(){
 
 function buildPlayerFilter(){
   var list=CHARS.filter(function(c){return c.type===charActiveType;});
-  var players=['alle'];
+  var players=[];
   list.forEach(function(c){if(c.p&&players.indexOf(c.p)===-1)players.push(c.p);});
   var bar=document.getElementById('char-filter-bar');
   if(!bar)return;
   var btns='';
   players.forEach(function(p){
-    var active=p===charPlayerFilter?' active':'';
-    var label=p==='alle'?'Alle':p;
-    btns+='<button class="char-filter'+active+'" onclick="setCharPlayerFilter(this)">'+label+'</button>';
+    var active=charPlayerFilter.indexOf(p)>-1?' active':'';
+    btns+='<button class="char-filter'+active+'" onclick="togglePlayerFilter(this)">'+p+'</button>';
   });
   bar.innerHTML=btns;
 }
 
-function setCharPlayerFilter(btn){
-  charPlayerFilter=btn.textContent==='Alle'?'alle':btn.textContent;
-  buildPlayerFilter();
+function togglePlayerFilter(btn){
+  var p=btn.textContent;
+  var idx=charPlayerFilter.indexOf(p);
+  if(idx>-1){charPlayerFilter.splice(idx,1);btn.classList.remove('active');}
+  else{charPlayerFilter.push(p);btn.classList.add('active');}
   updateResetBtn();
   charRenderFiltered();
 }
 
 var charAgeFilter=[];
-var charGenderFilter='alle';
+var charGenderFilter=[];
 
-function setGenderFilter(btn,val){
-  charGenderFilter=val;
-  document.querySelectorAll('.char-gender-filter').forEach(function(b){b.classList.remove('active');});
-  btn.classList.add('active');
+function toggleGenderFilter(btn,val){
+  var idx=charGenderFilter.indexOf(val);
+  if(idx>-1){charGenderFilter.splice(idx,1);btn.classList.remove('active');}
+  else{charGenderFilter.push(val);btn.classList.add('active');}
   updateResetBtn();
   charRenderFiltered();
 }
@@ -1759,18 +1751,16 @@ function buildAgeFilter(){
 }
 
 function updateResetBtn(){
-  var hasFilter=charAgeFilter.length>0||charGenderFilter!=='alle'||charPlayerFilter!=='alle';
+  var hasFilter=charAgeFilter.length>0||charGenderFilter.length>0||charPlayerFilter.length>0;
   var btn=document.getElementById('char-reset-btn');
   if(btn)btn.classList.toggle('visible',hasFilter);
 }
 
 function resetAllFilters(){
   charAgeFilter=[];
-  charGenderFilter='alle';
-  charPlayerFilter='alle';
+  charGenderFilter=[];
+  charPlayerFilter=[];
   document.querySelectorAll('.char-gender-filter').forEach(function(b){b.classList.remove('active');});
-  var allGender=document.querySelector('.char-gender-filter');
-  if(allGender)allGender.classList.add('active');
   buildAgeFilter();
   buildPlayerFilter();
   updateResetBtn();
