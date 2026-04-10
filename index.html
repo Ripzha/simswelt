@@ -69,7 +69,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .leg-cluster{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0}
 #building-container{position:absolute;inset:0;z-index:25;display:none}
 #building-bg{position:absolute;inset:0;overflow:hidden}
-#building-bg img{width:100%;height:100%;object-fit:contain;filter:brightness(0.65);background:#040d14}
+#building-bg{position:absolute;inset:0;overflow:hidden}#building-bg img{width:100%;height:100%;object-fit:contain;filter:brightness(0.65);background:#040d14}
 #building-header{position:absolute;top:0;left:0;right:0;padding:10px 14px;background:linear-gradient(rgba(0,0,0,0.7),transparent);z-index:5;pointer-events:none}
 #building-name{font-size:15px;font-weight:500}
 #building-no-img{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;display:none;z-index:6}
@@ -330,7 +330,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
         <div class="wh-sub" id="world-type-display"></div>
       </div>
       <div id="building-container">
-        <div id="building-image-wrap" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div id="building-img-area" style="position:relative;aspect-ratio:1920/1200;max-width:100%;max-height:100%"><div id="building-bg" style="position:absolute;inset:0"></div></div></div>
+        <div id="building-bg"></div>
         <div class="vignette"></div>
         <div id="building-header">
           <div id="building-name" style="font-size:15px;font-weight:500"></div>
@@ -1318,20 +1318,32 @@ function enterBuilding(buildingKey,lots){
   renderBuildingBg(imgs);
   renderBuildingLots();
 }
+function getBuildingImgRect(){
+  const bc=document.getElementById('building-container');
+  const bcW=bc.clientWidth,bcH=bc.clientHeight;
+  const imgRatio=1920/1200;
+  const bcRatio=bcW/bcH;
+  let w,h,left,top;
+  if(bcRatio>imgRatio){h=bcH;w=h*imgRatio;left=(bcW-w)/2;top=0;}
+  else{w=bcW;h=w/imgRatio;top=(bcH-h)/2;left=0;}
+  return{w,h,left,top};
+}
 function renderBuildingLots(){
   const bc=document.getElementById('building-container');
   const data=BUILDINGS[currentBuildingKey];
-  const imgArea=document.getElementById('building-img-area')||bc;
-  imgArea.querySelectorAll('.apt-dot').forEach(d=>d.remove());
+  bc.querySelectorAll('.apt-dot').forEach(d=>d.remove());
   const aptLots=data?.lots||[];
   aptLots.forEach(apt=>{
     // Floor filter: if lot has floors array, only show on matching floor
     if(apt.floors&&!apt.floors.includes(buildingFloorIdx))return;
-    const imgArea=document.getElementById('building-img-area')||bc;
     const d=document.createElement('div');
     const isFree=apt.free||!apt.url;
     d.className='apt-dot lot-dot'+(apt.active?' isactive':'');
-    d.style.cssText=`left:${apt.x}%;top:${apt.y}%;position:absolute;`;
+    // Position relative to actual image within contain bounds
+    const ir=getBuildingImgRect();
+    const px=ir.left+apt.x/100*ir.w;
+    const py=ir.top+apt.y/100*ir.h;
+    d.style.cssText=`position:absolute;left:${px}px;top:${py}px;`;
     // Nr/Name label
     const _lbl=parseLotLabel(apt);
     const _labelHtml=_lbl.sub
@@ -1344,7 +1356,7 @@ function renderBuildingLots(){
     const _tooltipInner=`<div style="font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.35);margin-bottom:1px">${_lbl.num}</div><div style="font-weight:600;margin-bottom:3px">${_lbl.sub||_lbl.num}</div><div style="font-size:10px;color:${_statusColor}">${_statusText}</div>`;
     d.innerHTML=`<div class="lot-pulse"></div><div class="lot-inner" style="width:11px;height:11px;background:${_dotBg};box-shadow:${_shadow}"></div><div class="lot-label">${_labelHtml}</div><div class="lot-tooltip" style="padding:6px 10px;border:0.5px solid rgba(255,255,255,0.2)">${_tooltipInner}</div>`;
     if(!isFree&&apt.url)d.addEventListener('click',e=>{e.stopPropagation();window.open(apt.url,'_blank');});
-    imgArea.appendChild(d);
+    bc.appendChild(d);
   });
 }
 function renderBuildingBg(imgs){
