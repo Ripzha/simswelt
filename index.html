@@ -1865,12 +1865,11 @@ function hideCharHover(){
 // URL-Hash: Refresh behält die Ansicht
 window.addEventListener('hashchange',function(){
   var h=location.hash;
-  if(h==='#chars-haupt')openCharView('haupt');
-  else if(h==='#chars-neben')openCharView('neben');
-  else if(h==='#chars-statist')openCharView('statist');
+  var m=h.match(/^#chars-(.+)$/);
+  if(m)openCharView(m[1]);
   else if(!h&&document.getElementById('char-container').classList.contains('open'))closeCharView();
 });
-if(location.hash==='#chars-haupt'||location.hash==='#chars-neben'||location.hash==='#chars-statist'){
+if(location.hash.match(/^#chars-/)){
   window.addEventListener('load',function(){openCharView(location.hash.replace('#chars-',''));});
 }
 
