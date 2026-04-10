@@ -218,7 +218,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .char-letter-section{width:100%}
 .char-letter-divider{padding:12px 4px 6px;font-size:20px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:2px;border-bottom:0.5px solid rgba(255,255,255,0.07);margin-bottom:6px}
 .char-subgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px}
-.char-gender-filter{width:28px;height:26px;border-radius:20px;font-size:14px;cursor:pointer;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);background:transparent;transition:all 0.15s;display:inline-flex;align-items:center;justify-content:center;padding:0;margin:0;-webkit-appearance:none;appearance:none;line-height:normal}
+.char-gender-filter{width:28px;height:26px;border-radius:20px;font-size:15px;cursor:pointer;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);background:transparent;transition:all 0.15s;display:inline-flex;align-items:center;justify-content:center;padding:0;margin:0;line-height:1;flex-shrink:0}
 .char-gender-filter.active{background:rgba(100,180,120,0.15);border-color:#4aaa6a;color:#4aaa6a}
 .char-card:hover{background:rgba(255,255,255,0.08);border-color:rgba(100,180,120,0.4)}
 .char-portrait-wrap{width:100%;padding-bottom:100%;position:relative;overflow:hidden;background:#0a1520}
@@ -240,7 +240,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
   #char-header{padding:8px 10px;gap:6px}
   .tab-short{display:inline}
   .tab-long{display:none}
-  #char-create-btn{width:100%;text-align:center;margin-top:2px}
+  #char-create-btn{width:100%;text-align:center;margin-top:4px;justify-content:center}
   #char-tabs .char-tab{font-size:10px;padding:4px 8px}
   #char-filter-bar{max-width:100%;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
   #char-filter-bar::-webkit-scrollbar{display:none}
@@ -442,23 +442,23 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 </div>
     <div id="char-container">
       <div id="char-header">
-        <!-- Zeile 1: Tabs + Anzahl -->
-        <div style="display:flex;align-items:center;gap:6px;width:100%;flex-wrap:nowrap">
+        <!-- Zeile 1: Tabs + Anzahl + CTA -->
+        <div style="display:flex;align-items:center;gap:6px;width:100%;flex-wrap:wrap">
           <div id="char-tabs" style="display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap">
             <button class="char-tab active" onclick="switchCharTab('haupt',this)"><span class="tab-long">Hauptcharaktere</span><span class="tab-short">Haupt</span></button>
             <button class="char-tab" onclick="switchCharTab('neben',this)"><span class="tab-long">Nebencharaktere</span><span class="tab-short">Neben</span></button>
             <button class="char-tab" onclick="switchCharTab('randfigur',this)">Randfiguren</button>
             <button class="char-tab" onclick="switchCharTab('passant',this)">Passanten</button>
           </div>
-          <div id="char-subtitle" style="font-size:10px;color:rgba(255,255,255,0.25)"></div>
+          <div id="char-subtitle" style="font-size:10px;color:rgba(255,255,255,0.25);flex:1"></div>
           <a id="char-create-btn" href="https://ripzha.github.io/simswelt/rpg_char_html.html" target="_blank">✚ Charakter erstellen</a>
         </div>
         <!-- Zeile 2: Aktionen -->
         <div style="display:flex;align-items:center;gap:6px;width:100%;flex-wrap:wrap;margin-top:6px">
           <button id="char-age-toggle" onclick="toggleAgeFilter()" title="Nach Alter filtern">🎂 Alter</button>
           <button id="char-sort-btn" onclick="toggleCharSort()" title="Alphabetisch sortieren">A–Z</button>
-          <button class="char-gender-filter" onclick="toggleGenderFilter(this,'m')"><span>♂</span></button>
-          <button class="char-gender-filter" onclick="toggleGenderFilter(this,'f')"><span>♀</span></button>
+          <div class="char-gender-filter" onclick="toggleGenderFilter(this,'m')">♂</div>
+          <div class="char-gender-filter" onclick="toggleGenderFilter(this,'f')">♀</div>
           <button id="char-reload" onclick="reloadChars()" title="Aktualisieren">↺</button>
           <button id="char-close" onclick="closeCharView()">✕</button>
           <button id="char-reset-btn" onclick="resetAllFilters()">✕ Filter</button>
@@ -1879,7 +1879,6 @@ function makeCard(c){
     :'<div class="char-portrait-ph">&#128100;</div>';
   card.innerHTML='<div class="char-portrait-wrap">'+portrait
     +'<div class="char-name-overlay"><span class="char-name-overlay-name">'+c.n+'</span>'
-    +(c.okkult?'<span class="char-okkult-badge">'+c.okkult+'</span>':'')
     +'</div></div>';
   card.addEventListener('mouseenter',function(e){showCharHover(c,e.currentTarget);});
   card.addEventListener('mouseleave',hideCharHover);
