@@ -1682,6 +1682,8 @@ function copyBuildingCalib(){
   navigator.clipboard.writeText(txt).then(()=>alert('✓ Kopiert!'));
 }
 
+window.addEventListener('resize',function(){if(document.getElementById('building-container')&&document.getElementById('building-container').style.display!=='none')renderBuildingLots();});
+
 document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('building-container').addEventListener('click',function(e){
     if(!calibBuildingMode)return;
