@@ -23,7 +23,7 @@ input:focus,textarea:focus{border-color:#4aaa6a!important;outline:none;box-shado
 <script>
 var MISTRAL_KEY="2sFqjZLioWcFFuILhASGZJwVhxnjss4r";
 
-var C={bg:"#070f1a",card:"rgba(255,255,255,0.05)",card2:"rgba(255,255,255,0.08)",border:"rgba(255,255,255,0.1)",accent:"#4aaa6a",teal:"#3a8aaa",text:"#ddeedd",muted:"rgba(255,255,255,0.45)",input:"rgba(255,255,255,0.07)",danger:"#e05555"};
+var C={bg:"#070f1a",card:"#0d1f2d",card2:"#0a1828",border:"rgba(255,255,255,0.1)",accent:"#4aaa6a",teal:"#3a8aaa",text:"#ddeedd",muted:"rgba(255,255,255,0.45)",input:"rgba(255,255,255,0.07)",danger:"#e05555"};
 
 var FIELDS=[
   {key:"name",label:"Name",hint:"Wie heisst dein Charakter? Hat er einen Kosenamen?",multi:false},
@@ -165,6 +165,7 @@ function mistral(messages,model,maxTok,cb){
 function callAI(key,msg,histOverride){
   var ai=state.ai[key]||{msgs:[],history:[],input:"",open:false};
   ai.loading=true;ai.open=true;
+  ai.input="";  // clear input
   state.ai[key]=ai;
   draw();
   var hist=histOverride!==undefined?histOverride:(ai.history||[]);
@@ -184,6 +185,11 @@ function callAI(key,msg,histOverride){
       ai2.msgs=(ai2.msgs||[]).concat([{role:"user",content:msg},{role:"assistant",content:t}]);
     }
     state.ai[key]=ai2;draw();
+    // Scroll to bottom of this AI chat
+    setTimeout(function(){
+      var msgDivs=document.querySelectorAll('[data-ai-key="'+key+'"]');
+      if(msgDivs.length){msgDivs[0].scrollTop=msgDivs[0].scrollHeight;}
+    },50);
   });
 }
 
@@ -294,6 +300,7 @@ function mkAI(key,label,val){
 
   var box=div({marginTop:"8px",background:C.input,border:"1px solid "+C.border,borderRadius:"10px",padding:"12px"});
   var msgs=div({maxHeight:"300px",overflowY:"auto",display:"flex",flexDirection:"column",gap:"8px"});
+  msgs.setAttribute("data-ai-key",key);
   (ai.msgs||[]).forEach(function(m){
     if(m.role==="user"){
       var ub=div({textAlign:"right"});
