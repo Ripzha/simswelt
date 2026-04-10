@@ -210,9 +210,9 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 #char-sort-btn.active{border-color:#4aaa6a;color:#4aaa6a}
 #char-reload{background:transparent;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:13px;flex-shrink:0}
 #char-close{background:transparent;border:none;color:rgba(255,255,255,0.35);font-size:18px;cursor:pointer;padding:2px 6px;flex-shrink:0}
-#char-grid{overflow-y:scroll;-webkit-overflow-scrolling:touch;padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;align-content:start}
+#char-grid{overflow-y:scroll;-webkit-overflow-scrolling:touch;padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;align-content:start}
 .char-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative}
-.char-letter-divider{grid-column:1/-1;padding:8px 4px 4px;font-size:11px;font-weight:700;color:rgba(255,255,255,0.2);letter-spacing:3px;border-bottom:0.5px solid rgba(255,255,255,0.06)}
+.char-letter-divider{grid-column:1/-1;padding:16px 4px 6px;font-size:22px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:2px;border-bottom:0.5px solid rgba(255,255,255,0.07);margin-bottom:2px}
 .char-gender-filter{padding:3px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);background:transparent;transition:all 0.15s;white-space:nowrap}
 .char-gender-filter.active{background:rgba(100,180,120,0.15);border-color:#4aaa6a;color:#4aaa6a}
 .char-card:hover{background:rgba(255,255,255,0.08);border-color:rgba(100,180,120,0.4)}
@@ -231,7 +231,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 #chc-lastseen{font-size:10px;color:rgba(100,180,120,0.7);margin-top:2px}
 #chc-link{font-size:9px;color:rgba(255,255,255,0.25);margin-top:4px;border-top:0.5px solid rgba(255,255,255,0.06);padding-top:6px}
 @media(max-width:768px){
-  #char-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;padding:8px}
+  #char-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:6px;padding:8px}
   #char-header{padding:8px 10px;gap:6px}
   #char-tabs .char-tab{font-size:10px;padding:4px 8px}
   #char-create-btn{display:none}
@@ -438,7 +438,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
         <div style="display:flex;align-items:center;gap:8px;width:100%;min-width:0">
           <div id="char-tabs">
             <button class="char-tab active" onclick="switchCharTab('haupt',this)">Haupt</button>
-            <button class="char-tab" onclick="switchCharTab('neben',this)">Neben</button>
+            <button class="char-tab" onclick="switchCharTab('neben',this)">Nebencharaktere</button>
             <button class="char-tab" onclick="switchCharTab('randfigur',this)">Randfiguren</button>
             <button class="char-tab" onclick="switchCharTab('passant',this)">Passanten</button>
           </div>
@@ -1577,7 +1577,7 @@ function openCharView(type){
   location.hash='chars-'+charActiveType;
   document.getElementById('char-container').classList.add('open');
   document.querySelectorAll('.char-tab').forEach(function(t){
-    var map={'haupt':'Haupt','neben':'Neben','randfigur':'Randfiguren','passant':'Passanten'};
+    var map={'haupt':'Haupt','neben':'Nebencharaktere','randfigur':'Randfiguren','passant':'Passanten'};
     t.classList.toggle('active',t.textContent.indexOf(map[charActiveType]||charActiveType)>-1);
   });
   charPlayerFilter='alle';
@@ -1718,15 +1718,15 @@ function setGenderFilter(btn,val){
   charRenderFiltered();
 }
 var AGE_GROUPS=[
-  {label:'Alle',min:0,max:99999},
-  {label:'Neugeborene',min:0,max:0},
-  {label:'Säugling',min:0,max:1},
-  {label:'Kleinkind',min:2,max:3},
-  {label:'Kind',min:4,max:12},
-  {label:'Teenager',min:13,max:19},
-  {label:'Junger Erwachsener',min:20,max:44},
-  {label:'Erwachsener',min:45,max:69},
-  {label:'Senior',min:70,max:99999}
+  {label:'Alle',range:'',min:0,max:99999},
+  {label:'Neugeborenes',range:'0-28 Tage',min:0,max:0},
+  {label:'Säugling',range:'1-12 Monate',min:0,max:1},
+  {label:'Kleinkind',range:'2-3 Jahre',min:2,max:3},
+  {label:'Kind',range:'4-12 Jahre',min:4,max:12},
+  {label:'Teenager',range:'13-19 Jahre',min:13,max:19},
+  {label:'Junger Erwachsener',range:'20-44 Jahre',min:20,max:44},
+  {label:'Erwachsener',range:'45-69 Jahre',min:45,max:69},
+  {label:'Senior',range:'ab 70 Jahre',min:70,max:99999}
 ];
 
 function toggleAgeFilter(){
@@ -1749,7 +1749,8 @@ function buildAgeFilter(){
   if(!bar)return;
   bar.innerHTML=AGE_GROUPS.map(function(g){
     var active=g.label===charAgeFilter?' active':'';
-    return '<button class="char-age-filter'+active+'" onclick="setAgeFilter(this,'+g.min+','+g.max+')">'+g.label+'</button>';
+    var rangeStr=g.range?'<span style="opacity:0.55;margin-left:4px;font-size:9px">'+g.range+'</span>':'';
+    return '<button class="char-age-filter'+active+'" onclick="setAgeFilter(this,'+g.min+','+g.max+')">'+g.label+rangeStr+'</button>';
   }).join('');
 }
 
