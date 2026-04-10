@@ -197,6 +197,12 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .char-tab.active{background:rgba(100,180,120,0.15);border-color:#4aaa6a;color:#4aaa6a}
 #char-subtitle{font-size:10px;color:rgba(255,255,255,0.25);white-space:nowrap;flex-shrink:0}
 #char-filter-bar{display:flex;gap:5px;flex-wrap:wrap;flex:1;justify-content:flex-end}
+#char-age-toggle{background:transparent;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.35);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:10px;flex-shrink:0}
+#char-age-toggle.active{border-color:#c8a96e;color:#c8a96e}
+#char-age-bar{display:none;width:100%;margin-top:4px;flex-wrap:wrap;gap:4px}
+#char-age-bar.open{display:flex}
+.char-age-filter{padding:3px 9px;border-radius:20px;font-size:10px;cursor:pointer;border:0.5px solid rgba(200,169,110,0.3);color:rgba(200,169,110,0.6);background:transparent;transition:all 0.15s;white-space:nowrap}
+.char-age-filter.active{background:rgba(200,169,110,0.15);border-color:#c8a96e;color:#c8a96e}
 .char-filter{padding:3px 9px;border-radius:20px;font-size:10px;cursor:pointer;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);background:transparent;transition:all 0.15s;white-space:nowrap}
 .char-filter.active{background:rgba(100,180,120,0.15);border-color:#4aaa6a;color:#4aaa6a}
 #char-create-btn{padding:5px 12px;background:rgba(100,180,120,0.15);border:0.5px solid #4aaa6a;border-radius:6px;color:#4aaa6a;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;flex-shrink:0}
@@ -206,6 +212,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 #char-close{background:transparent;border:none;color:rgba(255,255,255,0.35);font-size:18px;cursor:pointer;padding:2px 6px;flex-shrink:0}
 #char-grid{overflow-y:scroll;-webkit-overflow-scrolling:touch;padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;align-content:start}
 .char-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative}
+.char-letter-divider{grid-column:1/-1;padding:8px 4px 4px;font-size:11px;font-weight:700;color:rgba(255,255,255,0.2);letter-spacing:3px;border-bottom:0.5px solid rgba(255,255,255,0.06)}
 .char-card:hover{background:rgba(255,255,255,0.08);border-color:rgba(100,180,120,0.4)}
 .char-portrait-wrap{width:100%;padding-bottom:100%;position:relative;overflow:hidden;background:#0a1520}
 .char-portrait{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%}
@@ -430,15 +437,18 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
           <div id="char-tabs">
             <button class="char-tab active" onclick="switchCharTab('haupt',this)">Haupt</button>
             <button class="char-tab" onclick="switchCharTab('neben',this)">Neben</button>
-            <button class="char-tab" onclick="switchCharTab('statist',this)">Statisten</button>
+            <button class="char-tab" onclick="switchCharTab('randfigur',this)">Randfiguren</button>
+            <button class="char-tab" onclick="switchCharTab('passant',this)">Passanten</button>
           </div>
           <div id="char-subtitle" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+          <button id="char-age-toggle" onclick="toggleAgeFilter()" title="Nach Alter filtern">🎂 Alter</button>
           <a id="char-create-btn" href="https://ripzha.github.io/simswelt/rpg_char_html.html" target="_blank">✚ Charakter erstellen</a>
           <button id="char-sort-btn" onclick="toggleCharSort()" title="Alphabetisch sortieren">A–Z</button>
           <button id="char-reload" onclick="reloadChars()" title="Aktualisieren">↺</button>
           <button id="char-close" onclick="closeCharView()">✕</button>
         </div>
         <div id="char-filter-bar"></div>
+        <div id="char-age-bar"></div>
       </div>
       <div id="char-grid"></div>
       <div id="char-hover-card">
@@ -1562,7 +1572,7 @@ function openCharView(type){
   location.hash='chars-'+charActiveType;
   document.getElementById('char-container').classList.add('open');
   document.querySelectorAll('.char-tab').forEach(function(t){
-    var map={'haupt':'Haupt','neben':'Neben','statist':'Stat'};
+    var map={'haupt':'Haupt','neben':'Neben','randfigur':'Randfiguren','passant':'Passanten'};
     t.classList.toggle('active',t.textContent.indexOf(map[charActiveType]||charActiveType)>-1);
   });
   charPlayerFilter='alle';
@@ -1623,7 +1633,9 @@ async function fetchCharsFromScript(){
     var fresh=data.filter(function(c){return c.name;}).map(function(c){
       var t=(c.type||'').toLowerCase();
       if(t.indexOf('neben')>-1)t='neben';
-      else if(t.indexOf('statist')>-1||t.indexOf('rand')>-1||t.indexOf('passant')>-1)t='statist';
+      else if(t.indexOf('randfigur')>-1||t.indexOf('rand')>-1)t='randfigur';
+      else if(t.indexOf('passant')>-1)t='passant';
+      else if(t.indexOf('statist')>-1)t='randfigur';
       else t='haupt';
       return{n:c.name||'',p:c.player||'',type:t,u:c.threadUrl||'',h:c.home||'',img:c.portraitUrl||'',age:c.age||'',job:c.job||'',okkult:c.Okkult||c.okkult||'',lastSeenName:c.lastSeenName||'',lastSeenUrl:c.lastSeenUrl||''};
     });
@@ -1648,6 +1660,16 @@ function toggleCharSort(){
 function charRenderFiltered(){
   var list=CHARS.filter(function(c){return c.type===charActiveType;});
   if(charPlayerFilter&&charPlayerFilter!=='alle')list=list.filter(function(c){return c.p===charPlayerFilter;});
+  if(charAgeFilter&&charAgeFilter!=='alle'){
+    var grp=AGE_GROUPS.find(function(g){return g.label===charAgeFilter;});
+    if(grp&&grp.min>0||grp&&grp.max<99999){
+      list=list.filter(function(c){
+        var a=parseInt(c.age);
+        if(isNaN(a))return false;
+        return a>=grp.min&&a<=grp.max;
+      });
+    }
+  }
   if(charSortAZ)list=list.slice().sort(function(a,b){return a.n.localeCompare(b.n,'de');});
   charRender(list);
 }
@@ -1673,11 +1695,62 @@ function setCharPlayerFilter(btn){
   charRenderFiltered();
 }
 
+var charAgeFilter='alle';
+var AGE_GROUPS=[
+  {label:'Alle',min:0,max:99999},
+  {label:'Neugeborene',min:0,max:0},
+  {label:'Säugling',min:0,max:1},
+  {label:'Kleinkind',min:2,max:3},
+  {label:'Kind',min:4,max:12},
+  {label:'Teenager',min:13,max:19},
+  {label:'Junger Erwachsener',min:20,max:44},
+  {label:'Erwachsener',min:45,max:69},
+  {label:'Senior',min:70,max:99999}
+];
+
+function toggleAgeFilter(){
+  var bar=document.getElementById('char-age-bar');
+  var btn=document.getElementById('char-age-toggle');
+  var isOpen=bar.classList.contains('open');
+  if(isOpen){
+    bar.classList.remove('open');
+    btn.classList.remove('active');
+  } else {
+    bar.classList.add('open');
+    btn.classList.add('active');
+    buildAgeFilter();
+  }
+  fitCharGrid();
+}
+
+function buildAgeFilter(){
+  var bar=document.getElementById('char-age-bar');
+  if(!bar)return;
+  bar.innerHTML=AGE_GROUPS.map(function(g){
+    var active=g.label===charAgeFilter?' active':'';
+    return '<button class="char-age-filter'+active+'" onclick="setAgeFilter(this,'+g.min+','+g.max+')">'+g.label+'</button>';
+  }).join('');
+}
+
+function setAgeFilter(btn,min,max){
+  charAgeFilter=btn.textContent;
+  document.querySelectorAll('.char-age-filter').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  charRenderFiltered();
+}
+
+function getAgeGroup(ageStr){
+  var a=parseInt(ageStr);
+  if(isNaN(a))return null;
+  return a;
+}
+
 function charRender(list){
   var grid=document.getElementById('char-grid');
   var sub=document.getElementById('char-subtitle');
   if(!grid||!sub)return;
   sub.textContent=list.length+' Charaktere';
+  var lastLetter='';
   grid.innerHTML='';
   if(!list.length){
     grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:12px;padding:40px;grid-column:1/-1;text-align:center">Keine Charaktere gefunden.</div>';
