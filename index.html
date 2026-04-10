@@ -214,7 +214,6 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 #char-close{background:transparent;border:none;color:rgba(255,255,255,0.35);font-size:18px;cursor:pointer;padding:2px 6px;flex-shrink:0}
 #char-grid{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;align-content:start;min-height:0}
 .char-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative}
-.char-name-overlay{position:absolute;bottom:0;left:0;right:0}
 #char-grid.az-mode{display:block}
 .char-letter-section{width:100%}
 .char-letter-divider{padding:12px 4px 6px;font-size:20px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:2px;border-bottom:0.5px solid rgba(255,255,255,0.07);margin-bottom:6px}
@@ -222,7 +221,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .char-gender-filter{padding:3px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:0.5px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);background:transparent;transition:all 0.15s;white-space:nowrap}
 .char-gender-filter.active{background:rgba(100,180,120,0.15);border-color:#4aaa6a;color:#4aaa6a}
 .char-card:hover{background:rgba(255,255,255,0.08);border-color:rgba(100,180,120,0.4)}
-.char-portrait-wrap{width:100%;aspect-ratio:1/1;position:relative;overflow:hidden;background:#0a1520}
+.char-portrait-wrap{width:100%;position:relative;overflow:hidden;background:#0a1520}
 .char-portrait{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%}
 .char-portrait-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;color:rgba(255,255,255,0.08);position:absolute;inset:0}
 .char-name-overlay{position:absolute;bottom:0;left:0;right:0;top:auto;padding:20px 7px 6px;background:linear-gradient(transparent,rgba(0,0,0,0.85));pointer-events:none;z-index:2}
@@ -1655,7 +1654,20 @@ function openCharView(type){
   fetchCharsFromScript();
 }
 
-function fitCharGrid(){/* flex:1 handles sizing - no JS needed */}
+function fitCharGrid(){
+  var header=document.getElementById('char-header');
+  var grid=document.getElementById('char-grid');
+  if(!header||!grid)return;
+  var h=header.getBoundingClientRect().height;
+  if(h===0){requestAnimationFrame(fitCharGrid);return;}
+  // Step 1: set scrollable height
+  grid.style.height=(window.innerHeight-h)+'px';
+  // Step 2: measure real column width, set gridAutoRows to exact same value → square cards
+  var isMobile=window.innerWidth<=768;
+  var cols=isMobile?3:Math.max(2,Math.floor((grid.clientWidth+8)/(120+8)));
+  var colW=Math.floor((grid.clientWidth-(cols-1)*8)/cols);
+  if(colW>0)grid.style.gridAutoRows=colW+'px';
+}
 
 function closeCharView(){
   document.getElementById('char-container').classList.remove('open');
