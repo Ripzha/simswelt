@@ -1366,7 +1366,7 @@ function renderBuildingBg(imgs){
   const bg=document.getElementById('building-bg');
   // Use a persistent img tag inside inner so dots aren't wiped
   let bgImg=document.getElementById('building-bg-img');
-  if(!bgImg){bgImg=document.createElement('img');bgImg.id='building-bg-img';bgImg.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:fill;filter:brightness(0.65);display:block;pointer-events:none';document.getElementById('building-bg-inner').appendChild(bgImg);}
+  if(!bgImg){bgImg=document.createElement('img');bgImg.id='building-bg-img';bgImg.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:brightness(0.65);display:block;pointer-events:none;background:#040d14';document.getElementById('building-bg-inner').appendChild(bgImg);}
   if(img){bgImg.src=img;bgImg.style.display='block';document.getElementById('building-no-img').style.display='none';}
   else{bgImg.style.display='none';document.getElementById('building-no-img').style.display='block';}
 }
