@@ -1131,7 +1131,8 @@ const worldLots={
     {name:"Nr. 5",x:55.8,y:47.2,url:BASE+"f51798-Granite-Falls.html",active:false},
       ],
   "Bloodmoon Valley":[
-    {name:"Strassen & Wälder",x:86.3,y:82.4,url:BASE+"t380f53861-Bloodmoon-Valley.html",active:true,outdoor:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t380p3446n2_bGsQFBhr.png"},
+    {name:"Portal",x:86.9,y:80.4,info:true,active:false},
+    {name:"Bloodmoon Valley (Strassen & Wälder)",x:64.4,y:79.3,url:BASE+"t380f53861-Bloodmoon-Valley.html",active:true,outdoor:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t380p3446n2_bGsQFBhr.png"},
     {name:"Deathdealer Ausbildungslager",x:88.7,y:55.8,url:BASE+"t382f53861-Bloodmoon-Valley-Deathdealer-Ausbildungslager.html",active:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t382p3448n3_PzCaLcMb.png"},
     {name:"Kerker-Ruine",x:69.2,y:46.2,url:BASE+"t609f53861-Bloodmoon-Valley-Kerker-Ruine.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t609p5380n2_MlDawgxc.jpg"},
     {name:"Anwesen der Draculias",x:71.7,y:18,url:BASE+"t385f53861-Bloodmoon-Valley-Anwesen-der-Draculias.html",active:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t385p3451n2_BqadveJZ.png"},
@@ -1472,7 +1473,7 @@ function renderLots(w){
         ?`<div class="lot-tooltip" style="${_tb};padding:0;overflow:hidden;min-width:160px"><img src="${lot.img}" style="width:100%;height:90px;object-fit:cover;display:block"><div style="padding:7px 10px">${_ti}</div></div>`
         :`<div class="lot-tooltip" style="${_tb};padding:6px 10px">${_ti}</div>`;
       ld.innerHTML=`<div class="lot-pulse"></div><div class="lot-inner" style="width:12px;height:12px;background:${_dotBg};box-shadow:${_dotShadow}"></div><div class="lot-label">${(()=>{const p=parseLotLabel(lot);return p.sub?`${p.num}<span class="lot-sublabel">${p.sub}</span>`:p.num;})()}</div>${_tt}`;
-      ld.addEventListener('click',e=>{
+      if(!lot.info){ld.addEventListener('click',e=>{
         e.stopPropagation();
         if(calibWorldMode||posMode)return;
         if(window.matchMedia('(max-width:768px)').matches){
@@ -1481,7 +1482,7 @@ function renderLots(w){
         } else {
           window.open(lot.url,'_blank');
         }
-      });
+      });}
       wia.appendChild(ld);
     } else {
       const buildings=[...new Set(group.lots.filter(l=>l.building).map(l=>l.building))];
