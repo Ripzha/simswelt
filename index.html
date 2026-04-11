@@ -558,7 +558,7 @@ const BUILDINGS = {
     "https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t381p3447n8_VBnfvgxL.png"
   ],lots:[
     // alle Ebenen
-    {name:"Rabenfelsviertel (Strassen)",x:52.9,y:62.5,url:BASE+"t381f53861-Bloodmoon-Valley-Rabenfelsviertel-Harghita.html",active:true,outdoor:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t381p3447n4_YAixMyNV.png"},
+    {name:"Rabenfelsviertel (Strassen)",x:52.9,y:62.5,floors:[0,1,2],url:BASE+"t381f53861-Bloodmoon-Valley-Rabenfelsviertel-Harghita.html",active:true,outdoor:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t381p3447n4_YAixMyNV.png"},
     // Ebene 2+3
     {name:"Nr. 5 - Raouls alte Wohnung",x:30.9,y:41.8,floors:[1,2],url:BASE+"t539f53861-Bloodmoon-Valley-Rabenfelsviertel-Nr-Raouls-alte-Wohnung-Harghita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t539p4580n2_SnkzUlHp.png"},
     {name:"Nr. 6 - Adams Haus",x:60.6,y:38.5,floors:[1,2],url:BASE+"t554f53861-Bloodmoon-Valley-Rabenfelsviertel-Haus-Nr-Adams-Haus-Harghita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/800x9999/f53861t554p4821n2_tLKzniAO.png"},
@@ -579,27 +579,31 @@ const BUILDINGS = {
     "https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t400p3507n3_tHoMvGaN.png",
     "https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t400p3507n2_QkAZHmvp.png"
   ],lots:[
-    {name:"Schattenmarktviertel (Strassen)",x:48.7,y:68.7,url:BASE+"t400f53861-Bloodmoon-Valley-Schattenmarktviertel-Harghita.html",active:true,outdoor:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t400p3507n6_OndjlTce.png"},
-    {name:"Nr. 3 - Zum Sündigen Nachtvogel",x:62.5,y:68.7,floors:[0,1,2],url:BASE+"t486f53861-Bloodmoon-Valey-Schattenmarktviertel-Haus-Nr-Zum-Suendigen-Nachtvogel-Harhita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1000x9999/f53861t486p4068n4_NfYvjTMO.png"},
-    {name:"Nr. A - Andenken an Alucard",x:49.4,y:17.6,url:BASE+"t552f53861-Bloodmoon-Valey-Schattenmarktviertel-Haus-Nr-A-Andenken-an-Alucard-Harghita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t552p4813n12_IwZNGjMT.png"},
+    // alle Ebenen
+    {name:"Schattenmarktviertel (Strassen)",x:48.9,y:65.5,url:BASE+"t400f53861-Bloodmoon-Valley-Schattenmarktviertel-Harghita.html",active:true,outdoor:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t400p3507n6_OndjlTce.png"},
+    {name:"Nr. A - Andenken an Alucard",x:49.5,y:23.4,url:BASE+"t552f53861-Bloodmoon-Valey-Schattenmarktviertel-Haus-Nr-A-Andenken-an-Alucard-Harghita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t552p4813n12_IwZNGjMT.png"},
+    // Ebene 1
+    {name:"Nr. 3 - Zum Sündigen Nachtvogel",x:62.6,y:66,floors:[0],url:BASE+"t486f53861-Bloodmoon-Valey-Schattenmarktviertel-Haus-Nr-Zum-Suendigen-Nachtvogel-Harhita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1000x9999/f53861t486p4068n4_NfYvjTMO.png"},
     {name:"Nr. 1 - Frei",x:39.4,y:40.1,floors:[0,1],free:true,active:false},
     {name:"Nr. 2 - Frei",x:63.7,y:50.2,floors:[0,1],free:true,active:false},
     {name:"Nr. 4 - Frei",x:63.4,y:82.2,floors:[0,1,2],free:true,active:false},
-    {name:"Nr. 5 - Frei",x:34.1,y:89.9,floors:[0,1],free:true,active:false},
-    {name:"Nr. 6 - Frei",x:33.3,y:72.6,floors:[1,2],free:true,active:false},
-    {name:"Nr. 7 - Frei",x:32.7,y:63.5,floors:[1,2],free:true,active:false},
+    {name:"Nr. 5 - Frei",x:33.3,y:84.5,floors:[0,1],free:true,active:false},
+    // Ebene 2+3
+    {name:"Nr. 6 - Frei",x:33.2,y:70,floors:[1,2],free:true,active:false},
+    {name:"Nr. 7 - Frei",x:33,y:61.1,floors:[1,2],free:true,active:false},
     {name:"Nr. 8 - Frei",x:33.2,y:53.5,floors:[1,2],free:true,active:false},
     {name:"Nr. 9 - Frei",x:32.2,y:26.7,floors:[1],free:true,active:false},
-    {name:"Nr. 10 - Frei",x:39.4,y:32.1,floors:[1,2],free:true,active:false},
+    {name:"Nr. 10 - Frei",x:39.3,y:35.6,floors:[1,2],free:true,active:false},
     {name:"Nr. 11 - Frei",x:49.8,y:41.3,floors:[1,2],free:true,active:false},
     {name:"Nr. 12 - Frei",x:54,y:39.7,floors:[1,2],free:true,active:false},
     {name:"Nr. 13 - Frei",x:62.9,y:19.4,floors:[1,2],free:true,active:false},
+    // Ebene 3
     {name:"Nr. 16 - Jacks Unterschlupf",x:32,y:47.3,floors:[2],url:BASE+"t398f53861-Bloodmoon-Valley-Schattenmarktviertel-Haus-Nr-Jacks-Unterschlupf-Harghita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t398p3504n3_CAyrzJKG.png"},
     {name:"Nr. 14 - Frei",x:62.8,y:44.1,floors:[2],free:true,active:false},
-    {name:"Nr. 15 - Frei",x:33.6,y:88.8,floors:[2],free:true,active:false},
+    {name:"Nr. 15 - Frei",x:33.5,y:83.3,floors:[2],free:true,active:false},
     {name:"Nr. 17 - Frei",x:32.6,y:28,floors:[2],free:true,active:false},
   ]},
-  "Steinweg-Apartments":   {imgs:[''],lots:[
+    "Steinweg-Apartments":   {imgs:[''],lots:[
     {name:"Nr. 14 - Familie Engel",x:35,y:50,url:BASE+'t55f51791-Evergreen-Harbor-Nr-Familie-Engel.html',active:false},
     {name:"Nr. 15 - Wohnung Joachim Winter",x:65,y:65,url:BASE+'f51791-Evergreen-Harbor.html',active:false},
   ]},
