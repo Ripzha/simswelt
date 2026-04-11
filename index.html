@@ -1475,13 +1475,13 @@ function renderLots(w){
       const _nameHtml=_lbl.sub
         ?`<div style="font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.4);margin-bottom:1px">${_lbl.num}</div><div style="font-weight:600;margin-bottom:2px">${_lbl.sub}</div>`
         :`<div style="font-weight:500;margin-bottom:2px">${_lbl.num}</div>`;
-      const _ti=_nameHtml+`<div style="font-size:10px;color:${lot.outdoor?'rgba(80,190,170,0.9)':lot.active?'#4aaa6a':'rgba(255,255,255,0.4)'}">${lot.outdoor?'🌿 Öffentlicher Bereich':lot.active?'● Aktiv':'↗ Thread öffnen'}</div>`;
-      const _dotBg=lot.outdoor?'rgba(80,190,170,0.75)':lot.active?'#4aaa6a':'rgba(255,255,255,0.5)';
-      const _dotShadow=lot.outdoor?'0 0 8px rgba(80,190,170,0.6)':lot.active?'0 0 10px #4aaa6a':'none';
+      const _ti=_nameHtml+`<div style="font-size:10px;color:${lot.info?'rgba(200,160,80,0.9)':lot.outdoor?'rgba(80,190,170,0.9)':lot.active?'#4aaa6a':'rgba(255,255,255,0.4)'}">${lot.info?'◆ Orientierungspunkt':lot.outdoor?'🌿 Öffentlicher Bereich':lot.active?'● Aktiv':'↗ Thread öffnen'}</div>`;
+      const _dotBg=lot.info?'rgba(200,160,80,0.9)':lot.outdoor?'rgba(80,190,170,0.75)':lot.active?'#4aaa6a':'rgba(255,255,255,0.5)';
+      const _dotShadow=lot.info?'0 0 8px rgba(200,160,80,0.7)':lot.outdoor?'0 0 8px rgba(80,190,170,0.6)':lot.active?'0 0 10px #4aaa6a':'none';
       const _tt=lot.img
         ?`<div class="lot-tooltip" style="${_tb};padding:0;overflow:hidden;min-width:160px"><img src="${lot.img}" style="width:100%;height:90px;object-fit:cover;display:block"><div style="padding:7px 10px">${_ti}</div></div>`
         :`<div class="lot-tooltip" style="${_tb};padding:6px 10px">${_ti}</div>`;
-      ld.innerHTML=`<div class="lot-pulse"></div><div class="lot-inner" style="width:12px;height:12px;background:${_dotBg};box-shadow:${_dotShadow}"></div><div class="lot-label">${(()=>{const p=parseLotLabel(lot);return p.sub?`${p.num}<span class="lot-sublabel">${p.sub}</span>`:p.num;})()}</div>${_tt}`;
+      ld.innerHTML=(lot.info?`<div class="lot-inner" style="width:11px;height:11px;background:${_dotBg};box-shadow:${_dotShadow};transform:rotate(45deg);border-radius:2px"></div>`:`<div class="lot-pulse"></div><div class="lot-inner" style="width:12px;height:12px;background:${_dotBg};box-shadow:${_dotShadow}"></div>`)+`<div class="lot-label">${(()=>{const p=parseLotLabel(lot);return p.sub?`${p.num}<span class="lot-sublabel">${p.sub}</span>`:p.num;})()}</div>${_tt}`;
       if(!lot.info){ld.addEventListener('click',e=>{
         e.stopPropagation();
         if(calibWorldMode||posMode)return;
