@@ -1260,6 +1260,7 @@ function getThreadIdFromUrl(url){
 
 
 function updateAllTokens(){
+  if(!CHARS.length){ setTimeout(updateAllTokens, 1000); return; }
   // Update lot dots
   document.querySelectorAll('.dot-char-tokens[data-lot-url]').forEach(function(el){
     var lotUrl = el.getAttribute('data-lot-url');
@@ -1430,6 +1431,8 @@ worlds.forEach(w=>{
   el.addEventListener('click',e=>{e.stopPropagation();if(!calibMapMode)enterWorld(w);});
   mapIA.appendChild(el);
 });
+// Update tokens after worlds are rendered
+setTimeout(updateAllTokens, 500);
 mapC.addEventListener('click',e=>{
   if(!calibMapMode)return;
   if(e.target.closest('.calib-panel')||e.target.closest('.calib-btn'))return;
