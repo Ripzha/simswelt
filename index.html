@@ -1903,6 +1903,21 @@ function reloadChars(){
 }
 
 async function fetchCharsFromScript(){
+  // Cache: sofort aus sessionStorage anzeigen
+  try{
+    var cached=sessionStorage.getItem('atlas_chars_cache');
+    if(cached){
+      var cachedData=JSON.parse(cached);
+      if(cachedData.length>0){
+        CHARS.length=0;
+        cachedData.forEach(function(c){CHARS.push(c);});
+        charFetched=true;
+        charRenderFiltered();
+        buildPlayerFilter();
+      }
+    }
+  }catch(e){}
+  // Im Hintergrund aktualisieren
   try{
     var r=await fetch(SCRIPT_URL);
     if(!r.ok)throw new Error('HTTP '+r.status);
@@ -1922,6 +1937,8 @@ async function fetchCharsFromScript(){
       CHARS.length=0;
       fresh.forEach(function(c){CHARS.push(c);});
       charFetched=true;
+      // Cache aktualisieren
+      try{sessionStorage.setItem('atlas_chars_cache',JSON.stringify(fresh));}catch(e){}
     }
   }catch(e){}
   charRenderFiltered();
