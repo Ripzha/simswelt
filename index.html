@@ -1400,9 +1400,15 @@ function exitBuilding(){const bc=document.getElementById('building-container');i
 
 const OTHERWORLDS_DATA=[
   {name:"Bloodmoon Valley",type:"Vampirwelt",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t380p3446n2_bGsQFBhr.png",world:otherworlds[0]},
-  {name:"???",type:"Kommende Welt",img:null,world:null},
-  {name:"???",type:"Kommende Welt",img:null,world:null},
-  {name:"???",type:"Kommende Welt",img:null,world:null},
+  {name:"Zauberallee",type:"Magische Welt",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51855t406p3532n2_obFYOumL.png",url:"https://www.simsforumrpg.de/t406f51855-Zauberallee.html"},
+  {name:"Die Unterwelt",type:"Andere Welt",img:null,url:"https://www.simsforumrpg.de/t425f51855-Die-Unterwelt.html"},
+  {name:"Der Zauberwald",type:"Magische Welt",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51855t90p1006n2_cgJWwteb.png",url:"https://www.simsforumrpg.de/t90f51855-Der-Zauberwald.html"},
+  {name:"Europa",type:"Reale Welt",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51855t206p2661n2_LrURBnpa.jpg",url:"https://www.simsforumrpg.de/t206f51855-Kontinent-Europa.html"},
+  {name:"Kanada",type:"Reale Welt",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51855t644p5918n2_KHliXsLA.png",url:"https://www.simsforumrpg.de/t644f51855-Kanada.html"},
+  {name:"Die Welt zwischen den Welten",type:"Andere Welt",img:null,url:"https://www.simsforumrpg.de/t632f51855-Die-Welt-zwischen-den-Welten.html"},
+  {name:"Magische Welt Utopia",type:"Magische Welt",img:null,url:"https://www.simsforumrpg.de/t489f51855-Magische-Welt-Utopia.html"},
+  {name:"Vampirwelt - Transsylvanien",type:"Vampirwelt",img:null,url:"https://www.simsforumrpg.de/t340f51855-Vampirwelt-Transsylvanien.html"},
+  {name:"Paralleluniversum - Oasis Springs",type:"Paralleluniversum",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51855t220p2764n2_XtTNcofK.png",url:"https://www.simsforumrpg.de/t220f51855-Paralleluniversum-Oasis-Springs.html"},
 ];
 
 function openOtherWorld(){
@@ -1410,7 +1416,7 @@ function openOtherWorld(){
   grid.innerHTML='';
   OTHERWORLDS_DATA.forEach(function(ow){
     var tile=document.createElement('div');
-    tile.className='otherworld-tile'+(ow.world?'':' empty');
+    tile.className='otherworld-tile'+((!ow.world&&!ow.url)?' empty':'');
     if(ow.img){
       var img=document.createElement('img');
       img.className='ow-img';img.src=ow.img;img.alt=ow.name;
@@ -1429,6 +1435,10 @@ function openOtherWorld(){
       tile.addEventListener('click',function(){
         closeOtherWorlds();
         enterWorld(ow.world);
+      });
+    } else if(ow.url){
+      tile.addEventListener('click',function(){
+        window.open(ow.url,'_blank');
       });
     }
     grid.appendChild(tile);
