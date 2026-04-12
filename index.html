@@ -1924,11 +1924,7 @@ function openCharView(type){
   var sub=document.getElementById('char-subtitle');
   if(grid)grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:22px;padding:60px;grid-column:1/-1;text-align:center">⏳</div>';
   if(sub)sub.textContent='Lade...';
-  // fitCharGrid nach dem Öffnen damit Grid-Grösse bekannt ist
-  requestAnimationFrame(function(){requestAnimationFrame(function(){
-    fitCharGrid();
-    fetchCharsFromScript();
-  });});
+  fetchCharsFromScript();
 }
 
 function fitCharGrid(){
@@ -1987,7 +1983,6 @@ async function fetchCharsFromScript(){
         charFetched=true;
         charRenderFiltered();
         buildPlayerFilter();
-        requestAnimationFrame(function(){requestAnimationFrame(fitCharGrid);});
       }
     }
   }catch(e){}
