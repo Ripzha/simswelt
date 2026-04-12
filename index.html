@@ -99,6 +99,9 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 
 .dot-char-tokens{position:absolute;top:16px;left:50%;transform:translateX(-50%);height:20px;pointer-events:all;z-index:5;display:flex;align-items:center}
 .dot-char-tokens:hover .dot-char-token-wrap{margin-left:4px}
+.dot-char-tokens:hover .dot-char-token,
+.dot-char-tokens:hover img.dot-char-token{width:27px!important;height:27px!important}
+.dot-char-tokens:hover .dot-char-token-ph{width:27px!important;height:27px!important;font-size:11px!important}
 .dot-char-tokens:hover .dot-char-token-extra{display:none}
 .dot-char-token-hidden{display:none}
 .dot-char-tokens:hover .dot-char-token-hidden{display:block}
@@ -1296,7 +1299,16 @@ function updateSidebarActivity(){
   var el=document.getElementById('sidebar-activity');
   if(!el||!CHARS.length)return;
   // Get chars with lastSeenName, sort by most recent (by array order = sheet order)
-  var active=CHARS.filter(function(c){return c.lastSeenName&&c.lastSeenUrl;});
+  // Filter to last 7 days if date available, else show all with lastSeenName
+  var now=new Date();
+  var active=CHARS.filter(function(c){
+    if(!c.lastSeenName||!c.lastSeenUrl) return false;
+    if(!c.lastSeenDate) return true; // no date = show anyway
+    var parts=c.lastSeenDate.split('.');
+    if(parts.length<3) return true;
+    var d=new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
+    return (now-d)<=7*24*60*60*1000;
+  });
   // Deduplicate by name, keep first occurrence
   var seen=new Set();
   var unique=active.filter(function(c){if(seen.has(c.n))return false;seen.add(c.n);return true;});
@@ -1414,7 +1426,7 @@ worlds.forEach(w=>{
   const el=document.createElement('div');
   el.className='world-dot';
   el.style.cssText=`left:${w.x}%;top:${w.y}%`;
-  el.innerHTML=`<div class="dot-pulse" style="width:34px;height:34px;border-color:${w.color}"></div><div class="dot-inner" style="width:11px;height:11px;background:${w.color};box-shadow:0 0 5px ${w.color}"></div><div class="dot-label">${w.name}</div><div class="hover-card" style="border:1px solid ${w.color}88;box-shadow:0 6px 28px ${w.color}44"><div style="position:relative">${w.img?`<img class="hover-img" src="${w.img}" onerror="this.style.display='none'">`:''}<div class="hover-gradient"></div><div class="hover-name">${w.name}</div></div><div class="hover-footer"><span class="hover-type">${w.type}</span><span class="hover-action" style="color:${w.color}">Klicken →</span></div></div>`;
+  el.innerHTML=`<div class="dot-pulse" style="width:34px;height:34px;border-color:${w.color}"></div><div class="dot-inner" style="width:11px;height:11px;background:${w.color};box-shadow:0 0 5px ${w.color}"></div><div class="dot-label">${w.name}</div><div class="dot-char-tokens" data-world-name="${w.name}"></div><div class="hover-card" style="border:1px solid ${w.color}88;box-shadow:0 6px 28px ${w.color}44"><div style="position:relative">${w.img?`<img class="hover-img" src="${w.img}" onerror="this.style.display='none'">`:''}<div class="hover-gradient"></div><div class="hover-name">${w.name}</div></div><div class="hover-footer"><span class="hover-type">${w.type}</span><span class="hover-action" style="color:${w.color}">Klicken →</span></div></div>`;
   el.addEventListener('click',e=>{e.stopPropagation();if(!calibMapMode)enterWorld(w);});
   mapIA.appendChild(el);
 });
@@ -2078,7 +2090,7 @@ async function fetchCharsFromScript(){
       else if(t.indexOf('passant')>-1)t='passant';
       else if(t.indexOf('statist')>-1)t='randfigur';
       else t='haupt';
-      return{n:c.name||'',p:(c.player||'').trim(),type:t,u:c.threadUrl||'',h:c.home||'',img:c.portraitUrl||'',age:c.age||'',job:c.job||'',okkult:c.Okkult||c.okkult||'',gender:c.gender||c.Geschlecht||'',lastSeenName:c.lastSeenName||'',lastSeenUrl:c.lastSeenUrl||''};
+      return{n:c.name||'',p:(c.player||'').trim(),type:t,u:c.threadUrl||'',h:c.home||'',img:c.portraitUrl||'',age:c.age||'',job:c.job||'',okkult:c.Okkult||c.okkult||'',gender:c.gender||c.Geschlecht||'',lastSeenName:c.lastSeenName||'',lastSeenUrl:c.lastSeenUrl||'',lastSeenDate:c.lastSeenDate||''};
     });
     if(fresh.length>0){
       CHARS.length=0;
