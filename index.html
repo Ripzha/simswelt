@@ -2383,13 +2383,14 @@ window.addEventListener('hashchange',function(){
   if(m)openCharView(m[1]);
   else if(!h&&document.getElementById('char-container').classList.contains('open'))closeCharView();
 });
-if(location.hash.match(/^#chars-/)){
-  window.addEventListener('load',function(){
+// Immer beim Laden: Chars + Stats holen (für Tokens + Sidebar)
+window.addEventListener('load',function(){
   updateSidebarStats();
-  // Chars im Hintergrund laden für Tokens + Sidebar
   fetchCharsFromScript();
-  openCharView(location.hash.replace('#chars-',''));});
-}
+  if(location.hash.match(/^#chars-/)){
+    openCharView(location.hash.replace('#chars-',''));
+  }
+});
 
 
 document.querySelectorAll('.sheet').forEach(sheet=>{
