@@ -99,6 +99,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 
 .dot-char-tokens{position:absolute;top:16px;left:50%;transform:translateX(-50%);height:20px;pointer-events:all;z-index:5;display:flex;align-items:center}
 .dot-char-tokens:hover .dot-char-token-wrap{margin-left:4px}
+.dot-char-tokens:hover .dot-char-token-extra{display:none}
 .dot-char-tokens .dot-char-token-wrap:first-child{margin-left:0!important}
 .dot-char-token-wrap{position:relative;margin-left:-8px;transition:margin 0.2s ease}
 .dot-char-token-wrap:hover .dot-char-token-name{display:block}
@@ -1263,23 +1264,15 @@ function updateAllTokens(){
       if(!c.lastSeenUrl) return false;
       return lotThreadId && getThreadIdFromUrl(c.lastSeenUrl) === lotThreadId;
     });
-    el.innerHTML = chars.slice(0,6).map(function(c){
-      var inner = c.img
-        ? '<img class="dot-char-token" src="'+c.img+'" alt="'+c.n+'">'
-        : '<div class="dot-char-token-ph">'+c.n.charAt(0)+'</div>';
-      return '<div class="dot-char-token-wrap">'+inner+'<div class="dot-char-token-name">'+c.n+'</div></div>';
-    }).join('') + (chars.length>6?'<div class="dot-char-token-ph">+'+(chars.length-6)+'</div>':'');
+    el.innerHTML = buildCharTokensHtml(chars).replace('<div class="dot-char-tokens">','').replace(/<\/div>$/,'');
+    // rebuild properly
+    el.outerHTML = buildCharTokensHtml(chars) || el.outerHTML;
   });
-  // Update world dots
+  // Update world dots  
   document.querySelectorAll('.dot-char-tokens[data-world-name]').forEach(function(el){
     var worldName = el.getAttribute('data-world-name');
     var chars = getCharsAtWorld(worldName);
-    el.innerHTML = chars.slice(0,6).map(function(c){
-      var inner = c.img
-        ? '<img class="dot-char-token" src="'+c.img+'" alt="'+c.n+'">'
-        : '<div class="dot-char-token-ph">'+c.n.charAt(0)+'</div>';
-      return '<div class="dot-char-token-wrap">'+inner+'<div class="dot-char-token-name">'+c.n+'</div></div>';
-    }).join('') + (chars.length>6?'<div class="dot-char-token-ph">+'+(chars.length-6)+'</div>':'');
+    el.outerHTML = (buildCharTokensHtml(chars)||'<div class="dot-char-tokens" data-world-name="'+worldName+'"></div>').replace('class="dot-char-tokens"','class="dot-char-tokens" data-world-name="'+worldName+'"');
   });
 }
 
@@ -1327,8 +1320,11 @@ function updateSidebarStats(){
 }
 function buildCharTokensHtml(chars){
   if(!chars||!chars.length) return '';
+  var visible = chars;
+  var extra = 0;
+  if(chars.length>6){extra=chars.length-6;}
   return '<div class="dot-char-tokens">' +
-    chars.slice(0,6).map(function(c){
+    visible.map(function(c){
       var name = c.n||'';
       var initial = name.charAt(0);
       var inner = c.img
@@ -1336,7 +1332,7 @@ function buildCharTokensHtml(chars){
         : '<div class="dot-char-token-ph">'+initial+'</div>';
       return '<div class="dot-char-token-wrap">'+inner+'<div class="dot-char-token-name">'+name+'</div></div>';
     }).join('') +
-    (chars.length>6?'<div class="dot-char-token-ph" title="+'+( chars.length-6)+' weitere">+</div>':'') +
+    (extra>0?'<div class="dot-char-token-wrap dot-char-token-extra"><div class="dot-char-token-ph">+'+extra+'</div></div>':'') +
   '</div>';
 }
 function getCharsAtLot(lot){
@@ -1615,17 +1611,9 @@ function renderLots(w){
       const _ti=_nameHtml+`<div style="font-size:10px;color:${lot.info?'rgba(200,160,80,0.9)':lot.outdoor?'rgba(80,190,170,0.9)':lot.active?'#4aaa6a':'rgba(255,255,255,0.4)'}">${lot.info?'◆ Orientierungspunkt':lot.outdoor?'🌿 Öffentlicher Bereich':lot.active?'● Aktiv':'↗ Thread öffnen'}</div>`;
       const _dotBg=lot.info?'rgba(200,160,80,0.9)':lot.outdoor?'rgba(80,190,170,0.75)':lot.active?'#4aaa6a':'rgba(255,255,255,0.5)';
       const _dotShadow=lot.info?'0 0 8px rgba(200,160,80,0.7)':lot.outdoor?'0 0 8px rgba(80,190,170,0.6)':lot.active?'0 0 10px #4aaa6a':'none';
-      // Char tokens für dieses Lot
-      const lotChars = getCharsAtLot(lot);
-      const tokensHtml = lotChars.length ? `<div style="display:flex;flex-wrap:wrap;gap:3px;padding:5px 7px 3px;border-top:0.5px solid rgba(255,255,255,0.08)">${
-        lotChars.slice(0,8).map(c=>c.img
-          ?`<img src="${c.img}" title="${c.n}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(74,170,106,0.6)">`
-          :`<div title="${c.n}" style="width:22px;height:22px;border-radius:50%;background:rgba(74,170,106,0.3);border:1.5px solid rgba(74,170,106,0.6);display:flex;align-items:center;justify-content:center;font-size:9px;color:#4aaa6a">${c.n.charAt(0)}</div>`
-        ).join('')
-      }${lotChars.length>8?`<div style="font-size:9px;color:rgba(255,255,255,0.3);padding:6px 2px">+${lotChars.length-8}</div>`:''}</div>` : '';
       const _tt=lot.img
-        ?`<div class="lot-tooltip" style="${_tb};padding:0;overflow:hidden;min-width:160px"><img src="${lot.img}" style="width:100%;height:90px;object-fit:cover;display:block"><div style="padding:7px 10px">${_ti}</div>${tokensHtml}</div>`
-        :`<div class="lot-tooltip" style="${_tb};padding:6px 10px">${_ti}${tokensHtml}</div>`;
+        ?`<div class="lot-tooltip" style="${_tb};padding:0;overflow:hidden;min-width:160px"><img src="${lot.img}" style="width:100%;height:90px;object-fit:cover;display:block"><div style="padding:7px 10px">${_ti}</div></div>`
+        :`<div class="lot-tooltip" style="${_tb};padding:6px 10px">${_ti}</div>`;
       ld.innerHTML=(lot.info?`<div class="lot-inner" style="width:11px;height:11px;background:${_dotBg};box-shadow:${_dotShadow};transform:rotate(45deg);border-radius:2px"></div>`:`<div class="lot-pulse"></div><div class="lot-inner" style="width:12px;height:12px;background:${_dotBg};box-shadow:${_dotShadow}"></div>`)+`<div class="lot-label">${(()=>{const p=parseLotLabel(lot);return p.sub?`${p.num}<span class="lot-sublabel">${p.sub}</span>`:p.num;})()}</div><div class="dot-char-tokens" data-lot-url="${lot.url||''}"></div>${_tt}`;
       if(!lot.info){ld.addEventListener('click',e=>{
         e.stopPropagation();
@@ -2056,7 +2044,7 @@ async function fetchCharsFromScript(){
         charFetched=true;
         charRenderFiltered();
         buildPlayerFilter();
-        setTimeout(fitCharGrid, 150);
+        
         updateAllTokens();
         updateSidebarActivity();
       }
@@ -2088,7 +2076,7 @@ async function fetchCharsFromScript(){
   }catch(e){}
   charRenderFiltered();
   buildPlayerFilter();
-  setTimeout(fitCharGrid, 150);
+  
   updateAllTokens();
   updateSidebarActivity();
   // Rebuild age filter if open
@@ -2367,7 +2355,9 @@ window.addEventListener('hashchange',function(){
 });
 if(location.hash.match(/^#chars-/)){
   window.addEventListener('load',function(){
-  updateSidebarStats();openCharView(location.hash.replace('#chars-',''));});
+  updateSidebarStats();
+  setTimeout(updateAllTokens, 3000);
+  openCharView(location.hash.replace('#chars-',''));});
 }
 
 
