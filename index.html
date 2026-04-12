@@ -321,7 +321,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
         </div>
       </div>
       <div class="vignette"></div>
-      <div id="map-legend">29 Welten · Hover = Vorschau · Klick = Betreten</div>
+      <div id="map-legend">Hover = Vorschau · Klick = Betreten</div>
       <button class="calib-btn" id="calib-map-btn" onclick="toggleCalib('map')">⚙ Kalibrieren</button>
       <div class="calib-panel" id="calib-map-panel">
         <h4>⚙ Welten kalibrieren</h4>
@@ -408,7 +408,6 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
       <div class="stat-row"><span class="stat-key">Posts</span><span>7270</span></div>
       <div class="stat-row"><span class="stat-key">Themen</span><span>722</span></div>
       <div class="stat-row"><span class="stat-key">Mitglieder</span><span>39</span></div>
-      <div class="stat-row"><span class="stat-key">Welten</span><span id="stat-welten">29</span></div>
       </div>
     </div>
     <div id="discord-btn" onclick="window.open('https://discord.gg/FGB8Mfj','_blank')">
@@ -1328,8 +1327,6 @@ function updateSidebarActivity(){
 }
 
 function updateSidebarStats(){
-  var weltenEl=document.getElementById('stat-welten');
-  if(weltenEl) weltenEl.textContent=worlds.length+otherworlds.length;
   // Fetch live forum stats from Apps Script
   fetch(SCRIPT_URL+'?action=stats')
     .then(function(r){return r.json();})
@@ -1341,7 +1338,7 @@ function updateSidebarStats(){
         '<div class="stat-row"><span class="stat-key">Posts</span><span>'+(d.posts||'–')+'</span></div>'+
         '<div class="stat-row"><span class="stat-key">Themen</span><span>'+(d.topics||'–')+'</span></div>'+
         '<div class="stat-row"><span class="stat-key">Mitglieder</span><span>'+(d.members||'–')+'</span></div>'+
-        '<div class="stat-row"><span class="stat-key">Welten</span><span>'+(worlds.length+otherworlds.length)+'</span></div>';
+'';
     // Update online users
     if(d.online&&d.online.length){
       var onlineEl=document.getElementById('sidebar-online');
