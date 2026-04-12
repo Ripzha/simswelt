@@ -1266,27 +1266,26 @@ function updateAllTokens(){
       if(!c.lastSeenUrl) return false;
       return lotThreadId && getThreadIdFromUrl(c.lastSeenUrl) === lotThreadId;
     });
-    var html = buildCharTokensHtml(chars);
-    if(html){
-      var tmp = document.createElement('div');
-      tmp.innerHTML = html;
-      var newEl = tmp.firstChild;
-      newEl.setAttribute('data-lot-url', el.getAttribute('data-lot-url'));
-      el.parentNode.replaceChild(newEl, el);
-    }
+    // Update innerHTML only, keep the container with its data attribute
+    var inner = chars.map(function(c,i){
+      var name=c.n||'';
+      var inner2=c.img?'<img class="dot-char-token" src="'+c.img+'" alt="'+name+'">':'<div class="dot-char-token-ph">'+name.charAt(0)+'</div>';
+      var hidden=i>=5?'dot-char-token-hidden':'';
+      return '<div class="dot-char-token-wrap '+hidden+'">'+inner2+'<div class="dot-char-token-name">'+name+'</div></div>';
+    }).join('')+(chars.length>5?'<div class="dot-char-token-wrap dot-char-token-extra"><div class="dot-char-token-ph">+'+(chars.length-5)+'</div></div>':'');
+    el.innerHTML = inner;
   });
   // Update world dots
   document.querySelectorAll('.dot-char-tokens[data-world-name]').forEach(function(el){
     var worldName = el.getAttribute('data-world-name');
     var chars = getCharsAtWorld(worldName);
-    var html = buildCharTokensHtml(chars);
-    if(html){
-      var tmp = document.createElement('div');
-      tmp.innerHTML = html;
-      var newEl = tmp.firstChild;
-      newEl.setAttribute('data-world-name', worldName);
-      el.parentNode.replaceChild(newEl, el);
-    }
+    var inner = chars.map(function(c,i){
+      var name=c.n||'';
+      var inner2=c.img?'<img class="dot-char-token" src="'+c.img+'" alt="'+name+'">':'<div class="dot-char-token-ph">'+name.charAt(0)+'</div>';
+      var hidden=i>=5?'dot-char-token-hidden':'';
+      return '<div class="dot-char-token-wrap '+hidden+'">'+inner2+'<div class="dot-char-token-name">'+name+'</div></div>';
+    }).join('')+(chars.length>5?'<div class="dot-char-token-wrap dot-char-token-extra"><div class="dot-char-token-ph">+'+(chars.length-5)+'</div></div>':'');
+    el.innerHTML = inner;
   });
 }
 
