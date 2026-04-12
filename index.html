@@ -100,6 +100,8 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .dot-char-tokens{position:absolute;top:16px;left:50%;transform:translateX(-50%);height:20px;pointer-events:all;z-index:5;display:flex;align-items:center}
 .dot-char-tokens:hover .dot-char-token-wrap{margin-left:4px}
 .dot-char-tokens:hover .dot-char-token-extra{display:none}
+.dot-char-token-hidden{display:none}
+.dot-char-tokens:hover .dot-char-token-hidden{display:block}
 .dot-char-tokens .dot-char-token-wrap:first-child{margin-left:0!important}
 .dot-char-token-wrap{position:relative;margin-left:-8px;transition:margin 0.2s ease}
 .dot-char-token-wrap:hover .dot-char-token-name{display:block}
@@ -1264,15 +1266,27 @@ function updateAllTokens(){
       if(!c.lastSeenUrl) return false;
       return lotThreadId && getThreadIdFromUrl(c.lastSeenUrl) === lotThreadId;
     });
-    el.innerHTML = buildCharTokensHtml(chars).replace('<div class="dot-char-tokens">','').replace(/<\/div>$/,'');
-    // rebuild properly
-    el.outerHTML = buildCharTokensHtml(chars) || el.outerHTML;
+    var html = buildCharTokensHtml(chars);
+    if(html){
+      var tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      var newEl = tmp.firstChild;
+      newEl.setAttribute('data-lot-url', el.getAttribute('data-lot-url'));
+      el.parentNode.replaceChild(newEl, el);
+    }
   });
-  // Update world dots  
+  // Update world dots
   document.querySelectorAll('.dot-char-tokens[data-world-name]').forEach(function(el){
     var worldName = el.getAttribute('data-world-name');
     var chars = getCharsAtWorld(worldName);
-    el.outerHTML = (buildCharTokensHtml(chars)||'<div class="dot-char-tokens" data-world-name="'+worldName+'"></div>').replace('class="dot-char-tokens"','class="dot-char-tokens" data-world-name="'+worldName+'"');
+    var html = buildCharTokensHtml(chars);
+    if(html){
+      var tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      var newEl = tmp.firstChild;
+      newEl.setAttribute('data-world-name', worldName);
+      el.parentNode.replaceChild(newEl, el);
+    }
   });
 }
 
@@ -1320,19 +1334,20 @@ function updateSidebarStats(){
 }
 function buildCharTokensHtml(chars){
   if(!chars||!chars.length) return '';
-  var visible = chars;
-  var extra = 0;
-  if(chars.length>6){extra=chars.length-6;}
+  var MAX=5;
+  var extra=chars.length>MAX?chars.length-MAX:0;
+  // First MAX visible, rest hidden
   return '<div class="dot-char-tokens">' +
-    visible.map(function(c){
-      var name = c.n||'';
-      var initial = name.charAt(0);
-      var inner = c.img
-        ? '<img class="dot-char-token" src="'+c.img+'" alt="'+name+'">'
-        : '<div class="dot-char-token-ph">'+initial+'</div>';
-      return '<div class="dot-char-token-wrap">'+inner+'<div class="dot-char-token-name">'+name+'</div></div>';
-    }).join('') +
-    (extra>0?'<div class="dot-char-token-wrap dot-char-token-extra"><div class="dot-char-token-ph">+'+extra+'</div></div>':'') +
+    chars.map(function(c,i){
+      var name=c.n||'';
+      var inner=c.img
+        ?'<img class="dot-char-token" src="'+c.img+'" alt="'+name+'">'
+        :'<div class="dot-char-token-ph">'+name.charAt(0)+'</div>';
+      // tokens beyond MAX are hidden when stacked, shown when expanded
+      var hidden=i>=MAX?'dot-char-token-hidden':'';
+      return '<div class="dot-char-token-wrap '+hidden+'">'+inner+'<div class="dot-char-token-name">'+name+'</div></div>';
+    }).join('')+
+    (extra>0?'<div class="dot-char-token-wrap dot-char-token-extra"><div class="dot-char-token-ph">+'+extra+'</div></div>':'')+
   '</div>';
 }
 function getCharsAtLot(lot){
