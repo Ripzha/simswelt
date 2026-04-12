@@ -390,23 +390,20 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
   <div id="right">
     <div>
       <div class="sec-label">Zuletzt aktiv</div>
-      <div class="activity-item"><div class="activity-dot" style="background:#5a6a7a;box-shadow:0 0 5px #5a6a7a"></div><div><div class="activity-name">Blaze</div><div class="activity-world">Windenburg</div></div></div>
-      <div class="activity-item"><div class="activity-dot" style="background:#c8a02a;box-shadow:0 0 5px #c8a02a"></div><div><div class="activity-name">Vaas</div><div class="activity-world">Del Sol Valley</div></div></div>
-      <div class="activity-item"><div class="activity-dot" style="background:#3a4a7a;box-shadow:0 0 5px #3a4a7a"></div><div><div class="activity-name">Artjom</div><div class="activity-world">Willow Creek</div></div></div>
-      <div class="activity-item"><div class="activity-dot" style="background:#4a8a3a;box-shadow:0 0 5px #4a8a3a"></div><div><div class="activity-name">Alma</div><div class="activity-world">Brindleton Bay</div></div></div>
-      <div class="activity-item"><div class="activity-dot" style="background:#c87a2a;box-shadow:0 0 5px #c87a2a"></div><div><div class="activity-name">Dennah</div><div class="activity-world">Granite Falls</div></div></div>
+      <div id="sidebar-activity"></div>
     </div>
     <div>
       <div class="sec-label">Online</div>
-      <div class="online-item"><div style="width:6px;height:6px;border-radius:50%;background:#4aaa6a"></div>Ripzha</div>
-      <div class="online-item"><div style="width:6px;height:6px;border-radius:50%;background:#4aaa6a"></div>Murloc</div>
+      <div id="sidebar-online"><div class="online-item"><div style="width:6px;height:6px;border-radius:50%;background:#4aaa6a"></div>Ripzha</div><div class="online-item"><div style="width:6px;height:6px;border-radius:50%;background:#4aaa6a"></div>Murloc</div></div>
     </div>
     <div>
       <div class="sec-label">Stats</div>
+      <div id="sidebar-stats">
       <div class="stat-row"><span class="stat-key">Posts</span><span>7270</span></div>
       <div class="stat-row"><span class="stat-key">Themen</span><span>722</span></div>
       <div class="stat-row"><span class="stat-key">Mitglieder</span><span>39</span></div>
-      <div class="stat-row"><span class="stat-key">Welten</span><span>29</span></div>
+      <div class="stat-row"><span class="stat-key">Welten</span><span id="stat-welten">29</span></div>
+      </div>
     </div>
     <div id="discord-btn" onclick="window.open('https://discord.gg/FGB8Mfj','_blank')">
       <span style="font-size:14px">💬</span>
@@ -1184,6 +1181,7 @@ const otherworlds=[
 // ═══════════════════════════════════════════
 // RELOAD PERSISTENCE
 window.addEventListener('load',function(){
+  updateSidebarStats();
   try{
     var saved=sessionStorage.getItem('atlas_world');
     if(saved){
@@ -1283,6 +1281,49 @@ function updateAllTokens(){
       return '<div class="dot-char-token-wrap">'+inner+'<div class="dot-char-token-name">'+c.n+'</div></div>';
     }).join('') + (chars.length>6?'<div class="dot-char-token-ph">+'+(chars.length-6)+'</div>':'');
   });
+}
+
+// Dot colors per world type
+var WORLD_COLORS={'Willow Creek':'#4a8a3a','Oasis Springs':'#c87a2a','Newcrest':'#3a7a8a','Forgotten Hollow':'#5a3a8a','Brindleton Bay':'#3a6aaa','Del Sol Valley':'#c8a02a','Strangerville':'#8a3a3a','Sulani':'#2a8aaa','Glimmerbrook':'#7a3a9a','Britechester':'#3a4a7a','Evergreen Harbor':'#4a7a5a','Mt. Komorebi':'#5a8aaa','Henford-on-Bagley':'#6a8a3a','Tartosa':'#c84a6a','Moonwood Mill':'#4a3a6a','Windenburg':'#5a6a7a','San Myshuno':'#7a4a3a','Granite Falls':'#4a6a3a','Chestnut Ridge':'#aa7a2a','Copperdale':'#6a5a3a','San Sequoia':'#3a7a5a','Bloodmoon Valley':'#6a2a4a'};
+
+function updateSidebarActivity(){
+  var el=document.getElementById('sidebar-activity');
+  if(!el||!CHARS.length)return;
+  // Get chars with lastSeenName, sort by most recent (by array order = sheet order)
+  var active=CHARS.filter(function(c){return c.lastSeenName&&c.lastSeenUrl;});
+  // Deduplicate by name, keep first occurrence
+  var seen=new Set();
+  var unique=active.filter(function(c){if(seen.has(c.n))return false;seen.add(c.n);return true;});
+  var top=unique.slice(0,8);
+  el.innerHTML=top.map(function(c){
+    var color=WORLD_COLORS[c.lastSeenName]||'#4a6a7a';
+    var nameShort=c.n.split(' ')[0];
+    return '<div class="activity-item" style="cursor:pointer" data-url="'+c.lastSeenUrl+'" title="'+c.n+'">'
+      +'<div class="activity-dot" style="background:'+color+';box-shadow:0 0 5px '+color+'"></div>'
+      +'<div><div class="activity-name">'+nameShort+'</div><div class="activity-world">'+c.lastSeenName+'</div></div>'
+      +'</div>';
+  }).join('');
+  el.querySelectorAll('[data-url]').forEach(function(item){
+    item.addEventListener('click',function(){window.open(this.getAttribute('data-url'),'_blank');});
+  });
+}
+
+function updateSidebarStats(){
+  var weltenEl=document.getElementById('stat-welten');
+  if(weltenEl) weltenEl.textContent=worlds.length+otherworlds.length;
+  // Fetch live forum stats from Apps Script
+  fetch(SCRIPT_URL+'?action=stats')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d.posts&&!d.topics) return;
+      var stats=document.getElementById('sidebar-stats');
+      if(!stats) return;
+      stats.innerHTML=
+        '<div class="stat-row"><span class="stat-key">Posts</span><span>'+(d.posts||'–')+'</span></div>'+
+        '<div class="stat-row"><span class="stat-key">Themen</span><span>'+(d.topics||'–')+'</span></div>'+
+        '<div class="stat-row"><span class="stat-key">Mitglieder</span><span>'+(d.members||'–')+'</span></div>'+
+        '<div class="stat-row"><span class="stat-key">Welten</span><span>'+(worlds.length+otherworlds.length)+'</span></div>';
+    }).catch(function(){});
 }
 function buildCharTokensHtml(chars){
   if(!chars||!chars.length) return '';
@@ -2015,8 +2056,9 @@ async function fetchCharsFromScript(){
         charFetched=true;
         charRenderFiltered();
         buildPlayerFilter();
-        setTimeout(fitCharGrid, 50);
+        setTimeout(fitCharGrid, 150);
         updateAllTokens();
+        updateSidebarActivity();
       }
     }
   }catch(e){}
@@ -2046,8 +2088,9 @@ async function fetchCharsFromScript(){
   }catch(e){}
   charRenderFiltered();
   buildPlayerFilter();
-  setTimeout(fitCharGrid, 50);
+  setTimeout(fitCharGrid, 150);
   updateAllTokens();
+  updateSidebarActivity();
   // Rebuild age filter if open
   if(document.getElementById('char-age-bar')&&document.getElementById('char-age-bar').classList.contains('open'))buildAgeFilter();
 }
@@ -2323,7 +2366,8 @@ window.addEventListener('hashchange',function(){
   else if(!h&&document.getElementById('char-container').classList.contains('open'))closeCharView();
 });
 if(location.hash.match(/^#chars-/)){
-  window.addEventListener('load',function(){openCharView(location.hash.replace('#chars-',''));});
+  window.addEventListener('load',function(){
+  updateSidebarStats();openCharView(location.hash.replace('#chars-',''));});
 }
 
 
