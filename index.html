@@ -96,6 +96,13 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .lot-dot:hover .lot-inner,.lot-dot:active .lot-inner{width:13px!important;height:13px!important}
 .lot-pulse{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:50%;border:1.5px solid #4aaa6a;animation:pulse 1.4s infinite;pointer-events:none;display:none}
 .lot-dot.isactive .lot-pulse{display:block}
+
+.dot-char-tokens{position:absolute;top:18px;left:50%;transform:translateX(-50%);display:flex;gap:2px;pointer-events:all;z-index:5;flex-wrap:wrap;justify-content:center;max-width:80px}
+.dot-char-token{width:18px;height:18px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(74,170,106,0.8);cursor:default;box-shadow:0 1px 4px rgba(0,0,0,0.8);position:relative;flex-shrink:0}
+.dot-char-token-ph{width:18px;height:18px;border-radius:50%;background:rgba(74,170,106,0.3);border:1.5px solid rgba(74,170,106,0.6);display:flex;align-items:center;justify-content:center;font-size:8px;color:#4aaa6a;cursor:default;box-shadow:0 1px 4px rgba(0,0,0,0.8);flex-shrink:0}
+.dot-char-token-wrap{position:relative;display:inline-block}
+.dot-char-token-wrap:hover .dot-char-token-name{display:block}
+.dot-char-token-name{display:none;position:absolute;bottom:22px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.9);color:#fff;font-size:9px;white-space:nowrap;padding:2px 6px;border-radius:4px;pointer-events:none;z-index:100;border:0.5px solid rgba(255,255,255,0.15)}
 .lot-label{position:absolute;top:13px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:11px;font-weight:500;text-shadow:0 1px 4px #000,0 0 8px #000;pointer-events:none;text-align:center;line-height:1.3}
 .lot-sublabel{font-size:10px;color:rgba(255,255,255,0.7);font-weight:400;display:block}
 .lot-tooltip{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.95);border-radius:6px;font-size:11px;white-space:nowrap;z-index:20;pointer-events:none;display:none;box-shadow:0 4px 14px rgba(0,0,0,0.6)}
@@ -1244,6 +1251,21 @@ function getThreadIdFromUrl(url){
   return m ? m[1] : null;
 }
 
+
+function buildCharTokensHtml(chars){
+  if(!chars||!chars.length) return '';
+  return '<div class="dot-char-tokens">' +
+    chars.slice(0,6).map(function(c){
+      var name = c.n||'';
+      var initial = name.charAt(0);
+      var inner = c.img
+        ? '<img class="dot-char-token" src="'+c.img+'" alt="'+name+'">'
+        : '<div class="dot-char-token-ph">'+initial+'</div>';
+      return '<div class="dot-char-token-wrap">'+inner+'<div class="dot-char-token-name">'+name+'</div></div>';
+    }).join('') +
+    (chars.length>6?'<div class="dot-char-token-ph" title="+'+( chars.length-6)+' weitere">+</div>':'') +
+  '</div>';
+}
 function getCharsAtLot(lot){
   if(!lot||!lot.url) return [];
   var lotThreadId = getThreadIdFromUrl(lot.url);
@@ -1530,7 +1552,9 @@ function renderLots(w){
       const _tt=lot.img
         ?`<div class="lot-tooltip" style="${_tb};padding:0;overflow:hidden;min-width:160px"><img src="${lot.img}" style="width:100%;height:90px;object-fit:cover;display:block"><div style="padding:7px 10px">${_ti}</div>${tokensHtml}</div>`
         :`<div class="lot-tooltip" style="${_tb};padding:6px 10px">${_ti}${tokensHtml}</div>`;
-      ld.innerHTML=(lot.info?`<div class="lot-inner" style="width:11px;height:11px;background:${_dotBg};box-shadow:${_dotShadow};transform:rotate(45deg);border-radius:2px"></div>`:`<div class="lot-pulse"></div><div class="lot-inner" style="width:12px;height:12px;background:${_dotBg};box-shadow:${_dotShadow}"></div>`)+`<div class="lot-label">${(()=>{const p=parseLotLabel(lot);return p.sub?`${p.num}<span class="lot-sublabel">${p.sub}</span>`:p.num;})()}</div>${_tt}`;
+      const _lotChars = lot.info ? [] : getCharsAtLot(lot);
+      const _tokensHtml = buildCharTokensHtml(_lotChars);
+      ld.innerHTML=(lot.info?`<div class="lot-inner" style="width:11px;height:11px;background:${_dotBg};box-shadow:${_dotShadow};transform:rotate(45deg);border-radius:2px"></div>`:`<div class="lot-pulse"></div><div class="lot-inner" style="width:12px;height:12px;background:${_dotBg};box-shadow:${_dotShadow}"></div>`)+`<div class="lot-label">${(()=>{const p=parseLotLabel(lot);return p.sub?`${p.num}<span class="lot-sublabel">${p.sub}</span>`:p.num;})()}</div>${_tokensHtml}${_tt}`;
       if(!lot.info){ld.addEventListener('click',e=>{
         e.stopPropagation();
         if(calibWorldMode||posMode)return;
@@ -1900,7 +1924,11 @@ function openCharView(type){
   var sub=document.getElementById('char-subtitle');
   if(grid)grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:22px;padding:60px;grid-column:1/-1;text-align:center">⏳</div>';
   if(sub)sub.textContent='Lade...';
-  fetchCharsFromScript();
+  // fitCharGrid nach dem Öffnen damit Grid-Grösse bekannt ist
+  requestAnimationFrame(function(){requestAnimationFrame(function(){
+    fitCharGrid();
+    fetchCharsFromScript();
+  });});
 }
 
 function fitCharGrid(){
