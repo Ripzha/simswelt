@@ -82,7 +82,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .world-dot:hover .dot-inner{width:12px!important;height:12px!important}
 .dot-pulse{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border-radius:50%;opacity:0;border-width:1.5px;border-style:solid;animation:pulse 1.4s infinite;pointer-events:none}
 .world-dot:hover .dot-pulse{opacity:0.5}
-.dot-label{position:absolute;top:12px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;font-weight:500;text-shadow:0 1px 4px #000,0 0 8px #000;pointer-events:none}
+.dot-label{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;font-weight:500;text-shadow:0 1px 4px #000,0 0 8px #000;pointer-events:none}
 .hover-card{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);background:rgba(5,12,22,0.97);border-radius:9px;overflow:hidden;z-index:30;pointer-events:none;width:165px;display:none}
 .world-dot:hover .hover-card{display:block}
 .hover-img{width:100%;height:95px;object-fit:cover;display:block}
@@ -97,7 +97,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .lot-pulse{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:50%;border:1.5px solid #4aaa6a;animation:pulse 1.4s infinite;pointer-events:none;display:none}
 .lot-dot.isactive .lot-pulse{display:block}
 
-.dot-char-tokens{position:absolute;top:16px;left:50%;transform:translateX(-50%);height:20px;pointer-events:all;z-index:5;display:flex;align-items:center}
+.dot-char-tokens{position:absolute;top:18px;left:50%;transform:translateX(-50%);height:20px;pointer-events:all;z-index:5;display:flex;align-items:center}
 .dot-char-tokens:hover .dot-char-token-wrap{margin-left:4px}
 .dot-char-tokens:hover .dot-char-token,
 .dot-char-tokens:hover img.dot-char-token{width:27px!important;height:27px!important}
@@ -110,8 +110,8 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .dot-char-token-wrap:hover .dot-char-token-name{display:block}
 .dot-char-token,img.dot-char-token{width:20px;height:20px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(74,170,106,0.8);cursor:default;box-shadow:0 1px 4px rgba(0,0,0,0.8);display:block}
 .dot-char-token-ph{width:20px;height:20px;border-radius:50%;background:rgba(74,170,106,0.3);border:1.5px solid rgba(74,170,106,0.6);display:flex;align-items:center;justify-content:center;font-size:8px;color:#4aaa6a;cursor:default;box-shadow:0 1px 4px rgba(0,0,0,0.8)}
-.dot-char-token-name{display:none;position:absolute;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.92);color:#fff;font-size:9px;white-space:nowrap;padding:2px 6px;border-radius:4px;pointer-events:none;z-index:100;border:0.5px solid rgba(255,255,255,0.15)}
-.lot-label{position:absolute;top:13px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:11px;font-weight:500;text-shadow:0 1px 4px #000,0 0 8px #000;pointer-events:none;text-align:center;line-height:1.3}
+.dot-char-token-name{display:none;position:absolute;top:24px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.92);color:#fff;font-size:9px;white-space:nowrap;padding:2px 6px;border-radius:4px;pointer-events:none;z-index:100;border:0.5px solid rgba(255,255,255,0.15)}
+.lot-label{position:absolute;bottom:13px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:11px;font-weight:500;text-shadow:0 1px 4px #000,0 0 8px #000;pointer-events:none;text-align:center;line-height:1.3}
 .lot-sublabel{font-size:10px;color:rgba(255,255,255,0.7);font-weight:400;display:block}
 .lot-tooltip{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.95);border-radius:6px;font-size:11px;white-space:nowrap;z-index:20;pointer-events:none;display:none;box-shadow:0 4px 14px rgba(0,0,0,0.6)}
 .lot-dot:hover .lot-tooltip{display:block}
@@ -2103,9 +2103,11 @@ async function fetchCharsFromScript(){
       try{sessionStorage.setItem('atlas_chars_cache',JSON.stringify(fresh));}catch(e){}
     }
   }catch(e){}
-  charRenderFiltered();
-  buildPlayerFilter();
-  
+  // Only render char grid if view is open
+  if(document.getElementById('char-container')&&document.getElementById('char-container').classList.contains('open')){
+    charRenderFiltered();
+    buildPlayerFilter();
+  }
   updateAllTokens();
   updateSidebarActivity();
   // Rebuild age filter if open
