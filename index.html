@@ -1342,6 +1342,13 @@ function updateSidebarStats(){
         '<div class="stat-row"><span class="stat-key">Themen</span><span>'+(d.topics||'–')+'</span></div>'+
         '<div class="stat-row"><span class="stat-key">Mitglieder</span><span>'+(d.members||'–')+'</span></div>'+
         '<div class="stat-row"><span class="stat-key">Welten</span><span>'+(worlds.length+otherworlds.length)+'</span></div>';
+    // Update online users
+    if(d.online&&d.online.length){
+      var onlineEl=document.getElementById('sidebar-online');
+      if(onlineEl) onlineEl.innerHTML=d.online.map(function(u){
+        return '<div class="online-item"><div style="width:6px;height:6px;border-radius:50%;background:#4aaa6a"></div>'+u+'</div>';
+      }).join('');
+    }
     }).catch(function(){});
 }
 function buildCharTokensHtml(chars){
