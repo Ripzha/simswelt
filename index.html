@@ -2385,7 +2385,8 @@ window.addEventListener('hashchange',function(){
 if(location.hash.match(/^#chars-/)){
   window.addEventListener('load',function(){
   updateSidebarStats();
-  setTimeout(updateAllTokens, 3000);
+  // Chars im Hintergrund laden für Tokens + Sidebar
+  fetchCharsFromScript();
   openCharView(location.hash.replace('#chars-',''));});
 }
 
