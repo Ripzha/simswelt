@@ -1237,6 +1237,33 @@ function startPosForLot(wname,idx){
   posMode=true;document.getElementById('world-container').style.cursor='crosshair';document.getElementById('calib-mode-bar').style.display='block';
   posModeCallback=(x,y)=>{customLots[wname][idx].x=x;customLots[wname][idx].y=y;saveLots();renderLots(currentWorld);renderAdminContent();};
 }
+
+function getThreadIdFromUrl(url){
+  if(!url) return null;
+  var m = url.match(/\/t(\d+)f/);
+  return m ? m[1] : null;
+}
+
+function getCharsAtLot(lot){
+  if(!lot||!lot.url) return [];
+  var lotThreadId = getThreadIdFromUrl(lot.url);
+  return CHARS.filter(function(c){
+    if(!c.lastSeenUrl) return false;
+    // Match by thread ID in URL
+    if(lotThreadId){
+      var charThreadId = getThreadIdFromUrl(c.lastSeenUrl);
+      if(charThreadId === lotThreadId) return true;
+    }
+    return false;
+  });
+}
+
+function getCharsAtWorld(worldName){
+  if(!worldName) return [];
+  return CHARS.filter(function(c){
+    return c.lastSeenName && c.lastSeenName.toLowerCase()===worldName.toLowerCase();
+  });
+}
 function parseLotLabel(lot){
   const name=lot.name;
   if(lot.nr)return{num:lot.nr,sub:name};
@@ -1492,9 +1519,17 @@ function renderLots(w){
       const _ti=_nameHtml+`<div style="font-size:10px;color:${lot.info?'rgba(200,160,80,0.9)':lot.outdoor?'rgba(80,190,170,0.9)':lot.active?'#4aaa6a':'rgba(255,255,255,0.4)'}">${lot.info?'◆ Orientierungspunkt':lot.outdoor?'🌿 Öffentlicher Bereich':lot.active?'● Aktiv':'↗ Thread öffnen'}</div>`;
       const _dotBg=lot.info?'rgba(200,160,80,0.9)':lot.outdoor?'rgba(80,190,170,0.75)':lot.active?'#4aaa6a':'rgba(255,255,255,0.5)';
       const _dotShadow=lot.info?'0 0 8px rgba(200,160,80,0.7)':lot.outdoor?'0 0 8px rgba(80,190,170,0.6)':lot.active?'0 0 10px #4aaa6a':'none';
+      // Char tokens für dieses Lot
+      const lotChars = getCharsAtLot(lot);
+      const tokensHtml = lotChars.length ? `<div style="display:flex;flex-wrap:wrap;gap:3px;padding:5px 7px 3px;border-top:0.5px solid rgba(255,255,255,0.08)">${
+        lotChars.slice(0,8).map(c=>c.img
+          ?`<img src="${c.img}" title="${c.n}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(74,170,106,0.6)">`
+          :`<div title="${c.n}" style="width:22px;height:22px;border-radius:50%;background:rgba(74,170,106,0.3);border:1.5px solid rgba(74,170,106,0.6);display:flex;align-items:center;justify-content:center;font-size:9px;color:#4aaa6a">${c.n.charAt(0)}</div>`
+        ).join('')
+      }${lotChars.length>8?`<div style="font-size:9px;color:rgba(255,255,255,0.3);padding:6px 2px">+${lotChars.length-8}</div>`:''}</div>` : '';
       const _tt=lot.img
-        ?`<div class="lot-tooltip" style="${_tb};padding:0;overflow:hidden;min-width:160px"><img src="${lot.img}" style="width:100%;height:90px;object-fit:cover;display:block"><div style="padding:7px 10px">${_ti}</div></div>`
-        :`<div class="lot-tooltip" style="${_tb};padding:6px 10px">${_ti}</div>`;
+        ?`<div class="lot-tooltip" style="${_tb};padding:0;overflow:hidden;min-width:160px"><img src="${lot.img}" style="width:100%;height:90px;object-fit:cover;display:block"><div style="padding:7px 10px">${_ti}</div>${tokensHtml}</div>`
+        :`<div class="lot-tooltip" style="${_tb};padding:6px 10px">${_ti}${tokensHtml}</div>`;
       ld.innerHTML=(lot.info?`<div class="lot-inner" style="width:11px;height:11px;background:${_dotBg};box-shadow:${_dotShadow};transform:rotate(45deg);border-radius:2px"></div>`:`<div class="lot-pulse"></div><div class="lot-inner" style="width:12px;height:12px;background:${_dotBg};box-shadow:${_dotShadow}"></div>`)+`<div class="lot-label">${(()=>{const p=parseLotLabel(lot);return p.sub?`${p.num}<span class="lot-sublabel">${p.sub}</span>`:p.num;})()}</div>${_tt}`;
       if(!lot.info){ld.addEventListener('click',e=>{
         e.stopPropagation();
