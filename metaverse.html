@@ -587,7 +587,6 @@ async function openPost(idx) {
         }
         renderContent(d.content || cont, isSlideshow ? [] : (d.images || []));
         if (d.image && !isSlideshow) { $('pm-cover-img').src=d.image; $('pm-cover').style.display=''; }
-      }
       }).catch(()=>{});
     fetchComments(url);
   }
