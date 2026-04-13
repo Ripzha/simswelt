@@ -45,6 +45,30 @@ button:active{transform:scale(.96)}
 .hdr-right{display:flex;gap:4px}
 .hdr-btn{padding:5px 12px;border-radius:6px;font-size:11px;color:var(--sub);letter-spacing:.3px;transition:background .13s,color .13s}
 .hdr-btn:hover{background:var(--s2);color:var(--txt)}
+.hdr-btn.primary{background:var(--acc);color:#fff !important;border-radius:6px}
+.hdr-btn.primary:hover{background:#c4832e;}
+
+/* ── INFO POPOVER ── */
+.info-wrap{position:relative}
+.info-btn{
+  width:28px;height:28px;border-radius:50%;
+  font-size:13px;color:var(--dim);
+  display:flex;align-items:center;justify-content:center;
+  transition:color .13s,background .13s;
+}
+.info-btn:hover{color:var(--acc);background:var(--s2)}
+.info-pop{
+  display:none;position:absolute;top:calc(100% + 10px);right:0;
+  width:360px;background:var(--s2);border:0.5px solid var(--bdr2);
+  border-radius:10px;padding:16px 18px;z-index:100;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  animation:popIn .15s ease;
+  max-height:70vh;overflow-y:auto;
+}
+@keyframes popIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.info-pop.open{display:block}
+.info-pop-title{font-size:11px;font-weight:500;color:var(--txt);margin-bottom:6px;letter-spacing:.3px}
+.info-pop-text{font-size:12px;color:var(--sub);line-height:1.6}
 
 /* ── PAGE ── */
 .page{max-width:1200px;margin:0 auto;padding:0 32px 80px}
@@ -250,6 +274,21 @@ button:active{transform:scale(.96)}
 <header class="hdr">
   <span class="hdr-logo">Meta<em>verse</em></span>
   <div class="hdr-right">
+    <div class="info-wrap">
+      <button class="info-btn" onclick="toggleInfo()" title="Was ist das hier?">ⓘ</button>
+      <div class="info-pop" id="info-pop">
+        <div class="info-pop-title">Metaverse: Interviews von Euch für Euch</div>
+        <div class="info-pop-text">
+          In diesem Schreibprojekt erlebt ihr Charaktere und Autoren ausserhalb des RPs auf eine Art, die sie im RP selbst nicht ausleben können. Gestalte deine Beiträge frei, zum Thema 4. Wand und Metadiskussionen! Ob aus der Perspektive deines Lieblingscharakters, als Erzähler von aussen oder durch eine innovative Darstellungsform — die Bühne gehört dir. Jeder Beitrag ist einzigartig, genau wie die Vielfalt unserer Sim-Welt.<br><br>
+          In diesem Schreibprojekt geht es nicht nur darum, Geschichten zu teilen, sondern auch darum, wie jeder Charakter individuell und authentisch erscheint. Wie tickt er? Wie tickt ihr? Die Untersuchung, welche Informationen jeder Charakter aus Spielern herauskitzeln könnte, wird zu einer wertvollen Übung — sie vertieft die Interaktionen innerhalb der Geschichte und entwickelt die Charaktere weiter.<br><br>
+          <span style="color:var(--dim);font-size:11px">
+            Hinweise: Der Blog, die Gespräche und Informationen sind nicht Rollenspiel-relevant. Regel 1.2 gilt auch hier. Interviews in jeder Kombination (Charakter/Spieler, Charakter/Charakter, Spieler/Spieler) sind erlaubt.<br><br>
+            Um einen Beitrag zu schreiben: „Neuen Artikel erstellen" klicken und vor dem Abschicken rechts <strong style="color:var(--sub)">Metaverse</strong> auswählen.
+          </span>
+        </div>
+      </div>
+    </div>
+    <button class="hdr-btn primary" onclick="openNewPost()">+ Beitrag</button>
     <button class="hdr-btn" onclick="window.open('https://www.simsforumrpg.de/blog-c1375-Metaverse.html','_blank')">Forum</button>
     <button class="hdr-btn" onclick="loadFeed(true)" title="Neu laden">↺</button>
   </div>
@@ -587,6 +626,32 @@ document.addEventListener('keydown',e=>{
   if(!$('pm-ov').classList.contains('open')||!slideImages.length) return;
   if(e.key==='ArrowRight')slideNav(1);
   if(e.key==='ArrowLeft')slideNav(-1);
+});
+
+function openNewPost() {
+  const w=720,h=680;
+  const left=Math.max(0,(screen.width-w)/2);
+  const top=Math.max(0,(screen.height-h)/2);
+  xPopup=window.open(
+    XOBOR+'/blog_new.php',
+    'metaverse-new-post',
+    `width=${w},height=${h},left=${left},top=${top},scrollbars=yes,resizable=yes`
+  );
+  // Nach Schliessen Feed neu laden
+  clearInterval(pwTimer);
+  pwTimer=setInterval(()=>{
+    if(!xPopup||xPopup.closed){
+      clearInterval(pwTimer);xPopup=null;
+      setTimeout(()=>loadFeed(false),1200);
+      toast('Feed wird aktualisiert…');
+    }
+  },900);
+}
+
+function toggleInfo(){$('info-pop').classList.toggle('open');}
+document.addEventListener('click',e=>{
+  const pop=$('info-pop');
+  if(pop?.classList.contains('open')&&!e.target.closest('.info-wrap')) pop.classList.remove('open');
 });
 
 loadFeed();
