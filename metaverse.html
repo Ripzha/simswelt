@@ -6,434 +6,331 @@
 <title>Metaverse – SimsForumRPG</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
-/* ─────────────────────────────────────────────────────
-   TOKENS
-───────────────────────────────────────────────────── */
 :root {
-  --bg:    #0b0b10;
-  --s1:    #13131c;
-  --s2:    #1a1a26;
-  --s3:    #222232;
-  --bdr:   rgba(255,255,255,0.08);
-  --bdr2:  rgba(255,255,255,0.14);
-  --acc:   #8b7fff;
-  --acc2:  #4ecdc4;
-  --gold:  #c8a060;
-  --txt:   #ede8ff;
-  --sub:   rgba(237,232,255,0.45);
-  --dim:   rgba(237,232,255,0.22);
-  --max:   680px;
-  --serif: 'DM Serif Display', Georgia, serif;
-  --sans:  'DM Sans', system-ui, sans-serif;
+  --bg:   #0b0b10;
+  --s1:   #111118;
+  --s2:   #18181f;
+  --s3:   #222230;
+  --bdr:  rgba(255,255,255,0.07);
+  --bdr2: rgba(255,255,255,0.13);
+  --acc:  #7b6fff;
+  --acc2: #4ecdc4;
+  --txt:  #eae6ff;
+  --sub:  rgba(234,230,255,0.45);
+  --dim:  rgba(234,230,255,0.22);
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans: 'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:15px;min-height:100vh;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{display:block;user-select:none}
+button{font-family:inherit;background:none;border:none;cursor:pointer;color:var(--sub);transition:color .14s,transform .12s}
+button:hover{color:var(--txt)}
+button:active{transform:scale(.96)}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--s3);border-radius:4px}
+
+/* ── HEADER ── */
+.hdr{
+  position:sticky;top:0;z-index:50;
+  background:rgba(11,11,16,.93);backdrop-filter:blur(20px);
+  border-bottom:0.5px solid var(--bdr);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;height:52px;
+}
+.hdr-logo{font-family:var(--serif);font-size:19px;letter-spacing:.2px}
+.hdr-logo em{color:var(--acc);font-style:normal}
+.hdr-right{display:flex;align-items:center;gap:6px}
+.hdr-btn{
+  padding:5px 12px;border-radius:7px;font-size:11px;
+  letter-spacing:.3px;color:var(--sub);
+  transition:background .13s,color .13s;
+}
+.hdr-btn:hover{background:var(--s2);color:var(--txt)}
+
+/* ── PAGE ── */
+.page{max-width:900px;margin:0 auto;padding:0 24px 100px}
+
+/* ── HERO ── */
+.hero{padding:44px 0 36px}
+.hero-eye{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--acc);margin-bottom:10px}
+.hero-title{font-family:var(--serif);font-size:38px;font-weight:400;line-height:1.15;margin-bottom:12px}
+.hero-sub{font-size:14px;color:var(--sub);line-height:1.7;max-width:460px}
+
+/* ── BACK BTN ── */
+.back-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12px;color:var(--sub);padding:6px 0;margin-bottom:28px;
+}
+.back-btn:hover{color:var(--txt)}
+
+/* ══════════════════════════════════════════
+   SERIEN-KACHELN  (Startansicht)
+══════════════════════════════════════════ */
+.series-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:14px;
+  margin-bottom:48px;
+}
+.series-card{
+  background:var(--s1);
+  border:0.5px solid var(--bdr);
+  border-radius:12px;
+  padding:22px;
+  cursor:pointer;
+  transition:background .14s,border-color .14s,transform .14s;
+  animation:fadeUp .3s ease both;
+}
+.series-card:hover{background:var(--s2);border-color:var(--bdr2);transform:translateY(-2px)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.series-card:nth-child(1){animation-delay:.04s}
+.series-card:nth-child(2){animation-delay:.09s}
+.series-card:nth-child(3){animation-delay:.14s}
+.series-card:nth-child(4){animation-delay:.19s}
+
+.sc-icon{font-size:26px;margin-bottom:14px;display:block}
+.sc-title{font-family:var(--serif);font-size:18px;font-weight:400;margin-bottom:5px;line-height:1.2}
+.sc-desc{font-size:12px;color:var(--sub);line-height:1.55;margin-bottom:16px}
+.sc-foot{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:14px;border-top:0.5px solid var(--bdr);
+}
+.sc-count{font-size:11px;color:var(--dim)}
+.sc-arrow{font-size:13px;color:var(--acc)}
+
+/* Sonstige-Kachel */
+.series-card.misc .sc-icon{filter:grayscale(1);opacity:.5}
+
+/* ══════════════════════════════════════════
+   NEUESTE POSTS  (auf Startseite, klein)
+══════════════════════════════════════════ */
+.sec-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:14px}
+
+.latest-list{display:flex;flex-direction:column;gap:0}
+.latest-item{
+  display:flex;align-items:center;gap:14px;
+  padding:12px 0;border-bottom:0.5px solid var(--bdr);
+  cursor:pointer;transition:background .11s;
+}
+.latest-item:hover{background:rgba(255,255,255,.02);margin:0 -12px;padding-left:12px;padding-right:12px}
+.li-series{
+  font-size:9px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--acc);white-space:nowrap;width:120px;flex-shrink:0;
+  overflow:hidden;text-overflow:ellipsis;
+}
+.li-title{flex:1;font-size:13px;color:rgba(234,230,255,.85);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.li-date{font-size:11px;color:var(--dim);white-space:nowrap;flex-shrink:0}
+.li-comic{
+  font-size:9px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--acc2);border:0.5px solid rgba(78,205,196,.3);
+  border-radius:3px;padding:1px 5px;flex-shrink:0;
 }
 
-/* ─────────────────────────────────────────────────────
-   BASE
-───────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body {
-  background: var(--bg); color: var(--txt);
-  font-family: var(--sans); font-size: 15px;
-  min-height: 100vh; overflow-x: hidden;
+/* ══════════════════════════════════════════
+   SERIEN-VIEW  (Post-Liste)
+══════════════════════════════════════════ */
+.series-header{
+  padding:32px 0 24px;
+  border-bottom:0.5px solid var(--bdr);
+  margin-bottom:28px;
 }
-a { color: inherit; text-decoration: none; }
-button {
-  font-family: inherit; background: none; border: none;
-  cursor: pointer; color: var(--sub);
-  transition: color .15s, transform .12s;
-}
-button:hover { color: var(--txt); }
-button:active { transform: scale(.96); }
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-thumb { background: var(--s3); border-radius: 4px; }
+.series-header .sh-eye{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:8px}
+.series-header h2{font-family:var(--serif);font-size:28px;font-weight:400;line-height:1.2;margin-bottom:8px}
+.series-header p{font-size:13px;color:var(--sub);line-height:1.6}
 
-/* ─────────────────────────────────────────────────────
-   HEADER
-───────────────────────────────────────────────────── */
-.hdr {
-  position: sticky; top: 0; z-index: 50;
-  background: rgba(11,11,16,.92); backdrop-filter: blur(20px);
-  border-bottom: 0.5px solid var(--bdr);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 20px; height: 52px;
+.post-list{display:flex;flex-direction:column;gap:0}
+.post-row{
+  display:grid;grid-template-columns:1fr 70px;gap:14px;align-items:center;
+  padding:18px 0;border-bottom:0.5px solid var(--bdr);
+  cursor:pointer;transition:background .11s;
 }
-.hdr-left { display: flex; align-items: center; gap: 14px; }
-.hdr-logo {
-  font-family: var(--serif); font-size: 18px; letter-spacing: .3px;
-  color: var(--txt);
+.post-row:hover{background:rgba(255,255,255,.02);margin:0 -14px;padding-left:14px;padding-right:14px}
+.pr-main{}
+.pr-tags{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.pr-comic-badge{
+  font-size:9px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--acc2);border:0.5px solid rgba(78,205,196,.35);
+  border-radius:3px;padding:2px 6px;
 }
-.hdr-logo span { color: var(--acc); }
-.hdr-tag {
-  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
-  color: var(--dim); border: 0.5px solid var(--bdr); border-radius: 3px;
-  padding: 2px 7px;
-}
-.hdr-right { display: flex; align-items: center; gap: 4px; }
-.hdr-btn {
-  padding: 6px 8px; border-radius: 7px; font-size: 11px;
-  color: var(--sub); letter-spacing: .3px;
-  transition: background .14s, color .14s;
-}
-.hdr-btn:hover { background: var(--s2); color: var(--txt); }
-.hdr-btn.active { color: var(--acc); }
+.pr-part{font-size:10px;color:var(--dim);letter-spacing:.5px}
+.pr-title{font-family:var(--serif);font-size:17px;font-weight:400;line-height:1.3;margin-bottom:6px}
+.pr-excerpt{font-size:12px;color:var(--sub);line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pr-meta{display:flex;align-items:center;gap:8px;margin-top:6px}
+.pr-av{width:18px;height:18px;border-radius:50%;background:var(--s3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0}
+.pr-av img{width:100%;height:100%;object-fit:cover}
+.pr-author{font-size:11px;color:var(--sub);font-weight:500}
+.pr-dot{font-size:9px;color:var(--dim)}
+.pr-date{font-size:11px;color:var(--dim)}
+.pr-thumb{width:70px;height:70px;border-radius:6px;background:var(--s2);overflow:hidden}
+.pr-thumb img{width:100%;height:100%;object-fit:cover}
 
-/* ─────────────────────────────────────────────────────
-   PAGE LAYOUT
-───────────────────────────────────────────────────── */
-.page { max-width: var(--max); margin: 0 auto; padding: 0 20px 80px; }
+/* ══════════════════════════════════════════
+   LESE-MODAL
+══════════════════════════════════════════ */
+.ov{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.88);backdrop-filter:blur(12px);overflow-y:auto}
+.ov.open{display:block}
+.pm{
+  max-width:640px;margin:36px auto 80px;
+  background:var(--s1);border:0.5px solid var(--bdr2);border-radius:14px;
+  overflow:hidden;animation:pmIn .2s ease;
+}
+@keyframes pmIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media(max-width:660px){.pm{margin:0;border-radius:0;min-height:100vh}}
 
-/* ─────────────────────────────────────────────────────
-   HERO  (nur in Feed-View)
-───────────────────────────────────────────────────── */
-.hero {
-  padding: 40px 0 32px;
-  border-bottom: 0.5px solid var(--bdr);
-  margin-bottom: 36px;
+.pm-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 20px 11px;border-bottom:0.5px solid var(--bdr);
+  position:sticky;top:0;background:var(--s1);z-index:10;
 }
-.hero-eyebrow {
-  font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase;
-  color: var(--acc); margin-bottom: 12px;
-}
-.hero-title {
-  font-family: var(--serif); font-size: 36px; font-weight: 400;
-  line-height: 1.15; color: var(--txt); margin-bottom: 12px;
-}
-.hero-sub {
-  font-size: 14px; color: var(--sub); line-height: 1.7; max-width: 460px;
-}
+.pm-back{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);padding:3px 0}
+.pm-back:hover{color:var(--txt)}
+.pm-series-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--acc)}
+.pm-ext{display:flex;align-items:center;gap:4px}
+.pm-ext a{font-size:11px;color:var(--dim);padding:4px 8px;border-radius:6px;transition:color .13s,background .13s}
+.pm-ext a:hover{color:var(--txt);background:var(--s2)}
 
-/* ─────────────────────────────────────────────────────
-   SERIES STRIP
-───────────────────────────────────────────────────── */
-.series-strip {
-  display: flex; gap: 8px; overflow-x: auto;
-  scrollbar-width: none; padding-bottom: 4px;
-  margin-bottom: 32px;
-}
-.series-strip::-webkit-scrollbar { display: none; }
-.series-pill {
-  flex-shrink: 0; padding: 6px 14px; border-radius: 20px;
-  font-size: 12px; letter-spacing: .2px;
-  background: var(--s2); border: 0.5px solid var(--bdr);
-  color: var(--sub); cursor: pointer;
-  transition: background .14s, border-color .14s, color .14s;
-  white-space: nowrap;
-}
-.series-pill:hover { background: var(--s3); color: var(--txt); }
-.series-pill.active { background: var(--acc); border-color: var(--acc); color: #fff; }
+/* Hero-Bild */
+.pm-cover{width:100%;background:var(--s2);overflow:hidden;max-height:320px}
+.pm-cover img{width:100%;height:100%;object-fit:cover}
 
-/* ─────────────────────────────────────────────────────
-   SECTION LABEL
-───────────────────────────────────────────────────── */
-.sec-label {
-  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
-  color: var(--dim); margin-bottom: 16px;
-}
+.pm-body{padding:28px 28px 8px}
+.pm-title{font-family:var(--serif);font-size:26px;font-weight:400;line-height:1.25;margin-bottom:16px}
+.pm-meta{display:flex;align-items:center;gap:10px;padding-bottom:20px;border-bottom:0.5px solid var(--bdr);margin-bottom:24px}
+.pm-av{width:28px;height:28px;border-radius:50%;background:var(--s3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:12px}
+.pm-av img{width:100%;height:100%;object-fit:cover}
+.pm-author{font-size:13px;font-weight:500;color:var(--sub)}
+.pm-date{font-size:12px;color:var(--dim)}
 
-/* ─────────────────────────────────────────────────────
-   POST CARDS  –  Magazine Stack
-───────────────────────────────────────────────────── */
-.feed { display: flex; flex-direction: column; gap: 0; }
+/* Inhalt */
+.pm-content{font-size:15px;line-height:1.85;color:rgba(234,230,255,.82);padding:0 28px 8px}
+.pm-content p{margin-bottom:1em}
+.pm-content .inline-img{width:100%;border-radius:8px;margin:16px 0;overflow:hidden}
+.pm-content .inline-img img{width:100%;height:auto}
 
-.post-card {
-  display: grid; grid-template-columns: 1fr auto;
-  gap: 0 18px; padding: 20px 0;
-  border-bottom: 0.5px solid var(--bdr);
-  cursor: pointer;
-  transition: background .12s;
-  animation: fadeUp .3s ease both;
+/* SLIDESHOW  (für Comics / Hinter den Pixeln) */
+.pm-slideshow{padding:0 0 8px}
+.slide-wrap{position:relative;background:#000;overflow:hidden}
+.slide-wrap img{width:100%;height:auto;display:block}
+.slide-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px;background:var(--s1);
 }
-@keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
-.post-card:nth-child(1){animation-delay:.04s}
-.post-card:nth-child(2){animation-delay:.08s}
-.post-card:nth-child(3){animation-delay:.12s}
-.post-card:nth-child(4){animation-delay:.16s}
-.post-card:nth-child(5){animation-delay:.20s}
+.slide-nav button{
+  padding:6px 14px;border-radius:7px;font-size:12px;
+  background:var(--s2);border:0.5px solid var(--bdr);color:var(--sub);
+  transition:background .12s,color .12s;
+}
+.slide-nav button:hover:not(:disabled){background:var(--s3);color:var(--txt)}
+.slide-nav button:disabled{opacity:.3;cursor:default;transform:none}
+.slide-counter{font-size:12px;color:var(--dim)}
 
-.post-card:hover { background: rgba(255,255,255,.02); margin: 0 -20px; padding-left: 20px; padding-right: 20px; }
+/* Kommentare */
+.pm-cmts{padding:20px 28px 8px;border-top:0.5px solid var(--bdr)}
+.pm-cmts-hd{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.pm-cmts-hd button{font-size:11px;color:var(--acc);padding:2px 0}
+.cmt{display:flex;gap:10px;margin-bottom:14px}
+.cmt-av{width:26px;height:26px;border-radius:50%;flex-shrink:0;background:var(--s3);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:11px}
+.cmt-av img{width:100%;height:100%;object-fit:cover}
+.cmt-body{font-size:13px;line-height:1.55}
+.cmt-time{font-size:10px;color:var(--dim);display:block;margin-bottom:2px}
+.cmt-author{font-weight:500;color:var(--sub);margin-right:4px}
+.cmt-text{color:rgba(234,230,255,.75);white-space:pre-wrap}
 
-.pc-main { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+/* Kommentar-Eingabe */
+.pm-cmt-bar{display:flex;gap:8px;align-items:flex-end;padding:12px 28px 20px}
+.pm-cmt-in{
+  flex:1;background:var(--s2);border:0.5px solid var(--bdr);border-radius:10px;
+  padding:9px 13px;color:var(--txt);font-family:var(--sans);font-size:13px;
+  outline:none;resize:none;max-height:80px;line-height:1.45;transition:border-color .15s;
+}
+.pm-cmt-in:focus{border-color:var(--acc)}
+.pm-cmt-in::placeholder{color:var(--dim)}
+.pm-cmt-send{
+  background:var(--acc) !important;color:#fff !important;border-radius:8px;
+  width:36px;height:36px;min-width:36px;display:flex;align-items:center;justify-content:center;
+}
+.pm-cmt-send:hover{opacity:.85;transform:none !important}
 
-.pc-series {
-  font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
-  color: var(--acc); font-weight: 500;
-}
-.pc-title {
-  font-family: var(--serif); font-size: 19px; font-weight: 400;
-  line-height: 1.3; color: var(--txt);
-}
-.pc-excerpt {
-  font-size: 13px; color: var(--sub); line-height: 1.6;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.pc-meta {
-  display: flex; align-items: center; gap: 10px; margin-top: 4px;
-}
-.pc-av {
-  width: 20px; height: 20px; border-radius: 50%;
-  background: var(--s3); overflow: hidden;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px; flex-shrink: 0;
-}
-.pc-av img { width: 100%; height: 100%; object-fit: cover; }
-.pc-author { font-size: 12px; color: var(--sub); font-weight: 500; }
-.pc-dot { font-size: 10px; color: var(--dim); }
-.pc-date { font-size: 12px; color: var(--dim); }
-.pc-cmts { font-size: 11px; color: var(--dim); }
+/* ── SPINNER / STATUS ── */
+.status{display:flex;flex-direction:column;align-items:center;gap:14px;padding:64px 20px;color:var(--sub);text-align:center;font-size:14px}
+.spin{width:26px;height:26px;border-radius:50%;border:2px solid var(--s3);border-top-color:var(--acc);animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
 
-.pc-img {
-  width: 80px; height: 80px; flex-shrink: 0;
-  background: var(--s2); border-radius: 6px; overflow: hidden;
-  align-self: center;
-}
-.pc-img img { width: 100%; height: 100%; object-fit: cover; }
+/* ── POPUP WAIT ── */
+.pw{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.9);backdrop-filter:blur(14px);align-items:center;justify-content:center;flex-direction:column;gap:16px}
+.pw.open{display:flex}
+.pw p{color:var(--sub);font-size:14px;text-align:center;max-width:280px;line-height:1.6}
+.pw strong{color:var(--txt)}
+.pw-cancel{color:var(--dim) !important;font-size:12px;margin-top:4px}
+.pw-cancel:hover{color:#ff5e7d !important}
 
-/* Featured card (first post) */
-.post-card.featured {
-  grid-template-columns: 1fr;
-  padding-bottom: 24px; margin-bottom: 8px;
-}
-.post-card.featured .pc-img {
-  width: 100%; height: 220px; border-radius: 8px;
-  margin-bottom: 14px; order: -1;
-}
-.post-card.featured .pc-title { font-size: 26px; }
-.post-card.featured .pc-excerpt { -webkit-line-clamp: 3; }
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--s2);border:0.5px solid var(--bdr);padding:9px 18px;border-radius:20px;font-size:12px;opacity:0;pointer-events:none;transition:opacity .2s;white-space:nowrap;z-index:999}
+.toast.show{opacity:1}
+.toast.ok{border-color:var(--acc2);color:var(--acc2)}
+.toast.err{border-color:#ff5e7d;color:#ff5e7d}
 
-/* ─────────────────────────────────────────────────────
-   SPINNER / STATUS
-───────────────────────────────────────────────────── */
-.status {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 14px; padding: 64px 20px; color: var(--sub); text-align: center;
-  font-size: 14px;
-}
-.spin {
-  width: 28px; height: 28px; border-radius: 50%;
-  border: 2px solid var(--s3); border-top-color: var(--acc);
-  animation: sp .7s linear infinite;
-}
-@keyframes sp { to { transform: rotate(360deg); } }
-
-/* ─────────────────────────────────────────────────────
-   PAGER
-───────────────────────────────────────────────────── */
-.pager {
-  display: flex; gap: 6px; justify-content: center;
-  padding: 32px 0 12px; flex-wrap: wrap;
-}
-.pager button {
-  padding: 7px 14px; border-radius: 7px; font-size: 13px;
-  background: var(--s2); border: 0.5px solid var(--bdr);
-  color: var(--sub);
-  transition: background .12s, border-color .12s, color .12s;
-}
-.pager button:hover { background: var(--s3); color: var(--txt); }
-.pager button.cur { background: var(--acc); border-color: var(--acc); color: #fff; }
-
-/* ─────────────────────────────────────────────────────
-   POST DETAIL MODAL
-───────────────────────────────────────────────────── */
-.ov {
-  display: none; position: fixed; inset: 0; z-index: 200;
-  background: rgba(0,0,0,.85); backdrop-filter: blur(10px);
-  overflow-y: auto;
-}
-.ov.open { display: block; }
-
-.pm {
-  max-width: 660px; margin: 40px auto 80px;
-  background: var(--s1);
-  border: 0.5px solid var(--bdr2);
-  border-radius: 14px; overflow: hidden;
-  animation: zoomIn .2s ease;
-}
-@keyframes zoomIn { from { opacity:0; transform:translateY(12px) scale(.98); } to { opacity:1; transform:none; } }
-
-@media (max-width: 680px) {
-  .pm { margin: 0; border-radius: 0; min-height: 100vh; }
-  .ov { overflow-y: auto; }
-}
-
-.pm-close-bar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 18px 12px;
-  border-bottom: 0.5px solid var(--bdr);
-  position: sticky; top: 0; background: var(--s1); z-index: 10;
-}
-.pm-close-btn {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 12px; color: var(--sub); padding: 4px 0;
-}
-.pm-close-btn:hover { color: var(--txt); }
-.pm-series-tag {
-  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
-  color: var(--acc); font-weight: 500;
-}
-
-.pm-hero { width: 100%; aspect-ratio: 16/9; background: var(--s2); overflow: hidden; }
-.pm-hero img { width: 100%; height: 100%; object-fit: cover; }
-
-.pm-body { padding: 28px 28px 20px; }
-
-.pm-title {
-  font-family: var(--serif); font-size: 28px; font-weight: 400;
-  line-height: 1.25; color: var(--txt); margin-bottom: 14px;
-}
-.pm-meta {
-  display: flex; align-items: center; gap: 10px;
-  padding-bottom: 20px; border-bottom: 0.5px solid var(--bdr);
-  margin-bottom: 24px;
-}
-.pm-av {
-  width: 28px; height: 28px; border-radius: 50%;
-  background: var(--s3); overflow: hidden;
-  display: flex; align-items: center; justify-content: center; font-size: 12px;
-}
-.pm-av img { width: 100%; height: 100%; object-fit: cover; }
-.pm-author { font-size: 13px; font-weight: 500; color: var(--sub); }
-.pm-date { font-size: 12px; color: var(--dim); }
-
-.pm-content {
-  font-size: 15px; line-height: 1.8; color: rgba(237,232,255,.8);
-  white-space: pre-wrap; font-family: var(--sans);
-}
-
-.pm-forum-link {
-  display: inline-flex; align-items: center; gap: 6px;
-  margin-top: 28px; padding: 9px 16px;
-  background: var(--s2); border: 0.5px solid var(--bdr);
-  border-radius: 8px; font-size: 13px; color: var(--sub);
-  transition: background .14s, border-color .14s, color .14s;
-}
-.pm-forum-link:hover { background: var(--s3); border-color: var(--bdr2); color: var(--txt); }
-
-/* comments */
-.pm-cmts-section { padding: 20px 28px 28px; border-top: 0.5px solid var(--bdr); }
-.pm-cmts-hd {
-  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
-  color: var(--dim); margin-bottom: 16px;
-  display: flex; justify-content: space-between; align-items: center;
-}
-.pm-cmts-hd button { font-size: 11px; color: var(--acc); padding: 2px 0; }
-.cmt { display: flex; gap: 10px; margin-bottom: 16px; }
-.cmt-av {
-  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
-  background: var(--s3); overflow: hidden;
-  display: flex; align-items: center; justify-content: center; font-size: 11px;
-}
-.cmt-av img { width: 100%; height: 100%; object-fit: cover; }
-.cmt-body { font-size: 13px; line-height: 1.55; }
-.cmt-body .cmt-author { font-weight: 500; color: var(--sub); margin-right: 5px; }
-.cmt-body .cmt-time { font-size: 11px; color: var(--dim); display: block; margin-bottom: 3px; }
-.cmt-body .cmt-text { color: rgba(237,232,255,.75); white-space: pre-wrap; }
-
-/* comment input */
-.pm-cmt-bar {
-  display: flex; gap: 8px; align-items: flex-end;
-  padding: 0 28px 20px;
-}
-.pm-cmt-in {
-  flex: 1; background: var(--s2); border: 0.5px solid var(--bdr);
-  border-radius: 10px; padding: 9px 13px;
-  color: var(--txt); font-family: var(--sans); font-size: 13px;
-  outline: none; resize: none; max-height: 80px; line-height: 1.45;
-  transition: border-color .16s;
-}
-.pm-cmt-in:focus { border-color: var(--acc); }
-.pm-cmt-in::placeholder { color: var(--dim); }
-.pm-cmt-send {
-  background: var(--acc) !important; color: #fff !important;
-  border-radius: 8px; width: 36px; height: 36px; min-width: 36px;
-  display: flex; align-items: center; justify-content: center;
-  transition: opacity .15s !important;
-}
-.pm-cmt-send:hover { opacity: .85; transform: none !important; }
-
-/* ─────────────────────────────────────────────────────
-   POPUP WAIT
-───────────────────────────────────────────────────── */
-.pw {
-  display: none; position: fixed; inset: 0; z-index: 500;
-  background: rgba(0,0,0,.9); backdrop-filter: blur(12px);
-  align-items: center; justify-content: center; flex-direction: column; gap: 16px;
-}
-.pw.open { display: flex; }
-.pw p { color: var(--sub); font-size: 14px; text-align: center;
-  max-width: 280px; line-height: 1.6; }
-.pw strong { color: var(--txt); }
-.pw-cancel { color: var(--dim) !important; font-size: 12px; margin-top: 4px; }
-.pw-cancel:hover { color: #ff5e7d !important; }
-
-/* ─────────────────────────────────────────────────────
-   TOAST
-───────────────────────────────────────────────────── */
-.toast {
-  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-  background: var(--s2); border: 0.5px solid var(--bdr);
-  padding: 9px 18px; border-radius: 20px; font-size: 12px;
-  opacity: 0; pointer-events: none; transition: opacity .2s;
-  white-space: nowrap; z-index: 999;
-}
-.toast.show { opacity: 1; }
-.toast.ok { border-color: var(--acc2); color: var(--acc2); }
-.toast.err { border-color: #ff5e7d; color: #ff5e7d; }
+/* ── IMPRESSUM FOOTER ── */
+.footer{text-align:center;padding:20px 0 40px;font-size:11px;color:var(--dim)}
+.footer a{color:var(--dim);text-decoration:underline;text-decoration-color:rgba(234,230,255,.15)}
+.footer a:hover{color:var(--sub)}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="hdr">
-  <div class="hdr-left">
-    <span class="hdr-logo">Meta<span>verse</span></span>
-    <span class="hdr-tag">SimsForumRPG</span>
-  </div>
+  <span class="hdr-logo">Meta<em>verse</em></span>
   <div class="hdr-right">
-    <button class="hdr-btn" onclick="window.open('https://www.simsforumrpg.de/blog-c1375-Metaverse.html','_blank')">Im Forum</button>
+    <button class="hdr-btn" onclick="window.open('https://www.simsforumrpg.de/blog-c1375-Metaverse.html','_blank')">Forum</button>
     <button class="hdr-btn" onclick="loadFeed(true)" title="Neu laden">↺</button>
   </div>
 </header>
 
-<!-- MAIN -->
 <div class="page">
-
-  <!-- Hero -->
-  <div class="hero" id="hero">
-    <div class="hero-eyebrow">Das Universum ausserhalb SimsWelt</div>
-    <h1 class="hero-title">Metaverse</h1>
-    <p class="hero-sub">Hinter den Pixeln, echte Gespräche, Interviews und alles was ausserhalb der SimsWelt-Geschichte lebt.</p>
+  <div id="view-home">
+    <div class="hero">
+      <div class="hero-eye">SimsForumRPG · Das Universum ausserhalb SimsWelt</div>
+      <h1 class="hero-title">Metaverse</h1>
+      <p class="hero-sub">Interviews, Comics und echte Gespräche — alles was ausserhalb der SimsWelt-Geschichte lebt.</p>
+    </div>
+    <div id="series-grid" class="series-grid"></div>
+    <div class="sec-label">Neueste Posts</div>
+    <div id="latest-list" class="latest-list"></div>
+    <div class="footer"><a href="https://www.simsforumrpg.de/impressum.html" target="_blank">Impressum</a></div>
   </div>
 
-  <!-- Series filter -->
-  <div class="series-strip" id="series-strip">
-    <button class="series-pill active" onclick="filterSeries(null, this)">Alle</button>
-    <button class="series-pill" onclick="filterSeries('hinter-den-pixeln', this)">Hinter den Pixeln</button>
-    <button class="series-pill" onclick="filterSeries('wir-sprechen-klartext', this)">Wir sprechen Klartext</button>
-    <button class="series-pill" onclick="filterSeries('nael-spatz', this)">Nael & Spatz</button>
-    <button class="series-pill" onclick="filterSeries('', this)">Sonstige</button>
-  </div>
-
-  <!-- Feed -->
-  <div id="feed">
-    <div class="status"><div class="spin"></div><span>Posts werden geladen…</span></div>
+  <div id="view-series" style="display:none">
+    <button class="back-btn" onclick="showHome()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Zurück
+    </button>
+    <div class="series-header">
+      <div class="sh-eye" id="sv-eye">Serie</div>
+      <h2 id="sv-title"></h2>
+      <p id="sv-desc"></p>
+    </div>
+    <div id="post-list" class="post-list"></div>
   </div>
 </div>
 
-<!-- POST DETAIL MODAL -->
+<!-- POST MODAL -->
 <div class="ov" id="pm-ov" onclick="if(event.target===this)closePM()">
   <div class="pm">
-    <div class="pm-close-bar">
-      <button class="pm-close-btn" onclick="closePM()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    <div class="pm-bar">
+      <button class="pm-back" onclick="closePM()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         Zurück
       </button>
-      <span class="pm-series-tag" id="pm-series-tag"></span>
+      <span class="pm-series-label" id="pm-series-label"></span>
+      <div class="pm-ext">
+        <a id="pm-ext-link" href="#" target="_blank">Forum ↗</a>
+      </div>
     </div>
-    <div class="pm-hero" id="pm-hero" style="display:none">
-      <img id="pm-hero-img" src="" alt="">
-    </div>
+    <div class="pm-cover" id="pm-cover" style="display:none"><img id="pm-cover-img" src="" alt=""></div>
     <div class="pm-body">
       <h2 class="pm-title" id="pm-title"></h2>
       <div class="pm-meta">
@@ -441,13 +338,20 @@ button:active { transform: scale(.96); }
         <span class="pm-author" id="pm-author"></span>
         <span class="pm-date" id="pm-date"></span>
       </div>
-      <div class="pm-content" id="pm-content">Wird geladen…</div>
-      <a class="pm-forum-link" id="pm-forum-link" href="#" target="_blank">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        Im Forum öffnen
-      </a>
     </div>
-    <div class="pm-cmts-section">
+    <!-- Comic Slideshow -->
+    <div class="pm-slideshow" id="pm-slideshow" style="display:none">
+      <div class="slide-wrap"><img id="slide-img" src="" alt="Seite"></div>
+      <div class="slide-nav">
+        <button id="slide-prev" onclick="slideNav(-1)">← Zurück</button>
+        <span class="slide-counter" id="slide-counter">1 / 1</span>
+        <button id="slide-next" onclick="slideNav(1)">Weiter →</button>
+      </div>
+    </div>
+    <!-- Text Content -->
+    <div class="pm-content" id="pm-content"></div>
+    <!-- Kommentare -->
+    <div class="pm-cmts" id="pm-cmts-wrap">
       <div class="pm-cmts-hd">
         <span>Kommentare</span>
         <button onclick="refreshCmts()">↺ Aktualisieren</button>
@@ -465,318 +369,303 @@ button:active { transform: scale(.96); }
   </div>
 </div>
 
-<!-- POPUP WAIT -->
 <div class="pw" id="pw">
   <div class="spin"></div>
   <p id="pw-txt">Warte auf Xobor-Fenster…</p>
   <button class="pw-cancel" onclick="cancelPopupWait()">Abbrechen</button>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════════════
-//  CONFIG  –  hier die URL deines deployten Apps Scripts eintragen
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════
 const APPSSCRIPT = 'https://script.google.com/macros/s/AKfycbxqLQvuPPdcu4zoLakqtRzKjx7Z2FUf69lwqhzmvoiKuIXMCtXVZHCGfKGFkVLW2JScOw/exec';
-const XOBOR      = 'https://www.simsforumrpg.de';
+const XOBOR = 'https://www.simsforumrpg.de';
 
-const SERIES_LABELS = {
-  'hinter-den-pixeln':     'Hinter den Pixeln',
-  'wir-sprechen-klartext': 'Wir sprechen Klartext',
-  'nael-spatz':            'Nael & Spatz',
-  'simswelt-news-alt':     'SimsWelt News (Archiv)',
-};
+const SERIES_CONFIG = [
+  { id:'hinter-den-pixeln',     label:'Hinter den Pixeln',      desc:'Interviews und Einblicke — wer steckt hinter den Charakteren?',      icon:'◈', color:'var(--acc)' },
+  { id:'wir-sprechen-klartext', label:'Wir sprechen Klartext',  desc:'Offene Gespräche und Hinter-den-Kulissen-Geständnisse der Community.', icon:'◉', color:'var(--acc2)' },
+  { id:'nael-spatz',            label:'Nael & Spatz',           desc:'Die Enthüllungs-Serie — Nael und Spatz decken auf.',                  icon:'◎', color:'#c8a060' },
+  { id:'simswelt-news-alt',     label:'SimsWelt News (Archiv)', desc:'Das Archiv der alten SimsWelt-News-Beiträge.',                       icon:'◇', color:'var(--dim)' },
+];
 
-const EMOJIS = ['🌙','✨','🌊','🎮','🦋','🌸','⚡','🎭','🍀','💫','🦄','🌈','⭐','🎪','🌻','🔮'];
-
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  STATE
-// ══════════════════════════════════════════════════════
-let allPosts  = [];
-let filtered  = [];
-let curFilter = null;
-const PER  = 8;
-let page   = 0;
+// ══════════════════════════════════════════════
+let allPosts = [];
+let curSeries = null;
 let curPost = null;
-let xPopup  = null;
-let pwTimer = null;
+let slideIdx = 0;
+let slideImages = [];
+let xPopup = null, pwTimer = null;
 
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  LOAD
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 async function loadFeed(spinner = true) {
-  if (spinner) $('feed').innerHTML = '<div class="status"><div class="spin"></div><span>Posts werden geladen…</span></div>';
+  if (spinner) {
+    $('series-grid').innerHTML = '<div class="status"><div class="spin"></div></div>';
+    $('latest-list').innerHTML = '';
+  }
   try {
-    const res  = await fetch(APPSSCRIPT + '?action=feed');
-    const raw  = await res.text();
+    const res = await fetch(APPSSCRIPT + '?action=feed');
+    const raw = await res.text();
     let data;
-    try { data = JSON.parse(raw); }
-    catch(e) { throw new Error('Apps Script gibt kein gültiges JSON zurück.'); }
+    try { data = JSON.parse(raw); } catch(e) { throw new Error('Kein gültiges JSON vom Script.'); }
     allPosts = Array.isArray(data) ? data : (data.posts || data.items || []);
     if (!allPosts.length) throw new Error('Keine Posts gefunden.');
-    page = 0; curFilter = null;
-    filtered = [...allPosts];
-    buildFeed();
+    buildHome();
   } catch(e) {
-    $('feed').innerHTML = `<div class="status">
-      <span style="max-width:300px;color:var(--sub)">${e.message}</span>
-      <a href="${XOBOR}/blog-c1375-Metaverse.html" target="_blank"
-         style="color:var(--acc);font-size:13px">Direkt im Forum öffnen →</a>
+    $('series-grid').innerHTML = `<div class="status" style="grid-column:1/-1">
+      <span style="max-width:300px">${e.message}</span>
+      <a href="${XOBOR}/blog-c1375-Metaverse.html" target="_blank" style="color:var(--acc);font-size:13px">Direkt im Forum →</a>
     </div>`;
   }
 }
 
-// ══════════════════════════════════════════════════════
-//  FILTER
-// ══════════════════════════════════════════════════════
-function filterSeries(id, btn) {
-  document.querySelectorAll('.series-pill').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  curFilter = id;
-  page = 0;
-
-  if (id === null) {
-    filtered = [...allPosts];
-  } else if (id === '') {
-    filtered = allPosts.filter(p => !p.series);
-  } else {
-    filtered = allPosts.filter(p => p.series === id);
-  }
-  buildFeed();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ══════════════════════════════════════════════════════
-//  BUILD FEED
-// ══════════════════════════════════════════════════════
-function buildFeed() {
-  const start = page * PER;
-  const slice = filtered.slice(start, start + PER);
-  const total = Math.ceil(filtered.length / PER);
-
-  if (!slice.length) {
-    $('feed').innerHTML = '<div class="status"><span>Keine Posts in dieser Serie.</span></div>';
-    return;
-  }
-
-  const cards = slice.map((p, i) => buildCard(p, start + i, i === 0 && page === 0 && curFilter === null)).join('');
-  const pager = total > 1 ? buildPager(total) : '';
-  $('feed').innerHTML = cards + pager;
-}
-
-function buildCard(p, idx, featured) {
-  const title  = G(p,'title'), author = G(p,'author'), date = G(p,'date');
-  const exc    = G(p,'content'), img = G(p,'image'), ava = G(p,'avatar');
-  const cmts   = parseInt(G(p,'comments') || 0, 10);
-  const series = p.series ? (SERIES_LABELS[p.series] || '') : '';
-  const short  = exc.length > 140 ? exc.slice(0,140) + '…' : exc;
-
-  const imgHtml = img ? `<div class="pc-img"><img src="${X(img)}" alt="${X(title)}" loading="lazy" onerror="this.closest('.pc-img').style.display='none'"></div>` : '';
-  const metaHtml = `<div class="pc-meta">
-    <div class="pc-av">${ava ? `<img src="${X(ava)}" onerror="this.outerHTML='${IC(author)}'">` : IC(author)}</div>
-    <span class="pc-author">${X(author)}</span>
-    ${date ? `<span class="pc-dot">·</span><span class="pc-date">${X(date)}</span>` : ''}
-    ${cmts > 0 ? `<span class="pc-dot">·</span><span class="pc-cmts">${cmts} Komm.</span>` : ''}
-  </div>`;
-
-  if (featured && img) {
-    return `<article class="post-card featured" onclick="openPost(${idx})">
-      <div class="pc-img" style="width:100%;height:220px;border-radius:8px;margin-bottom:14px">
-        <img src="${X(img)}" alt="${X(title)}" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.closest('.pc-img').style.display='none'">
+// ══════════════════════════════════════════════
+//  HOME VIEW
+// ══════════════════════════════════════════════
+function buildHome() {
+  // Serien-Kacheln
+  const grid = SERIES_CONFIG.map(s => {
+    const posts = allPosts.filter(p => p.series === s.id);
+    if (!posts.length) return '';
+    return `<div class="series-card" onclick="showSeries('${s.id}')">
+      <span class="sc-icon" style="color:${s.color}">${s.icon}</span>
+      <div class="sc-title">${s.label}</div>
+      <div class="sc-desc">${s.desc}</div>
+      <div class="sc-foot">
+        <span class="sc-count">${posts.length} Posts</span>
+        <span class="sc-arrow" style="color:${s.color}">→</span>
       </div>
-      <div class="pc-main">
-        ${series ? `<div class="pc-series">${X(series)}</div>` : ''}
-        <div class="pc-title">${X(title)}</div>
-        ${exc ? `<div class="pc-excerpt">${X(short)}</div>` : ''}
-        ${metaHtml}
-      </div>
-    </article>`;
-  }
+    </div>`;
+  }).join('');
 
-  return `<article class="post-card" onclick="openPost(${idx})">
-    <div class="pc-main">
-      ${series ? `<div class="pc-series">${X(series)}</div>` : ''}
-      <div class="pc-title">${X(title)}</div>
-      ${exc ? `<div class="pc-excerpt">${X(short)}</div>` : ''}
-      ${metaHtml}
+  // Sonstige Kachel
+  const misc = allPosts.filter(p => !p.series);
+  const miscCard = misc.length ? `<div class="series-card misc" onclick="showSeries('__misc__')">
+    <span class="sc-icon">◇</span>
+    <div class="sc-title">Weitere Beiträge</div>
+    <div class="sc-desc">Einzelne Posts, Gedanken und Content ausserhalb der grossen Serien.</div>
+    <div class="sc-foot">
+      <span class="sc-count">${misc.length} Posts</span>
+      <span class="sc-arrow">→</span>
     </div>
-    ${imgHtml}
-  </article>`;
+  </div>` : '';
+
+  $('series-grid').innerHTML = grid + miscCard;
+
+  // Neueste 8 Posts
+  const latest = allPosts.slice(0, 8);
+  $('latest-list').innerHTML = latest.map((p, i) => {
+    const s = SERIES_CONFIG.find(s => s.id === p.series);
+    return `<div class="latest-item" onclick="openPostFromHome(${i})">
+      <span class="li-series" style="${s ? 'color:'+s.color : 'color:var(--dim)'}">${s ? s.label : '—'}</span>
+      <span class="li-title">${X(G(p,'title'))}</span>
+      ${p.isComic ? '<span class="li-comic">Comic</span>' : ''}
+      <span class="li-date">${X(G(p,'date'))}</span>
+    </div>`;
+  }).join('');
 }
 
-function buildPager(total) {
-  const btns = Array.from({length: total}, (_,i) =>
-    `<button class="${i===page?'cur':''}" onclick="goPage(${i})">${i+1}</button>`
-  ).join('');
-  return `<div class="pager">${btns}</div>`;
-}
+// ══════════════════════════════════════════════
+//  SERIES VIEW
+// ══════════════════════════════════════════════
+function showSeries(id) {
+  curSeries = id;
+  const isMisc = id === '__misc__';
+  const cfg = SERIES_CONFIG.find(s => s.id === id);
+  const posts = isMisc ? allPosts.filter(p => !p.series) : allPosts.filter(p => p.series === id);
 
-function goPage(p) {
-  page = p;
-  buildFeed();
+  $('sv-eye').textContent   = 'Serie';
+  $('sv-title').textContent = isMisc ? 'Weitere Beiträge' : (cfg?.label || id);
+  $('sv-desc').textContent  = isMisc ? 'Einzelne Posts ausserhalb der grossen Serien.' : (cfg?.desc || '');
+
+  $('post-list').innerHTML = posts.map((p, i) => {
+    const title  = G(p,'title'), author = G(p,'author'), date = G(p,'date');
+    const exc    = G(p,'content'), img = G(p,'image'), ava = G(p,'avatar');
+    const short  = exc.length > 120 ? exc.slice(0,120)+'…' : exc;
+    const isComic = p.isComic;
+    const globalIdx = allPosts.indexOf(p);
+
+    return `<div class="post-row" onclick="openPost(${globalIdx})">
+      <div class="pr-main">
+        <div class="pr-tags">
+          ${isComic ? '<span class="pr-comic-badge">Comic</span>' : ''}
+        </div>
+        <div class="pr-title">${X(title)}</div>
+        ${exc ? `<div class="pr-excerpt">${X(short)}</div>` : ''}
+        <div class="pr-meta">
+          <div class="pr-av">${ava ? `<img src="${X(ava)}" onerror="this.outerHTML='${IC(author)}'">` : IC(author)}</div>
+          <span class="pr-author">${X(author)}</span>
+          ${date ? `<span class="pr-dot">·</span><span class="pr-date">${X(date)}</span>` : ''}
+        </div>
+      </div>
+      ${img ? `<div class="pr-thumb"><img src="${X(img)}" alt="" loading="lazy" onerror="this.closest('.pr-thumb').style.display='none'"></div>` : ''}
+    </div>`;
+  }).join('');
+
+  $('view-home').style.display   = 'none';
+  $('view-series').style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ══════════════════════════════════════════════════════
+function showHome() {
+  $('view-series').style.display = 'none';
+  $('view-home').style.display   = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function openPostFromHome(i) { openPost(i); }
+
+// ══════════════════════════════════════════════
 //  POST MODAL
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 async function openPost(idx) {
-  const p = filtered[idx]; if (!p) return;
+  const p = allPosts[idx]; if (!p) return;
   curPost = { p, idx, url: G(p,'url') };
 
-  const img = G(p,'image'), title = G(p,'title');
-  const auth = G(p,'author'), date = G(p,'date'), ava = G(p,'avatar');
-  const cont = G(p,'content'), series = p.series;
-  const url  = G(p,'url');
+  const title  = G(p,'title'), auth = G(p,'author'), date = G(p,'date');
+  const ava    = G(p,'avatar'), url  = G(p,'url');
+  const img    = G(p,'image'), cont = G(p,'content');
+  const s      = SERIES_CONFIG.find(s => s.id === p.series);
 
-  // Series tag
-  $('pm-series-tag').textContent = series ? (SERIES_LABELS[series] || '') : '';
+  $('pm-series-label').textContent = s ? s.label : '';
+  $('pm-ext-link').href            = url || '#';
+  $('pm-title').textContent        = title;
+  $('pm-av').innerHTML             = ava ? `<img src="${X(ava)}" onerror="this.outerHTML='${IC(auth)}'">` : IC(auth);
+  $('pm-author').textContent       = auth;
+  $('pm-date').textContent         = date;
+  $('pm-cmts').innerHTML           = '<span style="color:var(--dim);font-size:12px">Lade Kommentare…</span>';
 
-  // Hero image
-  if (img) { $('pm-hero').style.display=''; $('pm-hero-img').src=img; }
-  else $('pm-hero').style.display='none';
+  // Cover-Bild initial
+  if (img && !p.isComic) { $('pm-cover').style.display=''; $('pm-cover-img').src=img; }
+  else $('pm-cover').style.display='none';
 
-  $('pm-title').textContent    = title;
-  $('pm-av').innerHTML         = ava ? `<img src="${X(ava)}" onerror="this.outerHTML='${IC(auth)}'">` : IC(auth);
-  $('pm-author').textContent   = auth;
-  $('pm-date').textContent     = date;
-  $('pm-content').textContent  = cont || 'Lade Inhalt…';
-  $('pm-forum-link').href      = url || '#';
-  $('pm-cmts').innerHTML       = '<span style="color:var(--dim);font-size:12px">Lade Kommentare…</span>';
+  // Slideshow oder Text
+  if (p.isComic && p.images?.length) {
+    buildSlideshow(p.images);
+    $('pm-slideshow').style.display='';
+    $('pm-content').innerHTML = '';
+  } else {
+    $('pm-slideshow').style.display='none';
+    renderContent(cont, p.images || []);
+  }
 
   $('pm-ov').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  document.body.style.overflow='hidden';
 
-  // Vollständigen Text nachladen
+  // Vollständigen Inhalt nachladen
   if (url) {
     fetch(`${APPSSCRIPT}?action=post&url=${encodeURIComponent(url)}`)
       .then(r => r.json())
       .then(d => {
-        if (d.content) $('pm-content').textContent = d.content;
-        if (d.image && !img) { $('pm-hero-img').src = d.image; $('pm-hero').style.display = ''; }
-      }).catch(() => {});
+        if (d.isComic && d.images?.length) {
+          buildSlideshow(d.images);
+          $('pm-slideshow').style.display='';
+          $('pm-content').innerHTML='';
+        } else {
+          $('pm-slideshow').style.display='none';
+          renderContent(d.content || cont, d.images || []);
+          if (d.image && !p.isComic) { $('pm-cover-img').src=d.image; $('pm-cover').style.display=''; }
+        }
+      }).catch(()=>{});
     fetchComments(url);
   }
 }
 
+function renderContent(text, images) {
+  if (!text) { $('pm-content').innerHTML=''; return; }
+  // [IMG] Platzhalter durch echte Bilder ersetzen
+  let imgIdx = 0;
+  const parts = text.split('\n[IMG]\n');
+  let html = '';
+  parts.forEach((part, i) => {
+    if (part.trim()) html += `<p>${X(part).replace(/\n/g,'<br>')}</p>`;
+    if (i < parts.length - 1 && images[imgIdx]) {
+      html += `<div class="inline-img"><img src="${X(images[imgIdx])}" loading="lazy" alt=""></div>`;
+      imgIdx++;
+    }
+  });
+  $('pm-content').innerHTML = html;
+}
+
+// ── SLIDESHOW ──
+function buildSlideshow(imgs) {
+  slideImages = imgs;
+  slideIdx = 0;
+  updateSlide();
+}
+function updateSlide() {
+  $('slide-img').src = slideImages[slideIdx] || '';
+  $('slide-counter').textContent = `${slideIdx+1} / ${slideImages.length}`;
+  $('slide-prev').disabled = slideIdx === 0;
+  $('slide-next').disabled = slideIdx === slideImages.length - 1;
+}
+function slideNav(dir) {
+  slideIdx = Math.max(0, Math.min(slideImages.length-1, slideIdx+dir));
+  updateSlide();
+}
+
+function closePM() {
+  $('pm-ov').classList.remove('open');
+  document.body.style.overflow='';
+  curPost=null; slideImages=[];
+}
+
+// ══════════════════════════════════════════════
+//  KOMMENTARE
+// ══════════════════════════════════════════════
 async function fetchComments(url) {
   const div = $('pm-cmts');
   try {
     const r = await fetch(`${APPSSCRIPT}?action=comments&url=${encodeURIComponent(url)}`);
     const d = await r.json();
-    if (d.error) throw new Error(d.error);
-    if (!d.comments?.length) {
-      div.innerHTML = '<span style="color:var(--dim);font-size:12px">Noch keine Kommentare.</span>';
-      return;
-    }
+    if (!d.comments?.length) { div.innerHTML='<span style="color:var(--dim);font-size:12px">Noch keine Kommentare.</span>'; return; }
     div.innerHTML = d.comments.map(c => {
-      const av = c.avatar
-        ? `<img src="${X(c.avatar)}" onerror="this.outerHTML='${IC(c.author||'?')}'" style="width:100%;height:100%;object-fit:cover">`
-        : IC(c.author||'?');
+      const av = c.avatar ? `<img src="${X(c.avatar)}" onerror="this.outerHTML='${IC(c.author||'?')}'" style="width:100%;height:100%;object-fit:cover">` : IC(c.author||'?');
       return `<div class="cmt">
         <div class="cmt-av">${av}</div>
         <div class="cmt-body">
-          ${c.time ? `<span class="cmt-time">${X(c.time)}</span>` : ''}
+          ${c.time?`<span class="cmt-time">${X(c.time)}</span>`:''}
           <span class="cmt-author">${X(c.author)}</span>
           <span class="cmt-text">${X(c.text)}</span>
         </div>
       </div>`;
     }).join('');
   } catch(e) {
-    div.innerHTML = `<span style="color:var(--dim);font-size:12px">
-      Kommentare nicht geladen.
-      <a href="${X(url)}#com" target="_blank" style="color:var(--acc);display:block;margin-top:4px">Auf Xobor kommentieren →</a>
-    </span>`;
+    div.innerHTML=`<span style="color:var(--dim);font-size:12px">Kommentare nicht geladen. <a href="${X(url)}#com" target="_blank" style="color:var(--acc)">Auf Xobor →</a></span>`;
   }
 }
+function refreshCmts() { if(curPost?.url){$('pm-cmts').innerHTML='<span style="color:var(--dim);font-size:12px">Lade…</span>';fetchComments(curPost.url);}}
 
-function refreshCmts() {
-  if (curPost?.url) {
-    $('pm-cmts').innerHTML = '<span style="color:var(--dim);font-size:12px">Lade…</span>';
-    fetchComments(curPost.url);
-  }
-}
-
-function closePM() {
-  $('pm-ov').classList.remove('open');
-  document.body.style.overflow = '';
-  curPost = null;
-}
-
-// ══════════════════════════════════════════════════════
-//  COMMENT via Xobor Popup
-// ══════════════════════════════════════════════════════
 function openCommentPopup() {
   if (!curPost?.url) return;
   const text = $('cmtIn').value.trim();
-  const url  = curPost.url + '#com';
-  if (text && navigator.clipboard) {
-    navigator.clipboard.writeText(text)
-      .then(() => toast('📋 Kommentar kopiert — Ctrl+V im Fenster', 'ok'))
-      .catch(() => {});
-  }
-  const w = 560, h = 500;
-  const left = Math.min(screen.width - w - 10, window.screenX + window.outerWidth + 10);
-  const top  = Math.max(10, window.screenY + 80);
-  xPopup = window.open(url, 'xobor-comment', `width=${w},height=${h},left=${left},top=${top},scrollbars=yes,resizable=yes`);
+  if (text && navigator.clipboard) navigator.clipboard.writeText(text).then(()=>toast('📋 Kommentar kopiert — Ctrl+V im Fenster','ok')).catch(()=>{});
+  const w=560,h=500,left=Math.min(screen.width-w-10,window.screenX+window.outerWidth+10),top=Math.max(10,window.screenY+80);
+  xPopup=window.open(curPost.url+'#com','xobor-comment',`width=${w},height=${h},left=${left},top=${top},scrollbars=yes,resizable=yes`);
   clearInterval(pwTimer);
-  pwTimer = setInterval(() => {
-    if (!xPopup || xPopup.closed) {
-      clearInterval(pwTimer); xPopup = null;
-      $('cmtIn').value = ''; autoH($('cmtIn'));
-      setTimeout(() => refreshCmts(), 800);
-      toast('Kommentare aktualisiert ✓', 'ok');
-    }
-  }, 900);
+  pwTimer=setInterval(()=>{if(!xPopup||xPopup.closed){clearInterval(pwTimer);xPopup=null;$('cmtIn').value='';autoH($('cmtIn'));setTimeout(()=>refreshCmts(),800);toast('Kommentare aktualisiert ✓','ok');}},900);
 }
+function cancelPopupWait(){clearInterval(pwTimer);$('pw').classList.remove('open');if(xPopup&&!xPopup.closed)xPopup.close();xPopup=null;}
 
-function cancelPopupWait() {
-  clearInterval(pwTimer);
-  $('pw').classList.remove('open');
-  if (xPopup && !xPopup.closed) xPopup.close();
-  xPopup = null;
-}
-
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  UTILS
-// ══════════════════════════════════════════════════════
-const ALIASES = {
-  title:    ['title','subject','betreff','headline'],
-  author:   ['author','user','username','autor'],
-  date:     ['date','created','datum','time','timestamp'],
-  content:  ['content','text','body','message','summary','excerpt','inhalt'],
-  image:    ['image','img','imageUrl','image_url','thumbnail','bild','picture'],
-  avatar:   ['avatar','avatarUrl','avatar_url','profilePic','userAvatar'],
-  url:      ['url','link','href','postUrl','blogUrl'],
-  comments: ['comments','commentCount','comment_count','kommentare'],
-};
-function G(obj, field) {
-  for (const k of (ALIASES[field] || [field])) {
-    if (obj[k] != null && obj[k] !== '') return String(obj[k]);
-  }
-  return '';
-}
-function IC(name) {
-  const i = [...(name||'')].reduce((a,c) => a + c.charCodeAt(0), 0) % EMOJIS.length;
-  return `<span style="font-size:12px">${EMOJIS[i]}</span>`;
-}
-function X(s) {
-  return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function $(id) { return document.getElementById(id); }
-function autoH(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
+// ══════════════════════════════════════════════
+const ALIASES={title:['title','subject','betreff'],author:['author','user','username','autor'],date:['date','created','datum','time','timestamp'],content:['content','text','body','message','summary','excerpt','inhalt'],image:['image','img','imageUrl','image_url','thumbnail','bild'],avatar:['avatar','avatarUrl','avatar_url','profilePic','userAvatar'],url:['url','link','href','postUrl','blogUrl'],comments:['comments','commentCount','comment_count','kommentare']};
+function G(obj,field){for(const k of(ALIASES[field]||[field])){if(obj[k]!=null&&obj[k]!=='')return String(obj[k]);}return '';}
+const EMO=['🌙','✨','🌊','🎮','🦋','🌸','⚡','🎭','🍀','💫','🦄','🌈','⭐','🎪','🌻','🔮'];
+function IC(name){const i=[...(name||'')].reduce((a,c)=>a+c.charCodeAt(0),0)%EMO.length;return `<span style="font-size:11px">${EMO[i]}</span>`;}
+function X(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function $(id){return document.getElementById(id);}
+function autoH(el){el.style.height='auto';el.style.height=el.scrollHeight+'px';}
 let _tt;
-function toast(msg, type='') {
-  const el = $('toast');
-  el.textContent = msg; el.className = 'toast show ' + type;
-  clearTimeout(_tt); _tt = setTimeout(() => el.classList.remove('show'), 2800);
-}
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closePM(); });
+function toast(msg,type=''){const el=$('toast');el.textContent=msg;el.className='toast show '+type;clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2800);}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePM();});
 
-// ══════════════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════════════
 loadFeed();
 </script>
 </body>
