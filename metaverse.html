@@ -293,7 +293,7 @@ button:active{transform:scale(.96)}
 <div class="page">
   <div id="view-home">
     <div class="hero">
-      <div class="hero-eye">SimsForumRPG · Das Universum ausserhalb SimsWelt</div>
+      <div class="hero-eye">Interviews von Euch für Euch</div>
       <h1 class="hero-title">Metaverse</h1>
       <p class="hero-sub">Interviews, Comics und echte Gespräche — alles was ausserhalb der SimsWelt-Geschichte lebt.</p>
     </div>
@@ -383,12 +383,8 @@ button:active{transform:scale(.96)}
 const APPSSCRIPT = 'https://script.google.com/macros/s/AKfycbxqLQvuPPdcu4zoLakqtRzKjx7Z2FUf69lwqhzmvoiKuIXMCtXVZHCGfKGFkVLW2JScOw/exec';
 const XOBOR = 'https://www.simsforumrpg.de';
 
-const SERIES_CONFIG = [
-  { id:'hinter-den-pixeln',     label:'Hinter den Pixeln',      desc:'Interviews und Einblicke — wer steckt hinter den Charakteren?',      icon:'◈', color:'var(--acc)' },
-  { id:'wir-sprechen-klartext', label:'Wir sprechen Klartext',  desc:'Offene Gespräche und Hinter-den-Kulissen-Geständnisse der Community.', icon:'◉', color:'var(--acc2)' },
-  { id:'nael-spatz',            label:'Nael & Spatz',           desc:'Die Enthüllungs-Serie — Nael und Spatz decken auf.',                  icon:'◎', color:'#c8a060' },
-  { id:'simswelt-news-alt',     label:'SimsWelt News (Archiv)', desc:'Das Archiv der alten SimsWelt-News-Beiträge.',                       icon:'◇', color:'var(--dim)' },
-];
+// SERIES_CONFIG wird beim Start vom Apps Script geladen — hier nicht mehr hardcoden
+let SERIES_CONFIG = [];
 
 // ══════════════════════════════════════════════
 //  STATE
@@ -409,10 +405,18 @@ async function loadFeed(spinner = true) {
     $('latest-list').innerHTML = '';
   }
   try {
-    const res = await fetch(APPSSCRIPT + '?action=feed');
-    const raw = await res.text();
+    // 1. Series-Config und Feed parallel laden
+    const [seriesRes, feedRes] = await Promise.all([
+      fetch(APPSSCRIPT + '?action=series'),
+      fetch(APPSSCRIPT + '?action=feed')
+    ]);
+    const seriesData = await seriesRes.json();
+    const feedRaw    = await feedRes.text();
+
+    if (Array.isArray(seriesData) && seriesData.length) SERIES_CONFIG = seriesData;
+
     let data;
-    try { data = JSON.parse(raw); } catch(e) { throw new Error('Kein gültiges JSON vom Script.'); }
+    try { data = JSON.parse(feedRaw); } catch(e) { throw new Error('Kein gültiges JSON vom Script.'); }
     allPosts = Array.isArray(data) ? data : (data.posts || data.items || []);
     if (!allPosts.length) throw new Error('Keine Posts gefunden.');
     buildHome();
@@ -531,6 +535,7 @@ async function openPost(idx) {
   const ava    = G(p,'avatar'), url  = G(p,'url');
   const img    = G(p,'image'), cont = G(p,'content');
   const s      = SERIES_CONFIG.find(s => s.id === p.series);
+  const isSlideshow = s?.slideshow === true;
 
   $('pm-series-label').textContent = s ? s.label : '';
   $('pm-ext-link').href            = url || '#';
@@ -540,19 +545,19 @@ async function openPost(idx) {
   $('pm-date').textContent         = date;
   $('pm-cmts').innerHTML           = '<span style="color:var(--dim);font-size:12px">Lade Kommentare…</span>';
 
-  // Cover-Bild initial
-  if (img && !p.isComic) { $('pm-cover').style.display=''; $('pm-cover-img').src=img; }
+  // Cover-Bild nur wenn kein Slideshow
+  if (img && !isSlideshow) { $('pm-cover').style.display=''; $('pm-cover-img').src=img; }
   else $('pm-cover').style.display='none';
 
-  // Slideshow oder Text
-  if (p.isComic && p.images?.length) {
+  // Slideshow immer zeigen wenn Serie es vorschreibt, Text immer darunter
+  if (isSlideshow && p.images?.length) {
     buildSlideshow(p.images);
     $('pm-slideshow').style.display='';
-    $('pm-content').innerHTML = '';
   } else {
     $('pm-slideshow').style.display='none';
-    renderContent(cont, p.images || []);
   }
+  // Text immer rendern (auch bei Slideshow — Caption/Intro darunter)
+  renderContent(cont, isSlideshow ? [] : (p.images || []));
 
   $('pm-ov').classList.add('open');
   document.body.style.overflow='hidden';
@@ -562,15 +567,13 @@ async function openPost(idx) {
     fetch(`${APPSSCRIPT}?action=post&url=${encodeURIComponent(url)}`)
       .then(r => r.json())
       .then(d => {
-        if (d.isComic && d.images?.length) {
+        if (isSlideshow && d.images?.length) {
           buildSlideshow(d.images);
           $('pm-slideshow').style.display='';
-          $('pm-content').innerHTML='';
-        } else {
-          $('pm-slideshow').style.display='none';
-          renderContent(d.content || cont, d.images || []);
-          if (d.image && !p.isComic) { $('pm-cover-img').src=d.image; $('pm-cover').style.display=''; }
         }
+        renderContent(d.content || cont, isSlideshow ? [] : (d.images || []));
+        if (d.image && !isSlideshow) { $('pm-cover-img').src=d.image; $('pm-cover').style.display=''; }
+      }
       }).catch(()=>{});
     fetchComments(url);
   }
