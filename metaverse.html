@@ -411,32 +411,33 @@ async function loadFeed(spinner = true) {
     $('latest-list').innerHTML = '';
   }
   try {
-    // 1. Series-Config und Feed parallel laden
-    const [seriesRes, feedRes] = await Promise.all([
-      fetch(APPSSCRIPT + '?action=series').catch(() => null),
-      fetch(APPSSCRIPT + '?action=feed')
-    ]);
+    // 1. Series-Config laden (optional, Fallback ist hardcoded)
+    try {
+      const sr = await fetch(APPSSCRIPT + '?action=series');
+      const sd = await sr.json();
+      if (Array.isArray(sd) && sd.length && sd[0].id && sd[0].label) SERIES_CONFIG = sd;
+    } catch(_) {} // Fallback bleibt wenn es fehlschlägt
 
-    // Series nur übernehmen wenn gültiges Format (hat id + label)
-    if (seriesRes) {
-      try {
-        const seriesData = await seriesRes.json();
-        if (Array.isArray(seriesData) && seriesData.length && seriesData[0].id && seriesData[0].label) {
-          SERIES_CONFIG = seriesData;
-        }
-      } catch(_) {} // Fallback bleibt
+    // 2. Feed laden
+    const feedRes = await fetch(APPSSCRIPT + '?action=feed');
+    const feedRaw = await feedRes.text();
+
+    let data;
+    try { data = JSON.parse(feedRaw); }
+    catch(e) {
+      throw new Error('Script gibt kein gültiges JSON zurück. Antwort: ' + feedRaw.slice(0, 120));
     }
 
-    const feedRaw = await feedRes.text();
-    let data;
-    try { data = JSON.parse(feedRaw); } catch(e) { throw new Error('Kein gültiges JSON vom Script.'); }
+    if (data && data.error) throw new Error('Script-Fehler: ' + data.error);
+
     allPosts = Array.isArray(data) ? data : (data.posts || data.items || []);
-    if (!allPosts.length) throw new Error('Keine Posts gefunden.');
+    if (!allPosts.length) throw new Error('Script hat 0 Posts zurückgegeben.');
     buildHome();
   } catch(e) {
-    $('series-grid').innerHTML = `<div class="status" style="grid-column:1/-1">
-      <span style="max-width:300px">${e.message}</span>
-      <a href="${XOBOR}/blog-c1375-Metaverse.html" target="_blank" style="color:var(--acc);font-size:13px">Direkt im Forum →</a>
+    $('series-grid').innerHTML = `<div class="status" style="grid-column:1/-1;padding:40px 20px">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--dim)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+      <span style="max-width:360px;font-size:13px;color:var(--sub)">${X(e.message)}</span>
+      <a href="${XOBOR}/blog-c1375-Metaverse.html" target="_blank" style="color:var(--acc);font-size:12px">Direkt im Forum öffnen →</a>
     </div>`;
   }
 }
