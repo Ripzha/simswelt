@@ -152,7 +152,8 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .a-label{font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:4px}
 .a-input{width:100%;background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.15);border-radius:5px;color:#fff;font-size:11px;padding:6px 9px}
 .a-input:focus{outline:none;border-color:rgba(255,200,0,0.4)}
-.a-select{width:100%;background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.15);border-radius:5px;color:#fff;font-size:11px;padding:6px 9px;cursor:pointer}
+.a-select{width:100%;background:#0a1628;border:0.5px solid rgba(255,255,255,0.15);border-radius:5px;color:#fff;font-size:11px;padding:6px 9px;cursor:pointer}
+.a-select option{background:#0a1628;color:#fff}
 .a-btn{border:none;border-radius:5px;font-size:11px;padding:7px 12px;cursor:pointer;font-weight:500}
 .a-btn-primary{background:#ffcc44;color:#000}
 .a-btn-danger{background:rgba(255,80,80,0.15);border:0.5px solid rgba(255,80,80,0.3);color:#ff8888}
@@ -1475,6 +1476,7 @@ function enterWorld(w){
   renderLots(w);
   if(adminMode)renderAdminContent();
   setTimeout(updateAllTokens,100);
+  setTimeout(repositionTooltips,200);
 }
 
 let buildingFloorIdx=0,currentBuildingKey=null;
@@ -2388,11 +2390,57 @@ window.addEventListener('hashchange',function(){
 window.addEventListener('load',function(){
   updateSidebarStats();
   fetchCharsFromScript();
+  repositionTooltips();
   if(location.hash.match(/^#chars-/)){
     openCharView(location.hash.replace('#chars-',''));
   }
 });
 
+
+
+// Reposition tooltips that go off-screen
+function repositionTooltips(){
+  document.querySelectorAll('.lot-dot, .cluster-dot').forEach(function(dot){
+    var tt = dot.querySelector('.lot-tooltip, .cluster-hover');
+    if(!tt) return;
+    dot.addEventListener('mouseenter', function(){
+      // Reset first
+      tt.style.bottom = '';
+      tt.style.top = '';
+      tt.style.transform = '';
+      // Check after display
+      requestAnimationFrame(function(){
+        var r = tt.getBoundingClientRect();
+        var dotR = dot.getBoundingClientRect();
+        // Off top
+        if(r.top < 60){
+          tt.style.bottom = 'auto';
+          tt.style.top = '18px';
+          tt.style.transform = 'translateX(-50%)';
+        }
+        // Off right
+        if(r.right > window.innerWidth - 10){
+          tt.style.left = 'auto';
+          tt.style.right = '0';
+          tt.style.transform = 'none';
+        }
+        // Off left
+        if(r.left < 10){
+          tt.style.left = '0';
+          tt.style.transform = 'none';
+        }
+      });
+    });
+    dot.addEventListener('mouseleave', function(){
+      tt.style.bottom = '';
+      tt.style.top = '';
+      tt.style.transform = '';
+      tt.style.left = '';
+      tt.style.right = '';
+    });
+  });
+}
+setTimeout(repositionTooltips, 1000);
 
 document.querySelectorAll('.sheet').forEach(sheet=>{
 let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive:true});sheet.addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-sy>60)closeSheet();},{passive:true});});
