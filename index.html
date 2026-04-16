@@ -1215,10 +1215,65 @@ function saveSugs(){localStorage.setItem('sw_suggestions',JSON.stringify(suggest
 function saveHidden(){localStorage.setItem('sw_hidden_lots',JSON.stringify(hiddenLots))}
 function saveRenamed(){localStorage.setItem('sw_renamed_lots',JSON.stringify(renamedLots))}
 
+
+// Sheet-Daten für Lots (aus Google Sheets)
+var sheetLots = {}; // {worldName: {nr: {name, threadUrl, imgUrl}}}
+var sheetLotsLoaded = false;
+
+function fetchSheetLots(cb){
+  if(sheetLotsLoaded){ if(cb) cb(); return; }
+  fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vRGJifryvR2cW2gOBiG3x1p-Gy-lXe5pLMValomH8hTXNW0AiiRsWO5tM4mL85TCE0mU9jjbIkksHil/pub?output=csv')
+    .then(r=>r.text())
+    .then(csv=>{
+      const rows = csv.split('\n');
+      const headers = rows[0].split(',').map(h=>h.replace(/"/g,'').trim().toLowerCase());
+      const wIdx = headers.indexOf('welt');
+      const nIdx = headers.indexOf('nr.');
+      const nameIdx = headers.indexOf('name');
+      const urlIdx = headers.indexOf('thread url');
+      const imgIdx = headers.indexOf('bild url');
+      const groupIdx = headers.indexOf('dot-gruppe');
+      sheetLots = {};
+      rows.slice(1).filter(r=>r.trim()).forEach(r=>{
+        const cols = r.split(',');
+        const get = i => (cols[i]||'').replace(/"/g,'').trim();
+        const world = get(wIdx);
+        const nr = get(nIdx);
+        if(!world || !nr) return;
+        if(!sheetLots[world]) sheetLots[world] = {};
+        sheetLots[world][nr] = {
+          name: get(nameIdx),
+          threadUrl: get(urlIdx),
+          imgUrl: get(imgIdx),
+          dotGroup: get(groupIdx),
+        };
+      });
+      sheetLotsLoaded = true;
+      if(cb) cb();
+    })
+    .catch(()=>{ sheetLotsLoaded = true; if(cb) cb(); });
+}
+
+function applySheetData(lot, wname){
+  // Match by nr field
+  const worldSheet = sheetLots[wname] || {};
+  const nr = lot.nr || (lot.name && lot.name.match(/^Nr\./) ? lot.name.split(' - ')[0].trim() : null);
+  if(!nr) return lot;
+  const sd = worldSheet[nr];
+  if(!sd) return lot;
+  const merged = {...lot};
+  if(sd.threadUrl) merged.url = sd.threadUrl;
+  if(sd.imgUrl) merged.img = sd.imgUrl;
+  if(sd.name && !lot.img) merged.name = nr + (sd.name ? ' - ' + sd.name : '');
+  // Mark as active if has thread
+  if(sd.threadUrl) merged.active = true;
+  return merged;
+}
+
 function getLots(wname){
   const hidden=hiddenLots[wname]||[];
   const renamed=renamedLots[wname]||{};
-  const hard=(worldLots[wname]||[]).filter(l=>!hidden.includes(l.name)).map(l=>({...l,name:renamed[l.name]||l.name,_origName:l.name,_src:'hard'}));
+  const hard=(worldLots[wname]||[]).filter(l=>!hidden.includes(l.name)).map(l=>{const base={...l,name:renamed[l.name]||l.name,_origName:l.name,_src:'hard'};return sheetLotsLoaded?applySheetData(base,wname):base;});
   const cust=(customLots[wname]||[]).map(l=>({...l,_src:'custom'}));
   const all=[...hard,...cust];
   return all.length?all:[{name:'Forum öffnen',x:50,y:50,url:worlds.find(w=>w.name===wname)?.url||BASE,active:false}];
@@ -1476,10 +1531,7 @@ function enterWorld(w){
   document.getElementById('calib-world-next').textContent=getLots(w.name)[0]?.name||'—';
   document.getElementById('calib-world-count').textContent='0';
   exitBuilding();
-  renderLots(w);
-  if(adminMode)renderAdminContent();
-  setTimeout(updateAllTokens,100);
-  setTimeout(repositionTooltips,200);
+  fetchSheetLots(()=>{ renderLots(w); if(adminMode)renderAdminContent(); setTimeout(updateAllTokens,100); setTimeout(repositionTooltips,200); });
 }
 
 let buildingFloorIdx=0,currentBuildingKey=null;
@@ -2536,6 +2588,7 @@ window.addEventListener('load',function(){
   updateSidebarStats();
   fetchCharsFromScript();
   repositionTooltips();
+  fetchSheetLots();
   if(location.hash.match(/^#chars-/)){
     openCharView(location.hash.replace('#chars-',''));
   }
