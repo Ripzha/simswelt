@@ -812,6 +812,7 @@ const worldLots={
     {name:"Narwal Arms",nr:"Nr. 8",x:67.2,y:44.7,url:BASE+"t6f51782-Windenburg-Nr-Narwal-Arms.html",active:false},
     {name:"Palazzo",nr:"Nr. 9",x:72.3,y:42.9,url:BASE+"t648f51782-Windenburg-Palazzo-Dinner-Tanz-amp-Show.html",active:false},
     {name:"Nr. 10",x:74.9,y:39.1,url:BASE+"f51782-Windenburg.html",active:false},
+    {nr:"Nr. 11",x:80.6,y:42.1},
     {name:"Luigi's Pizza",nr:"Nr. 12",x:87.5,y:51.7,url:BASE+"t14f51782-Windenburg-Nr-Luigi-s-Pizza.html",active:false},
         {name:"Tierarztpraxis",nr:"Nr. 13",x:78.8,y:53.1,url:BASE+"t546f51782-Windenburg-Tierarztpraxis-Windenburg.html",active:false},
     {name:"Nr. 14",x:67.4,y:54,url:BASE+"f51782-Windenburg.html",active:false},
@@ -1296,16 +1297,14 @@ function getLots(wname){
     // Generate extra lots from sheet entries with matching dot-group
     if(sheetLotsLoaded && l.nr){
       const nrNum=l.nr.replace(/^Nr\.\s*/,'').trim(); // "Nr. 11" -> "11"
-      // Find all sheet entries where dotGroup === nrNum
+      const extraLots=[];
       Object.keys(worldSheet).forEach(key=>{
         const entry=worldSheet[key];
-        if(Array.isArray(entry)) return; // handled separately
+        if(Array.isArray(entry)) return;
         if(!entry.dotGroup || entry.dotGroup!==nrNum) return;
-        // Skip if this is the base nr itself (already merged above)
         const entryNr=(key.includes('|')?key.split('|')[1]:key);
         if(entryNr===l.nr) return;
-        // Add as extra lot with same coordinates
-        hard.push({
+        extraLots.push({
           ...l,
           nr:entryNr,
           name:entry.name||entryNr,
@@ -1315,6 +1314,16 @@ function getLots(wname){
           _src:'sheet'
         });
       });
+      // Sort by suffix: single letters (A,B,C) alphabetically, then double letters (ZZ,ZY)
+      extraLots.sort((a,b)=>{
+        const getSuffix=nr=>nr.replace(/^Nr\.\s*\d+/,'').trim();
+        const sa=getSuffix(a.nr), sb=getSuffix(b.nr);
+        const isDouble=s=>s.length>=2&&/^[A-Za-z]+$/.test(s);
+        if(isDouble(sa)&&!isDouble(sb)) return 1;
+        if(!isDouble(sa)&&isDouble(sb)) return -1;
+        return sa.localeCompare(sb);
+      });
+      extraLots.forEach(e=>hard.push(e));
     }
   });
   const cust=(customLots[wname]||[]).map(l=>({...l,_src:'custom'}));
@@ -1487,7 +1496,18 @@ function getCharsAtWorld(worldName){
 }
 function parseLotLabel(lot){
   const name=lot.name||'';
-  if(lot.nr){const hasLetter=/Nr\.\s*\d+[A-Za-z]+$/.test(lot.nr);return hasLetter?{num:'',sub:name||lot.nr}:{num:lot.nr,sub:(name&&name!==lot.nr?name:'')};}
+  if(lot.nr){
+    const sufMatch=lot.nr.match(/^(.*?)(([A-Za-z])\3|[A-Za-z]{3,})$/); // double+ letter suffix
+    const singleMatch=lot.nr.match(/^(.*?)([A-Za-z])$/); // single letter suffix
+    if(sufMatch){
+      // Double letter suffix (ZZ, ZY etc) - hide suffix
+      return{num:sufMatch[1],sub:(name&&name!==lot.nr?name:'')};
+    } else if(singleMatch){
+      // Single letter suffix (A, B etc) - show full nr
+      return{num:lot.nr,sub:(name&&name!==lot.nr?name:'')};
+    }
+    return{num:lot.nr,sub:(name&&name!==lot.nr?name:'')};
+  }
   const m=name.match(/^(Nr\.\s*\d+[A-Za-z]?)\s*[-–]\s*(.+)$/);
   if(m)return{num:m[1],sub:m[2].trim()};
   const n=name.match(/^(Nr\.\s*\d+[A-Za-z]?)$/);
