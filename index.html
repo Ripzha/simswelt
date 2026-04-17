@@ -1464,8 +1464,8 @@ function getCharsAtWorld(worldName){
   });
 }
 function parseLotLabel(lot){
-  const name=lot.name;
-  if(lot.nr)return{num:lot.nr,sub:name};
+  const name=lot.name||'';
+  if(lot.nr)return{num:lot.nr,sub:name||''};
   const m=name.match(/^(Nr\.\s*\d+[A-Za-z]?)\s*[-–]\s*(.+)$/);
   if(m)return{num:m[1],sub:m[2].trim()};
   const n=name.match(/^(Nr\.\s*\d+[A-Za-z]?)$/);
