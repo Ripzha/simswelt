@@ -1157,14 +1157,14 @@ const worldLots={
       ],
   "Bloodmoon Valley":[
     {name:"Portal",x:86.9,y:80.4,info:true,active:false},
-    {name:"Bloodmoon Valley (Strassen & Wälder)",x:64.4,y:79.3,url:BASE+"t380f53861-Bloodmoon-Valley.html",active:true,outdoor:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t380p3446n2_bGsQFBhr.png"},
-    {name:"Deathdealer Ausbildungslager",x:88.7,y:55.8,url:BASE+"t382f53861-Bloodmoon-Valley-Deathdealer-Ausbildungslager.html",active:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t382p3448n3_PzCaLcMb.png"},
-    {name:"Kerker-Ruine",x:69.2,y:46.2,url:BASE+"t609f53861-Bloodmoon-Valley-Kerker-Ruine.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t609p5380n2_MlDawgxc.jpg"},
-    {name:"Anwesen der Draculias",x:71.7,y:18,url:BASE+"t385f53861-Bloodmoon-Valley-Anwesen-der-Draculias.html",active:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t385p3451n2_BqadveJZ.png"},
-    {name:"Mirabelles Haus",x:15.6,y:89.5,url:BASE+"t492f53861-Bloodmoon-Valley-Mirabelles-Haus.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t492p4169n2_tIKSYmXG.png"},
-    {name:"Ruine",x:28.6,y:39.8,url:BASE+"t383f53861-Bloodmoon-Valley-Ruine.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t383p3449n7_opFWjNaw.png"},
-    {name:"Rabenfelsviertel",x:57.4,y:37.5,url:BASE+"t381f53861-Bloodmoon-Valley-Rabenfelsviertel-Harghita.html",active:true,building:"Rabenfelsviertel"},
-    {name:"Schattenmarktviertel",x:45.7,y:55.1,url:BASE+"t400f53861-Bloodmoon-Valley-Schattenmarktviertel-Harghita.html",active:true,building:"Schattenmarktviertel"},
+    {nr:"Strassen von",name:"Bloodmoon Valley (Strassen & Wälder)",x:64.4,y:79.3,url:BASE+"t380f53861-Bloodmoon-Valley.html",active:true,outdoor:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t380p3446n2_bGsQFBhr.png"},
+    {nr:"Deathdealer Ausbildungslager",name:"Deathdealer Ausbildungslager",x:88.7,y:55.8,url:BASE+"t382f53861-Bloodmoon-Valley-Deathdealer-Ausbildungslager.html",active:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t382p3448n3_PzCaLcMb.png"},
+    {nr:"Kerker-Ruine",name:"Kerker-Ruine",x:69.2,y:46.2,url:BASE+"t609f53861-Bloodmoon-Valley-Kerker-Ruine.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t609p5380n2_MlDawgxc.jpg"},
+    {nr:"Anwesen der Draculias",name:"Anwesen der Draculias",x:71.7,y:18,url:BASE+"t385f53861-Bloodmoon-Valley-Anwesen-der-Draculias.html",active:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t385p3451n2_BqadveJZ.png"},
+    {nr:"Mirabelles Haus",name:"Mirabelles Haus",x:15.6,y:89.5,url:BASE+"t492f53861-Bloodmoon-Valley-Mirabelles-Haus.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t492p4169n2_tIKSYmXG.png"},
+    {nr:"Ruine",name:"Ruine",x:28.6,y:39.8,url:BASE+"t383f53861-Bloodmoon-Valley-Ruine.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t383p3449n7_opFWjNaw.png"},
+    {nr:"Rabenfelsviertel",name:"Rabenfelsviertel",x:57.4,y:37.5,url:BASE+"t381f53861-Bloodmoon-Valley-Rabenfelsviertel-Harghita.html",active:true,building:"Rabenfelsviertel"},
+    {nr:"Schattenmarktviertel",name:"Schattenmarktviertel",x:45.7,y:55.1,url:BASE+"t400f53861-Bloodmoon-Valley-Schattenmarktviertel-Harghita.html",active:true,building:"Schattenmarktviertel"},
   ],
   "Selvadorada":[
     {name:"Nr. 1",x:21.6,y:62.5,url:BASE+"f51799-Selvadorada.html",active:false},
@@ -1241,12 +1241,19 @@ function fetchSheetLots(cb){
         const nr = get(nIdx);
         if(!world || !nr) return;
         if(!sheetLots[world]) sheetLots[world] = {};
-        sheetLots[world][nr] = {
+        const dotGroup = get(groupIdx);
+        const entry = {
           name: get(nameIdx),
           threadUrl: get(urlIdx),
           imgUrl: get(imgIdx),
-          dotGroup: get(groupIdx),
+          dotGroup: dotGroup,
         };
+        if(dotGroup){
+          sheetLots[world][dotGroup+'|'+nr] = entry;
+          if(!sheetLots[world][nr]) sheetLots[world][nr] = entry;
+        } else {
+          sheetLots[world][nr] = entry;
+        }
       });
       sheetLotsLoaded = true;
       if(cb) cb();
@@ -1255,17 +1262,21 @@ function fetchSheetLots(cb){
 }
 
 function applySheetData(lot, wname){
-  // Match by nr field
   const worldSheet = sheetLots[wname] || {};
   const nr = lot.nr || (lot.name && lot.name.match(/^Nr\./) ? lot.name.split(' - ')[0].trim() : null);
   if(!nr) return lot;
-  const sd = worldSheet[nr];
+  // For cluster lots: try building|nr first, fallback to nr
+  let sd = null;
+  if(lot.building){
+    sd = worldSheet[lot.building+'|'+nr] || worldSheet[nr] || null;
+  } else {
+    sd = worldSheet[nr];
+  }
   if(!sd) return lot;
   const merged = {...lot};
   if(sd.threadUrl) merged.url = sd.threadUrl;
   if(sd.imgUrl) merged.img = sd.imgUrl;
-  if(sd.name && !lot.img) merged.name = nr + (sd.name ? ' - ' + sd.name : '');
-  // Mark as active if has thread
+  if(sd.name) merged.name = nr + (sd.name ? ' - ' + sd.name : '');
   if(sd.threadUrl) merged.active = true;
   return merged;
 }
@@ -1443,7 +1454,7 @@ function getCharsAtWorld(worldName){
   });
 }
 function parseLotLabel(lot){
-  const name=lot.name;
+  const name=lot.name||'';
   if(lot.nr)return{num:lot.nr,sub:name};
   const m=name.match(/^(Nr\.\s*\d+[A-Za-z]?)\s*[-–]\s*(.+)$/);
   if(m)return{num:m[1],sub:m[2].trim()};
@@ -1528,7 +1539,7 @@ function enterWorld(w){
   document.getElementById('btn-back').style.display='inline-block';
   document.getElementById('mob-back').style.display='flex';
   calibWorldData=[];updateCalibLog('world');
-  document.getElementById('calib-world-next').textContent=getLots(w.name)[0]?.name||'—';
+  var _cl0=getLots(w.name)[0];document.getElementById('calib-world-next').textContent=(_cl0?.nr||_cl0?.name||'—');
   document.getElementById('calib-world-count').textContent='0';
   exitBuilding();
   fetchSheetLots(()=>{ renderLots(w); if(adminMode)renderAdminContent(); setTimeout(updateAllTokens,100); setTimeout(repositionTooltips,200); });
@@ -1555,7 +1566,9 @@ function renderBuildingLots(){
   const dotParent=document.getElementById('building-bg-inner')||bc;
   dotParent.querySelectorAll('.apt-dot').forEach(d=>d.remove());
   const aptLots=data?.lots||[];
+  const _bmWorld = Object.keys(worldLots).find(w => (worldLots[w]||[]).some(l => l.building === currentBuildingKey)) || 'Bloodmoon Valley';
   aptLots.forEach(apt=>{
+    if(sheetLotsLoaded) apt = applySheetData({...apt, building: currentBuildingKey}, _bmWorld);
     // Floor filter: if lot has floors array, only show on matching floor
     if(apt.floors&&!apt.floors.includes(buildingFloorIdx))return;
     const d=document.createElement('div');
@@ -1721,7 +1734,7 @@ function renderLots(w){
       const cd=document.createElement('div');
       cd.className='cluster-dot'+(isBuilding?' building-dot':'');
       cd.style.cssText=`left:${group.x}%;top:${group.y}%`;
-      const lbl=isBuilding?buildings[0].split('-')[0].trim():group.lots[0].name.split('-').pop().trim().split(' ').slice(0,2).join(' ');
+      const lbl=isBuilding?buildings[0].split('-')[0].trim():((group.lots[0].name||group.lots[0].nr||'').split('-').pop().trim().split(' ').slice(0,2).join(' '));
       const itemsHtml=group.lots.map(l=>`<div class="cluster-item" onclick="window.open('${l.url}','_blank');event.stopPropagation()">${l.img?`<img class="cluster-item-preview" src="${l.img}">`:''}><div class="cluster-pip" style="background:${l.active?'#4aaa6a':'rgba(255,255,255,0.4)'}"></div>${parseLotLabel(l).num}${parseLotLabel(l).sub?` <span style="color:rgba(255,255,255,0.45);font-size:10px">– ${parseLotLabel(l).sub}</span>`:''}</div>`).join('');
       const lotsWithImg=group.lots.filter(l=>l.img);
       const clusterHoverHtml=(!isBuilding&&lotsWithImg.length>0)?`<div class="cluster-hover" style="border:1px solid ${color}88;box-shadow:0 6px 28px ${color}44"><div style="display:flex;gap:1px">${lotsWithImg.map(l=>`<div style="position:relative;flex:1;min-width:0"><img src="${l.img}" style="width:100%;height:75px;object-fit:cover;display:block"><div style="position:absolute;bottom:3px;left:5px;font-size:8px;font-weight:600;text-shadow:0 1px 3px #000;color:#fff">${parseLotLabel(l).num}</div></div>`).join('')}</div><div class="hover-footer"><span class="hover-type">${group.lots.length} Orte</span><span class="hover-action" style="color:${color}">Klicken →</span></div></div>`:'';
@@ -1780,7 +1793,7 @@ worldC.addEventListener('click',e=>{
   const idx=calibWorldData.length;
   calibWorldData.push({name:allLots[idx]?.name||'Ort '+idx,x,y});
   updateCalibLog('world');
-  document.getElementById('calib-world-next').textContent=allLots[idx+1]?.name||'✅ Fertig! Jetzt kopieren';
+  var _cln=allLots[idx+1];document.getElementById('calib-world-next').textContent=(_cln?.nr||_cln?.name||'✅ Fertig! Jetzt kopieren');
   document.getElementById('calib-world-count').textContent=calibWorldData.length;
 });
 
@@ -1793,7 +1806,7 @@ function toggleCalib(mode){
 }
 function updateCalibLog(mode){const data=mode==='map'?calibMapData:calibWorldData;const log=document.getElementById(mode==='map'?'calib-map-log':'calib-world-log');log.innerHTML=data.length===0?'Noch keine Klicks...':data.map(d=>`<div style="color:#ffcc44">${d.name}</div><div style="color:#777">x:${d.x}, y:${d.y}</div>`).join('');log.scrollTop=log.scrollHeight;}
 function copyCalib(mode){const data=mode==='map'?calibMapData:calibWorldData;navigator.clipboard.writeText(data.map(d=>`{name:"${d.name}",x:${d.x},y:${d.y}}`).join(',\n')).then(()=>alert('✓ Kopiert!'));}
-function clearCalib(mode){if(mode==='map'){calibMapData=[];calibMapIdx=0;document.getElementById('calib-next').textContent=worlds[0]?.name||'—';}else{calibWorldData=[];document.getElementById('calib-world-next').textContent=getLots(currentWorld?.name||'')[0]?.name||'—';document.getElementById('calib-world-count').textContent='0';}updateCalibLog(mode);}
+function clearCalib(mode){if(mode==='map'){calibMapData=[];calibMapIdx=0;document.getElementById('calib-next').textContent=worlds[0]?.name||'—';}else{calibWorldData=[];var _clc=getLots(currentWorld?.name||'')[0];document.getElementById('calib-world-next').textContent=(_clc?.nr||_clc?.name||'—');document.getElementById('calib-world-count').textContent='0';}updateCalibLog(mode);}
 
 // ═══════════════════════════════════════════
 // LEGENDE
