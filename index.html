@@ -1248,9 +1248,14 @@ function fetchSheetLots(cb){
           imgUrl: get(imgIdx),
           dotGroup: dotGroup,
         };
-        // For Bloodmoon: store both by nr and by building|nr to handle same nr in different viertels
-        sheetLots[world][nr] = entry;
-        if(dotGroup) sheetLots[world][dotGroup + '|' + nr] = entry;
+        // Always store by dotGroup|nr when dotGroup exists (primary key for cluster lots)
+        if(dotGroup) {
+          sheetLots[world][dotGroup + '|' + nr] = entry;
+          // Only store by nr alone if no conflict yet
+          if(!sheetLots[world][nr]) sheetLots[world][nr] = entry;
+        } else {
+          sheetLots[world][nr] = entry;
+        }
       });
       sheetLotsLoaded = true;
       if(cb) cb();
