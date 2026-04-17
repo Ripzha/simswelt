@@ -1582,7 +1582,11 @@ function renderBuildingLots(){
   const dotParent=document.getElementById('building-bg-inner')||bc;
   dotParent.querySelectorAll('.apt-dot').forEach(d=>d.remove());
   const aptLots=data?.lots||[];
+  // Find world name for this building
+  const bmWorld = Object.keys(worldLots).find(w => (worldLots[w]||[]).some(l => l.building === currentBuildingKey)) || 'Bloodmoon Valley';
   aptLots.forEach(apt=>{
+    // Apply sheet data if available
+    if(sheetLotsLoaded) apt = applySheetData({...apt, building: currentBuildingKey}, bmWorld);
     // Floor filter: if lot has floors array, only show on matching floor
     if(apt.floors&&!apt.floors.includes(buildingFloorIdx))return;
     const d=document.createElement('div');
