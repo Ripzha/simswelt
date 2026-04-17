@@ -1181,6 +1181,19 @@ const worldLots={
 };
 
 
+const OTHERWORLDS_DATA=[
+  {name:"Bloodmoon Valley",type:"Vampirwelt",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t380p3446n2_bGsQFBhr.png",world:otherworlds[0]},
+  {name:"Zauberallee",type:"Magische Welt",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51855t406p3532n2_obFYOumL.png",url:"https://www.simsforumrpg.de/t406f51855-Zauberallee.html"},
+  {name:"Die Unterwelt",type:"Andere Welt",img:null,url:"https://www.simsforumrpg.de/t425f51855-Die-Unterwelt.html"},
+  {name:"Der Zauberwald",type:"Magische Welt",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51855t90p1006n2_cgJWwteb.png",url:"https://www.simsforumrpg.de/t90f51855-Der-Zauberwald.html"},
+  {name:"Europa",type:"Reale Welt",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51855t206p2661n2_LrURBnpa.jpg",url:"https://www.simsforumrpg.de/t206f51855-Kontinent-Europa.html"},
+  {name:"Kanada",type:"Reale Welt",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51855t644p5918n2_KHliXsLA.png",url:"https://www.simsforumrpg.de/t644f51855-Kanada.html"},
+  {name:"Die Welt zwischen den Welten",type:"Andere Welt",img:null,url:"https://www.simsforumrpg.de/t632f51855-Die-Welt-zwischen-den-Welten.html"},
+  {name:"Magische Welt Utopia",type:"Magische Welt",img:null,url:"https://www.simsforumrpg.de/t489f51855-Magische-Welt-Utopia.html"},
+  {name:"Vampirwelt - Transsylvanien",type:"Vampirwelt",img:null,url:"https://www.simsforumrpg.de/t340f51855-Vampirwelt-Transsylvanien.html"},
+  {name:"Paralleluniversum - Oasis Springs",type:"Paralleluniversum",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f51855t220p2764n2_XtTNcofK.png",url:"https://www.simsforumrpg.de/t220f51855-Paralleluniversum-Oasis-Springs.html"},
+];
+
 function openOtherWorld(){
   var grid=document.getElementById('otherworld-grid');
   grid.innerHTML='';
@@ -1321,6 +1334,37 @@ function renameLot(wname,origName,custIdx){
   if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();
 }
 
+
+function updateAllTokens(){
+  if(!CHARS.length){ setTimeout(updateAllTokens, 1000); return; }
+  document.querySelectorAll('.dot-char-tokens[data-lot-url]').forEach(function(el){
+    var lotUrl = el.getAttribute('data-lot-url');
+    if(!lotUrl) return;
+    var lotThreadId = getThreadIdFromUrl(lotUrl);
+    var chars = CHARS.filter(function(c){
+      if(!c.lastSeenUrl) return false;
+      return lotThreadId && getThreadIdFromUrl(c.lastSeenUrl) === lotThreadId;
+    });
+    var inner = chars.map(function(c,i){
+      var name=c.n||'';
+      var inner2=c.img?'<img class="dot-char-token" src="'+c.img+'" alt="'+name+'">':'<div class="dot-char-token-ph">'+name.charAt(0)+'</div>';
+      var hidden=i>=5?'dot-char-token-hidden':'';
+      return '<div class="dot-char-token-wrap '+hidden+'">'+inner2+'<div class="dot-char-token-name">'+name+'</div></div>';
+    }).join('')+(chars.length>5?'<div class="dot-char-token-wrap dot-char-token-extra"><div class="dot-char-token-ph">+'+(chars.length-5)+'</div></div>':'');
+    el.innerHTML = inner;
+  });
+  document.querySelectorAll('.dot-char-tokens[data-world-name]').forEach(function(el){
+    var worldName = el.getAttribute('data-world-name');
+    var chars = getCharsAtWorld(worldName);
+    var inner = chars.map(function(c,i){
+      var name=c.n||'';
+      var inner2=c.img?'<img class="dot-char-token" src="'+c.img+'" alt="'+name+'">':'<div class="dot-char-token-ph">'+name.charAt(0)+'</div>';
+      var hidden=i>=5?'dot-char-token-hidden':'';
+      return '<div class="dot-char-token-wrap '+hidden+'">'+inner2+'<div class="dot-char-token-name">'+name+'</div></div>';
+    }).join('')+(chars.length>5?'<div class="dot-char-token-wrap dot-char-token-extra"><div class="dot-char-token-ph">+'+(chars.length-5)+'</div></div>':'');
+    el.innerHTML = inner;
+  });
+}
 function updateSidebarStats(){
   fetch('https://script.google.com/macros/s/AKfycbzJ_fMI1LBjmFAQDhjD1sr3hJtdUj4OOor_WiWX3asl_eX0FXDN1wr64cNON3odhHdX/exec?action=stats')
     .then(r=>r.json())
