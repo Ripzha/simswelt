@@ -567,7 +567,8 @@ const BUILDINGS = {
   "Luxusallee-21":         {imgs:[IMG+"pictures_u1177_mzbSxfyX.png"],lots:[{name:"Wohnung 26",x:60,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 27",x:30,y:60,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 28",x:55,y:80,url:BASE+'f51783-San-Myshuno.html',active:false}]},
   "Kieferhügel-Apartments":{imgs:[''],lots:[
     {name:"Nr. 12 - Jarred Cunningham",x:35,y:45,url:BASE+'t621f51791-Evergreen-Harbor-Nr-Wohnung-Jarred-Cunningham.html',active:false},
-    {name:"Nr. 13 - WG Tom & Valentin",x:65,y:70,url:BASE+'t233f51791-Evergreen-Harbor-Nr-WG-Tom-Valentin.html',active:false}]},
+    {name:"Nr. 13 - WG Tom & Valentin",x:65,y:70,url:BASE+'t233f51791-Evergreen-Harbor-Nr-WG-Tom-Valentin.html',active:false},
+  ]},
     "Rabenfelsviertel":{imgs:[
     "https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t381p3447n5_bOxsVZnp.png",
     "https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t381p3447n6_nlUZQzDB.png",
@@ -589,7 +590,8 @@ const BUILDINGS = {
     // Ebene 2+3+4
     {name:"Nr. 2 - Frei",x:30.5,y:18,floors:[1,2,3],free:true,active:false},
     // Ebene 1
-    {name:"Nr. 1 - Frei",x:64.7,y:12.3,floors:[0],free:true,active:false}]},
+    {name:"Nr. 1 - Frei",x:64.7,y:12.3,floors:[0],free:true,active:false},
+  ]},
     "Schattenmarktviertel":{imgs:[
     "https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t400p3507n4_sXkBObeL.png",
     "https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t400p3507n3_tHoMvGaN.png",
@@ -617,15 +619,19 @@ const BUILDINGS = {
     {name:"Nr. 16 - Jacks Unterschlupf",x:32,y:47.3,floors:[2],url:BASE+"t398f53861-Bloodmoon-Valley-Schattenmarktviertel-Haus-Nr-Jacks-Unterschlupf-Harghita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t398p3504n3_CAyrzJKG.png"},
     {name:"Nr. 14 - Frei",x:62.8,y:44.1,floors:[2],free:true,active:false},
     {name:"Nr. 15 - Frei",x:33.5,y:83.3,floors:[2],free:true,active:false},
-    {name:"Nr. 17 - Frei",x:32.6,y:28,floors:[2],free:true,active:false}]},
+    {name:"Nr. 17 - Frei",x:32.6,y:28,floors:[2],free:true,active:false},
+  ]},
     "Steinweg-Apartments":   {imgs:[''],lots:[
-    {name:"Nr. 15 - Wohnung Joachim Winter",x:65,y:65,url:BASE+'f51791-Evergreen-Harbor.html',active:false}]},
+    {name:"Nr. 15 - Wohnung Joachim Winter",x:65,y:65,url:BASE+'f51791-Evergreen-Harbor.html',active:false},
+  ]},
   "Seeblick Appartments":   {imgs:[IMG+"pictures_u1188_HlaIWmsV.png"],lots:[
     {name:"Nr. 15",x:43.9,y:55.2,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 16",x:53.5,y:45.8,url:BASE+"f60507-Ondarion.html",active:false}]},
+    {name:"Nr. 16",x:53.5,y:45.8,url:BASE+"f60507-Ondarion.html",active:false},
+  ]},
   "Sturmhöhe Appartments":  {imgs:[IMG+"pictures_u1187_RzFNAGjD.png"],lots:[
     {name:"Nr. 17",x:45,y:56.9,url:BASE+"f60507-Ondarion.html",active:false},
-    {name:"Nr. 18",x:55,y:47.7,url:BASE+"f60507-Ondarion.html",active:false}]},
+    {name:"Nr. 18",x:55,y:47.7,url:BASE+"f60507-Ondarion.html",active:false},
+  ]},
 };
 
 // ═══════════════════════════════════════════
@@ -661,529 +667,942 @@ const worlds=[
   {name:"Ciudad Enamorada (Strassen)",x:2.7,y:44.6,color:"#aa4a3a",type:"Latein",url:BASE+"f58925-Ciudad-Enamorada.html",img:IMG+"f51848t204p3786n2_wXzDyWOT.png"},
   {name:"Tartosa",x:72.8,y:92.2,color:"#b06a3a",type:"Mittelmeer",url:BASE+"f51794-Tartosa.html",img:IMG+"f51848t204p3076n2_nNWxrUDc.png"},
   {name:"Ondarion",x:3.1,y:50.2,color:"#8a7a3a",type:"Königreich",url:BASE+"f60507-Ondarion.html",img:IMG+"f51848t204p6856n4_dkluvaJX.png"},
-  {name:"Gibbi Point",x:2.5,y:56.8,color:"#2a7a8a",type:"Küstenpunkt",url:BASE+"f60506-Gibbi-Point.html",img:IMG+"f51848t204p6440n2_HbYIrRJo.png"}];
+  {name:"Gibbi Point",x:2.5,y:56.8,color:"#2a7a8a",type:"Küstenpunkt",url:BASE+"f60506-Gibbi-Point.html",img:IMG+"f51848t204p6440n2_HbYIrRJo.png"},
+];
 
 // ═══════════════════════════════════════════
 // ORTE PRO WELT
 // ═══════════════════════════════════════════
 const worldLots={
   "Innisgreen":[
-    {nr:"Strassen von",x:51.1,y:44.8,outdoor:true},
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 5"},
-    {x:50,y:50,nr:"Nr. 6"},
-    {x:50,y:50,nr:"Nr. 7"},
-    {x:50,y:50,nr:"Nr. 8"},
-    {x:50,y:50,nr:"Nr. 9"},
-    {x:50,y:50,nr:"Nr. 10"},
-    {x:50,y:50,nr:"Nr. 11"},
-    {x:50,y:50,nr:"Nr. 12"},
-    {x:50,y:50,nr:"Nr. 13"},
-    {x:50,y:50,nr:"Nr. 14"}],
+    {name:"Innisgreen (Strassen)",x:51.1,y:44.8,url:BASE+"t701f59907-Innisgreen.html",active:true,outdoor:true,img:IMG+"f59907t701p6857n19_dHObIEay.png"},
+    {name:"Ort 1",x:15.5,y:34.8,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 2",x:19.9,y:45.8,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 3",x:28.9,y:26.4,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 4",x:39.7,y:27.6,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 5",x:37.1,y:45.8,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 6",x:53.7,y:21.3,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 7",x:58.1,y:30.5,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 8",x:69.2,y:24.6,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 9",x:83.6,y:26.1,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 10",x:75.1,y:37.1,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 11",x:55.3,y:61,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 12",x:66.6,y:52.6,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 13",x:53.3,y:69.5,url:BASE+"f59907-Innisgreen.html",active:false},
+    {name:"Ort 14",x:64,y:68,url:BASE+"f59907-Innisgreen.html",active:false},
+  ],
   "Gibbi Point":[
-    {nr:"Strassen von",x:63.8,y:70.9,outdoor:true},
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 5"},
-    {x:50,y:50,nr:"Nr. 6"},
-    {x:50,y:50,nr:"Nr. 7"},
-    {x:50,y:50,nr:"Nr. 8"},
-    {x:50,y:50,nr:"Nr. 9"},
-    {x:50,y:50,nr:"Nr. 10"},
-    {x:50,y:50,nr:"Nr. 11"},
-    {x:50,y:50,nr:"Nr. 12"},
-    {x:50,y:50,nr:"Nr. 13"}],
+    {name:"Gibbi Point (Strassen)",x:63.8,y:70.9,url:BASE+"f60506-Gibbi-Point.html",active:true,outdoor:true},
+    {name:"Nr. 1",x:19.7,y:22.8,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 2",x:32.4,y:21.5,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 3",x:21.5,y:33.9,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 4",x:36.7,y:30.6,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 5",x:63.3,y:16.6,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 6",x:79.5,y:22.1,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 7",x:68.1,y:31.3,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 8",x:78.4,y:29.9,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 9",x:74.4,y:39.6,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 10",x:54.1,y:61.2,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 11",x:66.8,y:57,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 12",x:70.6,y:64.4,url:BASE+"f60506-Gibbi-Point.html",active:false},
+    {name:"Nr. 13",x:78.2,y:73.4,url:BASE+"f60506-Gibbi-Point.html",active:false},
+  ],
   "Ondarion":[
-    {nr:"Strassen von",x:48.6,y:44.8,outdoor:true},
-    {x:63.8,y:23.5,building:"Seeblick Appartments"},
-    {x:57.9,y:61.5,building:"Sturmhöhe Appartments"},
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 5"},
-    {x:50,y:50,nr:"Nr. 6"},
-    {x:50,y:50,nr:"Nr. 7"},
-    {x:50,y:50,nr:"Nr. 8"},
-    {x:50,y:50,nr:"Nr. 9"},
-    {x:50,y:50,nr:"Nr. 10"},
-    {x:50,y:50,nr:"Nr. 11"},
-    {x:50,y:50,nr:"Nr. 12"},
-    {x:50,y:50,nr:"Nr. 13"},
-    {x:50,y:50,nr:"Nr. 14"},
-    {x:50,y:50,nr:"Nr. 15",building:"15-16"},
-    {x:50,y:50,nr:"Nr. 16",building:"15-16"},
-    {x:50,y:50,nr:"Nr. 17",building:"17-18"},
-    {x:50,y:50,nr:"Nr. 18",building:"17-18"}],
+    {name:"Ondarion (Strassen)",x:48.6,y:44.8,url:BASE+"f60507-Ondarion.html",active:true,outdoor:true},
+    {name:"Nr. 1",x:15.7,y:21.8,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 2",x:30.7,y:19.3,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 3",x:25.8,y:24.5,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 4",x:22.6,y:34.9,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 5",x:35.4,y:27.1,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 6",x:39.5,y:32.1,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 7",x:54.4,y:34.5,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 8",x:56.9,y:23.7,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 9",x:71.3,y:21.9,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 10",x:74.3,y:32.9,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 11",x:40.6,y:71.2,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 12",x:45.4,y:66.8,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 13",x:49.6,y:76.8,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 14",x:61.6,y:73.4,url:BASE+"f60507-Ondarion.html",active:false},
+    {name:"Nr. 15-16 - Seeblick",x:63.8,y:23.5,url:BASE+"f60507-Ondarion.html",active:false,building:"Seeblick Appartments"},
+    {name:"Nr. 17-18 - Sturmhöhe",x:57.9,y:61.5,url:BASE+"f60507-Ondarion.html",active:false,building:"Sturmhöhe Appartments"},
+  ],
   "Willow Creek":[
-    {x:13.7,y:36.1,nr:"Nr. 1"},
-    {x:24.3,y:43.9,nr:"Nr. 2"},
-    {x:40.5,y:35.8,nr:"Nr. 3"},
-    {x:53.4,y:32,nr:"Nr. 4"},
-    {x:49.5,y:43.1,nr:"Nr. 5"},
-    {x:59.6,y:39.1,nr:"Nr. 6"},
-    {x:78.5,y:39.6,nr:"Nr. 7"},
-    {x:89,y:44.2,nr:"Nr. 8"},
-    {x:71.5,y:48.8,nr:"Nr. 9"},
-    {x:77.9,y:51.2,nr:"Nr. 10"},
-    {x:85.8,y:52.6,nr:"Nr. 11"},
-    {x:70.6,y:65.3,nr:"Nr. 12"},
-    {x:83.4,y:71.2,nr:"Nr. 13"},
-    {x:58.4,y:63.9,nr:"Nr. 14"},
-    {x:64.7,y:72.3,nr:"Nr. 15"},
-    {x:75.5,y:80.4,nr:"Nr. 16"},
-    {x:37,y:57.2,nr:"Nr. 17"},
-    {x:15.7,y:67.4,nr:"Nr. 18"},
-    {x:25,y:73.9,nr:"Nr. 19"},
-    {x:32.3,y:77.7,nr:"Nr. 20"},
-    {x:42.6,y:82.3,nr:"Nr. 21"},
-    {nr:"Strassen von",x:60.8,y:90.4,outdoor:true}
+    {name:"Nr. 2 - Gerichtsgebäude",x:25.2,y:44.7,url:BASE+"t42f51778-Willow-Creek-Nr-Gerichtsgebaeude.html",active:false,img:IMG+"f51778t42p480n2_hRnETHkO.png"},
+    {name:"Nr. 7 - Restaurant Panorama",x:77.8,y:40.4,url:BASE+"t30f51778-Willow-Creek-Nr-Restaurant-Panorama.html",active:false,img:IMG+"f51778t30p211n2_hzFedUlK.png"},
+    {name:"Nr. 11 - Archiv",x:85.4,y:52.8,url:BASE+"t13f51778-Willow-Creek-Nr-Archiv-von-Willow-Creek.html",active:false,img:IMG+"f15060t13p50n2_ohFYWDgT.png"},
+    {name:"Nr. 12 - Familie Komarow",x:70.6,y:65.4,url:BASE+"t212f51778-Willow-Creek-Nr-Familie-Komarow.html",active:false,img:IMG+"f51778t212p2694n6_DpoPUmuQ.png"},
+    {name:"Nr. 14 - Phil Hermann",x:58.7,y:64.6,url:BASE+"t34f51778-Willow-Creek-Nr-Haus-von-Phil-Hermann.html",active:false,img:IMG+"f51778t34p230n2_dLhNcPVe.png"},
+    {name:"Nr. 16 - Haus Darkholme",x:75.5,y:81.3,url:BASE+"t72f51778-Willow-Creek-Nr-Haus-Darkholme.html",active:false,img:IMG+"f51778t72p630n12_OPosmXBZ.png"},
+    {name:"Nr. 17 - Magnolienblüten Park",x:37.5,y:57.8,url:BASE+"t36f51778-Willow-Creek-Nr-Magnolienblueten-Park.html",active:false,img:IMG+"f51778t36p244n2_kighvlSC.jpg"},
+    {name:"Nadine's Haus",nr:"Nr. 9",x:70.2,y:49.3,url:BASE+"t159f51778-Willow-Creek-Nadine-s-Haus.html",active:false,img:IMG+"f51778t159p2250n8_MQOKRYAe.png"},
+    {name:"Denize' Haus",nr:"Nr. 15",x:63.3,y:74.1,url:BASE+"t66f51778-Willow-Creek-Denize-Haus.html",active:false,img:IMG+"f51778t66p624n2_cjyNqzif.png"},
+    {name:"Familie Lamont",nr:"Nr. 21",x:41.3,y:82.9,url:BASE+"t237f51778-Willow-Creek-Haus-von-Familie-Lamont.html",active:false,img:IMG+"f51778t237p2999n13_GVtEkBvD.png"},
+    {name:"Nr. 1",x:14.2,y:37,url:BASE+"f51778-Willow-Creek.html",active:false},
+    {name:"Nr. 3",x:40.6,y:35.5,url:BASE+"f51778-Willow-Creek.html",active:false},
+    {name:"Nr. 4",x:53.7,y:32.9,url:BASE+"f51778-Willow-Creek.html",active:false},
+    {name:"Nr. 5",x:49.9,y:44.4,url:BASE+"f51778-Willow-Creek.html",active:false},
+    {name:"Nr. 6",x:59.2,y:39.5,url:BASE+"f51778-Willow-Creek.html",active:false},
+    {name:"Nr. 8",x:89.1,y:44.5,url:BASE+"f51778-Willow-Creek.html",active:false},
+    {name:"Nr. 10",x:77.8,y:51.9,url:BASE+"f51778-Willow-Creek.html",active:false},
+    {name:"Nr. 13",x:82.9,y:72.4,url:BASE+"f51778-Willow-Creek.html",active:false},
+    {name:"Nr. 18",x:17.3,y:68,url:BASE+"f51778-Willow-Creek.html",active:false},
+    {name:"Nr. 19",x:25.1,y:73.5,url:BASE+"f51778-Willow-Creek.html",active:false},
+    {name:"Nr. 20",x:33.2,y:77.8,url:BASE+"f51778-Willow-Creek.html",active:false},
   ],
   "Oasis Springs":[
-    {nr:"Strassen von",x:60.8,y:90.4,outdoor:true},
-            {x:83.4,y:56.8,nr:"Nr. 11"},
-    {x:88.8,y:52.3,nr:"Nr. 10"},
-    {x:90,y:29,nr:"Nr. 5"},
-    {x:20.5,y:67,nr:"Nr. 20"},
-    {x:13.8,y:63.8,nr:"Nr. 21"},
-    {x:90,y:57,nr:"Nr. 7"},
-    {x:68.8,y:50.4,nr:"Nr. 8"},
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 12"},
-    {x:50,y:50,nr:"Nr. 13"},
-    {x:50,y:50,nr:"Nr. 14"},
-    {x:50,y:50,nr:"Nr. 15"},
-    {x:50,y:50,nr:"Nr. 16"},
-    {x:50,y:50,nr:"Nr. 17"},
-    {x:50,y:50,nr:"Nr. 18"},
-    {x:50,y:50,nr:"Nr. 19"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 22"},
-    {x:50,y:50,nr:"Nr. 23"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 6"},
-    {x:50,y:50,nr:"Nr. 9"}],
+    {name:"Oasis Springs (Strassen)",x:40.5,y:60.6,url:BASE+"t166f51779-Oasis-Springs.html",active:true,outdoor:true},
+    {name:"Nr. 1",x:20.2,y:35.9,url:BASE+"f51779-Oasis-Springs.html",active:false},
+    {name:"Nr. 2",x:12.9,y:44.6,url:BASE+"f51779-Oasis-Springs.html",active:false},
+    {name:"Nr. 3",x:20,y:49.3,url:BASE+"f51779-Oasis-Springs.html",active:false},
+    {name:"Nr. 4",x:34.8,y:43.1,url:BASE+"f51779-Oasis-Springs.html",active:false},
+    {name:"Nr. 5",x:50.8,y:51.5,url:BASE+"f51779-Oasis-Springs.html",active:false},
+    {name:"Nr. 6",x:44,y:32.3,url:BASE+"f51779-Oasis-Springs.html",active:false},
+    {name:"Nr. 7",x:59.6,y:37.2,url:BASE+"f51779-Oasis-Springs.html",active:false},
+        {name:"Nr. 9",x:79,y:44.3,url:BASE+"f51779-Oasis-Springs.html",active:false},
+            {name:"Nr. 12",x:75.5,y:57.1,url:BASE+"f51779-Oasis-Springs.html",active:false},
+    {name:"Nr. 13",x:81.7,y:73.5,url:BASE+"f51779-Oasis-Springs.html",active:false},
+    {name:"Nr. 14",x:64.4,y:65.4,url:BASE+"f51779-Oasis-Springs.html",active:false},
+    {name:"Nr. 15",x:54.6,y:68.1,url:BASE+"f51779-Oasis-Springs.html",active:false},
+    {name:"Nr. 16",x:69.5,y:79.4,url:BASE+"f51779-Oasis-Springs.html",active:false},
+    {name:"Nr. 17",x:58.5,y:79.6,url:BASE+"f51779-Oasis-Springs.html",active:false},
+    {name:"Nr. 18",x:39.3,y:81.5,url:BASE+"f51779-Oasis-Springs.html",active:false},
+    {name:"Nr. 19",x:31.7,y:72.1,url:BASE+"f51779-Oasis-Springs.html",active:false},
+            {name:"Familie Töpfer",nr:"Nr. 11",x:83.4,y:56.8,url:BASE+"t51f51779-Oasis-Springs.html",active:false,img:IMG+"f51779t51p609n2_oiOQgtVH.png"},
+    {name:"Delsyns Camper",nr:"Nr. 10",x:88.8,y:52.3,url:BASE+"t64f51779-Oasis-Springs.html",active:false,img:IMG+"f51779t64p622n2_HsOdbCVe.png"},
+    {name:"Bandraum",nr:"Nr. 5",x:90,y:29,url:BASE+"t62f51779-Oasis-Springs.html",active:false,img:IMG+"f51779t62p620n2_dIPqYGbr.png"},
+    {name:"Oasis Bowling",nr:"Nr. 20",x:20.5,y:67,url:BASE+"t44f51779-Oasis-Springs.html",active:false,img:IMG+"f51779t44p602n2_wOPutXMn.png"},
+    {name:"Skate Park",nr:"Nr. 21",x:13.8,y:63.8,url:BASE+"t49f51779-Oasis-Springs.html",active:false,img:IMG+"f51779t49p607n2_ALITpwVs.png"},
+    {name:"Haus Bucur",x:90,y:50,url:BASE+"t469f51779-Oasis-Springs.html",active:false,img:IMG+"f51779t469p3806n2_alfePpTq.png"},
+    {name:"Oasis Springs Endstation",nr:"Nr. 7",x:90,y:57,url:BASE+"t63f51779-Oasis-Springs.html",active:false,img:IMG+"f51779t63p621n2_RKMJYeyH.png"},
+    {name:"Leerstehende Bruchbude",nr:"Nr. 8",x:68.8,y:50.4,url:BASE+"t48f51779-Oasis-Springs.html",active:false,img:IMG+"f51779t48p606n2_MnwPKEYs.png"},
+  ],
   "Newcrest":[
-    {nr:"Strassen von",x:50,y:50,outdoor:true},
-    {x:54.5,y:24.7,nr:"Nr. 1"},
-    {x:61.3,y:27.8,nr:"Nr. 15"},
-    {x:69,y:30.6,nr:"Nr. 5"},
-    {x:82.5,y:53.1,nr:"Nr. 14"},
-    {x:76.4,y:63.7,nr:"Nr. 8"},
-    {x:72.3,y:69.2,nr:"Nr. 9"},
-    {x:69.5,y:78.3,nr:"Nr. 10"},
-    {x:42.7,y:64.6,nr:"Nr. 12"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 6"},
-    {x:50,y:50,nr:"Nr. 7"},
-    {x:50,y:50,nr:"Nr. 11"},
-    {x:50,y:50,nr:"Nr. 13"},
-    {x:50,y:50,nr:"Nr. 16"},
-    {x:50,y:50,nr:"Nr. 17"}],
+    {name:"Newcrest",x:50,y:50,url:BASE+"t88f51780-Newcrest.html",active:true,outdoor:true},
+    {name:"Nr. 13 - Waisenhaus Heimathafen",x:32,y:57.2,url:BASE+"t566f51780-Newcrest-Nr-Waisenhaus-Heimathafen.html",active:true,img:IMG+"f51780t566p4997n7_zwhuqRTB.png"},
+    {name:"Jugendtreff KOJ",nr:"Nr. 1",x:54.5,y:24.7,url:BASE+"t71f51780-Newcrest.html",active:false,img:IMG+"f51780t71p629n2_wnFATONg.png"},
+    {name:"Blaisdell Anwesen",nr:"Nr. 15",x:61.3,y:27.8,url:BASE+"t70f51780-Newcrest-Blaisdell-Anwesen.html",active:false,img:IMG+"f51780t70p628n2_UenvSTXa.png"},
+    {name:"Nr. 3",x:64.8,y:22.4,url:BASE+"f51780-Newcrest.html",active:false},
+    {name:"Nr. 4",x:67.2,y:19.8,url:BASE+"f51780-Newcrest.html",active:false},
+    {name:"Selvadorada Museum",nr:"Nr. 5",x:69,y:30.6,url:BASE+"t45f51780-Newcrest.html",active:false,img:IMG+"f51780t45p603n2_NnTLulDU.png"},
+    {name:"Naturkundemuseum",nr:"Nr. 14",x:82.5,y:53.1,url:BASE+"t214f51780-Newcrest-Naturkundemuseum.html",active:false,img:IMG+"f51780t214p2704n10_uabWVRpd.png"},
+    {name:"Nr. 7",x:79.3,y:58.1,url:BASE+"f51780-Newcrest.html",active:false},
+    {name:"Café \"The Purrfect Time\"",nr:"Nr. 8",x:76.4,y:63.7,url:BASE+"t50f51780-Newcrest.html",active:false,img:IMG+"f51780t50p608n2_ztCPsOVu.png"},
+    {name:"Saunabad \"Freigeist\"",nr:"Nr. 9",x:72.3,y:69.2,url:BASE+"t32f51780-Newcrest.html",active:false,img:IMG+"f51780t32p219n2_GRhyKVDO.png"},
+    {name:"Tropenbad",nr:"Nr. 10",x:69.5,y:78.3,url:BASE+"t75f51780-Newcrest.html",active:false,img:IMG+"f51780t75p633n2_DumIKaAR.png"},
+    {name:"Fussballplatz",nr:"Nr. 12",x:42.7,y:64.6,url:BASE+"t77f51780-Newcrest-Fussballplatz.html",active:false,img:IMG+"f51780t77p635n2_HtnsGkjE.png"},
+  ],
   "Magnolia Promenade":[
-    {nr:"Strassen von",x:49,y:52,outdoor:true},
-    {x:53.5,y:63.5,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 5"}],
+    {name:"Magnolia Promenade",x:49,y:52,url:BASE+"t225f51781-Magnolia-Promenade.html",active:true,outdoor:true,img:IMG+"f51781t225p2839n2_ETxPDFyw.png"},
+    {name:"Nr. 1 - Kleiner Lebensmittelladen",x:43.9,y:43.5,url:BASE+"t16f51781-Magnolia-Promenade-Nr-Kleiner-Lebensmittelladen.html",active:false,img:IMG+"f51781t16p65n2_qVzxAWyO.png"},
+    {name:"Nr. 2 - Shopping District",x:59.8,y:50,url:BASE+"t24f51781-Magnolia-Promenade-Nr-Shopping-District.html",active:false,img:IMG+"f51781t24p139n2_bEWilIGu.png"},
+    {name:"Nr. 3 - Möbelhaus",x:42,y:57.8,url:BASE+"t752f51781-Magnolia-Promenade-Nr-Moebelhaus.html",active:true,img:IMG+"f51781t752p7348n2_VlqyHTXa.png"},
+    {name:"Nr. 3 - Möbelhaus",nr:"Nr. 3",x:53.5,y:63.5,url:BASE+"t752f51781-Magnolia-Promenade-Nr-Moebelhaus.html",active:false,img:IMG+"f51781t752p7348n2_VlqyHTXa.png"},
+    {name:"Nr. 4",x:53.5,y:63.5,url:BASE+"f51781-Magnolia-Promenade.html",active:false},
+  ],
   "Windenburg":[
-    {nr:"Strassen von",x:49,y:51.7,outdoor:true},
-    {x:24.8,y:30.2,nr:"Nr. 1"},
-        {x:46.3,y:32.2,nr:"Nr. 5"},
-    {x:48.3,y:39.8,nr:"Nr. 6"},
-    {x:60.5,y:48.2,nr:"Nr. 7"},
-    {x:67.2,y:44.7,nr:"Nr. 8"},
-    {x:72.3,y:42.9,nr:"Nr. 9"},
-    {x:80.6,y:42.1,nr:"Nr. 11"},
-    {x:80.6,y:42.1,nr:"Nr. 11"},
-    {x:80.6,y:42.1,nr:"Nr. 11"},
-    {x:87.5,y:51.7,nr:"Nr. 12"},
-        {x:78.8,y:53.1,nr:"Nr. 13"},
-    {x:61.7,y:69.4,nr:"Nr. 15"},
-    {x:71.5,y:65.8,nr:"Nr. 16"},
-    {x:80.4,y:69.6,nr:"Nr. 17"},
-    {x:84.1,y:78.3,nr:"Nr. 18"},
-    {x:70.9,y:80.3,nr:"Nr. 19"},
-        {x:23.4,y:68.6,nr:"Nr. 23"},
-    {x:18.8,y:61.9,nr:"Nr. 24"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 10"},
-    {x:50,y:50,nr:"Nr.11",building:"11.0"},
-    {x:50,y:50,nr:"11E",building:"11.0"},
-    {x:50,y:50,nr:"11C",building:"11.0"},
-    {x:50,y:50,nr:"11F",building:"11.0"},
-    {x:50,y:50,nr:"11A",building:"11.0"},
-    {x:50,y:50,nr:"11B",building:"11.0"},
-    {x:50,y:50,nr:"11D",building:"11.0"},
-    {x:50,y:50,nr:"Nr. 14"},
-    {x:50,y:50,nr:"Nr. 20"},
-    {x:50,y:50,nr:"Nr. 21"},
-    {x:50,y:50,nr:"Nr. 22"},
-    {x:50,y:50,nr:"A"},
-    {x:50,y:50,nr:"B"},
-    {x:50,y:50,nr:"C"}],
+    {name:"Windenburg (Strassen)",x:49,y:51.7,url:BASE+"t167f51782-Windenburg.html",active:true,outdoor:true},
+    {name:"Friedhof Windenburg",nr:"Nr. 1",x:24.8,y:30.2,url:BASE+"t57f51782-Windenburg-Nr-Friedhof-Windenburg.html",active:false,img:IMG+"f51782t57p615n2_mjnMCfri.png"},
+    {name:"Nr. 2",x:28.9,y:34.8,url:BASE+"f51782-Windenburg.html",active:false},
+    {name:"Nr. 3",x:33.1,y:37.9,url:BASE+"f51782-Windenburg.html",active:false},
+    {name:"Nr. 4",x:39.2,y:38.5,url:BASE+"f51782-Windenburg.html",active:false},
+        {name:"Eventhalle",nr:"Nr. 5",x:46.3,y:32.2,url:BASE+"t576f51782-Windenburg-Eventhalle.html",active:false,img:IMG+"f51782t576p5130n2_hCZgyFYd.png"},
+    {name:"Familie Jaspers",nr:"Nr. 6",x:48.3,y:39.8,url:BASE+"t74f51782-Windenburg-Nr-Familie-Jaspers.html",active:false,img:IMG+"f51782t74p632n2_hoxlkMzT.png"},
+    {name:"Kleinkinderspielplatz",nr:"Nr. 7",x:60.5,y:48.2,url:BASE+"t123f51782-Windenburg-Nr-Kleinkinderspielplatz.html",active:false,img:IMG+"f51782t123p1413n2_WTdtgBAc.png"},
+    {name:"Narwal Arms",nr:"Nr. 8",x:67.2,y:44.7,url:BASE+"t6f51782-Windenburg-Nr-Narwal-Arms.html",active:false,img:IMG+"f15060t6p18n2_fxlFUbiY.png"},
+    {name:"Palazzo",nr:"Nr. 9",x:72.3,y:42.9,url:BASE+"t648f51782-Windenburg-Palazzo-Dinner-Tanz-amp-Show.html",active:false,img:IMG+"f51782t648p5987n2_RbSyLPFr.png"},
+    {name:"Nr. 10",x:74.9,y:39.1,url:BASE+"f51782-Windenburg.html",active:false},
+    {name:"Wohnung Arnim & Mayve",nr:"Nr. 11",x:80.6,y:42.1,url:BASE+"t494f51782-Windenburg-Nr-Wohnung-von-Arnim-und-Mayve.html",active:false,img:IMG+"f51782t494p4235n2_PtNTRLdu.png"},
+    {name:"Wohnung Doris & Marvin",nr:"Nr. 11",x:80.6,y:42.1,url:BASE+"t602f51782-Windenburg-Nr-Wohnung-von-Doris-und-Marvin-Minze.html",active:false,img:IMG+"f51782t602p5301n2_ebPmoaUj.png"},
+    {name:"Dienstwohnung Phönix Bright",nr:"Nr. 11",x:80.6,y:42.1,url:BASE+"t540f51782-Windenburg-Nr-Dienstwohnung-von-Phoenix-Bright.html",active:false,img:IMG+"f51782t540p4588n11_nlqhaQEM.png"},
+    {name:"Luigi's Pizza",nr:"Nr. 12",x:87.5,y:51.7,url:BASE+"t14f51782-Windenburg-Nr-Luigi-s-Pizza.html",active:false,img:IMG+"f51782t14p59n2_ARXEztSn.png"},
+        {name:"Tierarztpraxis",nr:"Nr. 13",x:78.8,y:53.1,url:BASE+"t546f51782-Windenburg-Tierarztpraxis-Windenburg.html",active:false,img:IMG+"f51782t546p4743n2_DMYxedGX.png"},
+    {name:"Nr. 14",x:67.4,y:54,url:BASE+"f51782-Windenburg.html",active:false},
+    {name:"Schwimmbad Aqua Paradise",nr:"Nr. 15",x:61.7,y:69.4,url:BASE+"t76f51782-Windenburg-Nr-Schwimmbad-Aqua-Paradise.html",active:false,img:IMG+"f51782t76p634n2_EBlqxbRP.png"},
+    {name:"Tattoo-Studio",nr:"Nr. 16",x:71.5,y:65.8,url:BASE+"t420f51782-Windenburg-Nr-Tattoo-Studio.html",active:false,img:IMG+"f51782t420p3599n2_EOjnqRNC.png"},
+    {name:"Café zum Waschbär",nr:"Nr. 17",x:80.4,y:69.6,url:BASE+"t33f51782-Windenburg-Nr-Cafe-zum-Waschbaer.html",active:false,img:IMG+"f51782t33p223n2_IaRFSiZo.png"},
+    {name:"Krankenhaus",nr:"Nr. 18",x:84.1,y:78.3,url:BASE+"t156f51782-Windenburg-Nr-Krankenhaus.html",active:false,img:IMG+"f51782t156p2182n25_EBhfbZRP.png"},
+    {name:"Hot & Spicy Restaurant",nr:"Nr. 19",x:70.9,y:80.3,url:BASE+"t119f51782-Windenburg-Nr-Hot-amp-Spicy-Restaurant.html",active:false,img:IMG+"f51782t119p1342n7_sLiBAhCd.png"},
+    {name:"Nr. 20",x:36.6,y:68,url:BASE+"f51782-Windenburg.html",active:false},
+    {name:"Nr. 21",x:29.6,y:78.1,url:BASE+"f51782-Windenburg.html",active:false},
+    {name:"Nr. 22",x:21.2,y:76.5,url:BASE+"f51782-Windenburg.html",active:false},
+        {name:"Neue Wege Klinik",nr:"Nr. 23",x:23.4,y:68.6,url:BASE+"t352f51782-Windenburg-Neue-Wege-Klinik.html",active:false,img:IMG+"f51782t352p3337n17_LtzWbSml.png"},
+    {name:"Park von Windenburg",nr:"Nr. 24",x:18.8,y:61.9,url:BASE+"t740f51782-Windenburg-Nr-Park-von-Windenburg.html",active:false,img:IMG+"f51782t740p7211n3_cYqojUQl.png"},
+    {name:"A",x:30.7,y:56.1,url:BASE+"f51782-Windenburg.html",active:false},
+    {name:"B",x:37.5,y:23.7,url:BASE+"f51782-Windenburg.html",active:false},
+    {name:"C - Alte Ruine",x:63.6,y:37.9,url:BASE+"t351f51782-Windenburg-alte-Ruine.html",active:false,img:IMG+"f51782t351p3335n2_MpfxoUiL.png"},
+  ],
   "San Myshuno":[
-    {nr:"Strassen von",x:54.1,y:31.5,outdoor:true},
-    {x:29.2,y:24.3,nr:"Nr. 7"},
-    {x:34.4,y:30,nr:"Nr. 4"},
-    {x:70.1,y:23.8,nr:"Nr. 12"},
-    {x:80.5,y:23.5,nr:"Nr. 15"},
-    {x:48.9,y:40.7,building:"Spitzen-Apartments"},
-    {x:46.8,y:62.6,nr:"Nr. 20"},
-    {x:56.9,y:59.8,building:"Luxusallee-21"},
-    {x:15.2,y:37.8,nr:"Nr. 29"},
-    {nr:"Strassen von",x:84.2,y:66.3,outdoor:true},
-    {x:33.2,y:14.6,building:"Culpepper-Apartments"},
-    {x:33.2,y:14.6,building:"Culpepper-Apartments"},
-    {x:33.2,y:14.6,building:"Culpepper-Apartments"},
-    {x:33.2,y:14.6,building:"Culpepper-Apartments"},
-    {x:38.1,y:13.8,building:"Jasmin-Studios"},
-    {x:38.1,y:13.8,building:"Jasmin-Studios"},
-    {x:65.2,y:13.8,building:"Medina-Studios"},
-    {x:65.2,y:13.8,building:"Medina-Studios"},
-    {x:65.2,y:13.8,building:"Medina-Studios"},
-    {x:79,y:13.5,building:"Hakim-Haus"},
-    {x:79,y:13.5,building:"Hakim-Haus"},
-    {x:65.9,y:42.8,building:"Landgraab-Apartments"},
-    {x:65.9,y:42.8,building:"Landgraab-Apartments"},
-    {x:69.2,y:57.7,building:"Alto-Apartments"},
-    {x:69.2,y:57.7,building:"Alto-Apartments"},
-    {x:11.2,y:52.4,building:"ZenView-Apartments"},
-    {x:11.2,y:52.4,building:"ZenView-Apartments"},
-    {x:18.1,y:59.4,building:"Luxusallee-21"},
-    {x:18.1,y:59.4,building:"Luxusallee-21"},
-    {x:50,y:50,nr:"Nr. 26",building:"26-28"},
-    {x:50,y:50,nr:"A"},
-    {x:50,y:50,nr:"Nr. 8"},
-    {x:50,y:50,nr:"Nr. 23"},
-    {x:50,y:50,nr:"Nr. 19"},
-    {x:50,y:50,nr:"Nr. 1",building:"1-4"},
-    {x:50,y:50,nr:"Nr. 2",building:"1-4"},
-    {x:50,y:50,nr:"Nr. 3",building:"1-4"},
-    {x:50,y:50,nr:"Nr. 5",building:"5-6"},
-    {x:50,y:50,nr:"Nr. 6",building:"5-6"},
-    {x:50,y:50,nr:"Nr. 9",building:"9-11"},
-    {x:50,y:50,nr:"Nr. 10",building:"9-11"},
-    {x:50,y:50,nr:"Nr. 11",building:"9-11"},
-    {x:50,y:50,nr:"Nr. 13",building:"13-14"},
-    {x:50,y:50,nr:"Nr. 14",building:"13-14"},
-    {x:50,y:50,nr:"Nr. 17",building:"17-18"},
-    {x:50,y:50,nr:"Nr. 18",building:"17-18"},
-    {x:50,y:50,nr:"Nr. 21",building:"21-22"},
-    {x:50,y:50,nr:"Nr. 22",building:"21-22"},
-    {x:50,y:50,nr:"Nr. 24",building:"24-25"},
-    {x:50,y:50,nr:"Nr. 25",building:"24-25"},
-    {x:50,y:50,nr:"Nr. 16"},
-    {x:50,y:50,nr:"Nr. 27",building:"26-28"},
-    {x:50,y:50,nr:"Nr. 28",building:"26-28"}],
+    {name:"San Myshuno (Strassen)",x:54.1,y:31.5,url:BASE+"t169f51783-San-Myshuno.html",active:true,outdoor:true,img:IMG+"f51783t169p2426n8_CGeRJFUt.png"},
+    {name:"Haus der Geschwister Hawk",nr:"Nr. 7",x:29.2,y:24.3,url:BASE+"t37f51783-San-Myshuno-Nr-Haus-der-Geschwister-Hawk.html",active:false,img:IMG+"f51783t37p349n2_plBdXWEO.png"},
+    {name:"Appartement Falck/Dämpfle",nr:"Nr. 4",x:34.4,y:30,url:BASE+"t611f51783-San-Myshuno-Appartement-Falck.html",active:false,img:IMG+"f51783t611p5413n9_PgfthrNx.png"},
+    {name:"Jazz Club",nr:"Nr. 12",x:70.1,y:23.8,url:BASE+"t23f51783-San-Myshuno-Nr-Jazz-Club.html",active:false,img:IMG+"f51783t23p117n3_FhjZIzuf.png"},
+    {name:"Kunstzentrum",nr:"Nr. 15",x:80.5,y:23.5,url:BASE+"t59f51783-San-Myshuno-Nr-Kunstzentrum.html",active:false,img:IMG+"f51783t59p617n11_yldurknP.png"},
+    {name:"Nr. 16",x:48.9,y:40.7,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Spitzen-Apartments"},
+    {name:"Sky Fitness & Spa",nr:"Nr. 20",x:46.8,y:62.6,url:BASE+"t8f51783-San-Myshuno-Nr-Sky-Fitness-Spa.html",active:false,img:IMG+"f15060t8p32n2_TwmMuyok.png"},
+    {name:"Seccos Wohnung",x:56.9,y:59.8,url:BASE+"t498f51783-San-Myshuno-Seccos-Wohnung.html",active:false,img:IMG+"f51783t498p4243n12_tJLIMEpN.png",building:"Luxusallee-21"},
+    {name:"Gärtnerei Rosenrot",nr:"Nr. 29",x:15.2,y:37.8,url:BASE+"t46f51783-San-Myshuno-Nr-Gaertnerei-Rosenrot.html",active:false,img:IMG+"f51783t46p604n4_fvNuxUyc.png"},
+    {name:"A - Central Park",x:84.2,y:66.3,url:BASE+"t2f51783-San-Myshuno-Nr-Central-Park.html",active:false,outdoor:true,img:IMG+"f51783t2p2n2_JpOnbWZi.png"},
+    {name:"Nr. 1 - Culpepper",x:33.2,y:14.6,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Culpepper-Apartments"},
+    {name:"Nr. 2 - Culpepper",x:33.2,y:14.6,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Culpepper-Apartments"},
+    {name:"Nr. 3 - Culpepper",x:33.2,y:14.6,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Culpepper-Apartments"},
+    {name:"Nr. 4 - Culpepper",x:33.2,y:14.6,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Culpepper-Apartments"},
+    {name:"Nr. 5 - Jasmin",x:38.1,y:13.8,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Jasmin-Studios"},
+    {name:"Nr. 6 - Jasmin",x:38.1,y:13.8,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Jasmin-Studios"},
+    {name:"Nr. 9 - Medina",x:65.2,y:13.8,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Medina-Studios"},
+    {name:"Nr. 10 - Medina",x:65.2,y:13.8,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Medina-Studios"},
+    {name:"Nr. 11 - Medina",x:65.2,y:13.8,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Medina-Studios"},
+    {name:"Nr. 13 - Hakim",x:79,y:13.5,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Hakim-Haus"},
+    {name:"Nr. 14 - Hakim",x:79,y:13.5,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Hakim-Haus"},
+    {name:"Nr. 17 - Landgraab",x:65.9,y:42.8,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Landgraab-Apartments"},
+    {name:"Nr. 18 - Landgraab",x:65.9,y:42.8,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Landgraab-Apartments"},
+    {name:"Nr. 21 - Alto",x:69.2,y:57.7,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Alto-Apartments"},
+    {name:"Nr. 22 - Alto",x:69.2,y:57.7,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Alto-Apartments"},
+    {name:"Nr. 24 - ZenView",x:11.2,y:52.4,url:BASE+"f51783-San-Myshuno.html",active:false,building:"ZenView-Apartments"},
+    {name:"Nr. 25 - ZenView",x:11.2,y:52.4,url:BASE+"f51783-San-Myshuno.html",active:false,building:"ZenView-Apartments"},
+    {name:"Nr. 27 - Luxusallee",x:18.1,y:59.4,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Luxusallee-21"},
+    {name:"Nr. 28 - Luxusallee",x:18.1,y:59.4,url:BASE+"f51783-San-Myshuno.html",active:false,building:"Luxusallee-21"},
+  ],
   "Forgotten Hollow":[
-    {nr:"Strassen von",x:44.1,y:48.9,outdoor:true},
-    {x:43,y:66,nr:"Nr. 5"},
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 4"}],
+    {name:"Forgotten Hollow (Strassen)",x:44.1,y:48.9,url:BASE+"t120f51784-Forgotten-Hollow.html",active:true,outdoor:true,img:IMG+"f51784t120p1370n13_DrTzfXqZ.png"},
+    {name:"Nr. 1 - Pablo Garcia-Lopez",x:30.5,y:46.8,url:BASE+"t69f51784-Forgotten-Hollow-Nr-Haus-von-Pablo-Garcia-Lopez.html",active:false,img:IMG+"f51784t69p627n2_BDhoyzYI.png"},
+    {name:"Nr. 2 - Vampir Bar",x:45.9,y:32.5,url:BASE+"t52f51784-Forgotten-Hollow-Nr-Vampir-Bar.html",active:false,img:IMG+"f51784t52p610n2_rylXkRdV.png"},
+    {name:"Nr. 3 - Villa Victoria",x:70,y:27,url:BASE+"t54f51784-Forgotten-Hollow-Nr-Villa-Victoria.html",active:false,img:IMG+"f51784t54p612n2_RqUBCXMb.png"},
+    {name:"Nr. 4 - Villa Blutrose",x:56,y:38,url:BASE+"t19f51784-Forgotten-Hollow-Nr-Villa-Blutrose.html",active:false,img:IMG+"f51784t19p93n2_BMWAOVbr.png"},
+    {name:"Nr. 4 - Villa Blutrose",x:60.1,y:50.5,url:BASE+"t19f51784-Forgotten-Hollow-Nr-Villa-Blutrose.html",active:true},
+    {name:"Shanes Höhle",x:9.5,y:17.3,url:BASE+"t65f51784-Forgotten-Hollow-Shanes-Hoehle.html",active:false,img:IMG+"f51784t65p623n2_XShFMcHb.png"},
+    {name:"Blutzahn-Familienhaus",nr:"Nr. 5",x:43,y:66,url:BASE+"t487f51784-Forgotten-Hollow-Blutzahn-Familienhaus.html",active:false,img:IMG+"f51784t487p4080n2_GlgDCeKs.png"},
+  ],
   "Brindleton Bay":[
-    {nr:"Strassen von",x:52.1,y:73.6,outdoor:true},
-    {x:24.2,y:27.3,nr:"Nr. 1"},
-    {x:30.1,y:39.6,nr:"Nr. 3"},
-    {x:34.9,y:27.6,nr:"Nr. 5"},
-    {x:68.9,y:31.4,nr:"Nr. 7"},
-    {x:65.3,y:40.4,nr:"Nr. 9"},
-    {x:56.3,y:51.5,nr:"Nr. 10"},
-    {x:39.9,y:62.6,nr:"Nr. 12"},
-    {x:34,y:66.2,nr:"Nr. 16"},
-    {x:32.4,y:73,nr:"Nr. 14"},
-    {x:21.1,y:74.1,nr:"Nr. 15"},
-    {x:21.3,y:74.1,nr:"Nr. 15A"},
-    {x:21.3,y:74.1,nr:"Nr. 15C"},
-    {x:21.3,y:74.1,nr:"Nr. 15E"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 6"},
-    {x:50,y:50,nr:"Nr. 8"},
-    {x:50,y:50,nr:"Nr. 11"},
-    {x:50,y:50,nr:"Nr. 13"},
-    {x:50,y:50,nr:"Nr. 15B",building:"15"},
-    {x:50,y:50,nr:"Nr. 15D",building:"15"},
-    {x:50,y:50,nr:"Nr. 15F",building:"15"}],
+    {name:"Brindleton Bay (Strassen)",x:52.1,y:73.6,url:BASE+"t137f51785-Brindleton-Bay.html",active:true,outdoor:true,img:IMG+"f51785t137p1856n27_OduvHbAN.png"},
+    {name:"Altersheim Shady Pines",nr:"Nr. 1",x:24.2,y:27.3,url:BASE+"t53f51785-Brindleton-Bay-Nr-Altersheim-Shady-Pines.html",active:false,img:IMG+"f51785t53p611n2_mMFSlCfH.png"},
+    {name:"Nr. 2",x:16.8,y:38,url:BASE+"f51785-Brindleton-Bay.html",active:false},
+    {name:"Haus der Garcias",nr:"Nr. 3",x:30.1,y:39.6,url:BASE+"t9f51785-Brindleton-Bay-Nr-Haus-der-Garcias.html",active:false,img:IMG+"f51785t9p34n2_MVLdUSwO.png"},
+    {name:"Nr. 4",x:32.2,y:33.1,url:BASE+"f51785-Brindleton-Bay.html",active:false},
+    {name:"Rainbow Kindergarten",nr:"Nr. 5",x:34.9,y:27.6,url:BASE+"t343f51785-Brindleton-Bay-Nr-Rainbow-Kindergarten.html",active:false,img:IMG+"f51785t343p3288n2_IhwXDHmB.png"},
+    {name:"Nr. 6",x:60,y:29.2,url:BASE+"f51785-Brindleton-Bay.html",active:false},
+    {name:"Maryamas Haus",nr:"Nr. 7",x:68.9,y:31.4,url:BASE+"t17f51785-Brindleton-Bay-Nr-Maryamas-Haus.html",active:false,img:IMG+"f51785t17p67n22_WfXTyvri.png"},
+    {name:"Nr. 8",x:77.4,y:33.7,url:BASE+"f51785-Brindleton-Bay.html",active:false},
+    {name:"Green Fingers",nr:"Nr. 9",x:65.3,y:40.4,url:BASE+"t67f51785-Brindleton-Bay-Nr-Green-Fingers.html",active:false,img:IMG+"f51785t67p625n2_rfWoAKgj.png"},
+    {name:"Brindleton High",nr:"Nr. 10",x:56.3,y:51.5,url:BASE+"t56f51785-Brindleton-Bay-Nr-Brindleton-High.html",active:false,img:IMG+"f51785t56p614n2_BbNLlmVr.png"},
+    {name:"Nr. 11",x:79.7,y:70.3,url:BASE+"f51785-Brindleton-Bay.html",active:false},
+    {name:"Pfotenklinik",nr:"Nr. 12",x:39.9,y:62.6,url:BASE+"t239f51785-Brindleton-Bay-Nr-Pfotenklinik.html",active:false,img:IMG+"f51785t239p3082n9_nKJxgpvY.png"},
+    {name:"Tierauffangstation",nr:"Nr. 16",x:34,y:66.2,url:BASE+"t31f51785-Brindleton-Bay-Nr-Tierauffangstation.html",active:false,img:IMG+"f51785t31p217n2_KIyMSQOj.png"},
+    {name:"Booze & Bass",nr:"Nr. 14",x:32.4,y:73,url:BASE+"t95f51785-Brindleton-Bay-Nr-Booze-amp-Bass-Fischrestaurant.html",active:false,img:IMG+"f51785t95p1062n2_PJGHXSCn.png"},
+    {name:"Wohnkomplex Nr. 15",nr:"Nr. 15",x:21.1,y:74.1,url:BASE+"t693f51785-Brindleton-Bay-Nr-Wohnkomplex.html",active:false,img:IMG+"f51785t693p6717n6_rYpRhafI.png"},
+    {name:"Jim & Billie",nr:"Nr. 15A",x:21.3,y:74.1,url:BASE+"t737f51785-Brindleton-Bay-Nr-A-Wohnung-von-Jim-und-Billie.html",active:false,img:IMG+"f51785t737p7151n4_GCHLqOAz.png"},
+    {name:"Aurelia Blutzahn",nr:"Nr. 15C",x:21.3,y:74.1,url:BASE+"t709f51785-Brindleton-Bay-Nr-C-Wohnung-von-Aurelia-Blutzahn.html",active:false,img:IMG+"f51785t709p6928n6_umUyzFPq.png"},
+    {name:"Nr. 16",x:15.8,y:67,url:BASE+"f51785-Brindleton-Bay.html",active:false},
+    {name:"Marina Winter",nr:"Nr. 15E",x:21.3,y:74.1,url:BASE+"t693f51785-Brindleton-Bay-Nr-E-Wohnung-von-Marina-Winter.html",active:false,img:IMG+"f51785t693p6717n7_yOdgxeBp.png"},
+  ],
   "Del Sol Valley":[
-    {nr:"Strassen von",x:52,y:54.2,outdoor:true},
-    {x:28.9,y:34.5,nr:"Nr. 1"},
-    {x:39.1,y:29.4,nr:"Nr. 3"},
-    {x:61,y:22.9,nr:"Nr. 4"},
-    {x:69,y:17.9,nr:"Nr. 5"},
-    {x:78.7,y:24.6,nr:"Nr. 6"},
-    {x:30.9,y:61,nr:"Nr. 9"},
-    {x:37.7,y:60.8,nr:"Nr. 8"},
-    {x:37.7,y:60.8,nr:"Nr. 8B"},
-    {x:37.7,y:60.8,nr:"Nr. 8C"},
-    {x:30.5,y:72.4,nr:"Nr. 10"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 7"}],
+    {name:"Del Sol Valley (Strassen)",x:52,y:54.2,url:BASE+"t83f51786-Del-Sol-Valley.html",active:true,outdoor:true,img:IMG+"f51786t83p767n45_fwOWPiQT.png"},
+    {name:"Black'n'Red Theater",nr:"Nr. 1",x:28.9,y:34.5,url:BASE+"t626f51786-Del-Sol-Valley-Nr-The-Black-n-Red-Theater.html",active:false,img:IMG+"f51786t626p5694n2_ZRbqYJCm.png"},
+    {name:"Nr. 2",x:34.1,y:27.1,url:BASE+"f51786-Del-Sol-Valley.html",active:false},
+    {name:"Haus Clemens",nr:"Nr. 3",x:39.1,y:29.4,url:BASE+"t655f51786-Del-Sol-Valley-Haus-Clemens.html",active:false,img:IMG+"f51786t655p6088n2_YLewytjK.png"},
+    {name:"Nr. 4 - Kino / Café",nr:"Nr. 4",x:61,y:22.9,url:BASE+"t21f51786-Del-Sol-Valley-Nr-Kino-Caf-eacute.html",active:false,img:IMG+"f51786t21p114n2_JalrBbzh.png"},
+    {name:"Château LeBeau",nr:"Nr. 5",x:69,y:17.9,url:BASE+"t517f51786-Del-Sol-Valley-Nr-Chateau-LeBeau.html",active:false,img:IMG+"f51786t517p4307n36_fDOEogvP.png"},
+    {name:"Wasserturm",nr:"Nr. 6",x:78.7,y:24.6,url:BASE+"t196f51786-Del-Sol-Valley-Wasserturm.html",active:false,img:IMG+"f51786t196p2612n3_YSPtUxHf.png"},
+    {name:"Nr. 9",x:39.3,y:69.3,url:BASE+"f51786-Del-Sol-Valley.html",active:false},
+    {name:"Nachtclub / Tonstudio",nr:"Nr. 9",x:30.9,y:61,url:BASE+"t218f51786-Del-Sol-Valley-Nachtclub-Tonstudio.html",active:false,img:IMG+"f51786t218p2726n11_kaSQWUDj.png"},
+    {name:"Wohnkomplex Nr. 8",nr:"Nr. 8",x:37.7,y:60.8,url:BASE+"t605f51786-Del-Sol-Valley-Wohnkomplex-Nr-8.html",active:false,img:IMG+"f51786t605p5341n3_lKMqdfmX.png"},
+    {name:"Jacks Wohnung",nr:"Nr. 8B",x:37.7,y:60.8,url:BASE+"t688f51786-Del-Sol-Valley-Jacks-Eigentumswohnung.html",active:false,img:IMG+"f51786t688p6665n9_XJEmFVUd.png"},
+    {name:"Studenten-WG Wohnung C",nr:"Nr. 8C",x:37.7,y:60.8,url:BASE+"t605f51786-Del-Sol-Valley-Wohnkomplex-Studenten-WG.html",active:false,img:IMG+"f51786t605p5341n27_laSoJNrD.png"},
+    {name:"Casino Royale",nr:"Nr. 10",x:30.5,y:72.4,url:BASE+"t742f51786-Del-Sol-Valley-Casino-Royale.html",active:false,img:IMG+"f51786t742p7224n2_VtFmkISz.png"},
+  ],
   "Strangerville":[
-    {nr:"Strassen von",x:45,y:55,outdoor:true},
-    {x:36,y:52,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 5"},
-    {x:50,y:50,nr:"Nr. 6"},
-    {x:50,y:50,nr:"Nr. 7"},
-    {x:50,y:50,nr:"Nr. 8"},
-    {x:50,y:50,nr:"Nr. 9"},
-    {x:50,y:50,nr:"Nr. 10"},
-    {x:50,y:50,nr:"Nr. 11"}],
+    {name:"Strangerville (Strassen)",x:45,y:55,url:BASE+"t181f51787-Strangerville.html",active:true,outdoor:true,img:IMG+"f51787t181p2466n4_OItqCAiH.png"},
+    {name:"Labor Dr. Henry McCoy",x:30,y:18,url:BASE+"t402f51787-Strangerville-Labor-Dr-Henry-McCoy.html",active:false,img:IMG+"f51787t402p3521n2_vPZpJCKs.png"},
+    {name:"Major Radovan-Kaserne",x:57,y:32,url:BASE+"f51787-Strangerville.html",active:false},
+    {name:"Nr. 1",x:27,y:53,url:BASE+"f51787-Strangerville.html",active:false},
+    {name:"Geheimversteck Werwölfe",nr:"Nr. 2",x:36,y:52,url:BASE+"t458f51787-Strangerville-Geheimversteck-der-Werwolfe.html",active:false,img:IMG+"f51787t458p3713n2_SDJMZNlG.png"},
+    {name:"Nr. 3",x:45,y:47,url:BASE+"f51787-Strangerville.html",active:false},
+    {name:"Nr. 4",x:52,y:44,url:BASE+"f51787-Strangerville.html",active:false},
+    {name:"Nr. 5",x:34,y:61,url:BASE+"f51787-Strangerville.html",active:false},
+    {name:"Nr. 6",x:47,y:57,url:BASE+"f51787-Strangerville.html",active:false},
+    {name:"Nr. 7",x:57,y:22,url:BASE+"f51787-Strangerville.html",active:false},
+    {name:"Nr. 8",x:63,y:26,url:BASE+"f51787-Strangerville.html",active:false},
+    {name:"Nr. 9",x:67,y:17,url:BASE+"f51787-Strangerville.html",active:false},
+    {name:"Nr. 10",x:73,y:19,url:BASE+"f51787-Strangerville.html",active:false},
+    {name:"Nr. 11",x:80,y:15,url:BASE+"f51787-Strangerville.html",active:false},
+  ],
   "Sulani":[
-    {nr:"Strassen von",x:61.7,y:39,outdoor:true},
-    {x:41.5,y:28.6,nr:"Nr. 3"},
-    {x:71.9,y:15.9,nr:"Nr. 14"},
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 5"},
-    {x:50,y:50,nr:"Nr. 6"},
-    {x:50,y:50,nr:"Nr. 7"},
-    {x:50,y:50,nr:"Nr. 8"},
-    {x:50,y:50,nr:"Nr. 9"},
-    {x:50,y:50,nr:"Nr. 10"},
-    {x:50,y:50,nr:"Nr. 11"},
-    {x:50,y:50,nr:"Nr. 12"},
-    {x:50,y:50,nr:"Nr. 13"}],
+    {name:"Sulani (Strände)",x:61.7,y:39,url:BASE+"t170f51788-Sulani.html",active:true,outdoor:true,img:IMG+"f51788t170p2427n4_vHqMhoRC.png"},
+    {name:"Nr. 1",x:22.8,y:17.5,url:BASE+"f51788-Sulani.html",active:false},
+    {name:"Nr. 2",x:31.1,y:26.3,url:BASE+"f51788-Sulani.html",active:false},
+    {name:"Familie Greentail",nr:"Nr. 3",x:41.5,y:28.6,url:BASE+"t58f51788-Sulani-Nr-Familie-Greentail.html",active:false,img:IMG+"f51788t58p616n5_LUTMzIJi.png"},
+    {name:"Nr. 4",x:15.4,y:35.5,url:BASE+"f51788-Sulani.html",active:false},
+    {name:"Clemens Ferienhütte",x:30.8,y:47,url:BASE+"t639f51788-Sulani-Clemens-Ferienhuette.html",active:false,img:IMG+"f51788t639p5856n2_LkiWGhnZ.png"},
+    {name:"Nr. 6",x:45.4,y:68.1,url:BASE+"f51788-Sulani.html",active:false},
+    {name:"Nr. 7",x:60.1,y:56.1,url:BASE+"f51788-Sulani.html",active:false},
+    {name:"Nr. 8",x:53.3,y:84.4,url:BASE+"f51788-Sulani.html",active:false},
+    {name:"Nr. 9",x:67.5,y:77.4,url:BASE+"f51788-Sulani.html",active:false},
+    {name:"Nr. 10",x:85.4,y:78.5,url:BASE+"f51788-Sulani.html",active:false},
+    {name:"Nr. 11",x:77.4,y:66.2,url:BASE+"f51788-Sulani.html",active:false},
+    {name:"Nr. 12",x:82.1,y:32.7,url:BASE+"f51788-Sulani.html",active:false},
+    {name:"Nr. 13",x:60.3,y:26.6,url:BASE+"f51788-Sulani.html",active:false},
+    {name:"Vulkan Bar",nr:"Nr. 14",x:71.9,y:15.9,url:BASE+"t60f51788-Sulani-Nr-Vulkan-Bar.html",active:false,img:IMG+"f51788t60p618n2_TpVymHoZ.png"},
+  ],
   "Glimmerbrook":[
-    {x:17.5,y:50.9,info:true},
-    {nr:"Strassen von",x:48.9,y:52.6,outdoor:true},
-    {x:35.7,y:61.7,nr:"Nr. 1"},
-    {x:67.1,y:50.2,nr:"Nr. 3"},
-    {x:57.6,y:63.7,nr:"Nr. 4"},
-    {x:76.8,y:76.1,nr:"Nr. 5"}],
+    {name:"Portal",x:17.5,y:50.9,info:true,active:false},
+    {name:"Glimmerbrook (Natur)",x:48.9,y:52.6,url:BASE+"t243f51789-Glimmerbrook.html",active:true,outdoor:true,img:IMG+"f51789t243p3090n11_LViWlnHt.png"},
+    {name:"Kleine Ruine",nr:"Nr. 1",x:35.7,y:61.7,url:BASE+"t26f51789-Glimmerbrook-Nr-kleine-Ruine.html",active:false,img:IMG+"f51789t26p155n2_esaOJptP.png"},
+    {name:"Werwolf Hideout",nr:"Nr. 3",x:67.1,y:50.2,url:BASE+"t429f51789-Glimmerbrook-Werwolf-Hideout.html",active:false,img:IMG+"f51789t429p3658n2_TzdRStIN.png"},
+    {name:"Aidarias alte Hütte",nr:"Nr. 4",x:57.6,y:63.7,url:BASE+"t356f51789-Glimmerbrook-Aidarias-alte-Huette.html",active:false,img:IMG+"f51789t356p3346n2_FSrktByI.png"},
+    {name:"Lilith' Hütte",nr:"Nr. 5",x:76.8,y:76.1,url:BASE+"t464f51789-Glimmerbrook-Lilith-s-Huette.html",active:false,img:IMG+"f51789t464p3754n2_MBjsPopy.png"},
+  ],
   "Britechester":[
-    {nr:"Strassen von",x:57,y:49.4,outdoor:true},
-        {x:28.6,y:44,nr:"Nr. 4"},
-    {x:48.2,y:48.6,nr:"Nr. 5"},
-        {x:54.2,y:36.9,nr:"Nr. 6"},
-    {x:54.2,y:36.9,nr:"Nr. 6"},
-    {x:65,y:45.8,nr:"Nr. 7"},
-    {x:55.3,y:58.6,nr:"Nr. 8"},
-    {x:62.2,y:58.2,nr:"Nr. 9"},
-    {x:84.8,y:20.3,nr:"Nr. 11"},
-    {x:84.8,y:20.3,nr:"Nr. 11A"},
-    {x:84.8,y:20.3,nr:"Nr. 11C"},
-    {x:84.8,y:20.3,nr:"Nr. 11D"},
-    {x:84.8,y:20.3,nr:"Nr. 11E"},
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 10"},
-    {x:50,y:50,nr:"Nr. 11B",building:"11"},
-    {x:50,y:50,nr:"Nr. 11F",building:"11"},
-    {x:50,y:50,nr:"Nr. 12"}],
+    {name:"Campus (Strassen)",x:57,y:49.4,url:BASE+"t35f51790-Britechester.html",active:true,outdoor:true,img:IMG+"f51790t35p233n77_pqYkrhRj.png"},
+    {name:"Nr. 1",x:16.2,y:57.3,url:BASE+"f51790-Britechester.html",active:false},
+    {name:"Nr. 2",x:23.1,y:56.9,url:BASE+"f51790-Britechester.html",active:false},
+    {name:"Nr. 3",x:20.4,y:44.5,url:BASE+"f51790-Britechester.html",active:false},
+        {name:"Alex' Arztpraxis",nr:"Nr. 4",x:28.6,y:44,url:BASE+"t612f51790-Britechester-Alex-Arztpraxis.html",active:false,img:IMG+"f51790t612p5424n2_sPQnZvBM.png"},
+    {name:"Tanzschule",nr:"Nr. 5",x:48.2,y:48.6,url:BASE+"t27f51790-Britechester-Nr-Tanzschule.html",active:false,img:IMG+"f51790t27p174n3_QoiXfJIL.png"},
+        {name:"Vereinshalle Tigers",nr:"Nr. 6",x:54.2,y:36.9,url:BASE+"t582f51790-Britechester-Vereinshalle-Britechester-Tigers.html",active:false,img:IMG+"f51790t582p5168n2_gzJlUhZq.png"},
+    {name:"Pine Hill University",nr:"Nr. 6",x:54.2,y:36.9,url:BASE+"t235f51790-Britechester-Pine-Hill-University.html",active:false,img:IMG+"f51790t235p2982n15_eUisWYMm.png"},
+    {name:"Violas kleine Hütte",nr:"Nr. 7",x:65,y:45.8,url:BASE+"t659f51790-Britechester-Nr-Violas-kleine-Huette.html",active:false,img:IMG+"f51790t659p6129n2_mscNQwEp.png"},
+    {name:"Haus der Kamrads",nr:"Nr. 8",x:55.3,y:58.6,url:BASE+"t265f51790-Britechester-Haus-der-Kamrads.html",active:false,img:IMG+"f51790t265p3122n3_wMhFIJlB.png"},
+    {name:"WG Jean, Megan, Victor, Dora",nr:"Nr. 9",x:62.2,y:58.2,url:BASE+"t236f51790-Britechester-WG-Jean-Megan-Victor-Dora.html",active:false,img:IMG+"f51790t236p2992n2_bhVOCaYj.png"},
+    {name:"Nr. 10",x:74.5,y:15.2,url:BASE+"f51790-Britechester.html",active:false},
+    {name:"Wohnkomplex Nr. 11",nr:"Nr. 11",x:84.8,y:20.3,url:BASE+"f51790-Britechester.html",active:false},
+    {name:"Jenna & Delaila",nr:"Nr. 11A",x:84.8,y:20.3,url:BASE+"t656f51790-Britechester-Nr-A-Neue-Wohnung-von-Jenna-und-Delaila.html",active:false,img:IMG+"f51790t656p6091n3_ZSovPyNf.png"},
+    {name:"Evas Wohnung",nr:"Nr. 11C",x:84.8,y:20.3,url:BASE+"t660f51790-Britechester-Nr-C-Evas-Wohnung-im-Wohnkomplex.html",active:false,img:IMG+"f51790t660p6134n3_cnLRfjvW.png"},
+    {name:"Kitty, Felix, Abs",nr:"Nr. 11D",x:84.8,y:20.3,url:BASE+"t689f51790-Britechester-Nr-D-Wohnung-Kitty-Felix-Abs.html",active:false,img:IMG+"f51790t689p6698n18_FXLAwGPI.png"},
+    {name:"David Janko",nr:"Nr. 11E",x:84.8,y:20.3,url:BASE+"t599f51790-Britechester-Nr-E-Wohnung-von-David-Janko.html",active:false,img:IMG+"f51790t599p5222n2_NFivROZj.png"},
+    {name:"Nr. 12",x:79.3,y:24.3,url:BASE+"f51790-Britechester.html",active:false},
+  ],
   "Evergreen Harbor":[
-    {nr:"Strassen von",x:54.3,y:33,outdoor:true},
-    {x:42.3,y:48.1,nr:"Nr. 4"},
-    {x:26.1,y:60.8,nr:"Nr. 5"},
-    {x:44,y:60.2,nr:"Nr. 6"},
-    {x:48.7,y:74.4,nr:"Nr. 8"},
-    {x:69.4,y:44.1,nr:"Nr. 13",building:"Kieferhügel-Apartments"},
-    {x:69.4,y:44.1,nr:"Nr. 15",building:"Kieferhügel-Apartments"},
-    {x:18.3,y:28.8,building:"Steinweg-Apartments"},
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 7"},
-    {x:50,y:50,nr:"Nr. 9"},
-    {x:50,y:50,nr:"Nr. 10"},
-    {x:50,y:50,nr:"Nr. 11"},
-    {x:50,y:50,nr:"Nr. 12"},
-    {x:50,y:50,nr:"Nr. 14"}],
+    {name:"Evergreen Harbor (Strassen)",x:54.3,y:33,url:BASE+"t234f51791-Evergreen-Harbor.html",active:true,outdoor:true,img:IMG+"f51791t234p2910n5_EyojKGkq.png"},
+    {name:"Nr. 1",x:20.5,y:20.1,url:BASE+"f51791-Evergreen-Harbor.html",active:false},
+    {name:"Nr. 2",x:32.2,y:23.3,url:BASE+"f51791-Evergreen-Harbor.html",active:false},
+    {name:"Nr. 3",x:35.1,y:34.1,url:BASE+"f51791-Evergreen-Harbor.html",active:false},
+    {name:"Evergreen Werkstatt",nr:"Nr. 4",x:42.3,y:48.1,url:BASE+"t15f51791-Evergreen-Harbor-Nr-Evergreen-Werkstatt.html",active:false,img:IMG+"f51791t15p60n2_anBCFRjT.png"},
+    {name:"Bio Gemüseladen",nr:"Nr. 5",x:26.1,y:60.8,url:BASE+"t25f51791-Evergreen-Harbor-Nr-Bio-Gemueseladen.html",active:false,img:IMG+"f51791t25p141n3_YuUGhALj.png"},
+    {name:"Old Station Bar",nr:"Nr. 6",x:44,y:60.2,url:BASE+"t38f51791-Evergreen-Harbor-Nr-Old-Station-Bar.html",active:false,img:IMG+"f51791t38p389n2_BpwFHCsO.png"},
+    {name:"Nr. 7",x:53.1,y:55.5,url:BASE+"f51791-Evergreen-Harbor.html",active:false},
+    {name:"Old Fish Factory",nr:"Nr. 8",x:48.7,y:74.4,url:BASE+"t43f51791-Evergreen-Harbor-Nr-Old-Fish-Factory.html",active:false,img:IMG+"f51791t43p601n2_hAntwTjv.png"},
+    {name:"Nr. 9",x:68.5,y:32.8,url:BASE+"f51791-Evergreen-Harbor.html",active:false},
+    {name:"Nr. 10",x:85.3,y:42.4,url:BASE+"f51791-Evergreen-Harbor.html",active:false},
+    {name:"Nr. 11",x:69.4,y:44.1,url:BASE+"f51791-Evergreen-Harbor.html",active:false},
+    {name:"Jarred Cunningham",nr:"Nr. 13",x:69.4,y:44.1,url:BASE+"t621f51791-Evergreen-Harbor-Nr-Wohnung-Jarred-Cunningham.html",active:false,img:IMG+"f51791t621p5666n3_vsqGyMXT.png",building:"Kieferhügel-Apartments"},
+    {name:"WG Tom & Valentin",nr:"Nr. 15",x:69.4,y:44.1,url:BASE+"t233f51791-Evergreen-Harbor-Nr-WG-Tom-Valentin.html",active:false,img:IMG+"f51791t233p2904n2_VIHTwsRq.png",building:"Kieferhügel-Apartments"},
+    {name:"Nr. 15",x:18.3,y:28.8,url:BASE+"f51791-Evergreen-Harbor.html",active:false,building:"Steinweg-Apartments"},
+  ],
   "Mt. Komorebi":[
-    {nr:"Strassen von",x:48,y:61,outdoor:true},
-    {x:56.1,y:24.6,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 5"},
-    {x:50,y:50,nr:"Nr. 6"},
-    {x:50,y:50,nr:"Nr. 7"},
-    {x:50,y:50,nr:"Nr. 8"},
-    {x:50,y:50,nr:"Nr. 9"},
-    {x:50,y:50,nr:"Nr. 10"},
-    {x:50,y:50,nr:"Nr. 11"},
-    {x:50,y:50,nr:"Nr. 12"},
-    {x:50,y:50,nr:"Nr. 13"},
-    {x:50,y:50,nr:"Nr. 14"}],
+    {name:"Mt. Komorebi (Strassen)",x:48,y:61,url:BASE+"t216f51792-Mt-Komorebi.html",active:true,outdoor:true,img:IMG+"f51792t216p2710n115_yCMUrVcE.png"},
+    {name:"Nr. 1",x:37.4,y:25,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 2",x:45.4,y:26.2,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Elevate Nachtclub",nr:"Nr. 3",x:56.1,y:24.6,url:BASE+"t553f51792-Mt-Komorebi-Elevate-Nachtclub.html",active:false,img:IMG+"f51792t553p4817n2_KXxhLRum.png"},
+    {name:"Nr. 4",x:64.8,y:20.7,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 5",x:37.2,y:40,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 6",x:46.4,y:40.7,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 7",x:35.5,y:47.8,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 8",x:47,y:49,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 9",x:31.7,y:56,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 10",x:57.6,y:71.3,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 11",x:66.4,y:68.3,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 12",x:75.9,y:63.4,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 13",x:60.8,y:84.5,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+    {name:"Nr. 14",x:81.9,y:76.7,url:BASE+"f51792-Mt-Komorebi.html",active:false},
+  ],
   "Henford-on-Bagley":[
-    {x:17.2,y:23.1,info:true},
-    {nr:"Strassen von",x:31.6,y:54.5,outdoor:true},
-    {x:76.8,y:39,nr:"Nr. 7"},
-    {x:39.2,y:12.6,nr:"Nr. 1"},
-    {x:60.9,y:88.6,nr:"Nr. 10"},
-    {x:69.6,y:82.7,nr:"Nr. 11"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 5"},
-    {x:50,y:50,nr:"Nr. 6"},
-    {x:50,y:50,nr:"Nr. 9"},
-    {x:50,y:50,nr:"Nr. 8"},
-    {x:50,y:50,nr:"Nr. 12"}],
+    {name:"Portal",x:17.2,y:23.1,info:true,active:false},
+    {name:"Henford-on-Bagley (Dorf)",x:31.6,y:54.5,url:BASE+"t157f51793-Henford-on-Bagley.html",active:true,outdoor:true,img:IMG+"f51793t157p2223n29_gMpqvXNY.png"},
+    {name:"Bestattungsinstitut Peerscheid-Kalim",nr:"Nr. 7",x:76.8,y:39,url:BASE+"t748f51793-Bestattungsinstitut-Peerscheid-Kalim.html",active:true,img:IMG+"f51793t748p7274n33_GexKJPpT.png"},
+    {name:"Jennas versteckte Hütte",nr:"Nr. 1",x:39.2,y:12.6,url:BASE+"t345f51793-Henford-on-Bagley-Jennas-versteckte-Huette.html",active:false,img:IMG+"f51793t345p3290n3_HZJERDPr.png"},
+    {name:"Nr. 2",x:44.2,y:23.3,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+    {name:"Nr. 3",x:44.6,y:31.6,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+    {name:"Nr. 4",x:15.4,y:39.1,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+    {name:"Nr. 5",x:47.7,y:48.4,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+    {name:"Nr. 6",x:64.5,y:35,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+        {name:"Nr. 8",x:84.1,y:47.6,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+    {name:"Nr. 9",x:53,y:76.1,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+    {name:"Haus Frietmann / Jacob Bresk",nr:"Nr. 10",x:60.9,y:88.6,url:BASE+"t336f51793-Henford-on-Bagley-Nr-Haus-Frietmann.html",active:false,img:IMG+"f51793t336p3273n2_teuIWZnp.png"},
+    {name:"Les Fleurs De Brigitte",nr:"Nr. 11",x:69.6,y:82.7,url:BASE+"t610f51793-Henford-on-Bagley-Blumengeschaeft-Les-Fleurs-De-Brigitte.html",active:false,img:IMG+"f51793t610p5383n2_VbrYatGB.jpg"},
+    {name:"Nr. 12",x:75.6,y:78,url:BASE+"f51793-Henford-on-Bagley.html",active:false},
+  ],
   "Tartosa":[
-    {nr:"Strassen von",x:37.6,y:68,outdoor:true},
-    {x:44.7,y:15.7,nr:"Nr. 1"},
-    {x:29.6,y:55.2,nr:"Nr. 6"},
-    {x:50.8,y:57.7,nr:"Nr. 7"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 5"},
-    {x:50,y:50,nr:"Nr. 8"},
-    {x:50,y:50,nr:"Nr. 9"}],
+    {name:"Tartosa (Piazza)",x:37.6,y:68,url:BASE+"t252f51794-Tartosa.html",active:true,outdoor:true,img:IMG+"f51794t252p3104n24_zQeSoXqK.png"},
+    {name:"Earthas Unterschlupf",nr:"Nr. 1",x:44.7,y:15.7,url:BASE+"t548f51794-Tartosa-Earthas-Unterschlupf.html",active:false,img:IMG+"f51794t548p4758n2_VOiBfADU.png"},
+    {name:"Nr. 2",x:84.3,y:33.1,url:BASE+"f51794-Tartosa.html",active:false},
+    {name:"Nr. 3",x:50.8,y:38,url:BASE+"f51794-Tartosa.html",active:false},
+    {name:"Nr. 4",x:61.5,y:40.5,url:BASE+"f51794-Tartosa.html",active:false},
+    {name:"Nr. 5",x:14.1,y:62.3,url:BASE+"f51794-Tartosa.html",active:false},
+    {name:"Blue Wonder Musikgeschäft",nr:"Nr. 6",x:29.6,y:55.2,url:BASE+"t463f51794-Tartosa-Nr-Blue-Wonder-Musikgeschaeft.html",active:false,img:IMG+"f51794t463p3735n4_LGfCoVjk.png"},
+    {name:"Haus Fam. Falck Sr.",nr:"Nr. 7",x:50.8,y:57.7,url:BASE+"t675f51794-Tartosa-Haus-Fam-Falck-Sr.html",active:false,img:IMG+"f51794t675p6497n2_eXMaiynI.png"},
+    {name:"Nr. 8",x:56.3,y:80.1,url:BASE+"f51794-Tartosa.html",active:false},
+    {name:"Nr. 9",x:43.4,y:84.5,url:BASE+"f51794-Tartosa.html",active:false},
+  ],
   "Moonwood Mill":[
-    {nr:"Strassen von",x:48.2,y:59.8,outdoor:true},
-    {x:59.1,y:71.1,nr:"Nr. 5"},
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 7"},
-    {x:50,y:50,nr:"Nr. 6"}],
+    {name:"Moonwood Mill (Strassen)",x:48.2,y:59.8,url:BASE+"t251f51795-Moonwood-Mill.html",active:true,outdoor:true,img:IMG+"f51795t251p3100n55_MsuRLaIe.png"},
+    {name:"Drakes Hütte",nr:"Nr. 5",x:59.1,y:71.1,url:BASE+"t368f51795-Moonwood-Mill-Drakes-Huette.html",active:false,img:IMG+"f51795t368p3395n2_DqYgZLcO.png"},
+    {name:"Werwolf-Versteck",x:57.7,y:24.7,url:BASE+"t482f51795-Moonwood-Mill-Werwolf-Versteck.html",active:false,img:IMG+"f51795t482p3920n6_eorTGUyJ.png"},
+    {name:"Nr. 1",x:57.7,y:24.7,url:BASE+"f51795-Moonwood-Mill.html",active:false},
+    {name:"Nr. 2",x:53.7,y:35.3,url:BASE+"f51795-Moonwood-Mill.html",active:false},
+    {name:"Nr. 3",x:61.1,y:52.7,url:BASE+"f51795-Moonwood-Mill.html",active:false},
+    {name:"Nr. 4",x:77.9,y:60.3,url:BASE+"f51795-Moonwood-Mill.html",active:false},
+    {name:"Nr. 5",x:59.3,y:71.4,url:BASE+"f51795-Moonwood-Mill.html",active:false},
+  ],
   "Copperdale":[
-    {nr:"Strassen von",x:61.6,y:45.2,outdoor:true},
-    {x:92,y:29.5,nr:"Nr. 8"},
-    {x:92.6,y:43.8,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 5"},
-    {x:50,y:50,nr:"Nr. 6"},
-    {x:50,y:50,nr:"Nr. 7"},
-    {x:50,y:50,nr:"Nr. 10"},
-    {x:50,y:50,nr:"Nr. 9"},
-    {x:50,y:50,nr:"A"},
-    {x:50,y:50,nr:"B"}],
+    {name:"Copperdale (Strassen)",x:61.6,y:45.2,url:BASE+"t221f51796-Copperdale.html",active:true,outdoor:true,img:IMG+"f51796t221p2770n35_qrDeNMjy.png"},
+    {name:"Haus Familie Sølberg",nr:"Nr. 8",x:92,y:29.5,url:BASE+"t465f51796-Copperdale-Haus-Familie-S-oslash-lberg.html",active:false,img:IMG+"f51796t221p2770n35_qrDeNMjy.png"},
+    {name:"Haus der Familie Sievers",x:92.3,y:34,url:BASE+"t581f51796-Copperdale-Haus-der-Familie-Sievers.html",active:true,img:IMG+"f51796t581p5152n2_yNfApmuL.png"},
+    {name:"Villa Bärenklau",x:92.6,y:38.8,url:BASE+"t341f51796-Copperdale-Villa-Baerenklau.html",active:true,img:IMG+"f51796t341p3284n41_vYzIkfua.png"},
+    {name:"Johns Bar",nr:"Nr. 2",x:92.6,y:43.8,url:BASE+"t260f51796-Copperdale-Johns-Bar.html",active:false,img:IMG+"f51796t260p3115n2_SjLxKFcP.png"},
+        {name:"Nr. 2",x:18.5,y:46.2,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Nr. 3",x:34.6,y:44,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Nr. 4",x:24,y:52.9,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Nr. 5",x:22.1,y:61.8,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Nr. 6",x:66.4,y:59.7,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Nr. 7",x:76.3,y:59.5,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Nr. 8",x:81.2,y:64.6,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Nr. 9",x:53.7,y:78.8,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"Nr. 10",x:64.4,y:84.3,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"A - Schule",x:41.3,y:19.6,url:BASE+"f51796-Copperdale.html",active:false},
+    {name:"B - Schule",x:47.3,y:16.2,url:BASE+"f51796-Copperdale.html",active:false},
+  ],
   "San Sequoia":[
-    {nr:"Strassen von",x:52.5,y:43.8,outdoor:true},
-    {x:15.7,y:23.2,nr:"Nr. 2"},
-    {x:28.9,y:28.5,nr:"Nr. 3"},
-    {x:73,y:9,nr:"Nr. 5"},
-    {nr:"Strassen von",x:69.3,y:28.5,outdoor:true},
-    {x:89.5,y:20.3,nr:"Nr. 7"},
-    {x:41.3,y:68.6,nr:"Nr. 9"},
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 6"},
-    {x:50,y:50,nr:"Nr. 10"},
-    {x:50,y:50,nr:"Nr. 11"}],
+    {name:"San Sequoia (Strassen)",x:52.5,y:43.8,url:BASE+"t246f51797-San-Sequoia.html",active:true,outdoor:true,img:IMG+"f51797t246p3097n36_guTQSLxK.png"},
+    {name:"Nr. 1",x:15,y:12.2,url:BASE+"f51797-San-Sequoia.html",active:false},
+    {name:"Haus S. Schmidt",nr:"Nr. 2",x:15.7,y:23.2,url:BASE+"t559f51797-San-Sequoia-Haus-S-Schmidt.html",active:false,img:IMG+"f51797t559p4857n2_mqXlzhVu.png"},
+    {name:"Veronikas Boutique",nr:"Nr. 3",x:28.9,y:28.5,url:BASE+"t686f51797-San-Sequoia-Nr-Veronikas-Boutique.html",active:false,img:IMG+"f51797t686p6661n2_ZJOlqcmp.png"},
+    {name:"Nr. 4",x:36.4,y:34.4,url:BASE+"f51797-San-Sequoia.html",active:false},
+    {name:"Doppelhaushälfte Janko",nr:"Nr. 5",x:73,y:9,url:BASE+"t638f51797-San-Sequoia-Doppelhaushaelfte-der-Familie-Janko.html",active:false,img:IMG+"f51797t638p5846n2_NjCJnPTv.png"},
+    {name:"Nr. 6 - Gilbert Gardens",x:69.3,y:28.5,url:BASE+"f51797-San-Sequoia.html",active:false,outdoor:true},
+    {name:"Old Factory Live Club",nr:"Nr. 7",x:89.5,y:20.3,url:BASE+"t410f51797-San-Sequoia-Nr-Old-Factory-Live-Club.html",active:false,img:IMG+"f51797t410p3571n2_dYwomzjF.png"},
+    {name:"Nr. 8",x:83.3,y:32.3,url:BASE+"f51797-San-Sequoia.html",active:false},
+    {name:"Haus Familie Delany",nr:"Nr. 9",x:41.3,y:68.6,url:BASE+"t550f51797-San-Sequoia-Haus-Familie-Delany.html",active:false,img:IMG+"f51797t550p4777n2_RvjQYDms.png"},
+    {name:"Nr. 10",x:50.1,y:70.1,url:BASE+"f51797-San-Sequoia.html",active:false},
+    {name:"Nr. 11 - Greenridge Correctional",x:66.4,y:76.6,url:BASE+"t694f51797-San-Sequoia-Greenridge-Correctional-Institution.html",active:false},
+    {name:"Nr. 12",x:58.3,y:90.2,url:BASE+"f51797-San-Sequoia.html",active:false},
+  ],
   // ── NEU: 7 Welten mit Koordinaten ──────────────────────────────────────
   "Chestnut Ridge":[
-    {nr:"Strassen von",x:49.2,y:45.4,outdoor:true},
-    {x:82.4,y:58.1,nr:"Nr. 8"},
-    {x:32.2,y:17.5,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 8"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 5"},
-    {x:50,y:50,nr:"Nr. 6"},
-    {x:50,y:50,nr:"Nr. 7"},
-    {x:50,y:50,nr:"Nr. 13"},
-    {x:50,y:50,nr:"Nr. 9"},
-    {x:50,y:50,nr:"Nr. 10"},
-    {x:50,y:50,nr:"Nr. 11"},
-    {x:50,y:50,nr:"Nr. 12"},
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 2"}],
-  "Tomarang":[,
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 5"},
-    {x:50,y:50,nr:"Nr. 6"},
-    {x:50,y:50,nr:"Nr. 7"},
-    {x:50,y:50,nr:"Nr. 8"},
-    {x:50,y:50,nr:"Nr. 9"}],
-  "Ciudad Enamorada":[,
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 5"},
-    {x:50,y:50,nr:"Nr. 6"},
-    {x:50,y:50,nr:"Nr. 7"},
-    {x:50,y:50,nr:"Nr. 8"},
-    {x:50,y:50,nr:"Nr. 9"},
-    {x:50,y:50,nr:"Nr. 10"}],
+    {name:"Chestnut Ridge (Strassen)",x:49.2,y:45.4,url:BASE+"t466f55177-Chestnut-Ridge.html",active:true,outdoor:true,img:IMG+"f55177t466p3785n75_AIvOoLTZ.png"},
+    {name:"Pferderanch",nr:"Nr. 8",x:82.4,y:58.1,url:BASE+"t470f55177-Chestnut-Ridge-Pferderanch.html",active:true,img:IMG+"f55177t470p3808n2_wfPDvTYH.png"},
+    {name:"Phönix Bright 'Canyon Retreat'",nr:"Nr. 3",x:32.2,y:17.5,url:BASE+"t519f55177-Chestnut-Ridge.html",active:true,img:IMG+"f55177t519p4326n2_LBtnixkg.png"},
+        {name:"Nr. 2",x:22.7,y:22.3,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 3",x:16.8,y:31.6,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 4",x:34.3,y:47.2,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 5",x:45.1,y:35.9,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 6",x:57.8,y:32.5,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 7",x:67.7,y:46.1,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+        {name:"Nr. 9",x:84.6,y:74.1,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 10",x:68.5,y:70.4,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 11",x:74.3,y:85.1,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 12",x:59.3,y:82.5,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+    {name:"Nr. 13",x:40.1,y:58.2,url:BASE+"f55177-Chestnut-Ridge.html",active:false},
+  ],
+  "Tomarang":[
+    {name:"Nr. 1",x:16.9,y:21.8,url:BASE+"f58300-Tomarang.html",active:false},
+    {name:"Nr. 2",x:32.7,y:19,url:BASE+"f58300-Tomarang.html",active:false},
+    {name:"Nr. 3",x:28.8,y:28.1,url:BASE+"f58300-Tomarang.html",active:false},
+    {name:"Nr. 4",x:53.9,y:30.4,url:BASE+"f58300-Tomarang.html",active:false},
+    {name:"Nr. 5",x:58.2,y:53.4,url:BASE+"f58300-Tomarang.html",active:false},
+    {name:"Nr. 6",x:47.2,y:64.4,url:BASE+"f58300-Tomarang.html",active:false},
+    {name:"Nr. 7",x:59.9,y:72,url:BASE+"f58300-Tomarang.html",active:false},
+    {name:"Nr. 8",x:76.3,y:70.3,url:BASE+"f58300-Tomarang.html",active:false},
+    {name:"Nr. 9",x:75,y:58,url:BASE+"f58300-Tomarang.html",active:false},
+  ],
+  "Ciudad Enamorada":[
+    {name:"Nr. 1",x:14,y:63.4,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 2",x:28.3,y:43.9,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 3",x:38.1,y:46.2,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 4",x:31.7,y:60.2,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 5",x:43.2,y:71.6,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 6",x:61,y:69.5,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 7",x:71.6,y:74.4,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 8",x:63.6,y:87.7,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 9",x:85.3,y:93.5,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 10",x:70.6,y:35.7,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+    {name:"Nr. 11",x:84.7,y:28.8,url:BASE+"f58925-Ciudad-Enamorada.html",active:false},
+  ],
   "Ravenwood":[
-    {nr:"Strassen von",x:48,y:42.4,outdoor:true},
-    {x:85.8,y:42.7,nr:"Nr. 6"},
-    {x:50,y:50,nr:"Nr. 7"},
-    {x:50,y:50,nr:"Nr. 8"},
-    {x:50,y:50,nr:"Nr. 9"},
-    {x:50,y:50,nr:"Nr. 10"},
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 5"},
-    {x:50,y:50,nr:"Nr. 11"},
-    {x:50,y:50,nr:"Nr. 12"},
-    {x:50,y:50,nr:"Nr. 13"}],
-  "Nordhaven":[,
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 5"},
-    {x:50,y:50,nr:"Nr. 6"},
-    {x:50,y:50,nr:"Nr. 7"},
-    {x:50,y:50,nr:"Nr. 8"},
-    {x:50,y:50,nr:"Nr. 9"},
-    {x:50,y:50,nr:"Nr. 10"},
-    {x:50,y:50,nr:"Nr. 11"}],
+    {name:"Ravenwood (Strassen)",x:48,y:42.4,url:BASE+"t650f59271-Ravenwood.html",active:true,outdoor:true,img:IMG+"f59271t650p5999n2_lergIDHi.png"},
+    {name:"Das Institut der Geheimnisse",nr:"Nr. 6",x:85.8,y:42.7,url:BASE+"t669f59271-Ravenwood-Das-Institut-der-Geheimnisse.html",active:false,img:IMG+"f59271t669p6347n3_fRlGwQei.png"},
+    {name:"Nr. 1",x:15.9,y:26.5,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 2",x:28.6,y:28.4,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 3",x:32.2,y:17.9,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 4",x:43.4,y:18.2,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 5",x:68.4,y:37.8,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 7",x:76.5,y:50.2,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 8",x:57.9,y:48.7,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 9",x:55.2,y:59.8,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 10",x:47.5,y:69.2,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 11",x:49.4,y:80.9,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 12",x:67.4,y:68.6,url:BASE+"f59271-Ravenwood.html",active:false},
+    {name:"Nr. 13",x:80.6,y:74.4,url:BASE+"f59271-Ravenwood.html",active:false},
+  ],
+  "Nordhaven":[
+    {name:"Nr. 1",x:17.5,y:46,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 2",x:24.6,y:38.3,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 3",x:23.2,y:26.7,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 4",x:33.9,y:43.8,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 5",x:37.9,y:21.6,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 6",x:42.7,y:32.7,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 7",x:71.1,y:43.3,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 8",x:65.8,y:56.1,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 9",x:73.7,y:60.2,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 10",x:81.5,y:56.1,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 11",x:69.5,y:71.6,url:BASE+"f59567-Nordhaven.html",active:false},
+    {name:"Nr. 12",x:79.1,y:72.6,url:BASE+"f59567-Nordhaven.html",active:false},
+  ],
   "Granite Falls":[
-    {nr:"Strassen von",x:44.7,y:52.7,outdoor:true},
-    {x:74.7,y:25.8,nr:"Nr. 6"},
-    {x:50,y:50,nr:"Nr. 1"},
-    {x:50,y:50,nr:"Nr. 2"},
-    {x:50,y:50,nr:"Nr. 3"},
-    {x:50,y:50,nr:"Nr. 4"},
-    {x:50,y:50,nr:"Nr. 5"}],
+    {name:"Granite Falls (Natur)",x:44.7,y:52.7,url:BASE+"t245f51798-Granite-Falls.html",active:true,outdoor:true,img:IMG+"f51798t245p3096n46_PwvaBoYf.png"},
+    {name:"Camp Firefly",nr:"Nr. 6",x:74.7,y:25.8,url:BASE+"t211f51798-Granite-Falls-Nr-Camp-Firefly.html",active:true,img:IMG+"f51798t211p2691n13_VAEaUIHc.png"},
+    {name:"Nr. 1",x:26.1,y:49,url:BASE+"f51798-Granite-Falls.html",active:false},
+    {name:"Nr. 2",x:33.4,y:73.3,url:BASE+"f51798-Granite-Falls.html",active:false},
+    {name:"Nr. 3",x:48,y:72.8,url:BASE+"f51798-Granite-Falls.html",active:false},
+    {name:"Nr. 4",x:56.7,y:60.3,url:BASE+"f51798-Granite-Falls.html",active:false},
+    {name:"Nr. 5",x:55.8,y:47.2,url:BASE+"f51798-Granite-Falls.html",active:false},
+      ],
   "Bloodmoon Valley":[
-    {x:86.9,y:80.4,info:true},
-    {nr:"Strassen von",x:64.4,y:79.3,outdoor:true},
-    {nr:"Rabenfelsviertel",x:57.4,y:37.5,building:"Rabenfelsviertel"},
-    {nr:"Schattenmarktviertel",x:45.7,y:55.1,building:"Schattenmarktviertel"},
-    {nr:"Deathdealer Ausbildungslager",x:88.7,y:55.8},
-    {nr:"Kerker-Ruine",x:69.2,y:46.2},
-    {nr:"Anwesen der Draculias",x:71.7,y:18},
-    {nr:"Mirabelles Haus",x:15.6,y:89.5},
-    {nr:"Ruine",x:28.6,y:39.8}],
+    {name:"Portal",x:86.9,y:80.4,info:true,active:false},
+    {name:"Bloodmoon Valley (Strassen & Wälder)",x:64.4,y:79.3,url:BASE+"t380f53861-Bloodmoon-Valley.html",active:true,outdoor:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t380p3446n2_bGsQFBhr.png"},
+    {name:"Deathdealer Ausbildungslager",x:88.7,y:55.8,url:BASE+"t382f53861-Bloodmoon-Valley-Deathdealer-Ausbildungslager.html",active:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t382p3448n3_PzCaLcMb.png"},
+    {name:"Kerker-Ruine",x:69.2,y:46.2,url:BASE+"t609f53861-Bloodmoon-Valley-Kerker-Ruine.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t609p5380n2_MlDawgxc.jpg"},
+    {name:"Anwesen der Draculias",x:71.7,y:18,url:BASE+"t385f53861-Bloodmoon-Valley-Anwesen-der-Draculias.html",active:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t385p3451n2_BqadveJZ.png"},
+    {name:"Mirabelles Haus",x:15.6,y:89.5,url:BASE+"t492f53861-Bloodmoon-Valley-Mirabelles-Haus.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t492p4169n2_tIKSYmXG.png"},
+    {name:"Ruine",x:28.6,y:39.8,url:BASE+"t383f53861-Bloodmoon-Valley-Ruine.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t383p3449n7_opFWjNaw.png"},
+    {name:"Rabenfelsviertel",x:57.4,y:37.5,url:BASE+"t381f53861-Bloodmoon-Valley-Rabenfelsviertel-Harghita.html",active:true,building:"Rabenfelsviertel"},
+    {name:"Schattenmarktviertel",x:45.7,y:55.1,url:BASE+"t400f53861-Bloodmoon-Valley-Schattenmarktviertel-Harghita.html",active:true,building:"Schattenmarktviertel"},
+  ],
   "Selvadorada":[
-    {nr:"Strassen von",x:50,y:50,outdoor:true},
-    {nr:"Nr. 1",x:22.5,y:63.1},
-    {nr:"Nr. 2",x:31.1,y:53.4},
-    {nr:"Nr. 3",x:40,y:41.8},
-    {nr:"Nr. 4",x:60,y:70.1},
-    {nr:"Nr. 5",x:65.4,y:60.7},
-    {nr:"Nr. 6",x:80.7,y:69.1},
-    {nr:"Nr. 7",x:73.3,y:81.8}]
+    {name:"Nr. 1",x:21.6,y:62.5,url:BASE+"f51799-Selvadorada.html",active:false},
+    {name:"Nr. 2",x:31.5,y:53.5,url:BASE+"f51799-Selvadorada.html",active:false},
+    {name:"Nr. 3",x:39.7,y:42,url:BASE+"f51799-Selvadorada.html",active:false},
+    {name:"Nr. 4",x:60.4,y:70.3,url:BASE+"f51799-Selvadorada.html",active:false},
+    {name:"Nr. 5",x:65.7,y:61.8,url:BASE+"f51799-Selvadorada.html",active:false},
+    {name:"Golden Chantico",nr:"Nr. 6",x:79.6,y:68.3,url:BASE+"t189f51799-Selvadorada-Nr-Golden-Chantico.html",active:false,img:IMG+"f51799t189p2508n2_QBzCiHDf.png"},
+    {name:"Nr. 7",x:72.9,y:81.9,url:BASE+"f51799-Selvadorada.html",active:false},
+  ],
 };
 
-
+// ═══════════════════════════════════════════
+// ANDERE WELTEN
+// ═══════════════════════════════════════════
 const otherworlds=[
-  {name:"Bloodmoon Valley",color:"#6a2a4a",type:"Vampirwelt",url:"https://www.simsforumrpg.de/f53861-Vampirwelt-Bloodmoon-Valley.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t380p3446n2_bGsQFBhr.png"},
+  {name:"Bloodmoon Valley",color:"#6a2a4a",type:"Vampirwelt",url:BASE+"f53861-Vampirwelt-Bloodmoon-Valley.html",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t380p3446n2_bGsQFBhr.png"},
 ];
+
+// ═══════════════════════════════════════════
+// RELOAD PERSISTENCE
+window.addEventListener('load',function(){
+  updateSidebarStats();
+  try{
+    var saved=sessionStorage.getItem('atlas_world');
+    if(saved){
+      var w=worlds.find(function(x){return x.name===saved;});
+      if(!w)w=otherworlds.find(function(x){return x.name===saved;});
+      if(w)setTimeout(function(){enterWorld(w);},100);
+    }
+  }catch(e){}
+});
+// ═══════════════════════════════════════════
+// STATE & STORAGE
+// ═══════════════════════════════════════════
+let adminMode=false,logoClicks=0,logoTimer=null;
+let currentWorld=null;
+let calibMapMode=false,calibWorldMode=false;
+let calibMapData=[],calibWorldData=[],calibMapIdx=0;
+let posMode=false,posModeCallback=null,pendingPos=null;
+let customLots=JSON.parse(localStorage.getItem('sw_custom_lots')||'{}');
+let suggestions=JSON.parse(localStorage.getItem('sw_suggestions')||'[]');
+let hiddenLots=JSON.parse(localStorage.getItem('sw_hidden_lots')||'{}');
+let renamedLots=JSON.parse(localStorage.getItem('sw_renamed_lots')||'{}');
+let adminWorldFilter=worlds[0].name,adminTab='lots';
+function saveLots(){localStorage.setItem('sw_custom_lots',JSON.stringify(customLots))}
+function saveSugs(){localStorage.setItem('sw_suggestions',JSON.stringify(suggestions))}
+function saveHidden(){localStorage.setItem('sw_hidden_lots',JSON.stringify(hiddenLots))}
+function saveRenamed(){localStorage.setItem('sw_renamed_lots',JSON.stringify(renamedLots))}
+
+
+// Sheet-Daten für Lots (aus Google Sheets)
+var sheetLots = {}; // {worldName: {nr: {name, threadUrl, imgUrl}}}
+var sheetLotsLoaded = false;
+
+function fetchSheetLots(cb){
+  if(sheetLotsLoaded){ if(cb) cb(); return; }
+  fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vRGJifryvR2cW2gOBiG3x1p-Gy-lXe5pLMValomH8hTXNW0AiiRsWO5tM4mL85TCE0mU9jjbIkksHil/pub?output=csv')
+    .then(r=>r.text())
+    .then(csv=>{
+      const rows = csv.split('\n');
+      const headers = rows[0].split(',').map(h=>h.replace(/"/g,'').trim().toLowerCase());
+      const wIdx = headers.indexOf('welt');
+      const nIdx = headers.indexOf('nr.');
+      const nameIdx = headers.indexOf('name');
+      const urlIdx = headers.indexOf('thread url');
+      const imgIdx = headers.indexOf('bild url');
+      const groupIdx = headers.indexOf('dot-gruppe');
+      sheetLots = {};
+      rows.slice(1).filter(r=>r.trim()).forEach(r=>{
+        const cols = r.split(',');
+        const get = i => (cols[i]||'').replace(/"/g,'').trim();
+        const world = get(wIdx);
+        const nr = get(nIdx);
+        if(!world || !nr) return;
+        if(!sheetLots[world]) sheetLots[world] = {};
+        sheetLots[world][nr] = {
+          name: get(nameIdx),
+          threadUrl: get(urlIdx),
+          imgUrl: get(imgIdx),
+          dotGroup: get(groupIdx),
+        };
+      });
+      sheetLotsLoaded = true;
+      if(cb) cb();
+    })
+    .catch(()=>{ sheetLotsLoaded = true; if(cb) cb(); });
+}
+
+function applySheetData(lot, wname){
+  // Match by nr field
+  const worldSheet = sheetLots[wname] || {};
+  const nr = lot.nr || (lot.name && lot.name.match(/^Nr\./) ? lot.name.split(' - ')[0].trim() : null);
+  if(!nr) return lot;
+  const sd = worldSheet[nr];
+  if(!sd) return lot;
+  const merged = {...lot};
+  if(sd.threadUrl) merged.url = sd.threadUrl;
+  if(sd.imgUrl) merged.img = sd.imgUrl;
+  if(sd.name && !lot.img) merged.name = nr + (sd.name ? ' - ' + sd.name : '');
+  // Mark as active if has thread
+  if(sd.threadUrl) merged.active = true;
+  return merged;
+}
+
+function getLots(wname){
+  const hidden=hiddenLots[wname]||[];
+  const renamed=renamedLots[wname]||{};
+  const hard=(worldLots[wname]||[]).filter(l=>!hidden.includes(l.name)).map(l=>{const base={...l,name:renamed[l.name]||l.name,_origName:l.name,_src:'hard'};return sheetLotsLoaded?applySheetData(base,wname):base;});
+  const cust=(customLots[wname]||[]).map(l=>({...l,_src:'custom'}));
+  const all=[...hard,...cust];
+  return all.length?all:[{name:'Forum öffnen',x:50,y:50,url:worlds.find(w=>w.name===wname)?.url||BASE,active:false}];
+}
+function renameLot(wname,origName,custIdx){
+  const current = custIdx!=null ? customLots[wname][custIdx].name : (renamedLots[wname]?.[origName]||origName);
+  const neu=prompt('Neuer Name:',current);
+  if(!neu||neu===current)return;
+  if(custIdx!=null){
+    customLots[wname][custIdx].name=neu;saveLots();
+  } else {
+    if(!renamedLots[wname])renamedLots[wname]={};
+    renamedLots[wname][origName]=neu;saveRenamed();
+  }
+  if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();
+}
+function hideHardLot(wname,lotName){
+  if(!hiddenLots[wname])hiddenLots[wname]=[];
+  if(!hiddenLots[wname].includes(lotName))hiddenLots[wname].push(lotName);
+  saveHidden();if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();
+}
+function restoreHardLot(wname,lotName){
+  if(!hiddenLots[wname])return;
+  hiddenLots[wname]=hiddenLots[wname].filter(n=>n!==lotName);
+  saveHidden();if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();
+}
+function startPosForLot(wname,idx){
+  if(!currentWorld||currentWorld.name!==wname){alert('Zuerst die Welt "'+wname+'" betreten.');return;}
+  posMode=true;document.getElementById('world-container').style.cursor='crosshair';document.getElementById('calib-mode-bar').style.display='block';
+  posModeCallback=(x,y)=>{customLots[wname][idx].x=x;customLots[wname][idx].y=y;saveLots();renderLots(currentWorld);renderAdminContent();};
+}
+
+function getThreadIdFromUrl(url){
+  if(!url) return null;
+  var m = url.match(/\/t(\d+)f/);
+  return m ? m[1] : null;
+}
+
+
+
+function updateAllTokens(){
+  if(!CHARS.length){ setTimeout(updateAllTokens, 1000); return; }
+  // Update lot dots
+  document.querySelectorAll('.dot-char-tokens[data-lot-url]').forEach(function(el){
+    var lotUrl = el.getAttribute('data-lot-url');
+    if(!lotUrl) return;
+    var lotThreadId = getThreadIdFromUrl(lotUrl);
+    var chars = CHARS.filter(function(c){
+      if(!c.lastSeenUrl) return false;
+      return lotThreadId && getThreadIdFromUrl(c.lastSeenUrl) === lotThreadId;
+    });
+    // Update innerHTML only, keep the container with its data attribute
+    var inner = chars.map(function(c,i){
+      var name=c.n||'';
+      var inner2=c.img?'<img class="dot-char-token" src="'+c.img+'" alt="'+name+'">':'<div class="dot-char-token-ph">'+name.charAt(0)+'</div>';
+      var hidden=i>=5?'dot-char-token-hidden':'';
+      return '<div class="dot-char-token-wrap '+hidden+'">'+inner2+'<div class="dot-char-token-name">'+name+'</div></div>';
+    }).join('')+(chars.length>5?'<div class="dot-char-token-wrap dot-char-token-extra"><div class="dot-char-token-ph">+'+(chars.length-5)+'</div></div>':'');
+    el.innerHTML = inner;
+  });
+  // Update world dots
+  document.querySelectorAll('.dot-char-tokens[data-world-name]').forEach(function(el){
+    var worldName = el.getAttribute('data-world-name');
+    var chars = getCharsAtWorld(worldName);
+    var inner = chars.map(function(c,i){
+      var name=c.n||'';
+      var inner2=c.img?'<img class="dot-char-token" src="'+c.img+'" alt="'+name+'">':'<div class="dot-char-token-ph">'+name.charAt(0)+'</div>';
+      var hidden=i>=5?'dot-char-token-hidden':'';
+      return '<div class="dot-char-token-wrap '+hidden+'">'+inner2+'<div class="dot-char-token-name">'+name+'</div></div>';
+    }).join('')+(chars.length>5?'<div class="dot-char-token-wrap dot-char-token-extra"><div class="dot-char-token-ph">+'+(chars.length-5)+'</div></div>':'');
+    el.innerHTML = inner;
+  });
+}
+
+// Dot colors per world type
+var WORLD_COLORS={'Willow Creek':'#4a8a3a','Oasis Springs':'#c87a2a','Newcrest':'#3a7a8a','Forgotten Hollow':'#5a3a8a','Brindleton Bay':'#3a6aaa','Del Sol Valley':'#c8a02a','Strangerville':'#8a3a3a','Sulani':'#2a8aaa','Glimmerbrook':'#7a3a9a','Britechester':'#3a4a7a','Evergreen Harbor':'#4a7a5a','Mt. Komorebi':'#5a8aaa','Henford-on-Bagley':'#6a8a3a','Tartosa':'#c84a6a','Moonwood Mill':'#4a3a6a','Windenburg':'#5a6a7a','San Myshuno':'#7a4a3a','Granite Falls':'#4a6a3a','Chestnut Ridge':'#aa7a2a','Copperdale':'#6a5a3a','San Sequoia':'#3a7a5a','Bloodmoon Valley':'#6a2a4a'};
+
+function updateSidebarActivity(){
+  var el=document.getElementById('sidebar-activity');
+  if(!el||!CHARS.length)return;
+  // Get chars with lastSeenName, sort by most recent (by array order = sheet order)
+  // Filter to last 7 days if date available, else show all with lastSeenName
+  var now=new Date();
+  var active=CHARS.filter(function(c){
+    if(!c.lastSeenName||!c.lastSeenUrl) return false;
+    if(!c.lastSeenDate) return true; // no date = show anyway
+    var parts=c.lastSeenDate.split('.');
+    if(parts.length<3) return true;
+    var d=new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
+    return (now-d)<=7*24*60*60*1000;
+  });
+  // Deduplicate by name, keep first occurrence
+  var seen=new Set();
+  var unique=active.filter(function(c){if(seen.has(c.n))return false;seen.add(c.n);return true;});
+  var top=unique.slice(0,8);
+  el.innerHTML=top.map(function(c){
+    var color=WORLD_COLORS[c.lastSeenName]||'#4a6a7a';
+    var nameShort=c.n.split(' ')[0];
+    return '<div class="activity-item" style="cursor:pointer" data-url="'+c.lastSeenUrl+'" title="'+c.n+'">'
+      +'<div class="activity-dot" style="background:'+color+';box-shadow:0 0 5px '+color+'"></div>'
+      +'<div><div class="activity-name">'+nameShort+'</div><div class="activity-world">'+c.lastSeenName+'</div></div>'
+      +'</div>';
+  }).join('');
+  el.querySelectorAll('[data-url]').forEach(function(item){
+    item.addEventListener('click',function(){window.open(this.getAttribute('data-url'),'_blank');});
+  });
+}
+
+function updateSidebarStats(){
+  // Fetch live forum stats from Apps Script
+  fetch(SCRIPT_URL+'?action=stats')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d.posts&&!d.topics) return;
+      var stats=document.getElementById('sidebar-stats');
+      if(!stats) return;
+      stats.innerHTML=
+        '<div class="stat-row"><span class="stat-key">Posts</span><span>'+(d.posts||'–')+'</span></div>'+
+        '<div class="stat-row"><span class="stat-key">Themen</span><span>'+(d.topics||'–')+'</span></div>'+
+        '<div class="stat-row"><span class="stat-key">Mitglieder</span><span>'+(d.members||'–')+'</span></div>'+
+'';
+    // Update online users
+    if(d.online&&d.online.length){
+      var onlineEl=document.getElementById('sidebar-online');
+      if(onlineEl) onlineEl.innerHTML=d.online.map(function(u){
+        return '<div class="online-item"><div style="width:6px;height:6px;border-radius:50%;background:#4aaa6a"></div>'+u+'</div>';
+      }).join('');
+    }
+    }).catch(function(){});
+}
+function buildCharTokensHtml(chars){
+  if(!chars||!chars.length) return '';
+  var MAX=5;
+  var extra=chars.length>MAX?chars.length-MAX:0;
+  // First MAX visible, rest hidden
+  return '<div class="dot-char-tokens">' +
+    chars.map(function(c,i){
+      var name=c.n||'';
+      var inner=c.img
+        ?'<img class="dot-char-token" src="'+c.img+'" alt="'+name+'">'
+        :'<div class="dot-char-token-ph">'+name.charAt(0)+'</div>';
+      // tokens beyond MAX are hidden when stacked, shown when expanded
+      var hidden=i>=MAX?'dot-char-token-hidden':'';
+      return '<div class="dot-char-token-wrap '+hidden+'">'+inner+'<div class="dot-char-token-name">'+name+'</div></div>';
+    }).join('')+
+    (extra>0?'<div class="dot-char-token-wrap dot-char-token-extra"><div class="dot-char-token-ph">+'+extra+'</div></div>':'')+
+  '</div>';
+}
+function getCharsAtLot(lot){
+  if(!lot||!lot.url) return [];
+  var lotThreadId = getThreadIdFromUrl(lot.url);
+  return CHARS.filter(function(c){
+    if(!c.lastSeenUrl) return false;
+    // Match by thread ID in URL
+    if(lotThreadId){
+      var charThreadId = getThreadIdFromUrl(c.lastSeenUrl);
+      if(charThreadId === lotThreadId) return true;
+    }
+    return false;
+  });
+}
+
+function getCharsAtWorld(worldName){
+  if(!worldName) return [];
+  return CHARS.filter(function(c){
+    return c.lastSeenName && c.lastSeenName.toLowerCase()===worldName.toLowerCase();
+  });
+}
+function parseLotLabel(lot){
+  const name=lot.name;
+  if(lot.nr)return{num:lot.nr,sub:name};
+  const m=name.match(/^(Nr\.\s*\d+[A-Za-z]?)\s*[-–]\s*(.+)$/);
+  if(m)return{num:m[1],sub:m[2].trim()};
+  const n=name.match(/^(Nr\.\s*\d+[A-Za-z]?)$/);
+  if(n)return{num:n[1],sub:''};
+  return{num:name,sub:''};
+}
+function groupLots(lots){
+  const groups=[],used=new Set();
+  lots.forEach((lot,i)=>{
+    if(used.has(i))return;
+    const g=[lot];used.add(i);
+    lots.forEach((o,j)=>{if(i===j||used.has(j))return;if(lot.x===o.x&&lot.y===o.y){g.push(o);used.add(j);}});
+    groups.push({x:lot.x,y:lot.y,lots:g});
+  });
+  return groups;
+}
+
+// ═══════════════════════════════════════════
+// WELT-DOTS
+// ═══════════════════════════════════════════
+const mapC=document.getElementById('map-container');
+const mapIA=document.getElementById('map-image-area');
+
+// Size map-image-area to match actual image aspect ratio
+(function(){
+  const mapImg=document.querySelector('#map-bg img');
+  function sizeMapArea(){
+    const iw=mapImg.naturalWidth||1,ih=mapImg.naturalHeight||1;
+    if(!iw||!ih)return;
+    const cw=mapC.clientWidth,ch=mapC.clientHeight;
+    const scale=Math.min(cw/iw,ch/ih);
+    mapIA.style.width=Math.round(iw*scale)+'px';
+    mapIA.style.height=Math.round(ih*scale)+'px';
+  }
+  if(mapImg.complete&&mapImg.naturalWidth>0)sizeMapArea();
+  else mapImg.addEventListener('load',sizeMapArea);
+  window.addEventListener('resize',sizeMapArea);
+})();
+worlds.forEach(w=>{
+  const el=document.createElement('div');
+  el.className='world-dot';
+  el.style.cssText=`left:${w.x}%;top:${w.y}%`;
+  el.innerHTML=`<div class="dot-pulse" style="width:34px;height:34px;border-color:${w.color}"></div><div class="dot-inner" style="width:11px;height:11px;background:${w.color};box-shadow:0 0 5px ${w.color}"></div><div class="dot-label">${w.name}</div><div class="dot-char-tokens" data-world-name="${w.name}"></div><div class="hover-card" style="border:1px solid ${w.color}88;box-shadow:0 6px 28px ${w.color}44"><div style="position:relative">${w.img?`<img class="hover-img" src="${w.img}" onerror="this.style.display='none'">`:''}<div class="hover-gradient"></div><div class="hover-name">${w.name}</div></div><div class="hover-footer"><span class="hover-type">${w.type}</span><span class="hover-action" style="color:${w.color}">Klicken →</span></div></div>`;
+  el.addEventListener('click',e=>{e.stopPropagation();if(!calibMapMode)enterWorld(w);});
+  mapIA.appendChild(el);
+});
+// Update tokens after worlds are rendered
+setTimeout(updateAllTokens, 500);
+mapC.addEventListener('click',e=>{
+  if(!calibMapMode)return;
+  if(e.target.closest('.calib-panel')||e.target.closest('.calib-btn'))return;
+  const r=mapIA.getBoundingClientRect();
+  const x=+((e.clientX-r.left)/r.width*100).toFixed(1);
+  const y=+((e.clientY-r.top)/r.height*100).toFixed(1);
+  const w=worlds[calibMapIdx];
+  if(!w){alert('Alle kalibriert!');return;}
+  calibMapData.push({name:w.name,x,y});calibMapIdx++;
+  updateCalibLog('map');
+  document.getElementById('calib-next').textContent=worlds[calibMapIdx]?.name||'✓ Fertig';
+},true);
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function enterWorld(w){
+  // Only persist otherworlds (not simswelt) across reload
+  const isOther=otherworlds.some(function(o){return o.name===w.name;});
+  try{if(isOther)sessionStorage.setItem('atlas_world',w.name);else sessionStorage.removeItem('atlas_world');}catch(e){}
+  currentWorld=w;
+  mapC.classList.remove('active');
+  const wc=document.getElementById('world-container');
+  wc.classList.add('active');
+  sizeWorldImageArea();
+  document.getElementById('world-name-display').textContent=w.name;
+  document.getElementById('world-type-display').textContent=w.type;
+  const _grad=`<div style="position:absolute;inset:0;background:linear-gradient(135deg,${w.color}33,#0a1420)"></div>`;
+  document.getElementById('world-bg').innerHTML=w.img
+    ?`<img src="${w.img}" alt="${w.name}" style="width:100%;height:100%;object-fit:cover;filter:brightness(0.65) saturate(0.9);display:block" onerror="this.parentElement.innerHTML='${_grad.replace(/'/g,"\\'")}'">`
+    :_grad;
+  document.getElementById('world-subtitle').textContent='/ '+w.name;
+  document.getElementById('btn-back').style.display='inline-block';
+  document.getElementById('mob-back').style.display='flex';
+  calibWorldData=[];updateCalibLog('world');
+  document.getElementById('calib-world-next').textContent=getLots(w.name)[0]?.name||'—';
+  document.getElementById('calib-world-count').textContent='0';
+  exitBuilding();
+  fetchSheetLots(()=>{ renderLots(w); if(adminMode)renderAdminContent(); setTimeout(updateAllTokens,100); setTimeout(repositionTooltips,200); });
+}
+
+let buildingFloorIdx=0,currentBuildingKey=null;
+
+function enterBuilding(buildingKey,lots){
+  buildingFloorIdx=0;currentBuildingKey=buildingKey;
+  const bc=document.getElementById('building-container');
+  const data=BUILDINGS[buildingKey];
+  bc.style.display='block';
+  document.getElementById('building-name').textContent=buildingKey;
+  const imgs=data?.imgs||[];
+  const nav=document.getElementById('floor-nav');
+  if(imgs.length>1){nav.style.display='flex';updateFloorNav(imgs);}
+  else{nav.style.display='none';}
+  renderBuildingBg(imgs);
+  renderBuildingLots();
+}
+function renderBuildingLots(){
+  const bc=document.getElementById('building-container');
+  const data=BUILDINGS[currentBuildingKey];
+  const dotParent=document.getElementById('building-bg-inner')||bc;
+  dotParent.querySelectorAll('.apt-dot').forEach(d=>d.remove());
+  const aptLots=data?.lots||[];
+  aptLots.forEach(apt=>{
+    // Floor filter: if lot has floors array, only show on matching floor
+    if(apt.floors&&!apt.floors.includes(buildingFloorIdx))return;
+    const d=document.createElement('div');
+    const isFree=apt.free||!apt.url;
+    d.className='apt-dot lot-dot'+(apt.active?' isactive':'');
+    d.style.cssText=`left:${apt.x}%;top:${apt.y}%;`;
+    // Nr/Name label
+    const _lbl=parseLotLabel(apt);
+    const _labelHtml=_lbl.sub
+      ?`${_lbl.num}<span class="lot-sublabel">${_lbl.sub}</span>`
+      :_lbl.num;
+    const _dotBg=apt.outdoor?'rgba(80,190,170,0.9)':apt.active?'#4aaa6a':isFree?'rgba(255,255,255,0.25)':'rgba(255,255,255,0.6)';
+    const _shadow=apt.active?'0 0 10px #4aaa6a':apt.outdoor?'0 0 8px rgba(80,190,170,0.8)':'none';
+    const _statusText=isFree?'○ Frei':apt.outdoor?'🌿 Öffentlicher Bereich':apt.active?'● Aktiv':'↗ Thread öffnen';
+    const _statusColor=isFree?'rgba(255,255,255,0.3)':apt.outdoor?'rgba(80,190,170,0.9)':apt.active?'#4aaa6a':'rgba(255,255,255,0.4)';
+    const _textInner=`<div style="font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.35);margin-bottom:1px">${_lbl.num}</div><div style="font-weight:600;margin-bottom:3px">${_lbl.sub||_lbl.num}</div><div style="font-size:10px;color:${_statusColor}">${_statusText}</div>`;
+    const _tooltipInner=apt.img
+      ?`<div style="padding:0;overflow:hidden;min-width:160px"><img src="${apt.img}" style="width:100%;height:90px;object-fit:cover;display:block"><div style="padding:7px 10px">${_textInner}</div></div>`
+      :`<div style="padding:6px 10px">${_textInner}</div>`;
+    const _ttStyle=apt.img?'padding:0;overflow:hidden;min-width:160px;border:0.5px solid rgba(255,255,255,0.2)':'padding:6px 10px;border:0.5px solid rgba(255,255,255,0.2)';
+    d.innerHTML=`<div class="lot-pulse"></div><div class="lot-inner" style="width:11px;height:11px;background:${_dotBg};box-shadow:${_shadow}"></div><div class="lot-label">${_labelHtml}</div><div class="lot-tooltip" style="${_ttStyle}">${_tooltipInner}</div>`;
+    if(!isFree&&apt.url)d.addEventListener('click',e=>{e.stopPropagation();window.open(apt.url,'_blank');});
+    dotParent.appendChild(d);
+  });
+}
+function renderBuildingBg(imgs){
+  const img=imgs[buildingFloorIdx]||'';
+  const bg=document.getElementById('building-bg');
+  // Use a persistent img tag inside inner so dots aren't wiped
+  let bgImg=document.getElementById('building-bg-img');
+  if(!bgImg){bgImg=document.createElement('img');bgImg.id='building-bg-img';bgImg.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:brightness(0.65);display:block;pointer-events:none;background:#040d14';document.getElementById('building-bg-inner').appendChild(bgImg);}
+  if(img){bgImg.src=img;bgImg.style.display='block';document.getElementById('building-no-img').style.display='none';}
+  else{bgImg.style.display='none';document.getElementById('building-no-img').style.display='block';}
+}
+function changeBuildingFloor(dir){
+  const data=BUILDINGS[currentBuildingKey];
+  const imgs=data?.imgs||[];
+  buildingFloorIdx=Math.max(0,Math.min(imgs.length-1,buildingFloorIdx+dir));
+  renderBuildingBg(imgs);updateFloorNav(imgs);renderBuildingLots();
+}
+function updateFloorNav(imgs){
+  document.getElementById('floor-label').textContent=`${buildingFloorIdx+1} / ${imgs.length}`;
+  document.getElementById('floor-up-btn').style.opacity=buildingFloorIdx>0?'1':'0.3';
+  document.getElementById('floor-down-btn').style.opacity=buildingFloorIdx<imgs.length-1?'1':'0.3';
+}
+function exitBuilding(){const bc=document.getElementById('building-container');if(bc)bc.style.display='none';}
+
 
 const OTHERWORLDS_DATA=[
   {name:"Bloodmoon Valley",type:"Vampirwelt",img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t380p3446n2_bGsQFBhr.png",world:otherworlds[0]},
@@ -1250,177 +1669,6 @@ function goBack(){
   document.getElementById('world-container').style.cursor='default';
 }
 
-
-var sheetLots = {};
-var sheetLotsLoaded = false;
-
-function fetchSheetLots(cb){
-  if(sheetLotsLoaded){ if(cb) cb(); return; }
-  fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vRGJifryvR2cW2gOBiG3x1p-Gy-lXe5pLMValomH8hTXNW0AiiRsWO5tM4mL85TCE0mU9jjbIkksHil/pub?output=csv')
-    .then(r=>r.text())
-    .then(csv=>{
-      const rows = csv.split('\n');
-      const headers = rows[0].split(',').map(h=>h.replace(/"/g,'').trim().toLowerCase());
-      const wIdx = headers.indexOf('welt');
-      const nIdx = headers.indexOf('nr.');
-      const nameIdx = headers.indexOf('name');
-      const urlIdx = headers.indexOf('thread url');
-      const imgIdx = headers.indexOf('bild url');
-      const groupIdx = headers.indexOf('dot-gruppe');
-      sheetLots = {};
-      rows.slice(1).filter(r=>r.trim()).forEach(r=>{
-        const cols = r.split(',');
-        const get = i => (cols[i]||'').replace(/"/g,'').trim();
-        const world = get(wIdx);
-        const nr = get(nIdx);
-        const dotGroup = get(groupIdx);
-        if(!world || !nr) return;
-        if(!sheetLots[world]) sheetLots[world] = {};
-        const entry = {
-          name: get(nameIdx),
-          threadUrl: get(urlIdx),
-          imgUrl: get(imgIdx),
-          dotGroup: dotGroup,
-        };
-        if(dotGroup) {
-          sheetLots[world][dotGroup + '|' + nr] = entry;
-          if(!sheetLots[world][nr]) sheetLots[world][nr] = entry;
-        } else {
-          sheetLots[world][nr] = entry;
-        }
-      });
-      sheetLotsLoaded = true;
-      if(cb) cb();
-    })
-    .catch(()=>{ sheetLotsLoaded = true; if(cb) cb(); });
-}
-
-function applySheetData(lot, wname){
-  const worldSheet = sheetLots[wname] || {};
-  const nr = lot.nr || (lot.name && lot.name.match(/^Nr\./) ? lot.name.split(' - ')[0].trim() : null);
-  if(!nr) return lot;
-  let sd = null;
-  if(lot.building){
-    const candidate = worldSheet[nr];
-    if(candidate && candidate.dotGroup === lot.building) sd = candidate;
-    if(!sd){ const key = lot.building + '|' + nr; sd = worldSheet[key] || null; }
-  } else {
-    sd = worldSheet[nr];
-  }
-  if(!sd) return lot;
-  const merged = {...lot};
-  if(sd.threadUrl) merged.url = sd.threadUrl;
-  if(sd.imgUrl) merged.img = sd.imgUrl;
-  if(sd.name) merged.name = nr + (sd.name ? ' - ' + sd.name : '');
-  if(sd.threadUrl) merged.active = true;
-  return merged;
-}
-
-function getLots(wname){
-  const hidden=hiddenLots[wname]||[];
-  const renamed=renamedLots[wname]||{};
-  const hard=(worldLots[wname]||[]).filter(l=>!hidden.includes(l.name)).map(l=>{const base={...l,name:renamed[l.name]||l.name||'',_origName:l.name,_src:'hard'};return sheetLotsLoaded?applySheetData(base,wname):base;});
-  const cust=(customLots[wname]||[]).map(l=>{return {...l,_src:'custom'};});
-  const all=[...hard,...cust];
-  return all.length?all:[{name:'Forum öffnen',x:50,y:50,url:worlds.find(w=>w.name===wname)?.url||BASE,active:false}];
-}
-
-function renameLot(wname,origName,custIdx){
-  const current = custIdx!=null ? customLots[wname][custIdx].name : (renamedLots[wname]?.[origName]||origName);
-  const neu=prompt('Neuer Name:',current);
-  if(!neu||neu===current)return;
-  if(custIdx!=null){
-    customLots[wname][custIdx].name=neu;saveLots();
-  } else {
-    if(!renamedLots[wname])renamedLots[wname]={};
-    renamedLots[wname][origName]=neu;saveRenamed();
-  }
-  if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();
-}
-
-
-function updateAllTokens(){
-  if(!CHARS.length){ setTimeout(updateAllTokens, 1000); return; }
-  document.querySelectorAll('.dot-char-tokens[data-lot-url]').forEach(function(el){
-    var lotUrl = el.getAttribute('data-lot-url');
-    if(!lotUrl) return;
-    var lotThreadId = getThreadIdFromUrl(lotUrl);
-    var chars = CHARS.filter(function(c){
-      if(!c.lastSeenUrl) return false;
-      return lotThreadId && getThreadIdFromUrl(c.lastSeenUrl) === lotThreadId;
-    });
-    var inner = chars.map(function(c,i){
-      var name=c.n||'';
-      var inner2=c.img?'<img class="dot-char-token" src="'+c.img+'" alt="'+name+'">':'<div class="dot-char-token-ph">'+name.charAt(0)+'</div>';
-      var hidden=i>=5?'dot-char-token-hidden':'';
-      return '<div class="dot-char-token-wrap '+hidden+'">'+inner2+'<div class="dot-char-token-name">'+name+'</div></div>';
-    }).join('')+(chars.length>5?'<div class="dot-char-token-wrap dot-char-token-extra"><div class="dot-char-token-ph">+'+(chars.length-5)+'</div></div>':'');
-    el.innerHTML = inner;
-  });
-  document.querySelectorAll('.dot-char-tokens[data-world-name]').forEach(function(el){
-    var worldName = el.getAttribute('data-world-name');
-    var chars = getCharsAtWorld(worldName);
-    var inner = chars.map(function(c,i){
-      var name=c.n||'';
-      var inner2=c.img?'<img class="dot-char-token" src="'+c.img+'" alt="'+name+'">':'<div class="dot-char-token-ph">'+name.charAt(0)+'</div>';
-      var hidden=i>=5?'dot-char-token-hidden':'';
-      return '<div class="dot-char-token-wrap '+hidden+'">'+inner2+'<div class="dot-char-token-name">'+name+'</div></div>';
-    }).join('')+(chars.length>5?'<div class="dot-char-token-wrap dot-char-token-extra"><div class="dot-char-token-ph">+'+(chars.length-5)+'</div></div>':'');
-    el.innerHTML = inner;
-  });
-}
-function updateSidebarStats(){
-  fetch('https://script.google.com/macros/s/AKfycbzJ_fMI1LBjmFAQDhjD1sr3hJtdUj4OOor_WiWX3asl_eX0FXDN1wr64cNON3odhHdX/exec?action=stats')
-    .then(r=>r.json())
-    .then(d=>{
-      if(d.posts) document.getElementById('sidebar-posts').textContent=d.posts;
-      if(d.topics) document.getElementById('sidebar-topics').textContent=d.topics;
-      if(d.members) document.getElementById('sidebar-members').textContent=d.members;
-      updateSidebarActivity();
-      updateSidebarOnline(d.onlineUsers||[]);
-    }).catch(()=>{});
-}
-
-function groupLots(lots){
-  const groups={};
-  const order=[];
-  lots.forEach(function(lot){
-    const key=lot.x+'_'+lot.y;
-    if(!groups[key]){groups[key]={x:lot.x,y:lot.y,lots:[]};order.push(key);}
-    groups[key].lots.push(lot);
-  });
-  return order.map(k=>groups[k]);
-}
-
-function parseLotLabel(lot){
-  const name=lot.name||'';
-  if(lot.nr)return{num:lot.nr,sub:name||''};
-  const m=name.match(/^(Nr\.\s*\d+[A-Za-z]?)\s*[-–]\s*(.+)$/);
-  if(m)return{num:m[1],sub:m[2].trim()};
-  const n=name.match(/^(Nr\.\s*\d+[A-Za-z]?)$/);
-  if(n)return{num:n[1],sub:''};
-  return{num:name,sub:''};
-}
-
-function repositionTooltips(){
-  document.querySelectorAll('.lot-dot, .cluster-dot').forEach(function(dot){
-    var tt = dot.querySelector('.lot-tooltip, .cluster-hover');
-    if(!tt) return;
-    dot.addEventListener('mouseenter', function(){
-      tt.style.bottom=''; tt.style.top=''; tt.style.transform='';
-      requestAnimationFrame(function(){
-        var r = tt.getBoundingClientRect();
-        if(r.top < 60){ tt.style.bottom='auto'; tt.style.top='18px'; tt.style.transform='translateX(-50%)'; }
-        if(r.right > window.innerWidth - 10){ tt.style.left='auto'; tt.style.right='0'; tt.style.transform='none'; }
-        if(r.left < 10){ tt.style.left='0'; tt.style.transform='none'; }
-      });
-    });
-    dot.addEventListener('mouseleave', function(){
-      tt.style.bottom=''; tt.style.top=''; tt.style.transform=''; tt.style.left=''; tt.style.right='';
-    });
-  });
-}
-
 // ═══════════════════════════════════════════
 // LOTS RENDERN
 // ═══════════════════════════════════════════
@@ -1473,7 +1721,7 @@ function renderLots(w){
       const cd=document.createElement('div');
       cd.className='cluster-dot'+(isBuilding?' building-dot':'');
       cd.style.cssText=`left:${group.x}%;top:${group.y}%`;
-      const lbl=isBuilding?buildings[0].split('-')[0].trim():((group.lots[0].name||group.lots[0].nr||'').split('-').pop().trim().split(' ').slice(0,2).join(' '));
+      const lbl=isBuilding?buildings[0].split('-')[0].trim():group.lots[0].name.split('-').pop().trim().split(' ').slice(0,2).join(' ');
       const itemsHtml=group.lots.map(l=>`<div class="cluster-item" onclick="window.open('${l.url}','_blank');event.stopPropagation()">${l.img?`<img class="cluster-item-preview" src="${l.img}">`:''}><div class="cluster-pip" style="background:${l.active?'#4aaa6a':'rgba(255,255,255,0.4)'}"></div>${parseLotLabel(l).num}${parseLotLabel(l).sub?` <span style="color:rgba(255,255,255,0.45);font-size:10px">– ${parseLotLabel(l).sub}</span>`:''}</div>`).join('');
       const lotsWithImg=group.lots.filter(l=>l.img);
       const clusterHoverHtml=(!isBuilding&&lotsWithImg.length>0)?`<div class="cluster-hover" style="border:1px solid ${color}88;box-shadow:0 6px 28px ${color}44"><div style="display:flex;gap:1px">${lotsWithImg.map(l=>`<div style="position:relative;flex:1;min-width:0"><img src="${l.img}" style="width:100%;height:75px;object-fit:cover;display:block"><div style="position:absolute;bottom:3px;left:5px;font-size:8px;font-weight:600;text-shadow:0 1px 3px #000;color:#fff">${parseLotLabel(l).num}</div></div>`).join('')}</div><div class="hover-footer"><span class="hover-type">${group.lots.length} Orte</span><span class="hover-action" style="color:${color}">Klicken →</span></div></div>`:'';
@@ -1541,11 +1789,11 @@ worldC.addEventListener('click',e=>{
 // ═══════════════════════════════════════════
 function toggleCalib(mode){
   if(mode==='map'){calibMapMode=!calibMapMode;document.getElementById('calib-map-panel').style.display=calibMapMode?'block':'none';mapC.style.cursor=calibMapMode?'crosshair':'default';if(calibMapMode)document.getElementById('calib-next').textContent=worlds[calibMapIdx]?.name||'—';}
-  else{calibWorldMode=!calibWorldMode;document.getElementById('calib-world-panel').style.display=calibWorldMode?'block':'none';worldC.style.cursor=calibWorldMode?'crosshair':'default';if(calibWorldMode)var _cl=getLots(currentWorld?.name||'')[calibWorldData.length];document.getElementById('calib-world-next').textContent=(_cl?.nr||_cl?.name||'—');}
+  else{calibWorldMode=!calibWorldMode;document.getElementById('calib-world-panel').style.display=calibWorldMode?'block':'none';worldC.style.cursor=calibWorldMode?'crosshair':'default';if(calibWorldMode)document.getElementById('calib-world-next').textContent=getLots(currentWorld?.name||'')[calibWorldData.length]?.name||'—';}
 }
 function updateCalibLog(mode){const data=mode==='map'?calibMapData:calibWorldData;const log=document.getElementById(mode==='map'?'calib-map-log':'calib-world-log');log.innerHTML=data.length===0?'Noch keine Klicks...':data.map(d=>`<div style="color:#ffcc44">${d.name}</div><div style="color:#777">x:${d.x}, y:${d.y}</div>`).join('');log.scrollTop=log.scrollHeight;}
 function copyCalib(mode){const data=mode==='map'?calibMapData:calibWorldData;navigator.clipboard.writeText(data.map(d=>`{name:"${d.name}",x:${d.x},y:${d.y}}`).join(',\n')).then(()=>alert('✓ Kopiert!'));}
-function clearCalib(mode){if(mode==='map'){calibMapData=[];calibMapIdx=0;document.getElementById('calib-next').textContent=worlds[0]?.name||'—';}else{calibWorldData=[];var _cl0=getLots(currentWorld?.name||'')[0];document.getElementById('calib-world-next').textContent=(_cl0?.nr||_cl0?.name||'—');document.getElementById('calib-world-count').textContent='0';}updateCalibLog(mode);}
+function clearCalib(mode){if(mode==='map'){calibMapData=[];calibMapIdx=0;document.getElementById('calib-next').textContent=worlds[0]?.name||'—';}else{calibWorldData=[];document.getElementById('calib-world-next').textContent=getLots(currentWorld?.name||'')[0]?.name||'—';document.getElementById('calib-world-count').textContent='0';}updateCalibLog(mode);}
 
 // ═══════════════════════════════════════════
 // LEGENDE
@@ -1794,7 +2042,7 @@ function toggleBuildingCalib(){
     calibBuildingData=[];
     const lots=getBuildingCalibLots();
     const floorLabel=BUILDINGS[currentBuildingKey]?.imgs?.length>1?' (Ebene '+(buildingFloorIdx+1)+')':'';
-    document.getElementById('calib-building-next').textContent=((lots[0]?.nr||lots[0]?.name)||'—')+floorLabel;
+    document.getElementById('calib-building-next').textContent=(lots[0]?.name||'—')+floorLabel;
     document.getElementById('calib-building-count').textContent='0 / '+lots.length;
     document.getElementById('calib-building-log').textContent='Noch keine Klicks...';
   }
@@ -1802,7 +2050,7 @@ function toggleBuildingCalib(){
 function clearBuildingCalib(){
   calibBuildingData=[];
   const lots=getBuildingCalibLots();
-  document.getElementById('calib-building-next').textContent=lots[0]?.nr||lots[0]?.name||'—';
+  document.getElementById('calib-building-next').textContent=lots[0]?.name||'—';
   document.getElementById('calib-building-count').textContent='0 / '+lots.length;
   document.getElementById('calib-building-log').textContent='Noch keine Klicks...';
 }
@@ -1827,7 +2075,7 @@ document.addEventListener('DOMContentLoaded',function(){
     log.innerHTML=calibBuildingData.map(d=>`<div style="color:#ffcc44">${d.name}</div><div style="color:#777">x:${d.x}, y:${d.y}</div>`).join('');
     log.scrollTop=log.scrollHeight;
     const floorLabel=BUILDINGS[currentBuildingKey]?.imgs?.length>1?' (Ebene '+(buildingFloorIdx+1)+')':'';
-    document.getElementById('calib-building-next').textContent=((lots[idx+1]?.nr||lots[idx+1]?.name)||'✅ Fertig!')+floorLabel;
+    document.getElementById('calib-building-next').textContent=(lots[idx+1]?.name||'✅ Fertig!')+floorLabel;
     document.getElementById('calib-building-count').textContent=calibBuildingData.length+' / '+lots.length;
   });
 });
