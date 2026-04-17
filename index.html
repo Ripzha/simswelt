@@ -1240,21 +1240,25 @@ function fetchSheetLots(cb){
         if(!world || !nr) return;
         if(!sheetLots[world]) sheetLots[world] = {};
         const dotGroup = get(groupIdx).replace(/\.0$/, '');
+        // Handle # placeholder: strip # and mark as placeholder
+        const isPlaceholder = nr.endsWith('#');
+        const cleanNr = isPlaceholder ? nr.slice(0,-1).trim() : nr;
         const entry = {
           name: get(nameIdx),
           threadUrl: get(urlIdx),
           imgUrl: get(imgIdx),
           dotGroup: dotGroup,
+          isPlaceholder: isPlaceholder,
         };
         if(dotGroup){
-          const key = dotGroup+'|'+nr;
+          const key = dotGroup+'|'+cleanNr;
           if(!sheetLots[world][key]) sheetLots[world][key] = [];
           sheetLots[world][key].push(entry);
-          if(!sheetLots[world][nr]) sheetLots[world][nr] = entry;
+          if(!sheetLots[world][cleanNr]) sheetLots[world][cleanNr] = entry;
         } else {
-          if(!sheetLots[world][nr]) sheetLots[world][nr] = entry;
-          else if(!Array.isArray(sheetLots[world][nr])) sheetLots[world][nr] = [sheetLots[world][nr], entry];
-          else sheetLots[world][nr].push(entry);
+          if(!sheetLots[world][cleanNr]) sheetLots[world][cleanNr] = entry;
+          else if(!Array.isArray(sheetLots[world][cleanNr])) sheetLots[world][cleanNr] = [sheetLots[world][cleanNr], entry];
+          else sheetLots[world][cleanNr].push(entry);
         }
       });
       sheetLotsLoaded = true;
@@ -1293,6 +1297,24 @@ function getLots(wname){
   (worldLots[wname]||[]).filter(l=>!hidden.includes(l.name)).forEach(l=>{
     const base={...l,name:renamed[l.name]||l.name,_origName:l.name,_src:'hard'};
     const merged=sheetLotsLoaded?applySheetData(base,wname):base;
+    // Skip overview-only lots (imgUrl but no threadUrl) - invisible anchors
+    if(merged.img && !merged.url) return;
+    // Check if this nr has other lots in its dot-group (non-placeholder)
+    // If so, skip the placeholder
+    if(sheetLotsLoaded && l.nr){
+      const nrNum=l.nr.replace(/^Nr\.\s*/,'').trim();
+      const hasOtherLots=Object.keys(worldSheet).some(key=>{
+        const e=worldSheet[key];
+        if(!e||Array.isArray(e)) return false;
+        if(e.isPlaceholder) return false;
+        if(e.dotGroup!==nrNum) return false;
+        return true;
+      });
+      const sd=worldSheet[l.nr];
+      const isPlaceholderOnly=sd&&!Array.isArray(sd)&&sd.isPlaceholder&&!hasOtherLots;
+      const shouldSkip=sd&&!Array.isArray(sd)&&sd.isPlaceholder&&hasOtherLots;
+      if(shouldSkip) return; // skip placeholder when other lots exist
+    }
     hard.push(merged);
     // Generate extra lots from sheet entries with matching dot-group
     if(sheetLotsLoaded && l.nr){
@@ -1323,7 +1345,8 @@ function getLots(wname){
         if(!isDouble(sa)&&isDouble(sb)) return -1;
         return sa.localeCompare(sb);
       });
-      extraLots.forEach(e=>hard.push(e));
+      // Filter out overview-only lots (imgUrl but no threadUrl) - invisible anchors
+      extraLots.filter(e=>e.url||!e.img).forEach(e=>hard.push(e));
     }
   });
   const cust=(customLots[wname]||[]).map(l=>({...l,_src:'custom'}));
