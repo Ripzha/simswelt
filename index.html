@@ -812,9 +812,6 @@ const worldLots={
     {name:"Narwal Arms",nr:"Nr. 8",x:67.2,y:44.7,url:BASE+"t6f51782-Windenburg-Nr-Narwal-Arms.html",active:false},
     {name:"Palazzo",nr:"Nr. 9",x:72.3,y:42.9,url:BASE+"t648f51782-Windenburg-Palazzo-Dinner-Tanz-amp-Show.html",active:false},
     {name:"Nr. 10",x:74.9,y:39.1,url:BASE+"f51782-Windenburg.html",active:false},
-    {name:"Wohnung Arnim & Mayve",nr:"Nr. 11",x:80.6,y:42.1,url:BASE+"t494f51782-Windenburg-Nr-Wohnung-von-Arnim-und-Mayve.html",active:false},
-    {name:"Wohnung Doris & Marvin",nr:"Nr. 11",x:80.6,y:42.1,url:BASE+"t602f51782-Windenburg-Nr-Wohnung-von-Doris-und-Marvin-Minze.html",active:false},
-    {name:"Dienstwohnung Phönix Bright",nr:"Nr. 11",x:80.6,y:42.1,url:BASE+"t540f51782-Windenburg-Nr-Dienstwohnung-von-Phoenix-Bright.html",active:false},
     {name:"Luigi's Pizza",nr:"Nr. 12",x:87.5,y:51.7,url:BASE+"t14f51782-Windenburg-Nr-Luigi-s-Pizza.html",active:false},
         {name:"Tierarztpraxis",nr:"Nr. 13",x:78.8,y:53.1,url:BASE+"t546f51782-Windenburg-Tierarztpraxis-Windenburg.html",active:false},
     {name:"Nr. 14",x:67.4,y:54,url:BASE+"f51782-Windenburg.html",active:false},
@@ -866,7 +863,6 @@ const worldLots={
   "Forgotten Hollow":[
     {nr:"Strassen",x:44.1,y:48.9,outdoor:true},
     {nr:"Nr. 1",x:30.2,y:47.4},
-    {nr:"Nr. 1A",x:30.2,y:47.4},
     {nr:"Nr. 2",x:45.9,y:32.5},
     {nr:"Nr. 3",x:70,y:27},
     {nr:"Nr. 4",x:60.1,y:50.5},
@@ -1491,7 +1487,7 @@ function getCharsAtWorld(worldName){
 }
 function parseLotLabel(lot){
   const name=lot.name||'';
-  if(lot.nr)return{num:lot.nr,sub:(name&&name!==lot.nr?name:'')};
+  if(lot.nr){const hasLetter=/Nr\.\s*\d+[A-Za-z]+$/.test(lot.nr);return hasLetter?{num:'',sub:name||lot.nr}:{num:lot.nr,sub:(name&&name!==lot.nr?name:'')};}
   const m=name.match(/^(Nr\.\s*\d+[A-Za-z]?)\s*[-–]\s*(.+)$/);
   if(m)return{num:m[1],sub:m[2].trim()};
   const n=name.match(/^(Nr\.\s*\d+[A-Za-z]?)$/);
