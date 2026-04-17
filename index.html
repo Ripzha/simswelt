@@ -865,7 +865,8 @@ const worldLots={
   ],
   "Forgotten Hollow":[
     {nr:"Strassen",x:44.1,y:48.9,outdoor:true},
-    {nr:"Nr. 1",x:31.7,y:46.7},
+    {nr:"Nr. 1",x:30.2,y:47.4},
+    {nr:"Nr. 1A",x:30.2,y:47.4},
     {nr:"Nr. 2",x:45.9,y:32.5},
     {nr:"Nr. 3",x:70,y:27},
     {nr:"Nr. 4",x:60.1,y:50.5},
@@ -1241,7 +1242,7 @@ function fetchSheetLots(cb){
         const nr = get(nIdx);
         if(!world || !nr) return;
         if(!sheetLots[world]) sheetLots[world] = {};
-        const dotGroup = get(groupIdx);
+        const dotGroup = get(groupIdx).replace(/\.0$/, '');
         const entry = {
           name: get(nameIdx),
           threadUrl: get(urlIdx),
@@ -1249,10 +1250,14 @@ function fetchSheetLots(cb){
           dotGroup: dotGroup,
         };
         if(dotGroup){
-          sheetLots[world][dotGroup+'|'+nr] = entry;
+          const key = dotGroup+'|'+nr;
+          if(!sheetLots[world][key]) sheetLots[world][key] = [];
+          sheetLots[world][key].push(entry);
           if(!sheetLots[world][nr]) sheetLots[world][nr] = entry;
         } else {
-          sheetLots[world][nr] = entry;
+          if(!sheetLots[world][nr]) sheetLots[world][nr] = entry;
+          else if(!Array.isArray(sheetLots[world][nr])) sheetLots[world][nr] = [sheetLots[world][nr], entry];
+          else sheetLots[world][nr].push(entry);
         }
       });
       sheetLotsLoaded = true;
@@ -1265,7 +1270,6 @@ function applySheetData(lot, wname){
   const worldSheet = sheetLots[wname] || {};
   const nr = lot.nr || (lot.name && lot.name.match(/^Nr\./) ? lot.name.split(' - ')[0].trim() : null);
   if(!nr) return lot;
-  // For cluster lots: try building|nr first, fallback to nr
   let sd = null;
   if(lot.building){
     sd = worldSheet[lot.building+'|'+nr] || worldSheet[nr] || null;
@@ -1273,10 +1277,12 @@ function applySheetData(lot, wname){
     sd = worldSheet[nr];
   }
   if(!sd) return lot;
+  // If sd is an array (multiple entries same nr), take first with url, else first
+  if(Array.isArray(sd)) sd = sd.find(e=>e.threadUrl) || sd[0];
+  if(!sd) return lot;
   const merged = {...lot};
   if(sd.threadUrl) merged.url = sd.threadUrl;
   if(sd.imgUrl) merged.img = sd.imgUrl;
-  // Only set name if it adds something beyond the nr itself
   if(sd.name && sd.name.trim() !== nr.trim()) merged.name = sd.name;
   if(sd.threadUrl) merged.active = true;
   return merged;
@@ -1285,7 +1291,36 @@ function applySheetData(lot, wname){
 function getLots(wname){
   const hidden=hiddenLots[wname]||[];
   const renamed=renamedLots[wname]||{};
-  const hard=(worldLots[wname]||[]).filter(l=>!hidden.includes(l.name)).map(l=>{const base={...l,name:renamed[l.name]||l.name,_origName:l.name,_src:'hard'};return sheetLotsLoaded?applySheetData(base,wname):base;});
+  const worldSheet=sheetLots[wname]||{};
+  const hard=[];
+  (worldLots[wname]||[]).filter(l=>!hidden.includes(l.name)).forEach(l=>{
+    const base={...l,name:renamed[l.name]||l.name,_origName:l.name,_src:'hard'};
+    const merged=sheetLotsLoaded?applySheetData(base,wname):base;
+    hard.push(merged);
+    // Generate extra lots from sheet entries with matching dot-group
+    if(sheetLotsLoaded && l.nr){
+      const nrNum=l.nr.replace(/^Nr\.\s*/,'').trim(); // "Nr. 11" -> "11"
+      // Find all sheet entries where dotGroup === nrNum
+      Object.keys(worldSheet).forEach(key=>{
+        const entry=worldSheet[key];
+        if(Array.isArray(entry)) return; // handled separately
+        if(!entry.dotGroup || entry.dotGroup!==nrNum) return;
+        // Skip if this is the base nr itself (already merged above)
+        const entryNr=(key.includes('|')?key.split('|')[1]:key);
+        if(entryNr===l.nr) return;
+        // Add as extra lot with same coordinates
+        hard.push({
+          ...l,
+          nr:entryNr,
+          name:entry.name||entryNr,
+          url:entry.threadUrl||l.url||'',
+          img:entry.imgUrl||'',
+          active:!!entry.threadUrl,
+          _src:'sheet'
+        });
+      });
+    }
+  });
   const cust=(customLots[wname]||[]).map(l=>({...l,_src:'custom'}));
   const all=[...hard,...cust];
   return all.length?all:[{name:'Forum öffnen',x:50,y:50,url:worlds.find(w=>w.name===wname)?.url||BASE,active:false}];
