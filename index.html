@@ -1324,18 +1324,21 @@ function getLots(wname){
       const extraLots=[];
       Object.keys(worldSheet).forEach(key=>{
         const entry=worldSheet[key];
-        if(Array.isArray(entry)) return;
-        if(!entry.dotGroup || entry.dotGroup!==nrNum) return;
-        const entryNr=(key.includes('|')?key.split('|')[1]:key);
-        if(entryNr===l.nr) return;
-        extraLots.push({
-          ...l,
-          nr:entryNr,
-          name:entry.name||entryNr,
-          url:entry.threadUrl||l.url||'',
-          img:entry.imgUrl||'',
-          active:!!entry.threadUrl,
-          _src:'sheet'
+        const entries=Array.isArray(entry)?entry:[entry];
+        entries.forEach(e=>{
+          if(!e||!e.dotGroup||e.dotGroup!==nrNum) return;
+          if(e.isPlaceholder) return;
+          const entryNr=(key.includes('|')?key.split('|')[1]:key);
+          if(entryNr===l.nr) return;
+          extraLots.push({
+            ...l,
+            nr:entryNr,
+            name:e.name||entryNr,
+            url:e.threadUrl||l.url||'',
+            img:e.imgUrl||'',
+            active:!!e.threadUrl,
+            _src:'sheet'
+          });
         });
       });
       // Sort by suffix: single letters (A,B,C) alphabetically, then double letters (ZZ,ZY)
