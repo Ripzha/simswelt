@@ -1301,7 +1301,7 @@ function getLots(wname){
     // Skip overview-only lots (imgUrl but no threadUrl) - invisible anchors
     if(merged.img && !merged.url) return;
     // Check if this nr has other lots in its dot-group (non-placeholder)
-    // If so, skip the placeholder
+    let shouldSkipHardPush=false;
     if(sheetLotsLoaded && l.nr){
       const nrNum=l.nr.replace(/^Nr\.\s*/,'').trim();
       const hasOtherLots=Object.keys(worldSheet).some(key=>{
@@ -1312,11 +1312,11 @@ function getLots(wname){
         return true;
       });
       const sd=worldSheet[l.nr];
-      const isPlaceholderOnly=sd&&!Array.isArray(sd)&&sd.isPlaceholder&&!hasOtherLots;
-      const shouldSkip=sd&&!Array.isArray(sd)&&sd.isPlaceholder&&hasOtherLots;
-      if(shouldSkip) return; // skip placeholder when other lots exist
+      // Skip hardcode push when placeholder matched AND other real lots exist in group
+      // BUT still generate extra lots below
+      shouldSkipHardPush=sd&&!Array.isArray(sd)&&sd.isPlaceholder&&hasOtherLots;
     }
-    hard.push(merged);
+    if(!shouldSkipHardPush) hard.push(merged);
     // Generate extra lots from sheet entries with matching dot-group
     if(sheetLotsLoaded && l.nr){
       const nrNum=l.nr.replace(/^Nr\.\s*/,'').trim(); // "Nr. 11" -> "11"
