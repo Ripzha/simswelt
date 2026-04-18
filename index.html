@@ -870,23 +870,23 @@ const worldLots={
     {nr:"Nr. 5",x:43,y:66},
   ],
   "Brindleton Bay":[
-    {nr:"Strassen",x:50,y:50,outdoor:true},
-    {nr:"Nr. 1",x:50,y:50},
-    {nr:"Nr. 2",x:50,y:50},
-    {nr:"Nr. 3",x:50,y:50},
-    {nr:"Nr. 4",x:50,y:50},
-    {nr:"Nr. 5",x:50,y:50},
-    {nr:"Nr. 6",x:50,y:50},
-    {nr:"Nr. 7",x:50,y:50},
-    {nr:"Nr. 8",x:50,y:50},
-    {nr:"Nr. 9",x:50,y:50},
-    {nr:"Nr. 10",x:50,y:50},
-    {nr:"Nr. 11",x:50,y:50},
-    {nr:"Nr. 12",x:50,y:50},
-    {nr:"Nr. 13",x:50,y:50},
-    {nr:"Nr. 14",x:50,y:50},
-    {nr:"Nr. 15",x:50,y:50},
-    {nr:"Nr. 16",x:50,y:50},
+    {nr:"Strassen",x:52.6,y:79.5,outdoor:true},
+    {nr:"Nr. 1",x:23.4,y:26.8},
+    {nr:"Nr. 2",x:16.2,y:37.7},
+    {nr:"Nr. 3",x:29.8,y:39.8},
+    {nr:"Nr. 4",x:32,y:33.2},
+    {nr:"Nr. 5",x:34.9,y:27.5},
+    {nr:"Nr. 6",x:60,y:28.9},
+    {nr:"Nr. 7",x:68.9,y:31.1},
+    {nr:"Nr. 8",x:77.5,y:33.4},
+    {nr:"Nr. 9",x:65.3,y:40.2},
+    {nr:"Nr. 10",x:55.9,y:50.6},
+    {nr:"Nr. 11",x:79.1,y:70.1},
+    {nr:"Nr. 12",x:39.6,y:62.4},
+    {nr:"Nr. 13",x:33.9,y:66.6},
+    {nr:"Nr. 14",x:32.7,y:73.1},
+    {nr:"Nr. 15",x:21.3,y:74.9},
+    {nr:"Nr. 16",x:15.8,y:67},
   ],
   "Del Sol Valley":[
     {nr:"Strassen",name:"Del Sol Valley (Strassen)",x:52,y:54.2,outdoor:true},
@@ -1879,7 +1879,7 @@ worldC.addEventListener('click',e=>{
 // ═══════════════════════════════════════════
 function toggleCalib(mode){
   if(mode==='map'){calibMapMode=!calibMapMode;document.getElementById('calib-map-panel').style.display=calibMapMode?'block':'none';mapC.style.cursor=calibMapMode?'crosshair':'default';if(calibMapMode)document.getElementById('calib-next').textContent=worlds[calibMapIdx]?.name||'—';}
-  else{calibWorldMode=!calibWorldMode;document.getElementById('calib-world-panel').style.display=calibWorldMode?'block':'none';worldC.style.cursor=calibWorldMode?'crosshair':'default';if(calibWorldMode)document.getElementById('calib-world-next').textContent=getLots(currentWorld?.name||'')[calibWorldData.length]?.name||'—';}
+  else{calibWorldMode=!calibWorldMode;document.getElementById('calib-world-panel').style.display=calibWorldMode?'block':'none';worldC.style.cursor=calibWorldMode?'crosshair':'default';if(calibWorldMode){var _clt=getLots(currentWorld?.name||'')[calibWorldData.length];document.getElementById('calib-world-next').textContent=(_clt?.nr||_clt?.name||'—');}}
 }
 function updateCalibLog(mode){const data=mode==='map'?calibMapData:calibWorldData;const log=document.getElementById(mode==='map'?'calib-map-log':'calib-world-log');log.innerHTML=data.length===0?'Noch keine Klicks...':data.map(d=>`<div style="color:#ffcc44">${d.name}</div><div style="color:#777">x:${d.x}, y:${d.y}</div>`).join('');log.scrollTop=log.scrollHeight;}
 function copyCalib(mode){const data=mode==='map'?calibMapData:calibWorldData;navigator.clipboard.writeText(data.map(d=>`{name:"${d.name}",x:${d.x},y:${d.y}}`).join(',\n')).then(()=>alert('✓ Kopiert!'));}
