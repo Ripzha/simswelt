@@ -129,6 +129,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .cluster-pip{width:5px;height:5px;border-radius:50%;flex-shrink:0}
 .building-dot .cluster-inner{background:rgba(100,160,255,0.2)!important;border-color:rgba(100,160,255,0.6)!important}
 .cluster-hover{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(5,12,22,0.97);border-radius:9px;overflow:hidden;z-index:30;pointer-events:none;min-width:165px;display:none}
+.cluster-dot:hover .cluster-hover{display:block}
 @media(max-width:768px){.cluster-hover{display:none!important}}
 .calib-btn{position:absolute;background:rgba(255,200,0,0.15);border:0.5px solid rgba(255,200,0,0.4);border-radius:5px;padding:4px 9px;font-size:10px;color:#ffcc44;cursor:pointer;z-index:20}
 #calib-map-btn{bottom:12px;right:12px}
@@ -576,7 +577,7 @@ const BUILDINGS = {
     "https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t381p3447n8_VBnfvgxL.png"
   ],lots:[
     // alle Ebenen
-    {name:"Rabenfelsviertel (Strassen)",x:52.9,y:62.5,floors:[0,1,2],url:BASE+"t381f53861-Bloodmoon-Valley-Rabenfelsviertel-Harghita.html",active:true,outdoor:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t381p3447n4_YAixMyNV.png"},
+    {nr:"Rabenfelsviertel (Gassen)",building:"Rabenfelsviertel",name:"Rabenfelsviertel (Gassen)",x:52.9,y:62.5,floors:[0,1,2],outdoor:true},
     // Ebene 2+3
     {name:"Nr. 5 - Raouls alte Wohnung",x:30.9,y:41.8,floors:[1,2],url:BASE+"t539f53861-Bloodmoon-Valley-Rabenfelsviertel-Nr-Raouls-alte-Wohnung-Harghita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t539p4580n2_SnkzUlHp.png"},
     {name:"Nr. 6 - Adams Haus",x:60.6,y:38.5,floors:[1,2],url:BASE+"t554f53861-Bloodmoon-Valley-Rabenfelsviertel-Haus-Nr-Adams-Haus-Harghita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/800x9999/f53861t554p4821n2_tLKzniAO.png"},
@@ -598,7 +599,7 @@ const BUILDINGS = {
     "https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t400p3507n2_QkAZHmvp.png"
   ],lots:[
     // alle Ebenen
-    {name:"Schattenmarktviertel (Strassen)",x:48.9,y:65.5,url:BASE+"t400f53861-Bloodmoon-Valley-Schattenmarktviertel-Harghita.html",active:true,outdoor:true,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t400p3507n6_OndjlTce.png"},
+    {nr:"Schattenmarktviertel (Gassen)",building:"Schattenmarktviertel",name:"Schattenmarktviertel (Gassen)",x:48.9,y:65.5,outdoor:true},
     {name:"Nr. A - Andenken an Alucard",x:49.5,y:23.4,url:BASE+"t552f53861-Bloodmoon-Valey-Schattenmarktviertel-Haus-Nr-A-Andenken-an-Alucard-Harghita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1920x1200/f53861t552p4813n12_IwZNGjMT.png"},
     // Ebene 1
     {name:"Nr. 3 - Zum Sündigen Nachtvogel",x:62.6,y:66,floors:[0,1,2],url:BASE+"t486f53861-Bloodmoon-Valey-Schattenmarktviertel-Haus-Nr-Zum-Suendigen-Nachtvogel-Harhita.html",active:false,img:"https://files.homepagemodules.de/b855163/resize/1000x9999/f53861t486p4068n4_NfYvjTMO.png"},
@@ -870,23 +871,26 @@ const worldLots={
     {nr:"Nr. 5",x:43,y:66},
   ],
   "Brindleton Bay":[
-    {nr:"Strassen",x:52.6,y:79.5,outdoor:true},
-    {nr:"Nr. 1",x:23.4,y:26.8},
-    {nr:"Nr. 2",x:16.2,y:37.7},
-    {nr:"Nr. 3",x:29.8,y:39.8},
-    {nr:"Nr. 4",x:32,y:33.2},
-    {nr:"Nr. 5",x:34.9,y:27.5},
-    {nr:"Nr. 6",x:60,y:28.9},
-    {nr:"Nr. 7",x:68.9,y:31.1},
-    {nr:"Nr. 8",x:77.5,y:33.4},
-    {nr:"Nr. 9",x:65.3,y:40.2},
-    {nr:"Nr. 10",x:55.9,y:50.6},
-    {nr:"Nr. 11",x:79.1,y:70.1},
-    {nr:"Nr. 12",x:39.6,y:62.4},
-    {nr:"Nr. 13",x:33.9,y:66.6},
-    {nr:"Nr. 14",x:32.7,y:73.1},
-    {nr:"Nr. 15",x:21.3,y:74.9},
-    {nr:"Nr. 16",x:15.8,y:67},
+    {nr:"Strassen",name:"Brindleton Bay (Strassen)",x:52.1,y:73.6,outdoor:true},
+    {name:"Altersheim Shady Pines",nr:"Nr. 1",x:24.2,y:27.3,url:BASE+"t53f51785-Brindleton-Bay-Nr-Altersheim-Shady-Pines.html",active:false},
+    {name:"Nr. 2",x:16.8,y:38,url:BASE+"f51785-Brindleton-Bay.html",active:false},
+    {name:"Haus der Garcias",nr:"Nr. 3",x:30.1,y:39.6,url:BASE+"t9f51785-Brindleton-Bay-Nr-Haus-der-Garcias.html",active:false},
+    {name:"Nr. 4",x:32.2,y:33.1,url:BASE+"f51785-Brindleton-Bay.html",active:false},
+    {name:"Rainbow Kindergarten",nr:"Nr. 5",x:34.9,y:27.6,url:BASE+"t343f51785-Brindleton-Bay-Nr-Rainbow-Kindergarten.html",active:false},
+    {name:"Nr. 6",x:60,y:29.2,url:BASE+"f51785-Brindleton-Bay.html",active:false},
+    {name:"Maryamas Haus",nr:"Nr. 7",x:68.9,y:31.4,url:BASE+"t17f51785-Brindleton-Bay-Nr-Maryamas-Haus.html",active:false},
+    {name:"Nr. 8",x:77.4,y:33.7,url:BASE+"f51785-Brindleton-Bay.html",active:false},
+    {name:"Green Fingers",nr:"Nr. 9",x:65.3,y:40.4,url:BASE+"t67f51785-Brindleton-Bay-Nr-Green-Fingers.html",active:false},
+    {name:"Brindleton High",nr:"Nr. 10",x:56.3,y:51.5,url:BASE+"t56f51785-Brindleton-Bay-Nr-Brindleton-High.html",active:false},
+    {name:"Nr. 11",x:79.7,y:70.3,url:BASE+"f51785-Brindleton-Bay.html",active:false},
+    {name:"Pfotenklinik",nr:"Nr. 12",x:39.9,y:62.6,url:BASE+"t239f51785-Brindleton-Bay-Nr-Pfotenklinik.html",active:false},
+    {name:"Tierauffangstation",nr:"Nr. 16",x:34,y:66.2,url:BASE+"t31f51785-Brindleton-Bay-Nr-Tierauffangstation.html",active:false},
+    {name:"Booze & Bass",nr:"Nr. 14",x:32.4,y:73,url:BASE+"t95f51785-Brindleton-Bay-Nr-Booze-amp-Bass-Fischrestaurant.html",active:false},
+    {name:"Wohnkomplex Nr. 15",nr:"Nr. 15",x:21.1,y:74.1,url:BASE+"t693f51785-Brindleton-Bay-Nr-Wohnkomplex.html",active:false},
+    {name:"Jim & Billie",nr:"Nr. 15A",x:21.3,y:74.1,url:BASE+"t737f51785-Brindleton-Bay-Nr-A-Wohnung-von-Jim-und-Billie.html",active:false},
+    {name:"Aurelia Blutzahn",nr:"Nr. 15C",x:21.3,y:74.1,url:BASE+"t709f51785-Brindleton-Bay-Nr-C-Wohnung-von-Aurelia-Blutzahn.html",active:false},
+    {name:"Nr. 16",x:15.8,y:67,url:BASE+"f51785-Brindleton-Bay.html",active:false},
+    {name:"Marina Winter",nr:"Nr. 15E",x:21.3,y:74.1,url:BASE+"t693f51785-Brindleton-Bay-Nr-E-Wohnung-von-Marina-Winter.html",active:false},
   ],
   "Del Sol Valley":[
     {nr:"Strassen",name:"Del Sol Valley (Strassen)",x:52,y:54.2,outdoor:true},
@@ -1273,11 +1277,6 @@ function applySheetData(lot, wname){
     sd = worldSheet[lot.building+'|'+nr] || worldSheet[nr] || null;
   } else {
     sd = worldSheet[nr];
-    // Fallback: find first sheet entry that starts with nr (e.g. "Nr. 2" matches "Nr. 2ZZ")
-    if(!sd){
-      const fallbackKey = Object.keys(worldSheet).find(k => k.startsWith(nr) && k !== nr);
-      if(fallbackKey) sd = worldSheet[fallbackKey];
-    }
   }
   if(!sd) return lot;
   // If sd is an array (multiple entries same nr), take first with url, else first
@@ -1324,21 +1323,18 @@ function getLots(wname){
       const extraLots=[];
       Object.keys(worldSheet).forEach(key=>{
         const entry=worldSheet[key];
-        const entries=Array.isArray(entry)?entry:[entry];
-        entries.forEach(e=>{
-          if(!e||!e.dotGroup||e.dotGroup!==nrNum) return;
-          if(e.isPlaceholder) return;
-          const entryNr=(key.includes('|')?key.split('|')[1]:key);
-          if(entryNr===l.nr) return;
-          extraLots.push({
-            ...l,
-            nr:entryNr,
-            name:e.name||entryNr,
-            url:e.threadUrl||l.url||'',
-            img:e.imgUrl||'',
-            active:!!e.threadUrl,
-            _src:'sheet'
-          });
+        if(Array.isArray(entry)) return;
+        if(!entry.dotGroup || entry.dotGroup!==nrNum) return;
+        const entryNr=(key.includes('|')?key.split('|')[1]:key);
+        if(entryNr===l.nr) return;
+        extraLots.push({
+          ...l,
+          nr:entryNr,
+          name:entry.name||entryNr,
+          url:entry.threadUrl||l.url||'',
+          img:entry.imgUrl||'',
+          active:!!entry.threadUrl,
+          _src:'sheet'
         });
       });
       // Sort by suffix: single letters (A,B,C) alphabetically, then double letters (ZZ,ZY)
@@ -1525,15 +1521,12 @@ function getCharsAtWorld(worldName){
 function parseLotLabel(lot){
   const name=lot.name||'';
   if(lot.nr){
-    const sufMatch=lot.nr.match(/^(.*?)(([A-Za-z])\3|[A-Za-z]{3,})$/); // double+ letter suffix
-    const singleMatch=lot.nr.match(/^(.*?)([A-Za-z])$/); // single letter suffix
+    // Double+ letter suffix ONLY after digits ("Nr. 5ZZ", "Nr. 23ZY") - hide suffix
+    const sufMatch=lot.nr.match(/^(.*?\d+)[A-Za-z]{2,}$/);
     if(sufMatch){
-      // Double letter suffix (ZZ, ZY etc) - hide suffix
       return{num:sufMatch[1],sub:(name&&name!==lot.nr?name:'')};
-    } else if(singleMatch){
-      // Single letter suffix (A, B etc) - show full nr
-      return{num:lot.nr,sub:(name&&name!==lot.nr?name:'')};
     }
+    // Everything else: show full nr (includes single-letter "Nr. A", words, word chains)
     return{num:lot.nr,sub:(name&&name!==lot.nr?name:'')};
   }
   const m=name.match(/^(Nr\.\s*\d+[A-Za-z]?)\s*[-–]\s*(.+)$/);
@@ -1817,7 +1810,10 @@ function renderLots(w){
       const lbl=isBuilding?buildings[0].split('-')[0].trim():((group.lots[0].name||group.lots[0].nr||'').split('-').pop().trim().split(' ').slice(0,2).join(' '));
       const itemsHtml=group.lots.map(l=>`<div class="cluster-item" onclick="window.open('${l.url}','_blank');event.stopPropagation()">${l.img?`<img class="cluster-item-preview" src="${l.img}">`:''}><div class="cluster-pip" style="background:${l.active?'#4aaa6a':'rgba(255,255,255,0.4)'}"></div>${parseLotLabel(l).num}${parseLotLabel(l).sub?` <span style="color:rgba(255,255,255,0.45);font-size:10px">– ${parseLotLabel(l).sub}</span>`:''}</div>`).join('');
       const lotsWithImg=group.lots.filter(l=>l.img);
-      const clusterHoverHtml=(!isBuilding&&lotsWithImg.length>0)?`<div class="cluster-hover" style="border:1px solid ${color}88;box-shadow:0 6px 28px ${color}44"><div style="display:flex;gap:1px">${lotsWithImg.map(l=>`<div style="position:relative;flex:1;min-width:0"><img src="${l.img}" style="width:100%;height:75px;object-fit:cover;display:block"><div style="position:absolute;bottom:3px;left:5px;font-size:8px;font-weight:600;text-shadow:0 1px 3px #000;color:#fff">${parseLotLabel(l).num}</div></div>`).join('')}</div><div class="hover-footer"><span class="hover-type">${group.lots.length} Orte</span><span class="hover-action" style="color:${color}">Klicken →</span></div></div>`:'';
+      const buildingImg=isBuilding?group.lots.find(l=>l.img)?.img:null;
+      const clusterHoverHtml=isBuilding&&buildingImg
+        ?`<div class="cluster-hover" style="border:1px solid ${color}88;box-shadow:0 6px 28px ${color}44;min-width:180px"><img src="${buildingImg}" style="width:100%;height:110px;object-fit:cover;display:block"><div class="hover-footer"><span class="hover-type">${lbl}</span><span class="hover-action" style="color:${color}">Betreten →</span></div></div>`
+        :(!isBuilding&&lotsWithImg.length>0)?`<div class="cluster-hover" style="border:1px solid ${color}88;box-shadow:0 6px 28px ${color}44"><div style="display:flex;gap:1px">${lotsWithImg.map(l=>`<div style="position:relative;flex:1;min-width:0"><img src="${l.img}" style="width:100%;height:75px;object-fit:cover;display:block"><div style="position:absolute;bottom:3px;left:5px;font-size:8px;font-weight:600;text-shadow:0 1px 3px #000;color:#fff">${parseLotLabel(l).num}</div></div>`).join('')}</div><div class="hover-footer"><span class="hover-type">${group.lots.length} Orte</span><span class="hover-action" style="color:${color}">Klicken →</span></div></div>`:'';
       cd.innerHTML=`<div class="cluster-inner" style="color:${color};border-color:${color};box-shadow:0 0 8px ${color}44">${isBuilding?'🏢':group.lots.length}</div><div class="cluster-label">${lbl}</div>${clusterHoverHtml}${isBuilding?'':` <div class="cluster-popup"><div style="font-size:10px;color:rgba(255,165,0,0.7);margin-bottom:6px;padding:0 4px">📦 ${group.lots.length} Orte</div>${itemsHtml}</div>`}`;
       cd.addEventListener('click',e=>{
         e.stopPropagation();if(calibWorldMode||posMode)return;
@@ -1882,7 +1878,7 @@ worldC.addEventListener('click',e=>{
 // ═══════════════════════════════════════════
 function toggleCalib(mode){
   if(mode==='map'){calibMapMode=!calibMapMode;document.getElementById('calib-map-panel').style.display=calibMapMode?'block':'none';mapC.style.cursor=calibMapMode?'crosshair':'default';if(calibMapMode)document.getElementById('calib-next').textContent=worlds[calibMapIdx]?.name||'—';}
-  else{calibWorldMode=!calibWorldMode;document.getElementById('calib-world-panel').style.display=calibWorldMode?'block':'none';worldC.style.cursor=calibWorldMode?'crosshair':'default';if(calibWorldMode){var _clt=getLots(currentWorld?.name||'')[calibWorldData.length];document.getElementById('calib-world-next').textContent=(_clt?.nr||_clt?.name||'—');}}
+  else{calibWorldMode=!calibWorldMode;document.getElementById('calib-world-panel').style.display=calibWorldMode?'block':'none';worldC.style.cursor=calibWorldMode?'crosshair':'default';if(calibWorldMode)document.getElementById('calib-world-next').textContent=getLots(currentWorld?.name||'')[calibWorldData.length]?.name||'—';}
 }
 function updateCalibLog(mode){const data=mode==='map'?calibMapData:calibWorldData;const log=document.getElementById(mode==='map'?'calib-map-log':'calib-world-log');log.innerHTML=data.length===0?'Noch keine Klicks...':data.map(d=>`<div style="color:#ffcc44">${d.name}</div><div style="color:#777">x:${d.x}, y:${d.y}</div>`).join('');log.scrollTop=log.scrollHeight;}
 function copyCalib(mode){const data=mode==='map'?calibMapData:calibWorldData;navigator.clipboard.writeText(data.map(d=>`{name:"${d.name}",x:${d.x},y:${d.y}}`).join(',\n')).then(()=>alert('✓ Kopiert!'));}
