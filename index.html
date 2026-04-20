@@ -780,24 +780,22 @@ const worldLots={
     {name:"Leerstehende Bruchbude",nr:"Nr. 8",x:68.8,y:50.4,url:BASE+"t48f51779-Oasis-Springs.html",active:false},
   ],
   "Newcrest":[
-    {nr:"Strassen",name:"Newcrest",x:50,y:50,outdoor:true},
-    {nr:"Nr. 1",x:50,y:50},
-    {nr:"Nr. 2",x:50,y:50},
-    {nr:"Nr. 3",x:50,y:50},
-    {nr:"Nr. 4",x:50,y:50},
-    {nr:"Nr. 5",x:50,y:50},
-    {nr:"Nr. 6",x:50,y:50},
-    {nr:"Nr. 7",x:50,y:50},
-    {nr:"Nr. 8",x:50,y:50},
-    {nr:"Nr. 9",x:50,y:50},
-    {nr:"Nr. 10",x:50,y:50},
-    {nr:"Nr. 11",x:50,y:50},
-    {nr:"Nr. 12",x:50,y:50},
-    {nr:"Nr. 13",x:50,y:50},
-    {nr:"Nr. 14",x:50,y:50},
-    {nr:"Nr. 15",x:50,y:50},
-    {nr:"Nr. 16",x:50,y:50},
-    {nr:"Nr. 17",x:50,y:50},
+    {nr:"Strassen",name:"Newcrest",x:55.9,y:65.9,outdoor:true},
+    {nr:"Nr. 1",x:54.5,y:24.6},
+    {nr:"Nr. 2",x:61.2,y:27.7},
+    {nr:"Nr. 3",x:65.1,y:22.7},
+    {nr:"Nr. 4",x:67.1,y:20},
+    {nr:"Nr. 5",x:69.5,y:30.7},
+    {nr:"Nr. 6",x:83,y:53.1},
+    {nr:"Nr. 7",x:78.9,y:57.6},
+    {nr:"Nr. 8",x:75.7,y:63.4},
+    {nr:"Nr. 9",x:72.1,y:68.7},
+    {nr:"Nr. 10",x:68.3,y:78.3},
+    {nr:"Nr. 11",x:42.3,y:64.4},
+    {nr:"Nr. 12",x:38,y:50.4},
+    {nr:"Nr. 13",x:30.9,y:57.2},
+    {nr:"Nr. 14",x:23.3,y:67.9},
+    {nr:"Nr. 15",x:33.9,y:75.7},
   ],
   "Magnolia Promenade":[
     {nr:"Strassen",name:"Magnolia Promenade",x:37.8,y:29.9,outdoor:true},
@@ -1024,17 +1022,19 @@ const worldLots={
     {nr:"Nr. 5",x:59.3,y:70.9},
   ],
   "Copperdale":[
-    {nr:"Strassen",name:"Copperdale (Strassen)",x:50,y:50,outdoor:true},
-    {nr:"Nr. 1",x:50,y:50},
-    {nr:"Nr. 2",x:50,y:50},
-    {nr:"Nr. 3",x:50,y:50},
-    {nr:"Nr. 4",x:50,y:50},
-    {nr:"Nr. 5",x:50,y:50},
-    {nr:"Nr. 6",x:50,y:50},
-    {nr:"Nr. 7",x:50,y:50},
-    {nr:"Nr. 8",x:50,y:50},
-    {nr:"Nr. 9",x:50,y:50},
-    {nr:"Nr. 10",x:50,y:50},
+    {nr:"Strassen",name:"Copperdale (Strassen)",x:48.3,y:58.6,outdoor:true},
+    {nr:"Nr. 1",x:28.9,y:34.9},
+    {nr:"Nr. 2",x:18.1,y:46.4},
+    {nr:"Nr. 3",x:34.3,y:44.1},
+    {nr:"Nr. 4",x:23.5,y:53.4},
+    {nr:"Nr. 5",x:21.5,y:62.2},
+    {nr:"Nr. 6",x:66.7,y:60},
+    {nr:"Nr. 7",x:76.2,y:59.4},
+    {nr:"Nr. 8",x:82.1,y:65.1},
+    {nr:"Nr. 9",x:53.6,y:79.3},
+    {nr:"Nr. 10",x:64.7,y:84.7},
+    {nr:"A",x:40.7,y:19.9},
+    {nr:"B",x:47.1,y:16.4},
   ],
   "San Sequoia":[
     {nr:"Strassen",x:50.3,y:44,outdoor:true},
@@ -1253,6 +1253,21 @@ function applySheetData(lot, wname){
   let sd = null;
   if(lot.building){
     sd = worldSheet[lot.building+'|'+nr] || worldSheet[nr] || null;
+    // If match is placeholder-only, look for ZZ/ZY suffix variant with thread in same group
+    const needsBetterMatch = !sd || (Array.isArray(sd) ? sd.every(e=>!e.threadUrl) : !sd.threadUrl);
+    if(needsBetterMatch){
+      // Search for "{building}|{nr}[letter-suffix]" entries
+      const suffixKey = Object.keys(worldSheet).find(key=>{
+        if(!key.startsWith(lot.building+'|'+nr)) return false;
+        if(key === lot.building+'|'+nr) return false;
+        const rest = key.slice((lot.building+'|'+nr).length);
+        if(!/^[A-Za-z]{2,}$/.test(rest)) return false;
+        const e = worldSheet[key];
+        const entry = Array.isArray(e) ? e.find(x=>x.threadUrl) : (e&&e.threadUrl?e:null);
+        return !!entry;
+      });
+      if(suffixKey) sd = worldSheet[suffixKey];
+    }
   } else {
     sd = worldSheet[nr];
   }
