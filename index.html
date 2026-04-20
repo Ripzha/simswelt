@@ -1317,7 +1317,9 @@ function getLots(wname){
         if(Array.isArray(entry)) return;
         if(!entry.dotGroup || entry.dotGroup!==nrNum) return;
         const entryNr=(key.includes('|')?key.split('|')[1]:key);
-        if(entryNr===l.nr) return;
+        if(entryNr===l.nr && !shouldSkipHardPush) return;
+        // When skip: include anchor entry (non-placeholder with same nr) so cluster has correct label
+        if(entryNr===l.nr && entry.isPlaceholder) return;
         extraLots.push({
           ...l,
           nr:entryNr,
@@ -1825,9 +1827,10 @@ function renderLots(w){
       cd.style.cssText=`left:${group.x}%;top:${group.y}%`;
       const lblParts=isBuilding?(()=>{const base=buildings[0].split('-')[0].trim();const range=getBuildingNrRange(buildings[0],currentWorld?.name);return{main:range||base,sub:range?base:''};})():(()=>{
         // Non-Building Cluster: find main nr (without letter suffix) = Wohnkomplex-anchor
+        // Fallback: use parseLotLabel on first lot to strip ZZ/ZY suffix → "Nr. 6ZZ" → "Nr. 6"
         const mainLot=group.lots.find(l=>l.nr&&/^Nr\.\s*\d+$/.test(l.nr))||group.lots[0];
-        const t=(mainLot.nr||mainLot.name||'').split('-').pop().trim().split(' ').slice(0,2).join(' ');
-        return{main:t,sub:''};
+        const baseNum=parseLotLabel(mainLot).num;
+        return{main:baseNum,sub:''};
       })();
       const lbl=lblParts.sub?`${lblParts.main}<span class="lot-sublabel">${lblParts.sub}</span>`:lblParts.main;
       const lblPlain=lblParts.sub?`${lblParts.main} · ${lblParts.sub}`:lblParts.main;
