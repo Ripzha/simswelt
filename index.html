@@ -1525,10 +1525,12 @@ function getBuildingNrRange(buildingName, wname){
   const nrs = new Set();
   Object.keys(worldSheet).forEach(key=>{
     if(!key.startsWith(buildingName+'|')) return;
-    const entry = worldSheet[key];
-    if(Array.isArray(entry)) return;
+    let entry = worldSheet[key];
+    // Dot-Group keys are always arrays - take first entry
+    if(Array.isArray(entry)) entry = entry[0];
+    if(!entry || entry.dotGroup !== buildingName) return;
     // Extract number from "Nr. 1", "Nr. 5ZZ" etc.
-    const m = (entry && entry.dotGroup === buildingName) ? key.split('|')[1].match(/^Nr\.\s*(\d+)/) : null;
+    const m = key.split('|')[1].match(/^Nr\.\s*(\d+)/);
     if(m) nrs.add(parseInt(m[1]));
   });
   if(nrs.size === 0) return '';
