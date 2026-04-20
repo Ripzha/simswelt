@@ -889,8 +889,9 @@ const worldLots={
     {nr:"Nr. 6",x:79.2,y:25.5},
     {nr:"Nr. 7",x:30.3,y:61.1},
     {nr:"Nr. 8",x:37.5,y:61.1},
-    {nr:"Nr. 9",x:30,y:72.6},
-    {nr:"Nr. 10",x:21.1,y:68.3},
+    {nr:"Nr. 9",x:38.9,y:69},
+    {nr:"Nr. 10",x:30.8,y:73},
+    {nr:"Nr. 11",x:21.8,y:68.1},
   ],
   "Strangerville":[
     {nr:"Strassen",name:"Strangerville (Strassen)",x:67.8,y:64.9,outdoor:true},
@@ -1306,6 +1307,22 @@ function getLots(wname){
       // Skip hardcode push when placeholder matched AND other real lots exist in group
       // BUT still generate extra lots below
       shouldSkipHardPush=sd&&!Array.isArray(sd)&&sd.isPlaceholder&&hasOtherLots;
+      // If skipping: check if there's a Wohnkomplex-anchor (non-placeholder same nr) in the array-key
+      if(shouldSkipHardPush){
+        const arrKey=nrNum+'|'+l.nr;
+        const arr=worldSheet[arrKey];
+        if(Array.isArray(arr)){
+          const anchor=arr.find(e=>!e.isPlaceholder);
+          if(anchor){
+            // Use anchor data for the hardcode dot
+            merged.name=anchor.name||merged.name;
+            if(anchor.threadUrl) merged.url=anchor.threadUrl;
+            if(anchor.imgUrl) merged.img=anchor.imgUrl;
+            if(anchor.threadUrl) merged.active=true;
+            shouldSkipHardPush=false; // push the hardcode with anchor data
+          }
+        }
+      }
     }
     if(!shouldSkipHardPush) hard.push(merged);
     // Generate extra lots from sheet entries with matching dot-group
@@ -1317,9 +1334,7 @@ function getLots(wname){
         if(Array.isArray(entry)) return;
         if(!entry.dotGroup || entry.dotGroup!==nrNum) return;
         const entryNr=(key.includes('|')?key.split('|')[1]:key);
-        if(entryNr===l.nr && !shouldSkipHardPush) return;
-        // When skip: include anchor entry (non-placeholder with same nr) so cluster has correct label
-        if(entryNr===l.nr && entry.isPlaceholder) return;
+        if(entryNr===l.nr) return;
         extraLots.push({
           ...l,
           nr:entryNr,
