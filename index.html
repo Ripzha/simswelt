@@ -1823,7 +1823,12 @@ function renderLots(w){
       const cd=document.createElement('div');
       cd.className='cluster-dot'+(isBuilding?' building-dot':'');
       cd.style.cssText=`left:${group.x}%;top:${group.y}%`;
-      const lblParts=isBuilding?(()=>{const base=buildings[0].split('-')[0].trim();const range=getBuildingNrRange(buildings[0],currentWorld?.name);return{main:range||base,sub:range?base:''};})():(()=>{const t=(group.lots[0].name||group.lots[0].nr||'').split('-').pop().trim().split(' ').slice(0,2).join(' ');return{main:t,sub:''};})();
+      const lblParts=isBuilding?(()=>{const base=buildings[0].split('-')[0].trim();const range=getBuildingNrRange(buildings[0],currentWorld?.name);return{main:range||base,sub:range?base:''};})():(()=>{
+        // Non-Building Cluster: find main nr (without letter suffix) = Wohnkomplex-anchor
+        const mainLot=group.lots.find(l=>l.nr&&/^Nr\.\s*\d+$/.test(l.nr))||group.lots[0];
+        const t=(mainLot.nr||mainLot.name||'').split('-').pop().trim().split(' ').slice(0,2).join(' ');
+        return{main:t,sub:''};
+      })();
       const lbl=lblParts.sub?`${lblParts.main}<span class="lot-sublabel">${lblParts.sub}</span>`:lblParts.main;
       const lblPlain=lblParts.sub?`${lblParts.main} · ${lblParts.sub}`:lblParts.main;
       const itemsHtml=group.lots.map(l=>`<div class="cluster-item" onclick="window.open('${l.url}','_blank');event.stopPropagation()">${l.img?`<img class="cluster-item-preview" src="${l.img}">`:''}><div class="cluster-pip" style="background:${l.active?'#4aaa6a':'rgba(255,255,255,0.4)'}"></div>${parseLotLabel(l).num}${parseLotLabel(l).sub?` <span style="color:rgba(255,255,255,0.45);font-size:10px">– ${parseLotLabel(l).sub}</span>`:''}</div>`).join('');
