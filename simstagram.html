@@ -253,7 +253,21 @@ button:active { transform: scale(.95); }
 .cmt-body .ct-dim { color: var(--dim); font-size: 11px; display: block; margin-top: 2px; }
 
 .pm-bot { border-top: 1px solid var(--bdr); padding: 10px 13px;
-  flex-shrink: 0; display: flex; gap: 8px; align-items: center; }
+  flex-shrink: 0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.cmt-hint {
+  width: 100%; display: flex; align-items: flex-start; gap: 8px;
+  padding: 8px 10px; margin-bottom: 6px;
+  background: rgba(100,180,120,.08); border: 1px solid rgba(100,180,120,.2);
+  border-radius: 10px;
+  font-size: 11px; line-height: 1.45; color: var(--sub);
+}
+.cmt-hint svg { color: var(--acc); margin-top: 1px; }
+.cmt-hint span { flex: 1; }
+.cmt-hint-close {
+  background: none; border: none; color: var(--dim); font-size: 13px;
+  cursor: pointer; padding: 0 2px; line-height: 1; flex-shrink: 0;
+}
+.cmt-hint-close:hover { color: var(--txt); }
 .cmt-in {
   flex: 1; background: var(--s2) !important; border: 1.5px solid var(--bdr) !important;
   border-radius: 20px; padding: 8px 14px;
@@ -482,6 +496,11 @@ button:active { transform: scale(.95); }
           <div id="pm-cmts"><span style="color:var(--dim);font-size:12px">Lade…</span></div>
         </div>
         <div class="pm-bot">
+          <div id="cmt-hint" class="cmt-hint" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>Kommentar tippen & senden. Ein kleines Forum-Fenster öffnet sich, um deinen Kommentar final abzuschicken — der Text wird automatisch übernommen. Klick auf "Kommentar speichern" dort.</span>
+            <button class="cmt-hint-close" onclick="dismissCmtHint()" title="Nicht mehr zeigen">✕</button>
+          </div>
           <textarea class="cmt-in" id="cmtIn" rows="1"
             placeholder="Kommentar tippen…"
             oninput="autoH(this)"
@@ -981,6 +1000,14 @@ async function openPost(i) {
   const url   = F(p,'url');
   curPost = { p, i, url };
 
+  // Beim ersten Kommentar-Öffnen den Hilfe-Banner zeigen
+  try {
+    if (!localStorage.getItem('atlas_sim_cmthint_dismissed')) {
+      const h = document.getElementById('cmt-hint');
+      if (h) h.style.display = 'flex';
+    }
+  } catch(e) {}
+
   const ic = $('pm-img'), ie = $('pm-img-el');
   if (img) { ic.style.display=''; ie.src=img; ie.alt=title; } else { ic.style.display='none'; }
 
@@ -1093,6 +1120,12 @@ function closePM() {
   curPost = null;
 }
 
+function dismissCmtHint() {
+  try { localStorage.setItem('atlas_sim_cmthint_dismissed', '1'); } catch(e) {}
+  const h = document.getElementById('cmt-hint');
+  if (h) h.style.display = 'none';
+}
+
 // ╔══════════════════════════════════════════════════════════╗
 //   COMMENT via Xobor popup  –  Text vorausgefüllt via URL param
 // ╚══════════════════════════════════════════════════════════╝
@@ -1118,31 +1151,48 @@ function openCommentPopup() {
   // Funktioniert weil gleiche Origin — warte bis das Popup DOM bereit ist
   if (text && xPopup) {
     let tries = 0;
+    let filled = false;
+    let stableCount = 0;
     const fillTimer = setInterval(() => {
       tries++;
       try {
         if (!xPopup || xPopup.closed) { clearInterval(fillTimer); return; }
         const doc = xPopup.document;
-        if (!doc) return;
-        // Xobor-Kommentarfeld: <textarea name="commentar" id="commentar">
+        if (!doc || doc.readyState === 'loading') return;
         const ta = doc.querySelector('textarea[name="commentar"], textarea#commentar, textarea');
-        if (ta) {
-          ta.value = text;
-          ta.dispatchEvent(new xPopup.Event('input', {bubbles:true}));
-          ta.dispatchEvent(new xPopup.Event('change', {bubbles:true}));
-          ta.focus();
-          clearInterval(fillTimer);
-          toast('✓ Kommentar übernommen', 'ok');
-        } else if (tries > 40) {
-          // 40 × 250ms = 10s — dann aufgeben, Clipboard-Fallback zeigen
-          clearInterval(fillTimer);
-          toast('📋 Text kopiert — Ctrl+V im Fenster', 'ok');
+        if (!ta) {
+          if (tries > 40) {
+            clearInterval(fillTimer);
+            toast('📋 Text kopiert — Ctrl+V im Fenster', 'ok');
+          }
+          return;
         }
+        // Wert setzen (mehrfach falls Xobor eigenes JS ihn zurücksetzt)
+        if (ta.value !== text) {
+          ta.value = text;
+          try {
+            ta.dispatchEvent(new xPopup.Event('input', {bubbles:true}));
+            ta.dispatchEvent(new xPopup.Event('change', {bubbles:true}));
+          } catch(e) {}
+          if (!filled) {
+            ta.focus();
+            ta.setSelectionRange(text.length, text.length);
+            filled = true;
+            toast('✓ Kommentar übernommen', 'ok');
+          }
+          stableCount = 0;
+        } else {
+          stableCount++;
+          // 3× hintereinander stabil → aufhören
+          if (stableCount >= 3) {
+            clearInterval(fillTimer);
+          }
+        }
+        if (tries > 60) clearInterval(fillTimer); // hard limit 15s
       } catch(e) {
-        // Cross-Origin oder Popup geschlossen
         if (tries > 40) {
           clearInterval(fillTimer);
-          toast('📋 Text kopiert — Ctrl+V im Fenster', 'ok');
+          if (!filled) toast('📋 Text kopiert — Ctrl+V im Fenster', 'ok');
         }
       }
     }, 250);
