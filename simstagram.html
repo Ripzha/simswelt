@@ -756,12 +756,14 @@ function _loadImgCache(){try{const s=localStorage.getItem(IMG_CACHE_KEY);if(!s)r
 function _saveImgCache(map){try{localStorage.setItem(IMG_CACHE_KEY,JSON.stringify({t:Date.now(),d:map}));}catch(e){}}
 
 // Parallele Version: holt alle Bilder einer Seite gleichzeitig.
-// Zeigt Cache sofort, validiert aber im Hintergrund dass die URLs
-// noch korrekt sind (wichtig nach Apps Script-Updates).
+// Zeigt Cache sofort. Wenn ein Cache-Eintrag noch nicht mit dem
+// aktuellen Apps Script verifiziert wurde (v!=1), wird er im
+// Hintergrund gegengeprüft — aber nur einmal pro Post.
 async function lazyLoadImages() {
   const start = curPage * PER_PAGE;
   const pagePosts = posts.slice(start, start + PER_PAGE);
   const imgCache = _loadImgCache();
+  const CACHE_VERSION = 1; // hochzählen um alle Caches neu zu validieren
 
   // Erst aus Cache einsetzen falls vorhanden
   pagePosts.forEach((p, i) => {
@@ -775,9 +777,15 @@ async function lazyLoadImages() {
     }
   });
 
-  // Alle Posts (auch die mit Cache-Bild) nochmal im Hintergrund fetchen
-  // → Cache wird korrekt gehalten, falsche Bilder werden entfernt
-  const toFetch = pagePosts.map((p, i) => ({p, i})).filter(({p}) => !!F(p,'url'));
+  // Nur fetchen wenn: kein Cache vorhanden ODER Cache noch nicht mit aktueller Version verifiziert
+  const toFetch = pagePosts.map((p, i) => ({p, i})).filter(({p}) => {
+    const url = F(p,'url');
+    if (!url) return false;
+    const c = imgCache[url];
+    if (!c) return true;                      // keine Info → holen
+    if (c.v !== CACHE_VERSION) return true;   // alte Version → re-validieren
+    return false;                              // schon verifiziert → skip
+  });
   if (!toFetch.length) return;
 
   await Promise.all(toFetch.map(async ({p, i}) => {
@@ -793,7 +801,11 @@ async function lazyLoadImages() {
         else _removeCardImage(start+i);
       }
       if (d.content && !F(p,'content')) p.content = d.content;
-      imgCache[url] = {image: newImage, content: d.content || F(p,'content') || ''};
+      imgCache[url] = {
+        image: newImage,
+        content: d.content || F(p,'content') || '',
+        v: CACHE_VERSION
+      };
     } catch(_) {}
   }));
 
@@ -832,6 +844,7 @@ function _removeCardImage(i) {
 async function preloadOtherPages() {
   const totalPages = Math.ceil(posts.length / PER_PAGE);
   const imgCache = _loadImgCache();
+  const CACHE_VERSION = 1;
   let changed = false;
 
   for (let page = 0; page < totalPages; page++) {
@@ -840,7 +853,11 @@ async function preloadOtherPages() {
     const pagePosts = posts.slice(start, start + PER_PAGE);
     const toFetch = pagePosts.filter(p => {
       const url = F(p,'url');
-      return url && !F(p,'image') && !imgCache[url];
+      if (!url) return false;
+      const c = imgCache[url];
+      if (!c) return true;
+      if (c.v !== CACHE_VERSION) return true;
+      return false;
     });
     if (!toFetch.length) continue;
 
@@ -852,7 +869,11 @@ async function preloadOtherPages() {
         const d = await r.json();
         if (d.image) p.image = d.image;
         if (d.content && !F(p,'content')) p.content = d.content;
-        imgCache[url] = {image: d.image || '', content: d.content || ''};
+        imgCache[url] = {
+          image: d.image || '',
+          content: d.content || '',
+          v: CACHE_VERSION
+        };
         changed = true;
       } catch(_) {}
     }));
