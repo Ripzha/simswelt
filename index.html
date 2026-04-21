@@ -78,6 +78,35 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .lot-pip{width:5px;height:5px;border-radius:50%;flex-shrink:0}
 #suggest-bar-btn{padding:4px 9px;border-radius:5px;font-size:10px;cursor:pointer;background:rgba(74,170,106,0.12);border:0.5px solid rgba(74,170,106,0.3);color:rgba(74,170,106,0.8);white-space:nowrap;flex-shrink:0}
 .world-dot{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:10}
+/* Welten-Suche Overlay */
+#world-search-box{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:50;width:280px;max-width:calc(100% - 24px)}
+#world-search-input{width:100%;padding:8px 32px 8px 32px;background:rgba(5,12,22,0.92);border:0.5px solid rgba(255,255,255,0.18);border-radius:8px;color:#fff;font-size:12px;font-family:inherit;outline:none;backdrop-filter:blur(8px);transition:border-color 0.15s}
+#world-search-input:focus{border-color:rgba(100,180,120,0.5)}
+#world-search-input::placeholder{color:rgba(255,255,255,0.35)}
+#world-search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);font-size:13px;pointer-events:none}
+#world-search-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:18px;height:18px;border:none;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.55);border-radius:50%;cursor:pointer;display:none;align-items:center;justify-content:center;font-size:11px;line-height:1;padding:0}
+#world-search-clear.show{display:flex}
+#world-search-clear:hover{background:rgba(255,255,255,0.2);color:#fff}
+#world-search-dropdown{position:absolute;top:38px;left:0;right:0;max-height:340px;overflow-y:auto;background:rgba(5,12,22,0.97);border:0.5px solid rgba(255,255,255,0.15);border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.5);display:none;backdrop-filter:blur(8px)}
+#world-search-dropdown.open{display:block}
+.ws-section{padding:6px 0}
+.ws-section+.ws-section{border-top:0.5px solid rgba(255,255,255,0.06)}
+.ws-header{font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,0.35);padding:4px 12px;text-transform:uppercase;font-weight:500}
+.ws-item{display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;transition:background 0.1s}
+.ws-item:hover,.ws-item.highlighted{background:rgba(100,180,120,0.12)}
+.ws-item-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ws-item-name{flex:1;font-size:12px;color:#fff}
+.ws-item-type{font-size:10px;color:rgba(255,255,255,0.4)}
+.ws-fav{width:20px;height:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,0.25);font-size:12px;transition:color 0.15s;flex-shrink:0;user-select:none}
+.ws-fav:hover{color:rgba(255,200,80,0.8)}
+.ws-fav.active{color:#ffc844}
+.ws-empty{padding:16px 12px;text-align:center;font-size:11px;color:rgba(255,255,255,0.35)}
+/* Focus-Modus: Dot-Highlighting */
+#map-image-area.focus-mode .world-dot{opacity:0.25;transition:opacity 0.3s}
+#map-image-area.focus-mode .world-dot.focused{opacity:1}
+#map-image-area.focus-mode .world-dot.focused .dot-inner{width:16px!important;height:16px!important;box-shadow:0 0 18px currentColor!important}
+#map-image-area.focus-mode .world-dot.focused .dot-pulse{opacity:0.8;animation-duration:0.9s}
+#map-image-area.focus-mode .world-dot.focused .dot-label{font-size:11px;color:#ffc844;text-shadow:0 0 6px rgba(255,200,68,0.6),0 1px 4px #000}
 .dot-inner{border-radius:50%;border:1.5px solid rgba(255,255,255,0.45);transition:all 0.15s}
 .world-dot:hover .dot-inner{width:12px!important;height:12px!important}
 .dot-pulse{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border-radius:50%;opacity:0;border-width:1.5px;border-style:solid;animation:pulse 1.4s infinite;pointer-events:none}
@@ -323,6 +352,12 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
         </div>
       </div>
       <div class="vignette"></div>
+      <div id="world-search-box">
+        <span id="world-search-icon">🔍</span>
+        <input id="world-search-input" type="text" placeholder="Welt suchen..." autocomplete="off">
+        <button id="world-search-clear" title="Leeren">✕</button>
+        <div id="world-search-dropdown"></div>
+      </div>
       <div id="map-legend">Hover = Vorschau · Klick = Betreten</div>
       <button class="calib-btn" id="calib-map-btn" onclick="toggleCalib('map')">⚙ Kalibrieren</button>
       <div class="calib-panel" id="calib-map-panel">
@@ -1634,6 +1669,7 @@ const mapIA=document.getElementById('map-image-area');
 worlds.forEach(w=>{
   const el=document.createElement('div');
   el.className='world-dot';
+  el.dataset.worldKey=w.name;
   el.style.cssText=`left:${w.x}%;top:${w.y}%`;
   el.innerHTML=`<div class="dot-pulse" style="width:34px;height:34px;border-color:${w.color}"></div><div class="dot-inner" style="width:11px;height:11px;background:${w.color};box-shadow:0 0 5px ${w.color}"></div><div class="dot-label">${w.name}</div><div class="dot-char-tokens" data-world-name="${w.name}"></div><div class="hover-card" style="border:1px solid ${w.color}88;box-shadow:0 6px 28px ${w.color}44"><div style="position:relative">${w.img?`<img class="hover-img" src="${w.img}" onerror="this.style.display='none'">`:''}<div class="hover-gradient"></div><div class="hover-name">${w.name}</div></div><div class="hover-footer"><span class="hover-type">${w.type}</span><span class="hover-action" style="color:${w.color}">Klicken →</span></div></div>`;
   el.addEventListener('click',e=>{e.stopPropagation();if(!calibMapMode)enterWorld(w);});
@@ -1641,6 +1677,152 @@ worlds.forEach(w=>{
 });
 // Update tokens after worlds are rendered
 setTimeout(updateAllTokens, 500);
+
+// ═══════════════════════════════════════════
+// WELTEN-SUCHE (Overlay)
+// ═══════════════════════════════════════════
+(function(){
+  const searchInput=document.getElementById('world-search-input');
+  const searchClear=document.getElementById('world-search-clear');
+  const dropdown=document.getElementById('world-search-dropdown');
+  const MAX_RECENTS=5;
+
+  function loadFavs(){try{return JSON.parse(localStorage.getItem('atlas_favs')||'[]');}catch(e){return [];}}
+  function saveFavs(f){try{localStorage.setItem('atlas_favs',JSON.stringify(f));}catch(e){}}
+  function loadRecents(){try{return JSON.parse(localStorage.getItem('atlas_recents')||'[]');}catch(e){return [];}}
+  function saveRecents(r){try{localStorage.setItem('atlas_recents',JSON.stringify(r));}catch(e){}}
+
+  // Record recent when entering world
+  const _origEnter=enterWorld;
+  window.enterWorld=function(w){
+    if(w&&w.name){
+      let r=loadRecents().filter(n=>n!==w.name);
+      r.unshift(w.name);
+      saveRecents(r.slice(0,MAX_RECENTS));
+    }
+    return _origEnter(w);
+  };
+
+  function toggleFav(name){
+    let f=loadFavs();
+    const i=f.indexOf(name);
+    if(i>=0) f.splice(i,1); else f.push(name);
+    saveFavs(f);
+    renderDropdown(searchInput.value);
+  }
+
+  function focusWorld(name){
+    mapIA.classList.add('focus-mode');
+    mapIA.querySelectorAll('.world-dot').forEach(d=>{
+      if(d.dataset.worldKey===name) d.classList.add('focused');
+      else d.classList.remove('focused');
+    });
+  }
+  function clearFocus(){
+    mapIA.classList.remove('focus-mode');
+    mapIA.querySelectorAll('.world-dot.focused').forEach(d=>d.classList.remove('focused'));
+  }
+  // Klick irgendwo (nicht auf Suche/Dot) beendet Fokus
+  document.addEventListener('click',e=>{
+    if(e.target.closest('#world-search-box')) return;
+    if(e.target.closest('.world-dot.focused')) return;
+    clearFocus();
+  });
+
+  function mkItem(w, isFav){
+    const fav=loadFavs().includes(w.name);
+    const item=document.createElement('div');
+    item.className='ws-item';
+    item.dataset.worldName=w.name;
+    item.innerHTML=`<div class="ws-item-dot" style="background:${w.color}"></div><div class="ws-item-name">${w.name}</div><div class="ws-item-type">${w.type||''}</div><div class="ws-fav${fav?' active':''}" title="${fav?'Favorit entfernen':'Als Favorit'}">${fav?'★':'☆'}</div>`;
+    item.querySelector('.ws-fav').addEventListener('click',e=>{e.stopPropagation();toggleFav(w.name);});
+    item.addEventListener('click',()=>{
+      dropdown.classList.remove('open');
+      focusWorld(w.name);
+    });
+    return item;
+  }
+
+  function renderDropdown(q){
+    dropdown.innerHTML='';
+    const query=(q||'').trim().toLowerCase();
+    const favs=loadFavs();
+    const recents=loadRecents();
+
+    function matchWorlds(list){
+      return list.map(name=>worlds.find(w=>w.name===name)).filter(Boolean)
+        .filter(w=>!query||w.name.toLowerCase().includes(query)||(w.type||'').toLowerCase().includes(query));
+    }
+
+    let hasContent=false;
+
+    // Favoriten
+    if(!query || matchWorlds(favs).length){
+      const favWorlds=matchWorlds(favs);
+      if(favWorlds.length){
+        const sec=document.createElement('div');sec.className='ws-section';
+        const h=document.createElement('div');h.className='ws-header';h.textContent='★ Favoriten';
+        sec.appendChild(h);
+        favWorlds.forEach(w=>sec.appendChild(mkItem(w,true)));
+        dropdown.appendChild(sec);hasContent=true;
+      }
+    }
+
+    // Recents
+    const recentFiltered=matchWorlds(recents.filter(n=>!favs.includes(n)));
+    if(recentFiltered.length){
+      const sec=document.createElement('div');sec.className='ws-section';
+      const h=document.createElement('div');h.className='ws-header';h.textContent='🕐 Zuletzt besucht';
+      sec.appendChild(h);
+      recentFiltered.forEach(w=>sec.appendChild(mkItem(w)));
+      dropdown.appendChild(sec);hasContent=true;
+    }
+
+    // Alle Welten (ohne die in Favs/Recents — bei leerem Query)
+    const excludeSet=new Set([...favs,...(query?[]:recents)]);
+    const rest=[...worlds].filter(w=>!excludeSet.has(w.name))
+      .filter(w=>!query||w.name.toLowerCase().includes(query)||(w.type||'').toLowerCase().includes(query))
+      .sort((a,b)=>a.name.localeCompare(b.name,'de'));
+    if(rest.length){
+      const sec=document.createElement('div');sec.className='ws-section';
+      const h=document.createElement('div');h.className='ws-header';h.textContent=query?'🔎 Ergebnisse':'🌍 Alle Welten';
+      sec.appendChild(h);
+      rest.forEach(w=>sec.appendChild(mkItem(w)));
+      dropdown.appendChild(sec);hasContent=true;
+    }
+
+    if(!hasContent){
+      const em=document.createElement('div');em.className='ws-empty';em.textContent='Keine Welt gefunden.';
+      dropdown.appendChild(em);
+    }
+  }
+
+  searchInput.addEventListener('focus',()=>{
+    renderDropdown(searchInput.value);
+    dropdown.classList.add('open');
+  });
+  searchInput.addEventListener('input',()=>{
+    renderDropdown(searchInput.value);
+    dropdown.classList.add('open');
+    searchClear.classList.toggle('show',!!searchInput.value);
+  });
+  searchClear.addEventListener('click',()=>{
+    searchInput.value='';searchClear.classList.remove('show');
+    renderDropdown('');searchInput.focus();
+  });
+  document.addEventListener('click',e=>{
+    if(!e.target.closest('#world-search-box')) dropdown.classList.remove('open');
+  });
+  // Escape schliesst Dropdown und Fokus
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){dropdown.classList.remove('open');clearFocus();searchInput.blur();}
+    if(e.key==='Enter' && dropdown.classList.contains('open')){
+      const first=dropdown.querySelector('.ws-item');
+      if(first) first.click();
+    }
+  });
+})();
+
 mapC.addEventListener('click',e=>{
   if(!calibMapMode)return;
   if(e.target.closest('.calib-panel')||e.target.closest('.calib-btn'))return;
