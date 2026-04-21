@@ -1124,8 +1124,8 @@ function openCommentPopup() {
         if (!xPopup || xPopup.closed) { clearInterval(fillTimer); return; }
         const doc = xPopup.document;
         if (!doc) return;
-        // Xobor-Kommentarfeld: <textarea> mit Placeholder "Neuer Kommentar" oder name="comment"
-        const ta = doc.querySelector('textarea[name="text"], textarea[name="comment"], textarea#comment, textarea');
+        // Xobor-Kommentarfeld: <textarea name="commentar" id="commentar">
+        const ta = doc.querySelector('textarea[name="commentar"], textarea#commentar, textarea');
         if (ta) {
           ta.value = text;
           ta.dispatchEvent(new xPopup.Event('input', {bubbles:true}));
