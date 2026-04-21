@@ -1149,6 +1149,7 @@ function openCommentPopup() {
 
   // Versuche: den Kommentartext direkt ins Xobor-Textarea schreiben
   // Funktioniert weil gleiche Origin — warte bis das Popup DOM bereit ist
+  console.log('[Simstagram] openCommentPopup:', {text: text, url: url, popup: !!xPopup});
   if (text && xPopup) {
     let tries = 0;
     let filled = false;
@@ -1158,9 +1159,13 @@ function openCommentPopup() {
       try {
         if (!xPopup || xPopup.closed) { clearInterval(fillTimer); return; }
         const doc = xPopup.document;
-        if (!doc || doc.readyState === 'loading') return;
+        if (!doc || doc.readyState === 'loading') {
+          if (tries === 1 || tries === 10 || tries === 40) console.log('[Simstagram] waiting DOM, readyState:', doc?.readyState, 'tries:', tries);
+          return;
+        }
         const ta = doc.querySelector('textarea[name="commentar"], textarea#commentar, textarea');
         if (!ta) {
+          if (tries === 1 || tries === 10 || tries === 40) console.log('[Simstagram] no textarea yet, tries:', tries, 'body has:', doc.body ? doc.body.innerHTML.length : 'no body');
           if (tries > 40) {
             clearInterval(fillTimer);
             toast('📋 Text kopiert — Ctrl+V im Fenster', 'ok');
@@ -1173,11 +1178,12 @@ function openCommentPopup() {
           try {
             ta.dispatchEvent(new xPopup.Event('input', {bubbles:true}));
             ta.dispatchEvent(new xPopup.Event('change', {bubbles:true}));
-          } catch(e) {}
+          } catch(e) { console.log('[Simstagram] dispatchEvent failed:', e); }
           if (!filled) {
             ta.focus();
-            ta.setSelectionRange(text.length, text.length);
+            try { ta.setSelectionRange(text.length, text.length); } catch(e){}
             filled = true;
+            console.log('[Simstagram] textarea filled successfully');
             toast('✓ Kommentar übernommen', 'ok');
           }
           stableCount = 0;
@@ -1190,6 +1196,7 @@ function openCommentPopup() {
         }
         if (tries > 60) clearInterval(fillTimer); // hard limit 15s
       } catch(e) {
+        console.log('[Simstagram] fill error:', e.message, 'tries:', tries);
         if (tries > 40) {
           clearInterval(fillTimer);
           if (!filled) toast('📋 Text kopiert — Ctrl+V im Fenster', 'ok');
@@ -1197,7 +1204,10 @@ function openCommentPopup() {
       }
     }, 250);
   } else if (text) {
+    console.log('[Simstagram] no popup ref — fallback clipboard');
     toast('📋 Kommentar kopiert — Ctrl+V im Fenster', 'ok');
+  } else {
+    console.log('[Simstagram] no text to fill');
   }
 
   // Watch auf Popup-Close → Kommentare refreshen
