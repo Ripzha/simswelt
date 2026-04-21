@@ -76,6 +76,13 @@ button:active { transform: scale(.95); }
 }
 .hdr-btns { display: flex; gap: 8px; }
 .hdr-btns button { color: var(--sub); }
+.hdr-back {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:34px; height:34px; border-radius:50%;
+  color: var(--sub); text-decoration:none;
+  transition: background 0.15s, color 0.15s;
+}
+.hdr-back:hover { background: rgba(255,255,255,0.08); color: var(--acc); }
 
 /* ─────────────────────────────────────────────────────
    SCROLLABLE CONTENT
@@ -406,6 +413,9 @@ button:active { transform: scale(.95); }
 
   <!-- HEADER -->
   <header class="hdr">
+    <a href="https://www.simsforumrpg.de" class="hdr-back" title="Zurück zum Forum" aria-label="Zurück zum Forum">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </a>
     <span class="logo">Simstagram</span>
     <div class="hdr-btns">
       <button id="btn-compose" title="Neuer Post" onclick="openCompose()">
@@ -595,6 +605,8 @@ async function loadFeed(force = false) {
     curPage = 0;
     buildStories();
     buildFeed();
+    lazyLoadImages();
+    setTimeout(preloadOtherPages, 1000);
     // Im Hintergrund aktualisieren
     _backgroundRefresh();
     return;
@@ -622,6 +634,8 @@ async function loadFeed(force = false) {
     curPage = 0;
     buildStories();
     buildFeed();
+    lazyLoadImages();
+    setTimeout(preloadOtherPages, 1000);
   } catch(e) {
     feed.innerHTML = `<div class="status">
       <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--dim)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
@@ -667,6 +681,8 @@ function _showNewPostsBadge(count, freshPosts) {
     curPage = 0;
     buildStories();
     buildFeed();
+    lazyLoadImages();
+    setTimeout(preloadOtherPages, 1000);
     b.remove();
     document.querySelector('.scroll-area')?.scrollTo({top:0, behavior:'smooth'});
   };
@@ -733,35 +749,100 @@ function goPage(p) {
   lazyLoadImages();
 }
 
+// ─ Image + Content Cache (überlebt 1 Stunde) ─
+const IMG_CACHE_KEY = 'atlas_sim_imgs';
+const IMG_CACHE_TTL = 60 * 60 * 1000; // 1h
+function _loadImgCache(){try{const s=localStorage.getItem(IMG_CACHE_KEY);if(!s)return{};const o=JSON.parse(s);if(!o||Date.now()-(o.t||0)>IMG_CACHE_TTL)return{};return o.d||{};}catch(e){return{};}}
+function _saveImgCache(map){try{localStorage.setItem(IMG_CACHE_KEY,JSON.stringify({t:Date.now(),d:map}));}catch(e){}}
+
+// Parallele Version: holt alle Bilder einer Seite gleichzeitig
 async function lazyLoadImages() {
   const start = curPage * PER_PAGE;
   const pagePosts = posts.slice(start, start + PER_PAGE);
-  for (let i = 0; i < pagePosts.length; i++) {
-    const p = pagePosts[i];
-    if (F(p,'image')) continue; // already has image
+  const imgCache = _loadImgCache();
+
+  // Erst aus Cache einsetzen falls vorhanden
+  pagePosts.forEach((p, i) => {
     const url = F(p,'url');
-    if (!url) continue;
+    if (!url || F(p,'image')) return;
+    const cached = imgCache[url];
+    if (cached && cached.image) {
+      p.image = cached.image;
+      if (cached.content && !F(p,'content')) p.content = cached.content;
+      _patchCardImage(start+i, cached.image);
+    }
+  });
+
+  // Dann parallel die restlichen fetchen
+  const toFetch = pagePosts.map((p, i) => ({p, i})).filter(({p}) => {
+    const url = F(p,'url');
+    return url && !F(p,'image');
+  });
+
+  if (!toFetch.length) return;
+
+  await Promise.all(toFetch.map(async ({p, i}) => {
+    const url = F(p,'url');
     try {
       const r = await fetch(`${APPSSCRIPT}?action=post&url=${encodeURIComponent(url)}`);
       const d = await r.json();
       if (d.image) {
         p.image = d.image;
-        // Update the card's image without full rebuild
-        const card = document.querySelector(`.card[data-i="${start+i}"]`);
-        if (card && !card.querySelector('.ci')) {
-          const actDiv = card.querySelector('.ca');
-          if (actDiv) {
-            const imgDiv = document.createElement('div');
-            imgDiv.className = 'ci';
-            imgDiv.onclick = () => openPost(start+i);
-            imgDiv.innerHTML = `<img src="${X(d.image)}" loading="lazy" alt="">`;
-            card.insertBefore(imgDiv, actDiv);
-          }
-        }
+        _patchCardImage(start+i, d.image);
       }
       if (d.content && !F(p,'content')) p.content = d.content;
+      // In Cache
+      imgCache[url] = {image: d.image || '', content: d.content || ''};
     } catch(_) {}
+  }));
+
+  _saveImgCache(imgCache);
+}
+
+// Hilfsfunktion: Bild in bestehende Card einfügen
+function _patchCardImage(i, image) {
+  const card = document.querySelector(`.card[data-i="${i}"]`);
+  if (!card || card.querySelector('.ci')) return;
+  const actDiv = card.querySelector('.ca');
+  if (!actDiv) return;
+  const imgDiv = document.createElement('div');
+  imgDiv.className = 'ci';
+  imgDiv.onclick = () => openPost(i);
+  imgDiv.innerHTML = `<img src="${X(image)}" loading="lazy" alt="">`;
+  card.insertBefore(imgDiv, actDiv);
+}
+
+// Im Hintergrund alle anderen Seiten vorladen (Bilder in Cache)
+async function preloadOtherPages() {
+  const totalPages = Math.ceil(posts.length / PER_PAGE);
+  const imgCache = _loadImgCache();
+  let changed = false;
+
+  for (let page = 0; page < totalPages; page++) {
+    if (page === curPage) continue;
+    const start = page * PER_PAGE;
+    const pagePosts = posts.slice(start, start + PER_PAGE);
+    const toFetch = pagePosts.filter(p => {
+      const url = F(p,'url');
+      return url && !F(p,'image') && !imgCache[url];
+    });
+    if (!toFetch.length) continue;
+
+    // Parallel pro Seite, aber Seiten nacheinander (sonst überlastet's Apps Script)
+    await Promise.all(toFetch.map(async p => {
+      const url = F(p,'url');
+      try {
+        const r = await fetch(`${APPSSCRIPT}?action=post&url=${encodeURIComponent(url)}`);
+        const d = await r.json();
+        if (d.image) p.image = d.image;
+        if (d.content && !F(p,'content')) p.content = d.content;
+        imgCache[url] = {image: d.image || '', content: d.content || ''};
+        changed = true;
+      } catch(_) {}
+    }));
   }
+
+  if (changed) _saveImgCache(imgCache);
 }
 
 function buildCard(p, i) {
