@@ -1321,11 +1321,11 @@ function getLots(wname){
   (worldLots[wname]||[]).filter(l=>!hidden.includes(l.name)).forEach(l=>{
     const base={...l,name:renamed[l.name]||l.name,_origName:l.name,_src:'hard'};
     const merged=sheetLotsLoaded?applySheetData(base,wname):base;
-    // Skip overview-only lots (imgUrl but no threadUrl) - invisible anchors
-    if(merged.img && !merged.url) return;
+    // Skip overview-only lots (imgUrl but no threadUrl) - invisible anchors (except building dots)
+    if(merged.img && !merged.url && !l.building) return;
     // Check if this nr has other lots in its dot-group (non-placeholder)
     let shouldSkipHardPush=false;
-    if(sheetLotsLoaded && l.nr){
+    if(sheetLotsLoaded && l.nr && !l.building){
       const nrNum=l.nr.replace(/^Nr\.\s*/,'').trim();
       const hasOtherLots=Object.keys(worldSheet).some(key=>{
         const e=worldSheet[key];
@@ -1356,8 +1356,8 @@ function getLots(wname){
       }
     }
     if(!shouldSkipHardPush) hard.push(merged);
-    // Generate extra lots from sheet entries with matching dot-group
-    if(sheetLotsLoaded && l.nr){
+    // Generate extra lots from sheet entries with matching dot-group (not for building dots)
+    if(sheetLotsLoaded && l.nr && !l.building){
       const nrNum=l.nr.replace(/^Nr\.\s*/,'').trim(); // "Nr. 11" -> "11"
       const extraLots=[];
       Object.keys(worldSheet).forEach(key=>{
