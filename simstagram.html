@@ -1101,21 +1101,56 @@ function openCommentPopup() {
   const text = $('cmtIn').value.trim();
   const url  = curPost.url + '#com';
 
-  // Auto-copy comment text to clipboard → user just Ctrl+V in Xobor editor
+  // Clipboard-Copy als Fallback: falls Direkt-Injection fehlschlägt kann User
+  // einfach Ctrl+V drücken
   if (text && navigator.clipboard) {
-    navigator.clipboard.writeText(text)
-      .then(() => toast('📋 Kommentar kopiert — Ctrl+V im Fenster einfügen', 'ok'))
-      .catch(() => {});
+    navigator.clipboard.writeText(text).catch(() => {});
   }
 
-  // Open popup positioned beside our UI (not on top)
+  // Popup neben unsere UI öffnen
   const w = 540, h = 480;
   const left = Math.min(screen.width - w - 10, window.screenX + window.outerWidth + 10);
   const top  = Math.max(10, window.screenY + 80);
   xPopup = window.open(url, 'xobor-comment',
     `width=${w},height=${h},left=${left},top=${top},scrollbars=yes,resizable=yes`);
 
-  // No blocking overlay — just watch for popup close
+  // Versuche: den Kommentartext direkt ins Xobor-Textarea schreiben
+  // Funktioniert weil gleiche Origin — warte bis das Popup DOM bereit ist
+  if (text && xPopup) {
+    let tries = 0;
+    const fillTimer = setInterval(() => {
+      tries++;
+      try {
+        if (!xPopup || xPopup.closed) { clearInterval(fillTimer); return; }
+        const doc = xPopup.document;
+        if (!doc) return;
+        // Xobor-Kommentarfeld: <textarea> mit Placeholder "Neuer Kommentar" oder name="comment"
+        const ta = doc.querySelector('textarea[name="text"], textarea[name="comment"], textarea#comment, textarea');
+        if (ta) {
+          ta.value = text;
+          ta.dispatchEvent(new xPopup.Event('input', {bubbles:true}));
+          ta.dispatchEvent(new xPopup.Event('change', {bubbles:true}));
+          ta.focus();
+          clearInterval(fillTimer);
+          toast('✓ Kommentar übernommen', 'ok');
+        } else if (tries > 40) {
+          // 40 × 250ms = 10s — dann aufgeben, Clipboard-Fallback zeigen
+          clearInterval(fillTimer);
+          toast('📋 Text kopiert — Ctrl+V im Fenster', 'ok');
+        }
+      } catch(e) {
+        // Cross-Origin oder Popup geschlossen
+        if (tries > 40) {
+          clearInterval(fillTimer);
+          toast('📋 Text kopiert — Ctrl+V im Fenster', 'ok');
+        }
+      }
+    }, 250);
+  } else if (text) {
+    toast('📋 Kommentar kopiert — Ctrl+V im Fenster', 'ok');
+  }
+
+  // Watch auf Popup-Close → Kommentare refreshen
   clearInterval(pwTimer);
   pwTimer = setInterval(() => {
     if (!xPopup || xPopup.closed) {
