@@ -558,15 +558,45 @@ const IMG='https://files.homepagemodules.de/b855163/resize/1920x1200/';
 // GEBÄUDE-DATEN (SM + EH)
 // ═══════════════════════════════════════════
 const BUILDINGS = {
-  "Culpepper-Apartments":  {imgs:[IMG+"pictures_u1170_BtwAdlUp.png"],lots:[{name:"Wohnung 1",x:30,y:75,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 2",x:50,y:25,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 3",x:70,y:65,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 4",x:50,y:88,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Jasmin-Studios":        {imgs:[IMG+"pictures_u1173_glSvpdsr.png"],lots:[{name:"Studio 5",x:35,y:35,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Studio 6",x:60,y:75,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Medina-Studios":        {imgs:[IMG+"pictures_u1176_qXcTrNaj.png"],lots:[{name:"Studio 9",x:30,y:60,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Studio 10",x:60,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Studio 11",x:55,y:75,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Hakim-Haus":            {imgs:[IMG+"pictures_u1172_jgdhOcVw.png"],lots:[{name:"Wohnung 13",x:50,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 14",x:50,y:78,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Landgraab-Apartments":  {imgs:[IMG+"pictures_u1175_bPvqCfdS.png",IMG+"pictures_u1174_eIzqUPZL.png"],lots:[{name:"Wohnung 17",x:40,y:35,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 18",x:55,y:72,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Alto-Apartments":       {imgs:[IMG+"pictures_u1171_CbejBpJu.png"],lots:[{name:"Wohnung 21",x:40,y:40,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 22",x:55,y:78,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "ZenView-Apartments":    {imgs:[IMG+"pictures_u1181_hVjZGEkW.png",IMG+"pictures_u1180_LhvsFNlx.png"],lots:[{name:"Wohnung 24",x:50,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 25",x:50,y:72,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Spitzen-Apartments":    {imgs:[IMG+"pictures_u1178_odPXQNxE.png",IMG+"pictures_u1179_KecVnlEU.png"],lots:[{name:"Wohnung 16",x:50,y:50,url:BASE+'f51783-San-Myshuno.html',active:false}]},
-  "Luxusallee-21":         {imgs:[IMG+"pictures_u1177_mzbSxfyX.png"],lots:[{name:"Wohnung 26",x:60,y:30,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 27",x:30,y:60,url:BASE+'f51783-San-Myshuno.html',active:false},{name:"Wohnung 28",x:55,y:80,url:BASE+'f51783-San-Myshuno.html',active:false}]},
+  "Culpepper-Apartments":{imgs:[IMG+"pictures_u1170_BtwAdlUp.png"],lots:[
+    {nr:"Nr. 1",x:50,y:50},
+    {nr:"Nr. 2",x:50,y:50},
+    {nr:"Nr. 3",x:50,y:50},
+    {nr:"Nr. 4",x:50,y:50},
+  ]},
+  "Jasmin-Studios":{imgs:[IMG+"pictures_u1173_glSvpdsr.png"],lots:[
+    {nr:"Nr. 5",x:50,y:50},
+    {nr:"Nr. 6",x:50,y:50},
+  ]},
+  "Medina-Studios":{imgs:[IMG+"pictures_u1176_qXcTrNaj.png"],lots:[
+    {nr:"Nr. 9",x:50,y:50},
+    {nr:"Nr. 10",x:50,y:50},
+    {nr:"Nr. 11",x:50,y:50},
+  ]},
+  "Hakim-Haus":{imgs:[IMG+"pictures_u1172_jgdhOcVw.png"],lots:[
+    {nr:"Nr. 13",x:50,y:50},
+    {nr:"Nr. 14",x:50,y:50},
+  ]},
+  "Landgraab-Apartments":{imgs:[IMG+"pictures_u1175_bPvqCfdS.png",IMG+"pictures_u1174_eIzqUPZL.png"],lots:[
+    {nr:"Nr. 17",x:50,y:50},
+    {nr:"Nr. 18",x:50,y:50},
+  ]},
+  "Alto-Apartments":{imgs:[IMG+"pictures_u1171_CbejBpJu.png"],lots:[
+    {nr:"Nr. 21",x:50,y:50},
+    {nr:"Nr. 22",x:50,y:50},
+  ]},
+  "ZenView-Apartments":{imgs:[IMG+"pictures_u1181_hVjZGEkW.png",IMG+"pictures_u1180_LhvsFNlx.png"],lots:[
+    {nr:"Nr. 24",x:50,y:50},
+    {nr:"Nr. 25",x:50,y:50},
+  ]},
+  "Spitzen-Apartments":{imgs:[IMG+"pictures_u1178_odPXQNxE.png",IMG+"pictures_u1179_KecVnlEU.png"],lots:[
+    {nr:"Nr. 16",x:50,y:50},
+  ]},
+  "Luxusallee-21":{imgs:[IMG+"pictures_u1177_mzbSxfyX.png"],lots:[
+    {nr:"Nr. 26",x:50,y:50},
+    {nr:"Nr. 27",x:50,y:50},
+    {nr:"Nr. 28",x:50,y:50},
+  ]},
   "Kieferhügel-Apartments":{imgs:["https://files.homepagemodules.de/b855163/resize/1920x1200/pictures_u1189_YPpEakrt.png"],lots:[
     {nr:"Nr. 12",x:47.7,y:54.3},
     {nr:"Nr. 13",x:58.8,y:46.7},
