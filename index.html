@@ -499,6 +499,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
           <button id="char-sort-btn" onclick="toggleCharSort()" title="Alphabetisch sortieren">A–Z</button>
           <div class="char-gender-filter" onclick="toggleGenderFilter(this,'m')">♂</div>
           <div class="char-gender-filter" onclick="toggleGenderFilter(this,'f')">♀</div>
+          <div class="char-gender-filter" onclick="toggleGenderFilter(this,'d')">⚧</div>
           <button id="char-reload" onclick="reloadChars()" title="Aktualisieren">↺</button>
           <button id="char-reset-btn" onclick="resetAllFilters()">✕ Filter</button>
         </div>
@@ -2472,6 +2473,7 @@ function charRenderFiltered(){
       return charGenderFilter.some(function(v){
         if(v==='m')return g==='m'||g==='männlich'||g==='male';
         if(v==='f')return g==='f'||g==='weiblich'||g==='female';
+        if(v==='d')return g==='d'||g==='divers'||g==='diverse'||g==='non-binary'||g==='nb';
         return true;
       });
     });
@@ -2567,6 +2569,7 @@ function buildAgeFilter(){
     return charGenderFilter.some(function(v){
       if(v==='m')return g==='m'||g==='männlich'||g==='male';
       if(v==='f')return g==='f'||g==='weiblich'||g==='female';
+      if(v==='d')return g==='d'||g==='divers'||g==='diverse'||g==='non-binary'||g==='nb';
       return true;
     });
   });
