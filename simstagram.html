@@ -755,7 +755,9 @@ const IMG_CACHE_TTL = 60 * 60 * 1000; // 1h
 function _loadImgCache(){try{const s=localStorage.getItem(IMG_CACHE_KEY);if(!s)return{};const o=JSON.parse(s);if(!o||Date.now()-(o.t||0)>IMG_CACHE_TTL)return{};return o.d||{};}catch(e){return{};}}
 function _saveImgCache(map){try{localStorage.setItem(IMG_CACHE_KEY,JSON.stringify({t:Date.now(),d:map}));}catch(e){}}
 
-// Parallele Version: holt alle Bilder einer Seite gleichzeitig
+// Parallele Version: holt alle Bilder einer Seite gleichzeitig.
+// Zeigt Cache sofort, validiert aber im Hintergrund dass die URLs
+// noch korrekt sind (wichtig nach Apps Script-Updates).
 async function lazyLoadImages() {
   const start = curPage * PER_PAGE;
   const pagePosts = posts.slice(start, start + PER_PAGE);
@@ -773,12 +775,9 @@ async function lazyLoadImages() {
     }
   });
 
-  // Dann parallel die restlichen fetchen
-  const toFetch = pagePosts.map((p, i) => ({p, i})).filter(({p}) => {
-    const url = F(p,'url');
-    return url && !F(p,'image');
-  });
-
+  // Alle Posts (auch die mit Cache-Bild) nochmal im Hintergrund fetchen
+  // → Cache wird korrekt gehalten, falsche Bilder werden entfernt
+  const toFetch = pagePosts.map((p, i) => ({p, i})).filter(({p}) => !!F(p,'url'));
   if (!toFetch.length) return;
 
   await Promise.all(toFetch.map(async ({p, i}) => {
@@ -786,23 +785,32 @@ async function lazyLoadImages() {
     try {
       const r = await fetch(`${APPSSCRIPT}?action=post&url=${encodeURIComponent(url)}`);
       const d = await r.json();
-      if (d.image) {
-        p.image = d.image;
-        _patchCardImage(start+i, d.image);
+      const prevImage = F(p,'image');
+      const newImage = d.image || '';
+      if (newImage !== prevImage) {
+        p.image = newImage;
+        if (newImage) _patchCardImage(start+i, newImage);
+        else _removeCardImage(start+i);
       }
       if (d.content && !F(p,'content')) p.content = d.content;
-      // In Cache
-      imgCache[url] = {image: d.image || '', content: d.content || ''};
+      imgCache[url] = {image: newImage, content: d.content || F(p,'content') || ''};
     } catch(_) {}
   }));
 
   _saveImgCache(imgCache);
 }
 
-// Hilfsfunktion: Bild in bestehende Card einfügen
+// Hilfsfunktion: Bild in bestehende Card einfügen oder updaten
 function _patchCardImage(i, image) {
   const card = document.querySelector(`.card[data-i="${i}"]`);
-  if (!card || card.querySelector('.ci')) return;
+  if (!card) return;
+  const existing = card.querySelector('.ci');
+  if (existing) {
+    // Wenn es schon ein Bild gibt, src aktualisieren falls anders
+    const img = existing.querySelector('img');
+    if (img && img.src !== image) img.src = image;
+    return;
+  }
   const actDiv = card.querySelector('.ca');
   if (!actDiv) return;
   const imgDiv = document.createElement('div');
@@ -810,6 +818,14 @@ function _patchCardImage(i, image) {
   imgDiv.onclick = () => openPost(i);
   imgDiv.innerHTML = `<img src="${X(image)}" loading="lazy" alt="">`;
   card.insertBefore(imgDiv, actDiv);
+}
+
+// Hilfsfunktion: Bild aus Card entfernen (wenn Apps Script sagt "kein Bild")
+function _removeCardImage(i) {
+  const card = document.querySelector(`.card[data-i="${i}"]`);
+  if (!card) return;
+  const existing = card.querySelector('.ci');
+  if (existing) existing.remove();
 }
 
 // Im Hintergrund alle anderen Seiten vorladen (Bilder in Cache)
