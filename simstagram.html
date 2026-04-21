@@ -1378,6 +1378,13 @@ function Xnl(s) {
 function Q(s) { return JSON.stringify(s); }
 function $(id) { return document.getElementById(id); }
 
+// Auto-resize textarea auf Inhalt (wird via oninput aufgerufen)
+function autoH(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 72) + 'px';
+}
+
 let _tt;
 function toast(msg, type = '') {
   const el = $('toast');
