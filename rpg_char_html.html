@@ -613,9 +613,48 @@ function mkPostModal(){
     },true,true,false));
     box.appendChild(toolRow);
 
-    // Bild-Hinweis
-    box.appendChild(div({background:"rgba(61,111,138,0.1)",border:"1px solid rgba(61,111,138,0.3)",borderRadius:"8px",padding:"10px 12px",marginBottom:"14px",fontSize:"11px",color:C.muted,lineHeight:"1.6"},
-      ['📷 Bild hinzufügen (nach dem Absenden):\nGehe zu deinem neuen Thread → „Bearbeiten" → klick ins Textfeld wo das Bild hin soll → „Bild einfügen" oder „Datei anhängen" → lade dein Portrait hoch → speichern.']));
+    // Bild-Hinweis — je nach Bogen-Status
+    var hasImg = !!(state.imgPreview||state.imgB64||state.imgUrl);
+    var imgBox=div({background:"rgba(61,111,138,0.1)",border:"1px solid rgba(61,111,138,0.3)",borderRadius:"8px",padding:"10px 12px",marginBottom:"10px",fontSize:"11px",color:C.muted,lineHeight:"1.65"});
+    if(hasImg){
+      imgBox.appendChild(div({fontWeight:"700",color:"#7bb4d4",marginBottom:"4px",fontSize:"12px"},["📷 Portrait im Forum-Post einfügen"]));
+      var row1=div({});
+      row1.appendChild(document.createTextNode('Du hast im Bogen schon ein Bild hochgeladen — speichere es zuerst lokal (Rechtsklick → „Bild speichern unter"). Im Forum-Fenster dann auf die '));
+      var kl1=mk("strong",{color:C.text},['📎 Büroklammer („Dateien anhängen")']);
+      row1.appendChild(kl1);
+      row1.appendChild(document.createTextNode(" klicken → Datei auswählen → hochladen. Das Bild erscheint automatisch im Post."));
+      imgBox.appendChild(row1);
+    } else {
+      imgBox.appendChild(div({fontWeight:"700",color:"#7bb4d4",marginBottom:"4px",fontSize:"12px"},["📷 Bild hinzufügen (optional)"]));
+      var row2=div({});
+      row2.appendChild(document.createTextNode("Willst du ein Portrait zeigen? Im Forum-Fenster auf die "));
+      var kl2=mk("strong",{color:C.text},['📎 Büroklammer („Dateien anhängen")']);
+      row2.appendChild(kl2);
+      row2.appendChild(document.createTextNode(" klicken → Bild hochladen. Das Bild wird am Ende des Posts angehängt."));
+      imgBox.appendChild(row2);
+    }
+    box.appendChild(imgBox);
+
+    // BBCode-Erklärung (aufklappbar)
+    var bbcDetails=mk("details",{marginBottom:"14px",background:"rgba(255,255,255,0.03)",border:"1px solid "+C.border,borderRadius:"8px",padding:"0"});
+    var bbcSummary=mk("summary",{padding:"8px 12px",cursor:"pointer",fontSize:"11px",fontWeight:"600",color:C.muted,userSelect:"none"});
+    bbcSummary.textContent="❓ Was ist BBCode? Warum sehe ich [b]…[/b] im Text?";
+    bbcDetails.appendChild(bbcSummary);
+    var bbcBody=div({padding:"0 12px 12px 12px",fontSize:"11px",color:C.muted,lineHeight:"1.65"});
+    bbcBody.appendChild(div({marginBottom:"6px"},["BBCode ist die Formatierungs-Sprache des Forums. Die eckigen Klammern werden automatisch in Formatierung umgewandelt — sie sind im fertigen Post nicht sichtbar."]));
+    var egRow=div({display:"grid",gridTemplateColumns:"auto 1fr",gap:"4px 10px",fontSize:"10px",marginTop:"8px",fontFamily:"monospace"});
+    function mkEg(code,result){
+      egRow.appendChild(mk("span",{color:"#888",whiteSpace:"nowrap"},[code]));
+      egRow.appendChild(mk("span",{color:C.text},[result]));
+    }
+    mkEg("[b]Fett[/b]","wird → Fett");
+    mkEg("[i]Kursiv[/i]","wird → Kursiv");
+    mkEg("[color=#4aaa6a]Grün[/color]","wird → farbiger Text");
+    mkEg("[img]url.jpg[/img]","wird → Bild eingebettet");
+    bbcBody.appendChild(egRow);
+    bbcBody.appendChild(div({marginTop:"10px",fontSize:"10px",fontStyle:"italic",color:C.muted},["Einfach mit Strg+V einfügen und abschicken — das Forum formatiert alles automatisch."]));
+    bbcDetails.appendChild(bbcBody);
+    box.appendChild(bbcDetails);
 
     var row=div({display:"flex",gap:"8px",flexWrap:"wrap",justifyContent:"flex-end"});
     row.appendChild(btn("Fertig",C.accent,function(){state.showPost=false;state.postCopied=false;draw();},false,false,false));
