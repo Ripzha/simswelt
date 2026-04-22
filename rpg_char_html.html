@@ -119,8 +119,8 @@ function mk(tag,style,children){
   var e=document.createElement(tag);
   if(style){
     Object.keys(style).forEach(function(k){
-      if(k==="src"||k==="href"||k==="id"||k==="type"||k==="accept"||k==="rows"||k==="placeholder"||k==="value"){
-        e[k]=style[k];
+      if(k==="src"||k==="href"||k==="id"||k==="type"||k==="accept"||k==="rows"||k==="placeholder"||k==="value"||k==="target"||k==="rel"||k==="name"||k==="title"){
+        e.setAttribute(k,style[k]);
       } else if(k==="style"&&typeof style[k]==="object"){
         Object.assign(e.style,style[k]);
       } else if(k==="style"&&typeof style[k]==="string"){
@@ -580,42 +580,45 @@ function mkPostModal(){
   box.appendChild(div({fontSize:"14px",fontWeight:"800",color:C.accent,marginBottom:"12px"},["📤 Im Forum posten"]));
 
   if(state.postCopied){
-    // Schritt 1: Posten bestätigen
-    box.appendChild(div({background:"rgba(77,122,77,0.15)",border:"1px solid rgba(77,122,77,0.4)",borderRadius:"8px",padding:"12px 14px",marginBottom:"12px",fontSize:"13px",color:C.accent,lineHeight:"1.6"},
-      ["✅ Das Forum wurde geöffnet.\n\n1. Titel eingeben (Name deines Charakters)\n2. Absenden klicken\n3. Thread-URL unten einfügen"]));
+    // Wizard nach dem BBCode-Kopieren und Forum-Öffnen
+    box.appendChild(div({background:"rgba(77,122,77,0.15)",border:"1px solid rgba(77,122,77,0.4)",borderRadius:"8px",padding:"12px 14px",marginBottom:"14px",fontSize:"13px",color:C.accent,lineHeight:"1.6",fontWeight:"600"},
+      ["✅ BBCode kopiert — das Forum-Fenster ist offen"]));
+
+    box.appendChild(div({fontSize:"12px",fontWeight:"700",color:C.text,marginBottom:"8px"},["So geht's weiter:"]));
+
+    var steps=div({marginBottom:"14px"});
+    function mkStep(num,txt){
+      var s=div({display:"flex",gap:"10px",marginBottom:"8px",fontSize:"12px",color:C.text,lineHeight:"1.5"});
+      s.appendChild(div({background:C.accent,color:C.bg,width:"20px",height:"20px",minWidth:"20px",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"800",fontSize:"11px"},[String(num)]));
+      s.appendChild(div({flex:"1"},[txt]));
+      return s;
+    }
+    steps.appendChild(mkStep(1,"Wechsle ins Forum-Fenster und logge dich ein (oder registriere dich, dein Bogen bleibt hier erhalten)"));
+    steps.appendChild(mkStep(2,"Gib den Namen deines Charakters als Titel ein"));
+    steps.appendChild(mkStep(3,"Klick ins Nachrichten-Feld, dann Strg+V / Cmd+V zum Einfügen"));
+    steps.appendChild(mkStep(4,'Unten auf „Absenden" klicken — dein Thread ist online'));
+    box.appendChild(steps);
+
+    // Copy-Buttons: BBCode nochmal kopieren + Forum-Link nochmal öffnen
+    var toolRow=div({display:"flex",gap:"8px",flexWrap:"wrap",marginBottom:"14px"});
+    toolRow.appendChild(btn("📋 BBCode nochmal kopieren",C.muted,function(){
+      var bb=generateBBCode();
+      if(navigator.clipboard){navigator.clipboard.writeText(bb);}
+      else{var ta=document.createElement("textarea");ta.value=bb;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);}
+      alert("BBCode erneut in Zwischenablage kopiert.");
+    },true,true,false));
+    toolRow.appendChild(btn("🔁 Forum-Fenster öffnen",C.muted,function(){
+      var fid=FORUM_IDS[state.postType]||"51849";
+      window.open("https://www.simsforumrpg.de/new.php?forum="+fid,"_blank","noopener");
+    },true,true,false));
+    box.appendChild(toolRow);
+
     // Bild-Hinweis
-    box.appendChild(div({background:"rgba(61,111,138,0.1)",border:"1px solid rgba(61,111,138,0.3)",borderRadius:"8px",padding:"10px 12px",marginBottom:"12px",fontSize:"11px",color:C.muted,lineHeight:"1.6"},
-      ["📷 Bild hinzufügen (nach dem Registrieren):\nGehe zu deinem Post → Bearbeiten → Bild einfügen → hochladen → URL kopieren → hier als Portrait-URL eintragen."]));
-    // Username
-    box.appendChild(div({fontSize:"12px",fontWeight:"700",color:C.accent,marginBottom:"4px"},["Dein Forum-Username *"]));
-    var playerInp=mk("input",Object.assign({},INP,{marginBottom:"10px",display:"block"}));
-    playerInp.placeholder="z.B. Ripzha";
-    playerInp.value=state.atlasPlayer||"";
-    playerInp.addEventListener("input",function(){state.atlasPlayer=playerInp.value;});
-    box.appendChild(playerInp);
-    // Thread-URL
-    box.appendChild(div({fontSize:"12px",fontWeight:"700",color:C.accent,marginBottom:"4px"},["Thread-URL deines Bogens *"]));
-    box.appendChild(div({fontSize:"10px",color:C.muted,marginBottom:"6px"},["Aus der Adresszeile kopieren nachdem du gepostet hast"]));
-    var urlInp=mk("input",Object.assign({},INP,{marginBottom:"10px",display:"block"}));
-    urlInp.placeholder="https://www.simsforumrpg.de/t...";
-    urlInp.value=state.atlasThread||"";
-    urlInp.addEventListener("input",function(){state.atlasThread=urlInp.value;});
-    box.appendChild(urlInp);
-    // Portrait-URL optional
-    box.appendChild(div({fontSize:"12px",fontWeight:"700",color:C.accent,marginBottom:"4px"},["Portrait-URL (optional, später eintragbar)"]));
-    var imgInp=mk("input",Object.assign({},INP,{marginBottom:"12px",display:"block"}));
-    imgInp.placeholder="https://files.homepagemodules.de/...";
-    imgInp.value=state.atlasPortrait||"";
-    imgInp.addEventListener("input",function(){state.atlasPortrait=imgInp.value;});
-    box.appendChild(imgInp);
-    var row=div({display:"flex",gap:"8px",flexWrap:"wrap"});
-    row.appendChild(btn("In ATLAS speichern ✓",C.accent,function(){
-      if(!state.atlasThread.trim()||!state.atlasPlayer.trim()){alert("Bitte Username und Thread-URL ausfüllen.");return;}
-      state.atlasType=state.postType;
-      saveToAtlas();
-      state.showPost=false;state.postCopied=false;
-    },false,false,false));
-    row.appendChild(btn("Später",C.muted,function(){state.showPost=false;state.postCopied=false;draw();},false,true,false));
+    box.appendChild(div({background:"rgba(61,111,138,0.1)",border:"1px solid rgba(61,111,138,0.3)",borderRadius:"8px",padding:"10px 12px",marginBottom:"14px",fontSize:"11px",color:C.muted,lineHeight:"1.6"},
+      ['📷 Bild hinzufügen (nach dem Absenden):\nGehe zu deinem neuen Thread → „Bearbeiten" → klick ins Textfeld wo das Bild hin soll → „Bild einfügen" oder „Datei anhängen" → lade dein Portrait hoch → speichern.']));
+
+    var row=div({display:"flex",gap:"8px",flexWrap:"wrap",justifyContent:"flex-end"});
+    row.appendChild(btn("Fertig",C.accent,function(){state.showPost=false;state.postCopied=false;draw();},false,false,false));
     box.appendChild(row);
   } else {
     // Schritt 1: Typ wählen und posten
@@ -630,32 +633,24 @@ function mkPostModal(){
     tw.appendChild(trow);box.appendChild(tw);
     // Login-Hinweis
     var loginBox=div({background:"rgba(61,111,138,0.1)",border:"1px solid rgba(61,111,138,0.3)",borderRadius:"8px",padding:"10px 12px",marginBottom:"14px",fontSize:"12px",color:C.muted,lineHeight:"1.6"});
-    var loginLink=mk("a",{href:"https://www.simsforumrpg.de/login.php",target:"_blank",style:"color:#3a8aaa;font-weight:700"});
-    loginLink.textContent="Jetzt einloggen";
+    var loginLink=mk("a",{href:"https://www.simsforumrpg.de/login.php",target:"_blank",rel:"noopener",style:"color:#3a8aaa;font-weight:700"});
+    loginLink.textContent="Jetzt einloggen / registrieren";
     loginBox.appendChild(document.createTextNode("Noch nicht eingeloggt? "));
     loginBox.appendChild(loginLink);
-    loginBox.appendChild(document.createTextNode(" — dein Entwurf bleibt gespeichert."));
+    loginBox.appendChild(document.createTextNode(" — öffnet neues Tab, dein Bogen bleibt hier erhalten."));
     box.appendChild(loginBox);
     var row=div({display:"flex",gap:"8px",justifyContent:"flex-end"});
     row.appendChild(btn("Abbrechen",C.muted,function(){state.showPost=false;draw();},false,true,false));
     row.appendChild(btn("📤 Im Forum posten",C.accent,function(){
       var bb=generateBBCode();
       var fid=FORUM_IDS[state.postType]||"51849";
-      var name=state.char.name||"";
       saveLocalDraft();
-      // Versuche BBCode direkt per URL einzufügen
-      var baseUrl="https://www.simsforumrpg.de/new.php?forum="+fid;
-      var fullUrl=baseUrl+"&topic="+encodeURIComponent(name)+"&message="+encodeURIComponent(bb);
-      // URL-Längenlimit: wenn zu lang, nur Clipboard
-      if(fullUrl.length>2000){
-        if(navigator.clipboard){navigator.clipboard.writeText(bb);}
-        else{var ta=document.createElement("textarea");ta.value=bb;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);}
-        window.open(baseUrl,"_blank");
-        state.postCopied=true;
-      } else {
-        window.open(fullUrl,"_blank");
-        state.postCopied=true;
-      }
+      // BBCode in die Zwischenablage — Gast muss Strg+V im Forum
+      if(navigator.clipboard){navigator.clipboard.writeText(bb);}
+      else{var ta=document.createElement("textarea");ta.value=bb;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);}
+      // Neues Tab: einfach new.php (ohne Message-Parameter, weil der bei Login/Redirect sowieso verloren geht)
+      window.open("https://www.simsforumrpg.de/new.php?forum="+fid,"_blank","noopener");
+      state.postCopied=true;
       draw();
     },false,false,false));
     box.appendChild(row);
@@ -730,6 +725,5 @@ setupImgInput();
 loadLocalDraft();
 draw();
 </script>
-<div style="text-align:center;padding:24px 16px 32px;font-size:11px;color:rgba(255,255,255,0.28)"><a href="https://www.simsforumrpg.de/faq.php#impressum" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-decoration-color:rgba(255,255,255,0.14)">Impressum</a></div>
 </body>
 </html>
