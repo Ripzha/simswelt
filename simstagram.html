@@ -465,7 +465,7 @@ button:active { transform: scale(.95); }
     <button title="Forum" onclick="window.open(XOBOR+'/forum.php','_blank')">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     </button>
-    <button title="Profil" onclick="window.open(XOBOR+'/member.php','_blank')">
+    <button title="Account wechseln / Profil" onclick="openAccountSwitch()">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     </button>
   </nav>
@@ -551,6 +551,38 @@ button:active { transform: scale(.95); }
       <button class="post-btn" id="p-btn" onclick="submitPost()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         Weiter zum Posten
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ ACCOUNT-SWITCH INTRO ═══ -->
+  <div class="ov cov" id="switch-intro" onclick="if(event.target===this)closeSwitchIntro()">
+    <div class="cs" style="max-width:420px">
+      <div class="cs-handle"></div>
+      <div class="cs-top">
+        <h2>Account wechseln</h2>
+        <button onclick="closeSwitchIntro()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="cs-body">
+        <div class="infobox" style="line-height:1.55">
+          <p style="margin:0 0 10px">
+            Simstagram-Posts schreibst du als einer deiner <strong>Charakter-Accounts</strong> (z.B. Blaze, Artjom). Um zu wechseln, nutzt du das Forum — direkt hier aus Simstagram öffnet sich ein kleines Forum-Fenster.
+          </p>
+          <p style="margin:0 0 10px"><strong>So geht's:</strong></p>
+          <ol style="margin:0 0 10px; padding-left:18px">
+            <li>Im Forum-Fenster oben rechts auf dein <strong>Profilbild</strong> klicken</li>
+            <li>Unter „Charakter wechseln" auf den gewünschten Char tippen</li>
+            <li>Fenster schliessen — Simstagram lädt sich neu</li>
+          </ol>
+          <p style="margin:0; color:var(--sub); font-size:12px">
+            Keine Passwörter in Simstagram gespeichert — Account-Wechsel passiert komplett im Forum.
+          </p>
+        </div>
+      </div>
+      <button class="post-btn" onclick="confirmSwitchIntro()">
+        Verstanden, weiter
       </button>
     </div>
   </div>
@@ -1158,6 +1190,54 @@ function openCommentPopup() {
       autoH($('cmtIn'));
       setTimeout(() => refreshCmts(), 800);
       toast('Kommentare aktualisiert ✓', 'ok');
+    }
+  }, 1000);
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+//   ACCOUNT SWITCH — Forum-Popup öffnen, User klickt auf Profil-Icon
+// ╚══════════════════════════════════════════════════════════╝
+let switchPopup = null;
+let switchWatch = null;
+
+function openAccountSwitch() {
+  // Beim ersten Mal: Overlay mit Erklärung
+  try {
+    if (!localStorage.getItem('atlas_sim_switchintro_seen')) {
+      $('switch-intro').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      return;
+    }
+  } catch(e) {}
+  _doOpenSwitchPopup();
+}
+
+function closeSwitchIntro() {
+  $('switch-intro').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function confirmSwitchIntro() {
+  try { localStorage.setItem('atlas_sim_switchintro_seen', '1'); } catch(e) {}
+  closeSwitchIntro();
+  _doOpenSwitchPopup();
+}
+
+function _doOpenSwitchPopup() {
+  const w = 540, h = 640;
+  const left = Math.min(screen.width - w - 10, window.screenX + window.outerWidth + 10);
+  const top  = Math.max(10, window.screenY + 80);
+  switchPopup = window.open('https://www.simsforumrpg.de/', 'xobor-switch',
+    `width=${w},height=${h},left=${left},top=${top},scrollbars=yes,resizable=yes`);
+  toast('👥 Klick im Forum auf dein Profilbild, dann auf den gewünschten Char', 'ok');
+
+  // Popup-Close überwachen → Simstagram reloaden damit neuer Account erkannt wird
+  clearInterval(switchWatch);
+  switchWatch = setInterval(() => {
+    if (!switchPopup || switchPopup.closed) {
+      clearInterval(switchWatch);
+      switchPopup = null;
+      loadFeed(true);
     }
   }, 1000);
 }
