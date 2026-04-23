@@ -1504,25 +1504,48 @@ var WORLD_COLORS={'Willow Creek':'#4a8a3a','Oasis Springs':'#c87a2a','Newcrest':
 function updateSidebarActivity(){
   var el=document.getElementById('sidebar-activity');
   if(!el||!CHARS.length)return;
-  // Get chars with lastSeenName, sort by most recent (by array order = sheet order)
-  // Filter to last 7 days if date available, else show all with lastSeenName
+  // Sortierung nach lastSeenDate DESC (neueste zuerst)
+  // Nur Chars mit Datum innerhalb der letzten 14 Tage
   var now=new Date();
+  var FOURTEEN_DAYS = 14*24*60*60*1000;
+  function parseDate(d){
+    if(!d) return null;
+    var parts=d.split('.');
+    if(parts.length<3) return null;
+    var dt=new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
+    return isNaN(dt.getTime()) ? null : dt;
+  }
   var active=CHARS.filter(function(c){
     if(!c.lastSeenName||!c.lastSeenUrl) return false;
-    if(!c.lastSeenDate) return true; // no date = show anyway
-    var parts=c.lastSeenDate.split('.');
-    if(parts.length<3) return true;
-    var d=new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
-    return (now-d)<=7*24*60*60*1000;
+    var dt = parseDate(c.lastSeenDate);
+    if(!dt) return false; // ohne Datum = raus (sonst verdecken sie echte Aktive)
+    return (now-dt)<=FOURTEEN_DAYS;
   });
-  // Deduplicate by name, keep first occurrence
+  // Nach Datum sortieren: neueste zuerst
+  active.sort(function(a,b){
+    var da = parseDate(a.lastSeenDate);
+    var db = parseDate(b.lastSeenDate);
+    return db - da;
+  });
+  // Deduplicate by name, keep first (= neuester)
   var seen=new Set();
   var unique=active.filter(function(c){if(seen.has(c.n))return false;seen.add(c.n);return true;});
   var top=unique.slice(0,8);
+  // Fallback: wenn keine Chars mit aktuellem Datum vorhanden, zeige die mit irgendeinem Datum (älter als 14 Tage)
+  if(top.length === 0){
+    var fallback = CHARS.filter(function(c){
+      return c.lastSeenName && c.lastSeenUrl && parseDate(c.lastSeenDate);
+    });
+    fallback.sort(function(a,b){
+      return parseDate(b.lastSeenDate) - parseDate(a.lastSeenDate);
+    });
+    var fseen=new Set();
+    top = fallback.filter(function(c){if(fseen.has(c.n))return false;fseen.add(c.n);return true;}).slice(0,8);
+  }
   el.innerHTML=top.map(function(c){
     var color=WORLD_COLORS[c.lastSeenName]||'#4a6a7a';
     var nameShort=c.n.split(' ')[0];
-    return '<div class="activity-item" style="cursor:pointer" data-url="'+c.lastSeenUrl+'" title="'+c.n+'">'
+    return '<div class="activity-item" style="cursor:pointer" data-url="'+c.lastSeenUrl+'" title="'+c.n+' — '+(c.lastSeenDate||'')+'">'
       +'<div class="activity-dot" style="background:'+color+';box-shadow:0 0 5px '+color+'"></div>'
       +'<div><div class="activity-name">'+nameShort+'</div><div class="activity-world">'+c.lastSeenName+'</div></div>'
       +'</div>';
