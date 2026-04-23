@@ -46,23 +46,14 @@ html{overscroll-behavior:none}
 #map-image-area{position:relative;flex-shrink:0;max-width:100%;max-height:100%;overflow:visible;transform-origin:0 0}
 #world-bg,#world-container,#map-container{background:#040d14}
 @media(pointer:coarse){
-  /* Labels versteckt, nur bei Zoom sichtbar */
-  .lot-label,.dot-label,.cluster-label{display:none}
-  /* Wenn reingezoomt: Labels sichtbar mit dunklem Background-Pill damit sie nicht überlagern */
-  .zoom-labels .lot-label,.zoom-labels .dot-label,.zoom-labels .cluster-label{
-    display:inline-block;
-    background:rgba(0,0,0,0.75);
-    padding:2px 7px;
-    border-radius:10px;
-    font-size:10px;
-    font-weight:600;
-    text-shadow:none;
-    backdrop-filter:blur(3px);
-    z-index:10;
-  }
-  /* Char-Tokens rausgezoomt kleiner — beim Reinzoomen ganz weg damit Welten sichtbar */
-  #map-image-area .dot-char-tokens{transform:translateX(-50%) scale(0.7);top:14px!important}
-  #map-image-area.zoom-labels .dot-char-tokens{display:none!important}
+  /* Labels komplett weg auf Touch-Devices — Suchleiste oben ist besser */
+  .lot-label,.dot-label,.cluster-label{display:none!important}
+  /* Char-Tokens auf Kontinentkarte standardmässig versteckt — nur anzeigen wenn angeklickt */
+  #map-image-area .dot-char-tokens{display:none!important}
+  #map-image-area .world-dot.show-tokens .dot-char-tokens{display:flex!important;transform:translateX(-50%) scale(0.85);top:14px!important}
+  /* In Welt-Ansicht: Lot-Tokens standardmässig weg, nur bei angeklicktem Lot zeigen */
+  #world-image-area .dot-char-tokens{display:none!important}
+  #world-image-area .lot-dot.show-tokens .dot-char-tokens{display:flex!important}
   .world-dot .dot-pulse{width:18px!important;height:18px!important}
   .world-dot .dot-inner{width:6px!important;height:6px!important}
   .hover-card{display:none!important}
@@ -1725,9 +1716,37 @@ worlds.forEach(w=>{
   el.dataset.worldKey=w.name;
   el.style.cssText=`left:${w.x}%;top:${w.y}%`;
   el.innerHTML=`<div class="dot-pulse" style="width:34px;height:34px;border-color:${w.color}"></div><div class="dot-inner" style="width:11px;height:11px;background:${w.color};box-shadow:0 0 5px ${w.color}"></div><div class="dot-label">${w.name}</div><div class="dot-char-tokens" data-world-name="${w.name}"></div><div class="hover-card" style="border:1px solid ${w.color}88;box-shadow:0 6px 28px ${w.color}44"><div style="position:relative">${w.img?`<img class="hover-img" src="${w.img}" onerror="this.style.display='none'">`:''}<div class="hover-gradient"></div><div class="hover-name">${w.name}</div></div><div class="hover-footer"><span class="hover-type">${w.type}</span><span class="hover-action" style="color:${w.color}">Klicken →</span></div></div>`;
-  el.addEventListener('click',e=>{e.stopPropagation();if(!calibMapMode)enterWorld(w);});
+  el.addEventListener('click',e=>{
+    e.stopPropagation();
+    if(calibMapMode)return;
+    // Auf Mobile: erster Klick = Vorschau (Tokens + Focus), zweiter Klick = Welt betreten
+    if(window.matchMedia('(pointer:coarse)').matches){
+      if(el.classList.contains('show-tokens')){
+        // zweiter Klick → rein
+        enterWorld(w);
+      } else {
+        // erster Klick → Vorschau zeigen
+        mapIA.querySelectorAll('.world-dot.show-tokens').forEach(d=>{if(d!==el)d.classList.remove('show-tokens');});
+        el.classList.add('show-tokens');
+        if(typeof focusWorld==='function')focusWorld(w.name);
+      }
+    } else {
+      enterWorld(w);
+    }
+  });
   mapIA.appendChild(el);
 });
+// Klick irgendwo anders (ausser auf einem world-dot) schliesst die Token-Vorschau
+if(window.matchMedia('(pointer:coarse)').matches){
+  document.addEventListener('click',function(e){
+    if(!e.target.closest('.world-dot')){
+      mapIA.querySelectorAll('.world-dot.show-tokens').forEach(d=>d.classList.remove('show-tokens'));
+    }
+    if(!e.target.closest('.lot-dot') && !e.target.closest('#mobile-dot-bar')){
+      document.querySelectorAll('.lot-dot.show-tokens').forEach(d=>d.classList.remove('show-tokens'));
+    }
+  });
+}
 // Update tokens after worlds are rendered
 setTimeout(updateAllTokens, 500);
 
@@ -2091,6 +2110,14 @@ function renderLots(w){
         e.stopPropagation();
         if(calibWorldMode||posMode)return;
         if(window.matchMedia('(max-width:768px)').matches){
+          // Erster Klick: Tokens zeigen + mobile-bar
+          // Zweiter Klick auf selben Lot: direkt zum Thread
+          if(ld.classList.contains('show-tokens')){
+            window.open(lot.url,'_blank');
+            return;
+          }
+          wia.querySelectorAll('.lot-dot.show-tokens').forEach(d=>{if(d!==ld)d.classList.remove('show-tokens');});
+          ld.classList.add('show-tokens');
           const lbl=parseLotLabel(lot);
           showMobileDotBar(lbl.num,lbl.sub||lbl.num,lot.url);
         } else {
