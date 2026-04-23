@@ -1286,6 +1286,31 @@ const otherworlds=[
 // RELOAD PERSISTENCE
 window.addEventListener('load',function(){
   updateSidebarStats();
+  // Sheet-Lots schon beim Load fetchen damit die Hover-Vorschaubilder auf der
+  // Kontinentkarte das Sheet-Bild haben (nicht erst beim ersten Welt-Betreten)
+  fetchSheetLots(function(){
+    // Alle Hover-Bilder updaten, falls Sheet ein Welt-Bild überschreibt
+    document.querySelectorAll('.world-dot').forEach(function(dot){
+      var wname=dot.dataset.worldKey;
+      var sheetImg=(sheetWorldMeta[wname]||{}).img;
+      if(!sheetImg)return;
+      var img=dot.querySelector('.hover-img');
+      if(img){
+        img.src=sheetImg;
+        img.style.display='block';
+      } else {
+        // Wenn es vorher kein Bild gab (weil w.img leer): einfügen
+        var card=dot.querySelector('.hover-card > div');
+        if(card){
+          var newImg=document.createElement('img');
+          newImg.className='hover-img';
+          newImg.src=sheetImg;
+          newImg.onerror=function(){this.style.display='none';};
+          card.insertBefore(newImg,card.firstChild);
+        }
+      }
+    });
+  });
   try{
     var saved=sessionStorage.getItem('atlas_world');
     var savedBuilding=sessionStorage.getItem('atlas_building');
@@ -1352,13 +1377,13 @@ function fetchSheetLots(cb){
         const world = get(wIdx);
         const nr = get(nIdx);
         if(!world) return;
-        // Welt-Meta-Zeile: nur welt gesetzt, kein nr — enthält z.B. Mietinfo
+        // Welt-Meta-Zeile: nur welt gesetzt, kein nr — enthält z.B. Mietinfo + Bild
         if(!nr){
+          if(!sheetWorldMeta[world]) sheetWorldMeta[world] = {};
           const rent = get(rentIdx);
-          if(rent){
-            if(!sheetWorldMeta[world]) sheetWorldMeta[world] = {};
-            sheetWorldMeta[world].rent = rent;
-          }
+          const img = get(imgIdx);
+          if(rent) sheetWorldMeta[world].rent = rent;
+          if(img) sheetWorldMeta[world].img = img;
           return;
         }
         if(!sheetLots[world]) sheetLots[world] = {};
@@ -1797,10 +1822,15 @@ worlds.forEach(w=>{
         // zweiter Klick → rein
         enterWorld(w);
       } else {
-        // erster Klick → Vorschau zeigen
+        // erster Klick → Vorschau zeigen + Welt fokussieren
         mapIA.querySelectorAll('.world-dot.show-tokens').forEach(d=>{if(d!==el)d.classList.remove('show-tokens');});
         el.classList.add('show-tokens');
-        if(typeof focusWorld==='function')focusWorld(w.name);
+        // Welt fokussieren (andere Dots dimmen)
+        mapIA.classList.add('focus-mode');
+        mapIA.querySelectorAll('.world-dot').forEach(d=>{
+          if(d.dataset.worldKey===w.name) d.classList.add('focused');
+          else d.classList.remove('focused');
+        });
       }
     } else {
       enterWorld(w);
@@ -1811,8 +1841,11 @@ worlds.forEach(w=>{
 // Klick irgendwo anders (ausser auf einem world-dot) schliesst die Token-Vorschau
 if(window.matchMedia('(pointer:coarse)').matches){
   document.addEventListener('click',function(e){
-    if(!e.target.closest('.world-dot')){
+    if(!e.target.closest('.world-dot') && !e.target.closest('#world-search-box')){
       mapIA.querySelectorAll('.world-dot.show-tokens').forEach(d=>d.classList.remove('show-tokens'));
+      // Fokus auch clearen
+      mapIA.classList.remove('focus-mode');
+      mapIA.querySelectorAll('.world-dot.focused').forEach(d=>d.classList.remove('focused'));
     }
     if(!e.target.closest('.lot-dot') && !e.target.closest('#mobile-dot-bar')){
       document.querySelectorAll('.lot-dot.show-tokens').forEach(d=>d.classList.remove('show-tokens'));
@@ -2009,9 +2042,15 @@ function enterWorld(w){
     }
   })();
   const _grad=`<div style="position:absolute;inset:0;background:linear-gradient(135deg,${w.color}33,#0a1420)"></div>`;
-  document.getElementById('world-bg').innerHTML=w.img
-    ?`<img src="${w.img}" alt="${w.name}" style="width:100%;height:100%;object-fit:cover;filter:brightness(0.65) saturate(0.9);display:block" onerror="this.parentElement.innerHTML='${_grad.replace(/'/g,"\\'")}'">`
-    :_grad;
+  // Welt-Bild: Sheet-Meta hat Vorrang vor hardcoded w.img
+  function setWorldBg(){
+    var sheetImg=(sheetWorldMeta[w.name]||{}).img;
+    var imgUrl=sheetImg||w.img;
+    document.getElementById('world-bg').innerHTML=imgUrl
+      ?`<img src="${imgUrl}" alt="${w.name}" style="width:100%;height:100%;object-fit:cover;filter:brightness(0.65) saturate(0.9);display:block" onerror="this.parentElement.innerHTML='${_grad.replace(/'/g,"\\'")}'">`
+      :_grad;
+  }
+  setWorldBg();
   document.getElementById('world-subtitle').textContent='/ '+w.name;
   document.getElementById('btn-back').style.display='inline-block';
   document.getElementById('mob-back').style.display='flex';
@@ -2019,7 +2058,17 @@ function enterWorld(w){
   var _cl0=getLots(w.name)[0];document.getElementById('calib-world-next').textContent=(_cl0?.nr||_cl0?.name||'—');
   document.getElementById('calib-world-count').textContent='0';
   exitBuilding();
-  fetchSheetLots(()=>{ renderLots(w); if(adminMode)renderAdminContent(); setTimeout(updateAllTokens,100); setTimeout(repositionTooltips,200); });
+  fetchSheetLots(()=>{
+    // Nach Sheet-Fetch: Bild + Rent nochmal setzen falls Sheet-Daten erst jetzt geladen
+    setWorldBg();
+    var box=document.getElementById('world-rent-info');
+    if(box){
+      var rent=(sheetWorldMeta[w.name]||{}).rent;
+      if(rent){box.innerHTML='<div class="rent-label">💰 Mietpreise</div>'+rent.replace(/\|/g,'<br>');box.classList.add('visible');}
+      else {box.classList.remove('visible');box.innerHTML='';}
+    }
+    renderLots(w); if(adminMode)renderAdminContent(); setTimeout(updateAllTokens,100); setTimeout(repositionTooltips,200);
+  });
 }
 
 let buildingFloorIdx=0,currentBuildingKey=null;
@@ -2171,6 +2220,12 @@ function goBack(){
   calibWorldMode=false;
   document.getElementById('calib-world-panel').style.display='none';
   document.getElementById('world-container').style.cursor='default';
+  // Zoom der Welt-Ansicht zurücksetzen damit beim nächsten Betreten nicht reingezoomt
+  if(window._worldZoom && window._worldZoom.reset) window._worldZoom.reset();
+  // Reset view states auf der Kontinentkarte
+  mapIA.querySelectorAll('.world-dot.show-tokens').forEach(d=>d.classList.remove('show-tokens'));
+  mapIA.classList.remove('focus-mode');
+  mapIA.querySelectorAll('.world-dot.focused').forEach(d=>d.classList.remove('focused'));
   try{sessionStorage.removeItem('atlas_world');sessionStorage.removeItem('atlas_building');}catch(e){}
   currentWorld=null;
 }
@@ -2701,10 +2756,9 @@ const _worldZoom=makePinchZoom(document.getElementById('world-image-area'),{
   guard:()=>calibWorldMode||posMode
 });
 const _mapZoom=makePinchZoom(document.getElementById('map-image-area'));
-
-// Reset zoom on world exit
-window._origExitWorld=window.exitWorld||null;
-window.exitWorld=function(){if(_worldZoom)_worldZoom.reset();if(window._origExitWorld)window._origExitWorld();};
+// Auf window exposen damit goBack() den Zoom resetten kann
+window._worldZoom=_worldZoom;
+window._mapZoom=_mapZoom;
 
 // Mobile bottom bar
 let _mobileDotUrl='';
