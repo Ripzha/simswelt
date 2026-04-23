@@ -1510,10 +1510,17 @@ function updateSidebarActivity(){
   var FOURTEEN_DAYS = 14*24*60*60*1000;
   function parseDate(d){
     if(!d) return null;
+    // Erst normales d.m.yyyy (vom Tracker)
     var parts=d.split('.');
-    if(parts.length<3) return null;
-    var dt=new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
-    return isNaN(dt.getTime()) ? null : dt;
+    if(parts.length>=3 && parts[0].length<=2 && parts[1].length<=2){
+      var dt=new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
+      if(!isNaN(dt.getTime())) return dt;
+    }
+    // Fallback: JS Date-String ("Tue Apr 21 2026...") oder ISO ("2026-04-21")
+    // — Sheets konvertiert manchmal Datum-Strings automatisch
+    var fallback = new Date(d);
+    if(!isNaN(fallback.getTime())) return fallback;
+    return null;
   }
   var active=CHARS.filter(function(c){
     if(!c.lastSeenName||!c.lastSeenUrl) return false;
@@ -1531,16 +1538,21 @@ function updateSidebarActivity(){
   var seen=new Set();
   var unique=active.filter(function(c){if(seen.has(c.n))return false;seen.add(c.n);return true;});
   var top=unique.slice(0,8);
-  // Fallback: wenn keine Chars mit aktuellem Datum vorhanden, zeige die mit irgendeinem Datum (älter als 14 Tage)
-  if(top.length === 0){
-    var fallback = CHARS.filter(function(c){
-      return c.lastSeenName && c.lastSeenUrl && parseDate(c.lastSeenDate);
+
+  // Auffüllen bis 8 mit Chars ohne Datum (Sheet-Reihenfolge) falls Platz
+  if(top.length < 8){
+    var already = new Set(top.map(function(c){return c.n;}));
+    var filler = CHARS.filter(function(c){
+      if(already.has(c.n)) return false;
+      return c.lastSeenName && c.lastSeenUrl;
     });
-    fallback.sort(function(a,b){
-      return parseDate(b.lastSeenDate) - parseDate(a.lastSeenDate);
+    var fseen = new Set();
+    var uniqueFiller = filler.filter(function(c){
+      if(fseen.has(c.n)) return false;
+      fseen.add(c.n);
+      return true;
     });
-    var fseen=new Set();
-    top = fallback.filter(function(c){if(fseen.has(c.n))return false;fseen.add(c.n);return true;}).slice(0,8);
+    top = top.concat(uniqueFiller.slice(0, 8 - top.length));
   }
   el.innerHTML=top.map(function(c){
     var color=WORLD_COLORS[c.lastSeenName]||'#4a6a7a';
