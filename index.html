@@ -56,7 +56,9 @@ html{overscroll-behavior:none}
   #world-image-area .lot-dot.show-tokens .dot-char-tokens{display:flex!important}
   .world-dot .dot-pulse{width:18px!important;height:18px!important}
   .world-dot .dot-inner{width:6px!important;height:6px!important}
+  /* Hover-Card (Welt-Vorschau) standardmässig weg, aber bei show-tokens sichtbar */
   .hover-card{display:none!important}
+  .world-dot.show-tokens .hover-card{display:block!important}
   #mobile-dot-bar{display:none}
   #mobile-dot-bar.visible{display:flex}
 }
