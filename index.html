@@ -1640,7 +1640,9 @@ function getCharsAtLot(lot){
 function getCharsAtWorld(worldName){
   if(!worldName) return [];
   return CHARS.filter(function(c){
-    return c.lastSeenName && c.lastSeenName.toLowerCase()===worldName.toLowerCase();
+    // Nur Chars mit lastSeenName UND lastSeenUrl zeigen —
+    // wenn URL gelöscht wurde verschwindet der Token
+    return c.lastSeenName && c.lastSeenUrl && c.lastSeenName.toLowerCase()===worldName.toLowerCase();
   });
 }
 function parseLotLabel(lot){
