@@ -48,9 +48,21 @@ html{overscroll-behavior:none}
 @media(pointer:coarse){
   /* Labels versteckt, nur bei Zoom sichtbar */
   .lot-label,.dot-label,.cluster-label{display:none}
-  .zoom-labels .lot-label,.zoom-labels .dot-label,.zoom-labels .cluster-label{display:block}
-  /* Char-Tokens auf Mobile Kontinentkarte kleiner — weniger überladen */
+  /* Wenn reingezoomt: Labels sichtbar mit dunklem Background-Pill damit sie nicht überlagern */
+  .zoom-labels .lot-label,.zoom-labels .dot-label,.zoom-labels .cluster-label{
+    display:inline-block;
+    background:rgba(0,0,0,0.75);
+    padding:2px 7px;
+    border-radius:10px;
+    font-size:10px;
+    font-weight:600;
+    text-shadow:none;
+    backdrop-filter:blur(3px);
+    z-index:10;
+  }
+  /* Char-Tokens rausgezoomt kleiner — beim Reinzoomen ganz weg damit Welten sichtbar */
   #map-image-area .dot-char-tokens{transform:translateX(-50%) scale(0.7);top:14px!important}
+  #map-image-area.zoom-labels .dot-char-tokens{display:none!important}
   .world-dot .dot-pulse{width:18px!important;height:18px!important}
   .world-dot .dot-inner{width:6px!important;height:6px!important}
   .hover-card{display:none!important}
