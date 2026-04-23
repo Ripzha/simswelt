@@ -6,7 +6,8 @@
 <title>Simswelt — Projekt ATLAS</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:flex;flex-direction:column;overflow:hidden;overscroll-behavior:none}
+html{overscroll-behavior:none}
 #topnav{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(0,0,0,0.75);border-bottom:0.5px solid rgba(255,255,255,0.08);flex-shrink:0;z-index:100}
 .logo{display:flex;align-items:center;gap:8px}
 .logo-icon{width:24px;height:24px;background:#2a5a3a;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
@@ -34,7 +35,7 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 .stat-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
 .stat-key{color:rgba(255,255,255,0.4)}
 #discord-btn{margin-top:auto;padding:8px 10px;background:rgba(88,101,242,0.15);border:0.5px solid rgba(88,101,242,0.3);border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:7px}
-#map-container,#world-container{position:absolute;inset:0;display:none}
+#map-container,#world-container{position:absolute;inset:0;display:none;touch-action:none}
 #map-container.active,#world-container.active{display:block}
 #map-bg{position:absolute;inset:0;overflow:hidden}
 #map-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(0.7) saturate(0.85);display:block}
@@ -45,8 +46,11 @@ body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:
 #map-image-area{position:relative;flex-shrink:0;max-width:100%;max-height:100%;overflow:visible;transform-origin:0 0}
 #world-bg,#world-container,#map-container{background:#040d14}
 @media(pointer:coarse){
+  /* Labels versteckt, nur bei Zoom sichtbar */
   .lot-label,.dot-label,.cluster-label{display:none}
   .zoom-labels .lot-label,.zoom-labels .dot-label,.zoom-labels .cluster-label{display:block}
+  /* Char-Tokens auf Mobile Kontinentkarte kleiner — weniger überladen */
+  #map-image-area .dot-char-tokens{transform:translateX(-50%) scale(0.7);top:14px!important}
   .world-dot .dot-pulse{width:18px!important;height:18px!important}
   .world-dot .dot-inner{width:6px!important;height:6px!important}
   .hover-card{display:none!important}
@@ -2475,10 +2479,16 @@ function makePinchZoom(el,opts={}){
     const ww=wrap.clientWidth,wh=wrap.clientHeight;
     const ew=el.offsetWidth,eh=el.offsetHeight;
     const sw=ew*sc,sh=eh*sc;
-    const maxTx=Math.max(0,(sw-ww)/2);
-    const maxTy=Math.max(0,(sh-wh)/2);
-    if(sw<=ww){tx=0;}else{tx=clamp(tx,-maxTx,maxTx);}
-    if(sh<=wh){ty=0;}else{ty=clamp(ty,-maxTy,maxTy);}
+    // Auf Mobile: bei Scale > 1 vertikales Pan erlauben auch wenn
+    // Element kleiner als Wrap (sonst bleibt Karte in der Mitte gefangen).
+    // Das ist nötig weil das Kontinentbild 16:9 ist aber der Screen hochkant.
+    const isTouch = window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
+    const isZoomed = sc > 1.05;
+    const allowExtraPan = isTouch && isZoomed;
+    const maxTx=Math.max(allowExtraPan?(sw/2):0,(sw-ww)/2);
+    const maxTy=Math.max(allowExtraPan?(sh/2):0,(sh-wh)/2);
+    if(sw<=ww && !allowExtraPan){tx=0;}else{tx=clamp(tx,-maxTx,maxTx);}
+    if(sh<=wh && !allowExtraPan){ty=0;}else{ty=clamp(ty,-maxTy,maxTy);}
   }
   function reset(){tx=0;ty=0;sc=1;apply();}
   wrap.addEventListener('touchstart',e=>{
