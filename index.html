@@ -2001,7 +2001,7 @@ function enterWorld(w){
     if(!box)return;
     var rent=(sheetWorldMeta[w.name]||{}).rent;
     if(rent){
-      box.innerHTML=rent.replace(/\|/g,'<br>');
+      box.innerHTML='<div class="rent-label">💰 Mietpreise</div>'+rent.replace(/\|/g,'<br>');
       box.classList.add('visible');
     } else {
       box.classList.remove('visible');
@@ -2037,7 +2037,7 @@ function enterBuilding(buildingKey,lots){
     if(!box)return;
     var rent=currentWorld ? (sheetWorldMeta[currentWorld.name]||{}).rent : '';
     if(rent){
-      box.innerHTML=rent.replace(/\|/g,'<br>');
+      box.innerHTML='<div class="rent-label">💰 Mietpreise</div>'+rent.replace(/\|/g,'<br>');
       box.classList.add('visible');
     } else {
       box.classList.remove('visible');
