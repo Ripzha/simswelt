@@ -68,6 +68,37 @@ html{overscroll-behavior:none}
 #world-header{position:absolute;top:0;left:0;right:0;padding:10px 14px;background:linear-gradient(rgba(0,0,0,0.7),transparent);z-index:5;pointer-events:none}
 #world-header .wh-name{font-size:16px;font-weight:500}
 #world-header .wh-sub{font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px}
+.rent-info-box{
+  position:absolute;
+  top:52px;
+  left:14px;
+  z-index:6;
+  background:rgba(5,15,28,0.85);
+  border:0.5px solid rgba(74,170,106,0.35);
+  border-radius:10px;
+  padding:7px 11px;
+  font-size:11px;
+  color:rgba(255,255,255,0.82);
+  line-height:1.45;
+  max-width:200px;
+  backdrop-filter:blur(6px);
+  box-shadow:0 4px 14px rgba(0,0,0,0.4);
+  pointer-events:none;
+  display:none;
+  white-space:pre-line;
+}
+.rent-info-box.visible{display:block}
+.rent-info-box .rent-label{
+  font-size:8px;
+  letter-spacing:1.5px;
+  color:rgba(74,170,106,0.85);
+  text-transform:uppercase;
+  margin-bottom:3px;
+  font-weight:600;
+}
+@media(max-width:600px){
+  .rent-info-box{top:48px;left:10px;font-size:10px;padding:5px 9px;max-width:160px}
+}
 .legend-btn{position:absolute;top:50px;left:12px;background:rgba(0,0,0,0.55);border:0.5px solid rgba(255,255,255,0.12);border-radius:6px;padding:4px 10px;font-size:10px;color:rgba(255,255,255,0.45);cursor:pointer;z-index:15;user-select:none}
 .legend-btn:hover{color:#fff}
 .legend-box{position:absolute;top:78px;left:12px;background:rgba(0,0,0,0.9);border:0.5px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 13px;z-index:15;display:none;min-width:185px}
@@ -164,6 +195,20 @@ html{overscroll-behavior:none}
 .cluster-item:hover{background:rgba(255,255,255,0.08)}
 .cluster-item-preview{position:absolute;right:calc(100% + 8px);top:50%;transform:translateY(-50%);width:150px;height:100px;object-fit:cover;border-radius:6px;display:none;pointer-events:none;z-index:60;box-shadow:0 4px 16px rgba(0,0,0,0.9);border:0.5px solid rgba(255,255,255,0.15)}
 .cluster-item:hover .cluster-item-preview{display:block}
+.cluster-item.preview-active{background:rgba(74,170,106,0.18);outline:1px solid rgba(74,170,106,0.55)}
+.cluster-item.preview-active .cluster-item-preview{display:block}
+@media(pointer:coarse){
+  /* Preview-Bild bei Mobile unter dem Item statt links */
+  .cluster-item .cluster-item-preview{
+    position:static;
+    transform:none;
+    width:100%;
+    height:80px;
+    margin-top:6px;
+    display:none;
+  }
+  .cluster-item.preview-active{display:flex;flex-direction:column;align-items:stretch;gap:0}
+}
 .cluster-pip{width:5px;height:5px;border-radius:50%;flex-shrink:0}
 .building-dot .cluster-inner{background:rgba(100,160,255,0.2)!important;border-color:rgba(100,160,255,0.6)!important}
 .cluster-hover{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(5,12,22,0.97);border-radius:9px;overflow:hidden;z-index:30;pointer-events:none;min-width:165px;display:none}
@@ -390,6 +435,7 @@ html{overscroll-behavior:none}
         <div class="wh-name" id="world-name-display"></div>
         <div class="wh-sub" id="world-type-display"></div>
       </div>
+      <div id="world-rent-info" class="rent-info-box"></div>
       <div id="building-container">
         <div id="building-bg"><div id="building-bg-inner" style="position:relative;width:100%;aspect-ratio:1920/1200;max-height:100%"></div></div>
         <div class="vignette"></div>
@@ -397,6 +443,7 @@ html{overscroll-behavior:none}
           <div id="building-name" style="font-size:15px;font-weight:500"></div>
           <div style="font-size:10px;color:rgba(255,255,255,0.45);margin-top:2px">Wohnungen — klick zum Öffnen</div>
         </div>
+        <div id="building-rent-info" class="rent-info-box"></div>
         <div id="floor-nav" style="position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:30;display:none;flex-direction:column;align-items:center;gap:6px;padding:10px 8px;background:rgba(5,13,24,0.85);border-radius:10px 0 0 10px;border:0.5px solid rgba(255,255,255,0.12);border-right:none;backdrop-filter:blur(8px)">
           <button id="floor-up-btn" onclick="changeBuildingFloor(-1)" style="background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;font-size:20px;width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center">▲</button>
           <span id="floor-label" style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);min-width:32px;text-align:center"></span>
@@ -1269,6 +1316,7 @@ function saveRenamed(){localStorage.setItem('sw_renamed_lots',JSON.stringify(ren
 
 // Sheet-Daten für Lots (aus Google Sheets)
 var sheetLots = {}; // {worldName: {nr: {name, threadUrl, imgUrl}}}
+var sheetWorldMeta = {}; // {worldName: {rent: '...'}} — Zeilen ohne nr
 var sheetLotsLoaded = false;
 
 function fetchSheetLots(cb){
@@ -1284,13 +1332,24 @@ function fetchSheetLots(cb){
       const urlIdx = headers.indexOf('thread url');
       const imgIdx = headers.indexOf('bild url');
       const groupIdx = headers.indexOf('dot-gruppe');
+      const rentIdx = headers.indexOf('mietinfo');
       sheetLots = {};
+      sheetWorldMeta = {};
       rows.slice(1).filter(r=>r.trim()).forEach(r=>{
         const cols = r.split(',');
-        const get = i => (cols[i]||'').replace(/"/g,'').trim();
+        const get = i => i<0 ? '' : (cols[i]||'').replace(/"/g,'').trim();
         const world = get(wIdx);
         const nr = get(nIdx);
-        if(!world || !nr) return;
+        if(!world) return;
+        // Welt-Meta-Zeile: nur welt gesetzt, kein nr — enthält z.B. Mietinfo
+        if(!nr){
+          const rent = get(rentIdx);
+          if(rent){
+            if(!sheetWorldMeta[world]) sheetWorldMeta[world] = {};
+            sheetWorldMeta[world].rent = rent;
+          }
+          return;
+        }
         if(!sheetLots[world]) sheetLots[world] = {};
         const dotGroup = get(groupIdx).replace(/\.0$/, '');
         // Handle # placeholder: strip # and mark as placeholder
@@ -1747,6 +1806,9 @@ if(window.matchMedia('(pointer:coarse)').matches){
     if(!e.target.closest('.lot-dot') && !e.target.closest('#mobile-dot-bar')){
       document.querySelectorAll('.lot-dot.show-tokens').forEach(d=>d.classList.remove('show-tokens'));
     }
+    if(!e.target.closest('.cluster-item')){
+      document.querySelectorAll('.cluster-item.preview-active').forEach(i=>i.classList.remove('preview-active'));
+    }
   });
 }
 // Update tokens after worlds are rendered
@@ -1924,6 +1986,19 @@ function enterWorld(w){
   sizeWorldImageArea();
   document.getElementById('world-name-display').textContent=w.name;
   document.getElementById('world-type-display').textContent=w.type;
+  // Rent-Info aus Sheet-Meta (Zeile mit welt=... aber ohne nr)
+  (function(){
+    var box=document.getElementById('world-rent-info');
+    if(!box)return;
+    var rent=(sheetWorldMeta[w.name]||{}).rent;
+    if(rent){
+      box.innerHTML='<div class="rent-label">💰 Mietpreise</div>'+rent.replace(/\|/g,'<br>');
+      box.classList.add('visible');
+    } else {
+      box.classList.remove('visible');
+      box.innerHTML='';
+    }
+  })();
   const _grad=`<div style="position:absolute;inset:0;background:linear-gradient(135deg,${w.color}33,#0a1420)"></div>`;
   document.getElementById('world-bg').innerHTML=w.img
     ?`<img src="${w.img}" alt="${w.name}" style="width:100%;height:100%;object-fit:cover;filter:brightness(0.65) saturate(0.9);display:block" onerror="this.parentElement.innerHTML='${_grad.replace(/'/g,"\\'")}'">`
@@ -1946,6 +2021,19 @@ function enterBuilding(buildingKey,lots){
   const data=BUILDINGS[buildingKey];
   bc.style.display='block';
   document.getElementById('building-name').textContent=buildingKey;
+  // Rent-Info auch in Building-Ansicht zeigen (von aktueller Welt)
+  (function(){
+    var box=document.getElementById('building-rent-info');
+    if(!box)return;
+    var rent=currentWorld ? (sheetWorldMeta[currentWorld.name]||{}).rent : '';
+    if(rent){
+      box.innerHTML='<div class="rent-label">💰 Mietpreise</div>'+rent.replace(/\|/g,'<br>');
+      box.classList.add('visible');
+    } else {
+      box.classList.remove('visible');
+      box.innerHTML='';
+    }
+  })();
   const imgs=data?.imgs||[];
   const nav=document.getElementById('floor-nav');
   if(imgs.length>1){nav.style.display='flex';updateFloorNav(imgs);}
@@ -2144,13 +2232,31 @@ function renderLots(w){
       })();
       const lbl=lblParts.sub?`${lblParts.main}<span class="lot-sublabel">${lblParts.sub}</span>`:lblParts.main;
       const lblPlain=lblParts.sub?`${lblParts.main} · ${lblParts.sub}`:lblParts.main;
-      const itemsHtml=group.lots.map(l=>`<div class="cluster-item" onclick="window.open('${l.url}','_blank');event.stopPropagation()">${l.img?`<img class="cluster-item-preview" src="${l.img}">`:''}><div class="cluster-pip" style="background:${l.active?'#4aaa6a':'rgba(255,255,255,0.4)'}"></div>${parseLotLabel(l).num}${parseLotLabel(l).sub?` <span style="color:rgba(255,255,255,0.45);font-size:10px">– ${parseLotLabel(l).sub}</span>`:''}</div>`).join('');
+      const itemsHtml=group.lots.map(l=>`<div class="cluster-item" data-url="${l.url}">${l.img?`<img class="cluster-item-preview" src="${l.img}">`:''}<div class="cluster-pip" style="background:${l.active?'#4aaa6a':'rgba(255,255,255,0.4)'}"></div>${parseLotLabel(l).num}${parseLotLabel(l).sub?` <span style="color:rgba(255,255,255,0.45);font-size:10px">– ${parseLotLabel(l).sub}</span>`:''}</div>`).join('');
       const lotsWithImg=group.lots.filter(l=>l.img);
       const buildingImg=isBuilding?group.lots.find(l=>l.img)?.img:null;
       const clusterHoverHtml=isBuilding&&buildingImg
         ?`<div class="cluster-hover" style="border:1px solid ${color}88;box-shadow:0 6px 28px ${color}44;min-width:180px"><img src="${buildingImg}" style="width:100%;height:110px;object-fit:cover;display:block"><div class="hover-footer"><span class="hover-type">${lblPlain}</span><span class="hover-action" style="color:${color}">Betreten →</span></div></div>`
         :(!isBuilding&&lotsWithImg.length>0)?`<div class="cluster-hover" style="border:1px solid ${color}88;box-shadow:0 6px 28px ${color}44"><div style="display:flex;gap:1px">${lotsWithImg.map(l=>`<div style="position:relative;flex:1;min-width:0"><img src="${l.img}" style="width:100%;height:75px;object-fit:cover;display:block"><div style="position:absolute;bottom:3px;left:5px;font-size:8px;font-weight:600;text-shadow:0 1px 3px #000;color:#fff">${parseLotLabel(l).num}</div></div>`).join('')}</div><div class="hover-footer"><span class="hover-type">${group.lots.length} Orte</span><span class="hover-action" style="color:${color}">Klicken →</span></div></div>`:'';
       cd.innerHTML=`<div class="cluster-inner" style="color:${color};border-color:${color};box-shadow:0 0 8px ${color}44">${isBuilding?'🏢':group.lots.length}</div><div class="cluster-label">${lbl}</div>${clusterHoverHtml}${isBuilding?'':` <div class="cluster-popup"><div style="font-size:10px;color:rgba(255,165,0,0.7);margin-bottom:6px;padding:0 4px">📦 ${group.lots.length} Orte</div>${itemsHtml}</div>`}`;
+      // Cluster-Items: Zwei-Klick-Verhalten auf Mobile, direkt Öffnen auf Desktop
+      cd.querySelectorAll('.cluster-item').forEach(item=>{
+        item.addEventListener('click',e=>{
+          e.stopPropagation();
+          const url=item.getAttribute('data-url');
+          if(!url)return;
+          if(window.matchMedia('(pointer:coarse)').matches){
+            if(item.classList.contains('preview-active')){
+              window.open(url,'_blank');
+              return;
+            }
+            cd.querySelectorAll('.cluster-item.preview-active').forEach(i=>{if(i!==item)i.classList.remove('preview-active');});
+            item.classList.add('preview-active');
+          } else {
+            window.open(url,'_blank');
+          }
+        });
+      });
       cd.addEventListener('click',e=>{
         e.stopPropagation();if(calibWorldMode||posMode)return;
         if(isBuilding){enterBuilding(buildings[0],group.lots);return;}
