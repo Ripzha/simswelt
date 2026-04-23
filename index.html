@@ -1288,10 +1288,21 @@ window.addEventListener('load',function(){
   updateSidebarStats();
   try{
     var saved=sessionStorage.getItem('atlas_world');
+    var savedBuilding=sessionStorage.getItem('atlas_building');
     if(saved){
       var w=worlds.find(function(x){return x.name===saved;});
       if(!w)w=otherworlds.find(function(x){return x.name===saved;});
-      if(w)setTimeout(function(){enterWorld(w);},100);
+      if(w)setTimeout(function(){
+        enterWorld(w);
+        // Nach enterWorld (welches fetchSheetLots triggert) auch Building restaurieren
+        if(savedBuilding){
+          setTimeout(function(){
+            // Finde Building-Lots in der aktuellen Welt
+            var lots=(worldLots[w.name]||[]).filter(function(l){return l.building===savedBuilding;});
+            if(lots.length && typeof enterBuilding==='function') enterBuilding(savedBuilding,lots);
+          },600);
+        }
+      },100);
     }
   }catch(e){}
 });
@@ -1976,9 +1987,7 @@ mapC.addEventListener('click',e=>{
 // NAVIGATION
 // ═══════════════════════════════════════════
 function enterWorld(w){
-  // Only persist otherworlds (not simswelt) across reload
-  const isOther=otherworlds.some(function(o){return o.name===w.name;});
-  try{if(isOther)sessionStorage.setItem('atlas_world',w.name);else sessionStorage.removeItem('atlas_world');}catch(e){}
+  try{sessionStorage.setItem('atlas_world',w.name);}catch(e){}
   currentWorld=w;
   mapC.classList.remove('active');
   const wc=document.getElementById('world-container');
@@ -1992,7 +2001,7 @@ function enterWorld(w){
     if(!box)return;
     var rent=(sheetWorldMeta[w.name]||{}).rent;
     if(rent){
-      box.innerHTML='<div class="rent-label">💰 Mietpreise</div>'+rent.replace(/\|/g,'<br>');
+      box.innerHTML=rent.replace(/\|/g,'<br>');
       box.classList.add('visible');
     } else {
       box.classList.remove('visible');
@@ -2021,13 +2030,14 @@ function enterBuilding(buildingKey,lots){
   const data=BUILDINGS[buildingKey];
   bc.style.display='block';
   document.getElementById('building-name').textContent=buildingKey;
+  try{sessionStorage.setItem('atlas_building',buildingKey);}catch(e){}
   // Rent-Info auch in Building-Ansicht zeigen (von aktueller Welt)
   (function(){
     var box=document.getElementById('building-rent-info');
     if(!box)return;
     var rent=currentWorld ? (sheetWorldMeta[currentWorld.name]||{}).rent : '';
     if(rent){
-      box.innerHTML='<div class="rent-label">💰 Mietpreise</div>'+rent.replace(/\|/g,'<br>');
+      box.innerHTML=rent.replace(/\|/g,'<br>');
       box.classList.add('visible');
     } else {
       box.classList.remove('visible');
@@ -2095,7 +2105,7 @@ function updateFloorNav(imgs){
   document.getElementById('floor-up-btn').style.opacity=buildingFloorIdx>0?'1':'0.3';
   document.getElementById('floor-down-btn').style.opacity=buildingFloorIdx<imgs.length-1?'1':'0.3';
 }
-function exitBuilding(){const bc=document.getElementById('building-container');if(bc)bc.style.display='none';}
+function exitBuilding(){const bc=document.getElementById('building-container');if(bc)bc.style.display='none';try{sessionStorage.removeItem('atlas_building');}catch(e){}}
 
 
 const OTHERWORLDS_DATA=[
@@ -2161,6 +2171,8 @@ function goBack(){
   calibWorldMode=false;
   document.getElementById('calib-world-panel').style.display='none';
   document.getElementById('world-container').style.cursor='default';
+  try{sessionStorage.removeItem('atlas_world');sessionStorage.removeItem('atlas_building');}catch(e){}
+  currentWorld=null;
 }
 
 // ═══════════════════════════════════════════
