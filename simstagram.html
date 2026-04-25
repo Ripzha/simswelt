@@ -1298,6 +1298,15 @@ loadFeed();
 }
 #melissa-reopen.visible { display: flex; }
 
+/* Reopen-Button verstecken wenn ein Modal/Overlay offen ist */
+body:has(.ov.open) #melissa-reopen,
+body:has(#pm-ov.open) #melissa-reopen,
+body:has(#co-ov.open) #melissa-reopen,
+body:has(#switch-intro.open) #melissa-reopen,
+body:has(.popup-wait.open) #melissa-reopen {
+  display: none !important;
+}
+
 /* Mobile Anpassungen */
 @media (max-width: 600px) {
   #melissa-overlay {
