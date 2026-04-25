@@ -1305,17 +1305,35 @@ loadFeed();
     align-items: center;
   }
   #melissa-fig { display: none; }
-  #melissa-bubble { width: 100%; max-width: 340px; }
+  #melissa-bubble {
+    width: 100%; max-width: 340px;
+    padding-right: 70px;
+    padding-top: 20px;
+  }
   #melissa-bubble::after, #melissa-bubble::before {
-    right: auto; left: 50%; transform: translateX(-50%);
+    display: none;
+  }
+  #melissa-mini-portrait {
+    display: block !important;
   }
   #melissa-reopen { right: 12px; bottom: 80px; }
+}
+#melissa-mini-portrait {
+  display: none;
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  border: 2px solid #ffa9f9;
+  object-fit: cover;
+  background: #14141c;
 }
 </style>
 
 <div id="melissa-overlay" class="hidden">
   <div id="melissa-bubble">
     <button id="melissa-close" title="Schliessen">&#x2715;</button>
+    <img id="melissa-mini-portrait" src="" alt="Melissa" />
     <div id="melissa-name-tag">Melissa</div>
     <div id="melissa-text"></div>
     <div id="melissa-dots"></div>
@@ -1447,6 +1465,8 @@ loadFeed();
     var imgIdx = (s.img !== undefined) ? s.img : 0;
     if (imgIdx >= IMGS.length) imgIdx = IMGS.length - 1;
     imgEl.src = IMGS[imgIdx];
+    var miniPortrait = document.getElementById('melissa-mini-portrait');
+    if (miniPortrait) miniPortrait.src = IMGS[imgIdx];
 
     var html = '<p style="margin:0 0 6px">' + s.text + '</p>';
     if (s.link) {
