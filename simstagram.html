@@ -76,13 +76,6 @@ button:active { transform: scale(.95); }
 }
 .hdr-btns { display: flex; gap: 8px; }
 .hdr-btns button { color: var(--sub); }
-.hdr-back {
-  display:inline-flex; align-items:center; justify-content:center;
-  width:34px; height:34px; border-radius:50%;
-  color: var(--sub); text-decoration:none;
-  transition: background 0.15s, color 0.15s;
-}
-.hdr-back:hover { background: rgba(255,255,255,0.08); color: var(--acc); }
 
 /* ─────────────────────────────────────────────────────
    SCROLLABLE CONTENT
@@ -222,7 +215,6 @@ button:active { transform: scale(.95); }
   animation: zoomin .2s ease;
 }
 @keyframes zoomin { from { opacity:0; transform:scale(.93); } to { opacity:1; transform:scale(1); } }
-@keyframes badgeIn { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
 
 @media (max-width: 600px) {
   .pm { width: 100vw; height: 100dvh; border-radius: 0; flex-direction: column; }
@@ -253,21 +245,7 @@ button:active { transform: scale(.95); }
 .cmt-body .ct-dim { color: var(--dim); font-size: 11px; display: block; margin-top: 2px; }
 
 .pm-bot { border-top: 1px solid var(--bdr); padding: 10px 13px;
-  flex-shrink: 0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.cmt-hint {
-  width: 100%; display: flex; align-items: flex-start; gap: 8px;
-  padding: 8px 10px; margin-bottom: 6px;
-  background: rgba(100,180,120,.08); border: 1px solid rgba(100,180,120,.2);
-  border-radius: 10px;
-  font-size: 11px; line-height: 1.45; color: var(--sub);
-}
-.cmt-hint svg { color: var(--acc); margin-top: 1px; }
-.cmt-hint span { flex: 1; }
-.cmt-hint-close {
-  background: none; border: none; color: var(--dim); font-size: 13px;
-  cursor: pointer; padding: 0 2px; line-height: 1; flex-shrink: 0;
-}
-.cmt-hint-close:hover { color: var(--txt); }
+  flex-shrink: 0; display: flex; gap: 8px; align-items: center; }
 .cmt-in {
   flex: 1; background: var(--s2) !important; border: 1.5px solid var(--bdr) !important;
   border-radius: 20px; padding: 8px 14px;
@@ -427,9 +405,6 @@ button:active { transform: scale(.95); }
 
   <!-- HEADER -->
   <header class="hdr">
-    <a href="https://www.simsforumrpg.de" class="hdr-back" title="Zurück zum Forum" aria-label="Zurück zum Forum">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-    </a>
     <span class="logo">Simstagram</span>
     <div class="hdr-btns">
       <button id="btn-compose" title="Neuer Post" onclick="openCompose()">
@@ -446,7 +421,6 @@ button:active { transform: scale(.95); }
     <div class="stories-wrap"><div class="stories" id="stories"></div></div>
     <div class="hdiv"></div>
     <div id="feed"></div>
-    <div style="text-align:center;padding:28px 16px 80px;font-size:11px;color:rgba(255,255,255,0.32)"><a href="https://www.simsforumrpg.de/faq.php#impressum" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-decoration-color:rgba(255,255,255,0.18)">Impressum</a></div>
   </div>
 
   <!-- FAB -->
@@ -465,7 +439,7 @@ button:active { transform: scale(.95); }
     <button title="Forum" onclick="window.open(XOBOR+'/forum.php','_blank')">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     </button>
-    <button title="Account wechseln / Profil" onclick="openAccountSwitch()">
+    <button title="Profil" onclick="window.open(XOBOR+'/member.php','_blank')">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     </button>
   </nav>
@@ -496,11 +470,6 @@ button:active { transform: scale(.95); }
           <div id="pm-cmts"><span style="color:var(--dim);font-size:12px">Lade…</span></div>
         </div>
         <div class="pm-bot">
-          <div id="cmt-hint" class="cmt-hint" style="display:none">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            <span><strong>So kommentierst du:</strong> Tippe deinen Text hier, klicke Senden. Ein Forum-Fenster öffnet sich. Ins Textfeld klicken, <strong>Strg+V</strong> drücken (Text ist bereits kopiert), dann "Kommentar speichern".</span>
-            <button class="cmt-hint-close" onclick="dismissCmtHint()" title="Nicht mehr zeigen">✕</button>
-          </div>
           <textarea class="cmt-in" id="cmtIn" rows="1"
             placeholder="Kommentar tippen…"
             oninput="autoH(this)"
@@ -551,38 +520,6 @@ button:active { transform: scale(.95); }
       <button class="post-btn" id="p-btn" onclick="submitPost()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         Weiter zum Posten
-      </button>
-    </div>
-  </div>
-
-  <!-- ═══ ACCOUNT-SWITCH INTRO ═══ -->
-  <div class="ov cov" id="switch-intro" onclick="if(event.target===this)closeSwitchIntro()">
-    <div class="cs" style="max-width:420px">
-      <div class="cs-handle"></div>
-      <div class="cs-top">
-        <h2>Account wechseln</h2>
-        <button onclick="closeSwitchIntro()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-        </button>
-      </div>
-      <div class="cs-body">
-        <div class="infobox" style="line-height:1.55">
-          <p style="margin:0 0 10px">
-            Simstagram-Posts schreibst du als einer deiner <strong>Charakter-Accounts</strong> (z.B. Blaze, Artjom). Um zu wechseln, nutzt du das Forum — direkt hier aus Simstagram öffnet sich ein kleines Forum-Fenster.
-          </p>
-          <p style="margin:0 0 10px"><strong>So geht's:</strong></p>
-          <ol style="margin:0 0 10px; padding-left:18px">
-            <li>Im Forum-Fenster oben rechts auf dein <strong>Profilbild</strong> klicken</li>
-            <li>Unter „Charakter wechseln" auf den gewünschten Char tippen</li>
-            <li>Fenster schliessen — Simstagram lädt sich neu</li>
-          </ol>
-          <p style="margin:0; color:var(--sub); font-size:12px">
-            Keine Passwörter in Simstagram gespeichert — Account-Wechsel passiert komplett im Forum.
-          </p>
-        </div>
-      </div>
-      <button class="post-btn" onclick="confirmSwitchIntro()">
-        Verstanden, weiter
       </button>
     </div>
   </div>
@@ -640,31 +577,9 @@ let pwTimer  = null;   // popup-watch interval
 // ╔══════════════════════════════════════════════════════════╗
 //   LOAD FEED
 // ╚══════════════════════════════════════════════════════════╝
-// ─ Feed-Cache ─
-const FEED_CACHE_KEY = 'atlas_simstagram_feed';
-const FEED_CACHE_TTL = 30 * 60 * 1000; // 30 Min
-function _loadFeedCache(){try{const s=localStorage.getItem(FEED_CACHE_KEY);if(!s)return null;const o=JSON.parse(s);if(!o||!o.t||!o.d)return null;if(Date.now()-o.t>FEED_CACHE_TTL)return null;return o.d;}catch(e){return null;}}
-function _saveFeedCache(data){try{localStorage.setItem(FEED_CACHE_KEY,JSON.stringify({t:Date.now(),d:data}));}catch(e){}}
-
-async function loadFeed(force = false) {
+async function loadFeed(showSpinner = true) {
   const feed = $('feed');
-  const cached = force ? null : _loadFeedCache();
-
-  if (cached) {
-    // Cache sofort rendern
-    posts = cached;
-    curPage = 0;
-    buildStories();
-    buildFeed();
-    lazyLoadImages();
-    setTimeout(preloadOtherPages, 1000);
-    // Im Hintergrund aktualisieren
-    _backgroundRefresh();
-    return;
-  }
-
-  // Kein Cache → normal laden mit Spinner
-  feed.innerHTML = `<div class="status"><div class="spin"></div><span>Posts laden…</span></div>`;
+  if (showSpinner) feed.innerHTML = `<div class="status"><div class="spin"></div><span>Posts laden…</span></div>`;
   try {
     const res  = await fetch(APPSSCRIPT_FEED);
     const raw  = await res.text();
@@ -681,12 +596,9 @@ async function loadFeed(force = false) {
     }
 
     if (!posts.length) throw new Error('Keine Posts gefunden. Das Apps Script gibt ein leeres Array zurück.');
-    _saveFeedCache(posts);
     curPage = 0;
     buildStories();
     buildFeed();
-    lazyLoadImages();
-    setTimeout(preloadOtherPages, 1000);
   } catch(e) {
     feed.innerHTML = `<div class="status">
       <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--dim)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
@@ -695,48 +607,6 @@ async function loadFeed(force = false) {
     </div>`;
     console.error('[Simstagram] Feed error:', e);
   }
-}
-
-// Hintergrund-Refresh: lädt neue Daten, zeigt Badge wenn was neu ist
-async function _backgroundRefresh() {
-  try {
-    const res = await fetch(APPSSCRIPT_FEED);
-    const raw = await res.text();
-    let data;
-    try { data = JSON.parse(raw); } catch(e){ return; }
-    const freshPosts = Array.isArray(data) ? data : (data.posts || data.items || data.data || []);
-    if (!freshPosts.length) return;
-    // Vergleiche: wieviele Posts sind neu?
-    const oldIds = new Set(posts.map(p => F(p,'url') || F(p,'id') || F(p,'title')));
-    const newOnes = freshPosts.filter(p => !oldIds.has(F(p,'url') || F(p,'id') || F(p,'title')));
-    _saveFeedCache(freshPosts);
-    if (newOnes.length > 0) {
-      _showNewPostsBadge(newOnes.length, freshPosts);
-    }
-  } catch(e) { /* stille Fehler im Hintergrund */ }
-}
-
-// Badge oben im Feed: "2 neue Posts — tippen zum Laden"
-function _showNewPostsBadge(count, freshPosts) {
-  let b = document.getElementById('new-posts-badge');
-  if (!b) {
-    b = document.createElement('div');
-    b.id = 'new-posts-badge';
-    b.style.cssText = 'position:sticky;top:8px;z-index:10;margin:8px auto 0;padding:8px 16px;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);width:fit-content;display:flex;align-items:center;gap:6px;animation:badgeIn 0.3s ease-out';
-    const scrollArea = document.querySelector('.scroll-area');
-    if (scrollArea) scrollArea.insertBefore(b, scrollArea.firstChild);
-  }
-  b.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>${count} neue${count===1?'r Post':' Posts'} — tippen zum Laden`;
-  b.onclick = () => {
-    posts = freshPosts;
-    curPage = 0;
-    buildStories();
-    buildFeed();
-    lazyLoadImages();
-    setTimeout(preloadOtherPages, 1000);
-    b.remove();
-    document.querySelector('.scroll-area')?.scrollTo({top:0, behavior:'smooth'});
-  };
 }
 
 // ╔══════════════════════════════════════════════════════════╗
@@ -800,137 +670,35 @@ function goPage(p) {
   lazyLoadImages();
 }
 
-// ─ Image + Content Cache (überlebt 1 Stunde) ─
-const IMG_CACHE_KEY = 'atlas_sim_imgs';
-const IMG_CACHE_TTL = 60 * 60 * 1000; // 1h
-function _loadImgCache(){try{const s=localStorage.getItem(IMG_CACHE_KEY);if(!s)return{};const o=JSON.parse(s);if(!o||Date.now()-(o.t||0)>IMG_CACHE_TTL)return{};return o.d||{};}catch(e){return{};}}
-function _saveImgCache(map){try{localStorage.setItem(IMG_CACHE_KEY,JSON.stringify({t:Date.now(),d:map}));}catch(e){}}
-
-// Parallele Version: holt alle Bilder einer Seite gleichzeitig.
-// Zeigt Cache sofort. Wenn ein Cache-Eintrag noch nicht mit dem
-// aktuellen Apps Script verifiziert wurde (v!=1), wird er im
-// Hintergrund gegengeprüft — aber nur einmal pro Post.
 async function lazyLoadImages() {
   const start = curPage * PER_PAGE;
   const pagePosts = posts.slice(start, start + PER_PAGE);
-  const imgCache = _loadImgCache();
-  const CACHE_VERSION = 1; // hochzählen um alle Caches neu zu validieren
-
-  // Erst aus Cache einsetzen falls vorhanden
-  pagePosts.forEach((p, i) => {
+  for (let i = 0; i < pagePosts.length; i++) {
+    const p = pagePosts[i];
+    if (F(p,'image')) continue; // already has image
     const url = F(p,'url');
-    if (!url || F(p,'image')) return;
-    const cached = imgCache[url];
-    if (cached && cached.image) {
-      p.image = cached.image;
-      if (cached.content && !F(p,'content')) p.content = cached.content;
-      _patchCardImage(start+i, cached.image);
-    }
-  });
-
-  // Nur fetchen wenn: kein Cache vorhanden ODER Cache noch nicht mit aktueller Version verifiziert
-  const toFetch = pagePosts.map((p, i) => ({p, i})).filter(({p}) => {
-    const url = F(p,'url');
-    if (!url) return false;
-    const c = imgCache[url];
-    if (!c) return true;                      // keine Info → holen
-    if (c.v !== CACHE_VERSION) return true;   // alte Version → re-validieren
-    return false;                              // schon verifiziert → skip
-  });
-  if (!toFetch.length) return;
-
-  await Promise.all(toFetch.map(async ({p, i}) => {
-    const url = F(p,'url');
+    if (!url) continue;
     try {
       const r = await fetch(`${APPSSCRIPT}?action=post&url=${encodeURIComponent(url)}`);
       const d = await r.json();
-      const prevImage = F(p,'image');
-      const newImage = d.image || '';
-      if (newImage !== prevImage) {
-        p.image = newImage;
-        if (newImage) _patchCardImage(start+i, newImage);
-        else _removeCardImage(start+i);
+      if (d.image) {
+        p.image = d.image;
+        // Update the card's image without full rebuild
+        const card = document.querySelector(`.card[data-i="${start+i}"]`);
+        if (card && !card.querySelector('.ci')) {
+          const actDiv = card.querySelector('.ca');
+          if (actDiv) {
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'ci';
+            imgDiv.onclick = () => openPost(start+i);
+            imgDiv.innerHTML = `<img src="${X(d.image)}" loading="lazy" alt="">`;
+            card.insertBefore(imgDiv, actDiv);
+          }
+        }
       }
       if (d.content && !F(p,'content')) p.content = d.content;
-      imgCache[url] = {
-        image: newImage,
-        content: d.content || F(p,'content') || '',
-        v: CACHE_VERSION
-      };
     } catch(_) {}
-  }));
-
-  _saveImgCache(imgCache);
-}
-
-// Hilfsfunktion: Bild in bestehende Card einfügen oder updaten
-function _patchCardImage(i, image) {
-  const card = document.querySelector(`.card[data-i="${i}"]`);
-  if (!card) return;
-  const existing = card.querySelector('.ci');
-  if (existing) {
-    // Wenn es schon ein Bild gibt, src aktualisieren falls anders
-    const img = existing.querySelector('img');
-    if (img && img.src !== image) img.src = image;
-    return;
   }
-  const actDiv = card.querySelector('.ca');
-  if (!actDiv) return;
-  const imgDiv = document.createElement('div');
-  imgDiv.className = 'ci';
-  imgDiv.onclick = () => openPost(i);
-  imgDiv.innerHTML = `<img src="${X(image)}" loading="lazy" alt="">`;
-  card.insertBefore(imgDiv, actDiv);
-}
-
-// Hilfsfunktion: Bild aus Card entfernen (wenn Apps Script sagt "kein Bild")
-function _removeCardImage(i) {
-  const card = document.querySelector(`.card[data-i="${i}"]`);
-  if (!card) return;
-  const existing = card.querySelector('.ci');
-  if (existing) existing.remove();
-}
-
-// Im Hintergrund alle anderen Seiten vorladen (Bilder in Cache)
-async function preloadOtherPages() {
-  const totalPages = Math.ceil(posts.length / PER_PAGE);
-  const imgCache = _loadImgCache();
-  const CACHE_VERSION = 1;
-  let changed = false;
-
-  for (let page = 0; page < totalPages; page++) {
-    if (page === curPage) continue;
-    const start = page * PER_PAGE;
-    const pagePosts = posts.slice(start, start + PER_PAGE);
-    const toFetch = pagePosts.filter(p => {
-      const url = F(p,'url');
-      if (!url) return false;
-      const c = imgCache[url];
-      if (!c) return true;
-      if (c.v !== CACHE_VERSION) return true;
-      return false;
-    });
-    if (!toFetch.length) continue;
-
-    // Parallel pro Seite, aber Seiten nacheinander (sonst überlastet's Apps Script)
-    await Promise.all(toFetch.map(async p => {
-      const url = F(p,'url');
-      try {
-        const r = await fetch(`${APPSSCRIPT}?action=post&url=${encodeURIComponent(url)}`);
-        const d = await r.json();
-        if (d.image) p.image = d.image;
-        if (d.content && !F(p,'content')) p.content = d.content;
-        imgCache[url] = {
-          image: d.image || '',
-          content: d.content || '',
-          v: CACHE_VERSION
-        };
-        changed = true;
-      } catch(_) {}
-    }));
-  }
-
-  if (changed) _saveImgCache(imgCache);
 }
 
 function buildCard(p, i) {
@@ -1032,14 +800,6 @@ async function openPost(i) {
   const url   = F(p,'url');
   curPost = { p, i, url };
 
-  // Beim ersten Kommentar-Öffnen den Hilfe-Banner zeigen
-  try {
-    if (!localStorage.getItem('atlas_sim_cmthint_dismissed')) {
-      const h = document.getElementById('cmt-hint');
-      if (h) h.style.display = 'flex';
-    }
-  } catch(e) {}
-
   const ic = $('pm-img'), ie = $('pm-img-el');
   if (img) { ic.style.display=''; ie.src=img; ie.alt=title; } else { ic.style.display='none'; }
 
@@ -1066,34 +826,16 @@ async function openPost(i) {
   }
 }
 
-// ─ Kommentare-Cache ─
-const CMT_CACHE_TTL = 10 * 60 * 1000; // 10 Min
-function _loadCmtCache(url){try{const s=sessionStorage.getItem('atlas_sim_cmts_'+url);if(!s)return null;const o=JSON.parse(s);if(!o||!o.t||!o.d)return null;if(Date.now()-o.t>CMT_CACHE_TTL)return null;return o.d;}catch(e){return null;}}
-function _saveCmtCache(url,data){try{sessionStorage.setItem('atlas_sim_cmts_'+url,JSON.stringify({t:Date.now(),d:data}));}catch(e){}}
-
-async function fetchComments(url, force = false) {
+async function fetchComments(url) {
   const div = $('pm-cmts');
   if (!url) { div.innerHTML = '<span style="color:var(--dim);font-size:12px">Kein Link verfügbar.</span>'; return; }
-
-  // Cache sofort zeigen wenn vorhanden
-  if (!force) {
-    const cached = _loadCmtCache(url);
-    if (cached) {
-      if (cached.length) renderComments(cached, div);
-      else div.innerHTML = '<span style="color:var(--dim);font-size:12px">Noch keine Kommentare.</span>';
-      // Hintergrund-Refresh
-      _bgFetchComments(url, div, cached);
-      return;
-    }
-  }
-
   try {
+    // Apps Script als Proxy – fetcht Xobor serverseitig (kein CORS-Problem)
     const proxyUrl = `${APPSSCRIPT}?action=comments&url=${encodeURIComponent(url)}`;
     const r = await fetch(proxyUrl);
     const d = await r.json();
 
     if (d.error) throw new Error(d.error);
-    _saveCmtCache(url, d.comments || []);
     if (!d.comments || !d.comments.length) {
       div.innerHTML = '<span style="color:var(--dim);font-size:12px">Noch keine Kommentare.</span>';
       return;
@@ -1106,22 +848,6 @@ async function fetchComments(url, force = false) {
     </span>`;
     console.warn('[Simstagram] Comments error:', e);
   }
-}
-
-// Leiser Hintergrund-Refresh: wenn neue Kommentare, ersetze
-async function _bgFetchComments(url, div, oldCmts) {
-  try {
-    const r = await fetch(`${APPSSCRIPT}?action=comments&url=${encodeURIComponent(url)}`);
-    const d = await r.json();
-    if (d.error || !d.comments) return;
-    // Wenn sich was geändert hat: render neu
-    const oldLen = oldCmts ? oldCmts.length : 0;
-    if (d.comments.length !== oldLen) {
-      _saveCmtCache(url, d.comments);
-      if (d.comments.length) renderComments(d.comments, div);
-      else div.innerHTML = '<span style="color:var(--dim);font-size:12px">Noch keine Kommentare.</span>';
-    }
-  } catch(e) { /* stille Fehler */ }
 }
 
 function renderComments(cmts, div) {
@@ -1142,7 +868,7 @@ function renderComments(cmts, div) {
 function refreshCmts() {
   if (curPost?.url) {
     $('pm-cmts').innerHTML = '<span style="color:var(--dim);font-size:12px">Lade…</span>';
-    fetchComments(curPost.url, true);
+    fetchComments(curPost.url);
   }
 }
 
@@ -1150,12 +876,6 @@ function closePM() {
   $('pm-ov').classList.remove('open');
   document.body.style.overflow = '';
   curPost = null;
-}
-
-function dismissCmtHint() {
-  try { localStorage.setItem('atlas_sim_cmthint_dismissed', '1'); } catch(e) {}
-  const h = document.getElementById('cmt-hint');
-  if (h) h.style.display = 'none';
 }
 
 // ╔══════════════════════════════════════════════════════════╗
@@ -1166,21 +886,21 @@ function openCommentPopup() {
   const text = $('cmtIn').value.trim();
   const url  = curPost.url + '#com';
 
-  // Text in Zwischenablage kopieren (User muss Ctrl+V im Popup)
+  // Auto-copy comment text to clipboard → user just Ctrl+V in Xobor editor
   if (text && navigator.clipboard) {
     navigator.clipboard.writeText(text)
-      .then(() => toast('📋 Kommentar kopiert — im Fenster Strg+V einfügen', 'ok'))
-      .catch(() => toast('📋 Bitte Kommentar manuell kopieren', 'ok'));
+      .then(() => toast('📋 Kommentar kopiert — Ctrl+V im Fenster einfügen', 'ok'))
+      .catch(() => {});
   }
 
-  // Popup neben unsere UI öffnen
+  // Open popup positioned beside our UI (not on top)
   const w = 540, h = 480;
   const left = Math.min(screen.width - w - 10, window.screenX + window.outerWidth + 10);
   const top  = Math.max(10, window.screenY + 80);
   xPopup = window.open(url, 'xobor-comment',
     `width=${w},height=${h},left=${left},top=${top},scrollbars=yes,resizable=yes`);
 
-  // Watch auf Popup-Close → Kommentare refreshen
+  // No blocking overlay — just watch for popup close
   clearInterval(pwTimer);
   pwTimer = setInterval(() => {
     if (!xPopup || xPopup.closed) {
@@ -1190,54 +910,6 @@ function openCommentPopup() {
       autoH($('cmtIn'));
       setTimeout(() => refreshCmts(), 800);
       toast('Kommentare aktualisiert ✓', 'ok');
-    }
-  }, 1000);
-}
-
-// ╔══════════════════════════════════════════════════════════╗
-//   ACCOUNT SWITCH — Forum-Popup öffnen, User klickt auf Profil-Icon
-// ╚══════════════════════════════════════════════════════════╝
-let switchPopup = null;
-let switchWatch = null;
-
-function openAccountSwitch() {
-  // Beim ersten Mal: Overlay mit Erklärung
-  try {
-    if (!localStorage.getItem('atlas_sim_switchintro_seen')) {
-      $('switch-intro').classList.add('open');
-      document.body.style.overflow = 'hidden';
-      return;
-    }
-  } catch(e) {}
-  _doOpenSwitchPopup();
-}
-
-function closeSwitchIntro() {
-  $('switch-intro').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-function confirmSwitchIntro() {
-  try { localStorage.setItem('atlas_sim_switchintro_seen', '1'); } catch(e) {}
-  closeSwitchIntro();
-  _doOpenSwitchPopup();
-}
-
-function _doOpenSwitchPopup() {
-  const w = 540, h = 640;
-  const left = Math.min(screen.width - w - 10, window.screenX + window.outerWidth + 10);
-  const top  = Math.max(10, window.screenY + 80);
-  switchPopup = window.open('https://www.simsforumrpg.de/', 'xobor-switch',
-    `width=${w},height=${h},left=${left},top=${top},scrollbars=yes,resizable=yes`);
-  toast('👥 Klick im Forum auf dein Profilbild, dann auf den gewünschten Char', 'ok');
-
-  // Popup-Close überwachen → Simstagram reloaden damit neuer Account erkannt wird
-  clearInterval(switchWatch);
-  switchWatch = setInterval(() => {
-    if (!switchPopup || switchPopup.closed) {
-      clearInterval(switchWatch);
-      switchPopup = null;
-      loadFeed(true);
     }
   }, 1000);
 }
@@ -1406,13 +1078,6 @@ function Xnl(s) {
 function Q(s) { return JSON.stringify(s); }
 function $(id) { return document.getElementById(id); }
 
-// Auto-resize textarea auf Inhalt (wird via oninput aufgerufen)
-function autoH(el) {
-  if (!el) return;
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 72) + 'px';
-}
-
 let _tt;
 function toast(msg, type = '') {
   const el = $('toast');
@@ -1495,10 +1160,380 @@ function showDebug(rawData, parsedPosts) {
 // ╚══════════════════════════════════════════════════════════╝
 
 // Show which domain is active (for debugging)
-if (IS_TEST) console.log('[Simstagram] TEST-Modus → ' + XOBOR);
-else         console.log('[Simstagram] Produktion → ' + XOBOR);
+if (IS_TEST) console.info('[Simstagram] TEST-Modus → ' + XOBOR);
+else         console.info('[Simstagram] Produktion → ' + XOBOR);
 
 loadFeed();
 </script>
+
+<!-- ============================================================
+     MELISSA GUIDE START — zum Entfernen alles bis MELISSA GUIDE END löschen
+     ============================================================ -->
+<style>
+#melissa-overlay {
+  position: fixed; bottom: 80px; right: 20px; z-index: 99998;
+  display: flex; flex-direction: column; align-items: flex-end;
+  gap: 8px; pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+}
+#melissa-overlay.hidden { display: none; }
+#melissa-fig {
+  height: 220px; width: 360px; flex-shrink: 0;
+  align-self: flex-end; margin-right: -10px;
+}
+#melissa-fig.enter { animation: mFigIn 0.5s cubic-bezier(0.25,0.8,0.25,1) forwards; }
+@keyframes mFigIn {
+  from { transform: translateY(25%); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+#melissa-img {
+  height: 220px; width: 360px;
+  object-fit: contain; object-position: center bottom;
+  display: block;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.6));
+}
+#melissa-bubble {
+  background: linear-gradient(145deg, #14141c 0%, #0d0d12 100%);
+  border: 2.5px solid #ffa9f9;
+  border-radius: 18px 18px 18px 4px;
+  padding: 14px 16px 12px;
+  width: 290px;
+  box-shadow:
+    0 0 0 1px rgba(255,247,173,0.15),
+    0 0 24px rgba(255,169,249,0.4),
+    0 8px 28px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  font-size: 13.5px; line-height: 1.6; color: #f0eeff;
+  position: relative;
+  pointer-events: all;
+}
+#melissa-bubble::after {
+  content: ''; position: absolute;
+  bottom: -13px; right: 28px;
+  width: 0; height: 0;
+  border-left: 10px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 13px solid #14141c;
+  filter: drop-shadow(0 3px 0px #ffa9f9);
+}
+#melissa-bubble::before {
+  content: ''; position: absolute;
+  bottom: -16px; right: 26px;
+  width: 0; height: 0;
+  border-left: 11px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 15px solid #ffa9f9;
+  z-index: -1;
+}
+#melissa-bubble.pop { animation: mPop 0.42s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes mPop {
+  0%   { transform: scale(0.55) rotate(-2deg); opacity: 0; }
+  60%  { transform: scale(1.06) rotate(0.8deg); opacity: 1; }
+  80%  { transform: scale(0.97) rotate(-0.3deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+#melissa-name-tag {
+  position: absolute; top: -12px; left: 14px;
+  background: #14141c;
+  color: #fff7ad;
+  font-size: 10px; font-weight: 800; padding: 2px 10px;
+  border-radius: 10px; letter-spacing: 0.5px;
+  border: 1.5px solid #ffa9f9;
+}
+#melissa-close {
+  position: absolute; top: -9px; right: -9px;
+  width: 22px; height: 22px;
+  background: #ffa9f9; color: #14141c;
+  border: none; border-radius: 50%;
+  font-size: 11px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800;
+}
+#melissa-text { margin: 0 0 10px; }
+#melissa-text strong { color: #fff7ad; }
+#melissa-text a {
+  display: inline-block; margin-top: 5px;
+  color: #fff7ad; font-weight: 700; text-decoration: none;
+  background: rgba(255,247,173,0.1);
+  border: 1.5px solid #fff7ad;
+  border-radius: 8px; padding: 4px 10px; font-size: 12px;
+  transition: background 0.15s;
+}
+#melissa-text a:hover { background: rgba(255,247,173,0.2); }
+#melissa-btns { display: flex; gap: 7px; flex-wrap: wrap; justify-content: flex-end; margin-top: 4px; }
+.mb-btn { border: none; border-radius: 20px; padding: 7px 15px;
+      font-size: 12px; font-weight: 700; cursor: pointer;
+      transition: background 0.15s, transform 0.1s; }
+.mb-btn:hover { transform: translateY(-1px); }
+.mb-btn.primary { background: #ffa9f9; color: #14141c; }
+.mb-btn.primary:hover { background: #ffc8fb; }
+.mb-btn.ghost { background: transparent; border: 1.5px solid #ffa9f9; color: #ffa9f9; }
+.mb-btn.ghost:hover { background: rgba(255,169,249,0.12); }
+#melissa-dots { display: flex; gap: 5px; justify-content: flex-start; margin-bottom: 8px; }
+.md-dot { width: 7px; height: 7px; border-radius: 50%; background: #2c2c40; transition: background 0.25s; }
+.md-dot.on { background: #ffa9f9; }
+
+/* Reopen-Button (immer sichtbar wenn Guide geschlossen) */
+#melissa-reopen {
+  position: fixed;
+  bottom: max(125px, calc(125px + env(safe-area-inset-bottom)));
+  right: max(16px, calc(50vw - 222px));
+  z-index: 99996;
+  background: linear-gradient(135deg, #fff7ad 0%, #ffa9f9 100%);
+  color: #14141c; border: none;
+  border-radius: 50%; width: 44px; height: 44px;
+  box-shadow:
+    0 0 18px rgba(255,169,249,0.5),
+    0 4px 14px rgba(0,0,0,0.5);
+  cursor: pointer; display: none;
+  align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 800;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+#melissa-reopen:hover {
+  transform: scale(1.1);
+  box-shadow:
+    0 0 26px rgba(255,169,249,0.7),
+    0 4px 14px rgba(0,0,0,0.5);
+}
+#melissa-reopen.visible { display: flex; }
+
+/* Mobile Anpassungen */
+@media (max-width: 600px) {
+  #melissa-overlay {
+    bottom: 75px; right: 12px; left: 12px;
+    align-items: center;
+  }
+  #melissa-fig { display: none; }
+  #melissa-bubble { width: 100%; max-width: 340px; }
+  #melissa-bubble::after, #melissa-bubble::before {
+    right: auto; left: 50%; transform: translateX(-50%);
+  }
+  #melissa-reopen { right: 12px; bottom: 80px; }
+}
+</style>
+
+<div id="melissa-overlay" class="hidden">
+  <div id="melissa-bubble">
+    <button id="melissa-close" title="Schliessen">&#x2715;</button>
+    <div id="melissa-name-tag">Melissa</div>
+    <div id="melissa-text"></div>
+    <div id="melissa-dots"></div>
+    <div id="melissa-btns"></div>
+  </div>
+  <div id="melissa-fig">
+    <img id="melissa-img" src="" alt="Melissa" />
+  </div>
+</div>
+
+<button id="melissa-reopen" title="Hilfe von Melissa">?</button>
+
+<script>
+(function(){
+  var CLOSED_KEY = 'melissa_simstagram_closed';
+  var STEP_KEY   = 'melissa_simstagram_step';
+
+  var IMGS = [
+    'https://files.homepagemodules.de/b855163/resize/1920x1200/pictures_u1221_oNfArVhw.png',
+    'https://files.homepagemodules.de/b855163/resize/1920x1200/pictures_u1222_TQRmwSNz.png',
+    'https://files.homepagemodules.de/b855163/resize/1920x1200/pictures_u1224_wmIihCEL.png',
+    'https://files.homepagemodules.de/b855163/resize/1920x1200/pictures_u1225_cPMmylzs.png',
+    'https://files.homepagemodules.de/b855163/resize/1920x1200/pictures_u1226_xUeFjDEh.png'
+  ];
+
+  var STEPS = [
+    {
+      img: 0,
+      text: 'Hi! Ich bin <strong>Melissa</strong> &#128247; und zeig dir kurz wie Simstagram funktioniert &mdash; das ist hier nicht ganz wie Insta. Magst?',
+      btns: [
+        { label: '&#128522; Klar', act: 'next', cls: 'primary' },
+        { label: 'Kenn mich aus', act: 'close', cls: 'ghost' }
+      ]
+    },
+    {
+      img: 1,
+      text: '&#127914; <strong>Was ist Simstagram?</strong><br>Ein Insta f&uuml;r unsere Sims! Hier posten die <strong>Charaktere</strong> aus dem #SimsForumRPG &mdash; nicht wir Spieler. Alles bleibt in der Story.',
+      btns: [
+        { label: 'Weiter &#8594;', act: 'next', cls: 'primary' },
+        { label: 'Schliessen', act: 'close', cls: 'ghost' }
+      ]
+    },
+    {
+      img: 2,
+      text: '&#128064; <strong>Lesen vs. Posten:</strong><br>Lesen kannst du als Gast &mdash; alles offen. Zum <strong>Posten oder Kommentieren</strong> musst du im Forum eingeloggt sein als dein Charakter.',
+      btns: [
+        { label: 'Weiter &#8594;', act: 'next', cls: 'primary' },
+        { label: 'Schliessen', act: 'close', cls: 'ghost' }
+      ]
+    },
+    {
+      img: 3,
+      text: '&#128101; <strong>Account-Switcher:</strong><br>Hast du mehrere Charaktere? Du postest jeweils als einer. Wechseln geht &uuml;ber den User-Button unten rechts. Anleitung steht im Forum.',
+      link: { url: 'https://www.simsforumrpg.de/t712f58855-Simstagram-fuers-Forum.html#msg6952', label: '&#8594; Account-Setup im Forum', ext: true },
+      btns: [
+        { label: 'Weiter &#8594;', act: 'next', cls: 'primary' },
+        { label: 'Schliessen', act: 'close', cls: 'ghost' }
+      ]
+    },
+    {
+      img: 4,
+      text: '&#9888;&#65039; <strong>Wenn Fenster aufgehen:</strong><br>Beim Liken, Kommentieren oder Posten &ouml;ffnet sich ein <strong>Forum-Fenster</strong>. Da machst du die Aktion fertig &mdash; danach kannst du es einfach schliessen, alles landet automatisch hier.',
+      btns: [
+        { label: 'Verstanden &#9989;', act: 'next', cls: 'primary' },
+        { label: 'Schliessen', act: 'close', cls: 'ghost' }
+      ]
+    },
+    {
+      img: 0,
+      text: '&#127881; Du hast alles dabei! Wenn du was nochmal nachlesen willst &mdash; klick einfach auf den <strong>?-Button</strong> hier unten. Viel Spass!',
+      btns: [
+        { label: 'Los geht\'s!', act: 'close', cls: 'primary' }
+      ]
+    }
+  ];
+
+  var overlay   = document.getElementById('melissa-overlay');
+  var bubble    = document.getElementById('melissa-bubble');
+  var fig       = document.getElementById('melissa-fig');
+  var imgEl     = document.getElementById('melissa-img');
+  var textEl    = document.getElementById('melissa-text');
+  var btnsEl    = document.getElementById('melissa-btns');
+  var dotsEl    = document.getElementById('melissa-dots');
+  var reopenBtn = document.getElementById('melissa-reopen');
+
+  var curStep = 0;
+
+  function hasClosed() {
+    try { return localStorage.getItem(CLOSED_KEY) === '1'; } catch(e) { return false; }
+  }
+  function markClosed() {
+    try { localStorage.setItem(CLOSED_KEY, '1'); } catch(e) {}
+  }
+  function clearClosed() {
+    try { localStorage.removeItem(CLOSED_KEY); } catch(e) {}
+  }
+  function saveStep(s) {
+    try { localStorage.setItem(STEP_KEY, String(s)); } catch(e) {}
+  }
+  function getSavedStep() {
+    try { return parseInt(localStorage.getItem(STEP_KEY)); } catch(e) { return NaN; }
+  }
+  function clearStep() {
+    try { localStorage.removeItem(STEP_KEY); } catch(e) {}
+  }
+
+  function pop() {
+    bubble.classList.remove('pop');
+    void bubble.offsetWidth;
+    bubble.classList.add('pop');
+    bubble.addEventListener('animationend', function() { bubble.classList.remove('pop'); }, {once:true});
+  }
+
+  function render(stepIdx) {
+    if (stepIdx < 0 || stepIdx >= STEPS.length) { closeGuide(); return; }
+    curStep = stepIdx;
+    saveStep(stepIdx);
+
+    var s = STEPS[stepIdx];
+    var imgIdx = (s.img !== undefined) ? s.img : 0;
+    if (imgIdx >= IMGS.length) imgIdx = IMGS.length - 1;
+    imgEl.src = IMGS[imgIdx];
+
+    var html = '<p style="margin:0 0 6px">' + s.text + '</p>';
+    if (s.link) {
+      var t = s.link.ext ? ' target="_blank" rel="noopener"' : '';
+      html += '<a href="' + s.link.url + '"' + t + '>' + s.link.label + '</a>';
+    }
+    textEl.innerHTML = html;
+
+    // Dots
+    dotsEl.innerHTML = '';
+    for (var d = 0; d < STEPS.length; d++) {
+      var dot = document.createElement('div');
+      dot.className = 'md-dot' + (d === stepIdx ? ' on' : '');
+      dotsEl.appendChild(dot);
+    }
+
+    // Buttons
+    btnsEl.innerHTML = '';
+    if (stepIdx > 0) {
+      var back = document.createElement('button');
+      back.className = 'mb-btn ghost';
+      back.innerHTML = '&#8592;';
+      back.style.padding = '7px 12px';
+      back.onclick = function() { render(curStep - 1); };
+      btnsEl.appendChild(back);
+    }
+    for (var b = 0; b < s.btns.length; b++) {
+      (function(btn) {
+        var el = document.createElement('button');
+        el.className = 'mb-btn ' + (btn.cls || 'primary');
+        el.innerHTML = btn.label;
+        el.onclick = function() { handleAct(btn.act); };
+        btnsEl.appendChild(el);
+      })(s.btns[b]);
+    }
+
+    pop();
+  }
+
+  function handleAct(a) {
+    if (a === 'next') {
+      if (curStep + 1 >= STEPS.length) { closeGuide(); return; }
+      render(curStep + 1);
+    } else {
+      closeGuide();
+    }
+  }
+
+  function closeGuide() {
+    markClosed();
+    clearStep();
+    overlay.classList.add('hidden');
+    reopenBtn.classList.add('visible');
+  }
+
+  function openGuide() {
+    clearClosed();
+    overlay.classList.remove('hidden');
+    reopenBtn.classList.remove('visible');
+    fig.classList.remove('enter');
+    void fig.offsetWidth;
+    fig.classList.add('enter');
+    fig.addEventListener('animationend', function() { fig.classList.remove('enter'); }, {once:true});
+    render(0);
+  }
+
+  function init() {
+    if (!document.body) return;
+    reopenBtn.onclick = openGuide;
+    document.getElementById('melissa-close').onclick = closeGuide;
+
+    if (hasClosed()) {
+      // Schon mal weggeklickt → nur Reopen-Button zeigen
+      reopenBtn.classList.add('visible');
+    } else {
+      // Erstes Mal → Auto-Start
+      setTimeout(openGuide, 1200);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    setTimeout(init, 100);
+  }
+
+  // Manuelles Öffnen für Testing
+  window.previewMelissa = function() {
+    clearClosed();
+    openGuide();
+  };
+})();
+</script>
+<!-- ============================================================
+     MELISSA GUIDE END
+     ============================================================ -->
+
 </body>
 </html>
