@@ -483,9 +483,9 @@ button:active { transform: scale(.95); }
     </div>
   </div>
 
-  <!-- ═══ COMPOSE MODAL ═══ -->
+  <!-- ═══ COMPOSE MODAL — Vorab-Warnung & Erklärung ═══ -->
   <div class="ov cov" id="co-ov" onclick="if(event.target===this)closeCompose()">
-    <div class="cs">
+    <div class="cs" style="max-width:440px">
       <div class="cs-handle"></div>
       <div class="cs-top">
         <h2>Neuer Simstagram-Post</h2>
@@ -494,32 +494,26 @@ button:active { transform: scale(.95); }
         </button>
       </div>
       <div class="cs-body">
-        <div class="imgz" id="imgz"
-          ondragover="event.preventDefault();this.classList.add('drag')"
-          ondragleave="this.classList.remove('drag')"
-          ondrop="onDrop(event)">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="2"/>
-            <circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-          </svg>
-          <span>Bild auswählen oder hierher ziehen</span>
-          <input type="file" id="img-file" accept="image/*" onchange="onFileSelect(event)">
+        <div class="infobox" style="margin-bottom:14px">
+          <strong>⚠ Wichtig:</strong> Posten geht nur als <strong>Sim-Charakter-Account</strong>. Wenn du mit deinem Hauptaccount eingeloggt bist, erscheint die Kategorie <strong>„Simstagram"</strong> nicht im Dropdown.
         </div>
-        <div class="field">
-          <label>Titel</label>
-          <input type="text" id="p-title" placeholder="Titel des Posts" maxlength="120">
+        <div class="infobox" style="margin-bottom:14px;background:rgba(110,247,212,.08);border-color:rgba(110,247,212,.25)">
+          <strong style="color:var(--acc3)">So gehst du vor:</strong>
+          <ol style="margin:8px 0 0;padding-left:18px;line-height:1.7">
+            <li>Stelle sicher dass du als <strong>Charakter</strong> eingeloggt bist (nicht Hauptaccount)</li>
+            <li>Klick unten auf <strong>„Im Forum posten"</strong> &mdash; ein Forum-Fenster geht auf</li>
+            <li>Im Forum-Editor: Bild hochladen (📎), Titel + Caption eintragen, Kategorie <strong>„Simstagram"</strong> wählen</li>
+            <li>Auf <strong>„Jetzt veröffentlichen"</strong> klicken &mdash; Fenster schliesst sich, dein Post erscheint hier</li>
+          </ol>
         </div>
-        <div class="field">
-          <label>Caption / Text</label>
-          <textarea id="p-text" placeholder="Was möchtest du teilen?"></textarea>
-        </div>
-        <div class="infobox">
-          <strong>So funktioniert's:</strong> Der Titel wird vorausgefüllt. Im Xobor-Fenster den <strong>Caption-Text einfügen</strong>, Bild hochladen (📎 Datei anhängen) und <strong>Jetzt veröffentlichen</strong> klicken.
+        <div style="font-size:12px;color:var(--sub);text-align:center;margin-top:14px;line-height:1.55">
+          Siehst du die Kategorie „Simstagram" nicht?<br>
+          Du bist im falschen Account &mdash; <a onclick="closeCompose();openAccountSwitch()" style="color:var(--acc);cursor:pointer;text-decoration:underline">jetzt Account wechseln</a>
         </div>
       </div>
-      <button class="post-btn" id="p-btn" onclick="submitPost()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-        Weiter zum Posten
+      <button class="post-btn" onclick="goToForumPost()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Im Forum posten
       </button>
     </div>
   </div>
@@ -926,80 +920,29 @@ function closeCompose() {
   document.body.style.overflow = '';
 }
 
-function onFileSelect(e) { if (e.target.files[0]) previewImg(e.target.files[0]); }
-function onDrop(e) {
-  e.preventDefault();
-  $('imgz').classList.remove('drag');
-  const f = e.dataTransfer.files[0];
-  if (f?.type.startsWith('image/')) previewImg(f);
-}
-function previewImg(file) {
-  imgFile = file;
-  const url = URL.createObjectURL(file);
-  $('imgz').innerHTML = `<div class="prev">
-    <img src="${url}" alt="Vorschau">
-    <button class="rm-prev" onclick="clearImg()" type="button">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-    </button>
-  </div>`;
-}
-function clearImg() {
-  imgFile = null;
-  $('imgz').innerHTML = `
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-    <span>Bild auswählen oder hierher ziehen</span>
-    <input type="file" id="img-file" accept="image/*" onchange="onFileSelect(event)">`;
-}
+function onFileSelect(e) {} // legacy stub — compose modal no longer has file upload
+function onDrop(e) { e.preventDefault(); }
+function previewImg(file) {} // legacy stub
+function clearImg() {} // legacy stub
 
 // ╔══════════════════════════════════════════════════════════╗
-//   SUBMIT POST → open Xobor popup pre-filled
+//   GO TO FORUM POST → öffnet Xobor-Popup zum Posten
 // ╚══════════════════════════════════════════════════════════╝
-function submitPost() {
-  const title = $('p-title').value.trim();
-  const text  = $('p-text').value.trim();
-
-  if (!title) {
-    $('p-title').classList.add('f-err');
-    setTimeout(() => $('p-title').classList.remove('f-err'), 1400);
-    return;
-  }
-
+function goToForumPost() {
   closeCompose();
-
-  // Xobor akzeptiert keine URL-Parameter bei blog-a.html → einfach öffnen
-  // blog_new.php field name is "new_title" (confirmed via element inspection)
-  const blogParams = new URLSearchParams();
-  if (title) blogParams.set('new_title', title);
-  // Text goes into rich editor (can't pre-fill via URL) → shown as copy-paste in popup
-  const blogUrl = XOBOR + '/blog_new.php?' + blogParams.toString();
+  const blogUrl = XOBOR + '/blog_new.php';
   openXoborPopup(blogUrl, 'neuer-post');
 
-  // Titel wird via URL pre-filled (new_title param), Text als Copy-Paste
-  const hint = `✅ <strong>Titel</strong> ist vorausgefüllt.<br><br>
-    ${text ? `<div style="font-size:11px;color:var(--sub);margin-bottom:4px">📋 Caption — klicken zum Kopieren, dann in <strong style="color:var(--txt)">Artikel-Text</strong> einfügen:</div>
-    <div onclick="navigator.clipboard&&navigator.clipboard.writeText(${JSON.stringify(text)}).then(()=>{this.style.borderColor='var(--acc3)'})" 
-         style="background:rgba(255,255,255,.08);border:1px solid var(--bdr);border-radius:8px;padding:10px;font-size:12px;color:var(--txt);cursor:pointer;word-break:break-word;margin-bottom:8px">${X(text)}</div>` : ''}
-    <div style="font-size:12px;color:var(--sub)">📎 <strong style="color:var(--txt)">Datei anhängen</strong> für Bild → <strong style="color:var(--txt)">Jetzt veröffentlichen</strong></div>`;
-
-  // Auto-copy caption to clipboard → user just pastes in Xobor editor
-  if (text && navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => {
-      toast('📋 Caption kopiert — einfach Ctrl+V im Editor einfügen', 'ok');
-    }).catch(() => {});
-  }
-
   showPopupWait(
-    `✅ Titel vorausgefüllt.<br>
-     ${text ? `📋 <strong>Caption ist in der Zwischenablage</strong> — im Editor <strong>Ctrl+V</strong> drücken.<br>` : ''}
-     📎 Bild anhängen → <strong>Jetzt veröffentlichen</strong>`,
+    `📝 <strong>Im Forum-Editor:</strong><br>
+     1. Bild hochladen (📎 Datei anhängen)<br>
+     2. Titel + Caption eintragen<br>
+     3. Kategorie <strong>„Simstagram"</strong> wählen<br>
+     4. <strong>Jetzt veröffentlichen</strong> klicken<br><br>
+     <em style="color:var(--dim);font-size:11px">Siehst du Simstagram nicht im Dropdown? Du bist im falschen Account — Fenster schliessen, Account wechseln, neu versuchen.</em>`,
     () => {
-      closeCompose();
-      clearImg();
-      $('p-title').value = '';
-      $('p-text').value  = '';
-      imgFile = null;
-      setTimeout(() => loadFeed(false), 1200);
-      toast('Post veröffentlicht! 🎉', 'ok');
+      setTimeout(() => loadFeed(true), 1500);
+      toast('Feed wird aktualisiert…', 'ok');
     }
   );
 }
