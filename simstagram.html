@@ -1306,28 +1306,36 @@ loadFeed();
   }
   #melissa-fig { display: none; }
   #melissa-bubble {
-    width: 100%; max-width: 340px;
-    padding-right: 70px;
+    width: calc(100vw - 30px);
+    max-width: 320px;
+    border-radius: 18px;
     padding-top: 20px;
+    padding-right: 70px;
   }
   #melissa-bubble::after, #melissa-bubble::before {
     display: none;
   }
   #melissa-mini-portrait {
     display: block !important;
+    position: absolute;
+    top: -20px;
+    right: 14px;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 2.5px solid #ffa9f9;
+    object-fit: cover;
+    object-position: center 15%;
+    background: #14141c;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.6);
   }
+  #melissa-bubble #melissa-text,
+  #melissa-bubble #melissa-btns,
+  #melissa-bubble #melissa-dots { padding-right: 0; }
   #melissa-reopen { right: 12px; bottom: 80px; }
 }
-#melissa-mini-portrait {
-  display: none;
-  position: absolute;
-  top: 8px; right: 8px;
-  width: 46px; height: 46px;
-  border-radius: 50%;
-  border: 2px solid #ffa9f9;
-  object-fit: cover;
-  background: #14141c;
-}
+/* Mini-Portrait standardmässig versteckt (nur Mobile zeigt) */
+#melissa-mini-portrait { display: none; }
 </style>
 
 <div id="melissa-overlay" class="hidden">
