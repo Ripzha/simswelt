@@ -403,7 +403,7 @@ function loadSheetWorldMeta_(){
   return fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRGJifryvR2cW2gOBiG3x1p-Gy-lXe5pLMValomH8hTXNW0AiiRsWO5tM4mL85TCE0mU9jjbIkksHil/pub?output=csv").then(function(r){return r.text();}).then(function(csv){
     var rows=csv.split("\n");
     var headers=rows[0].split(",").map(function(h){return h.replace(/"/g,"").trim().toLowerCase();});
-    var wIdx=headers.indexOf("welt"),nIdx=headers.indexOf("nr."),imgIdx=headers.indexOf("bild url"),catIdx=headers.indexOf("category"),haIdx=headers.indexOf("has_atlas"),exIdx=headers.indexOf("external_url");
+    var wIdx=headers.indexOf("welt"),nIdx=headers.indexOf("nr."),imgIdx=headers.indexOf("bild url"),urlIdx=headers.indexOf("thread url"),catIdx=headers.indexOf("category"),haIdx=headers.indexOf("has_atlas"),exIdx=headers.indexOf("external_url");
     var out=[];
     rows.slice(1).filter(function(r){return r.trim();}).forEach(function(r){
       var cols=r.split(",");
@@ -416,7 +416,8 @@ function loadSheetWorldMeta_(){
         image:get(imgIdx),
         category:get(catIdx),
         hasAtlas:!(ha==="FALSE"||ha==="FALSCH"),
-        externalUrl:get(exIdx)
+        externalUrl:get(exIdx),
+        forumUrl:get(urlIdx)
       });
     });
     return out;
@@ -1005,6 +1006,77 @@ function mkPostModal(){
     steps.appendChild(mkStep(3,"Klick ins Nachrichten-Feld, dann Strg+V / Cmd+V zum Einfügen"));
     steps.appendChild(mkStep(4,'Unten auf „Absenden" klicken — dein Thread ist online'));
     box.appendChild(steps);
+
+    // ─── HAUS-THREAD-BANNER (Blaze) ───────────────────────────
+    // Liest den Wohnort aus state.char.home und sheetWorldMeta,
+    // baut Welt-Forum-URL mit Plan-Params für den Welt-Forum-Blaze.
+    (function(){
+      var home = (state.char.home||'').trim();
+      if(!home || !WORLDS_META) return;
+      // Welt-Name finden: home beginnt mit Welt-Name (sortiert nach Länge, längste zuerst)
+      var sortedWorlds = WORLDS_META.slice().sort(function(a,b){return b.name.length - a.name.length;});
+      var matchedWorld = null;
+      for(var i=0;i<sortedWorlds.length;i++){
+        if(home.indexOf(sortedWorlds[i].name) === 0){ matchedWorld = sortedWorlds[i]; break; }
+      }
+      if(!matchedWorld) return; // Freitext (obdachlos etc.) → kein Banner
+
+      // Lot-Teil aus home extrahieren: alles nach dem Welt-Namen
+      var rest = home.substring(matchedWorld.name.length).trim();
+      // Welt-Forum-URL
+      var forumUrl = '';
+      if(matchedWorld.hasAtlas){
+        // RPG-Welt: forumUrl steht in der Welt-Anker-Zeile, müssen wir aus LOTS_CACHE nachschauen
+        // (alternative: sheetWorldMeta[name].forumUrl wenn der Bogen-Parser das mitliest)
+        forumUrl = matchedWorld.forumUrl || '';
+      } else {
+        // Externe Welt: external_url
+        forumUrl = matchedWorld.externalUrl || '';
+      }
+      if(!forumUrl) return; // ohne URL keinen Banner zeigen
+
+      var charName = state.char.name || 'Dein Char';
+      var banner = div({
+        background:"linear-gradient(145deg,#0d1f2d,#081622)",
+        border:"2px solid #e05530",
+        borderRadius:"10px",padding:"14px 16px",marginBottom:"14px",
+        boxShadow:"0 0 16px rgba(224,85,48,0.25)"
+      });
+      banner.appendChild(div({fontSize:"10px",letterSpacing:"1.5px",color:"#e05530",fontWeight:"800",marginBottom:"6px"},["BLAZE"]));
+      var msg;
+      if(matchedWorld.hasAtlas && rest){
+        msg = charName+" wohnt in "+matchedWorld.name+" "+rest+". Wenn du magst, mach gleich seinen/ihren Haus-Thread. Bilder brauchst du noch keine — erstmal nur ein Platzhalter, einfügen geht später.";
+      } else if(matchedWorld.hasAtlas){
+        msg = charName+" lebt in "+matchedWorld.name+". Schau im Welt-Forum vorbei — vielleicht gibt's einen Haus-Thread oder du machst einen.";
+      } else {
+        msg = charName+" lebt in "+matchedWorld.name+" — externe Welt. Im Welt-Forum wird gespielt, schau einfach vorbei.";
+      }
+      banner.appendChild(div({fontSize:"13px",color:"#e0e8e0",lineHeight:"1.55",marginBottom:"12px"},[msg]));
+
+      var bRow = div({display:"flex",gap:"8px",flexWrap:"wrap"});
+      var goBtn = mk("button",{
+        background:"#e05530",color:"#0d1f2d",border:"none",borderRadius:"20px",
+        padding:"7px 16px",fontSize:"12px",fontWeight:"800",cursor:"pointer"
+      },[matchedWorld.hasAtlas ? "Zum "+matchedWorld.name+"-Forum →" : "Zum Forum →"]);
+      goBtn.addEventListener("click",function(){
+        // Plan-Params an URL hängen damit der Forum-Footer-Blaze sie liest
+        var params = [];
+        if(rest)            params.push("plan_lot=" + encodeURIComponent(rest));
+        if(charName!=='Dein Char') params.push("plan_name=" + encodeURIComponent(charName));
+        params.push("plan_world=" + encodeURIComponent(matchedWorld.name));
+        var sep = forumUrl.indexOf("?")===-1 ? "?" : "&";
+        window.open(forumUrl + sep + params.join("&"),"_blank");
+      });
+      bRow.appendChild(goBtn);
+      var laterBtn = mk("button",{
+        background:"transparent",border:"1.5px solid #e05530",color:"#e05530",borderRadius:"20px",
+        padding:"6px 14px",fontSize:"12px",fontWeight:"700",cursor:"pointer"
+      },["Später"]);
+      laterBtn.addEventListener("click",function(){ banner.style.display="none"; });
+      bRow.appendChild(laterBtn);
+      banner.appendChild(bRow);
+      box.appendChild(banner);
+    })();
 
     // Copy-Buttons: BBCode nochmal kopieren + Forum-Link nochmal öffnen
     var toolRow=div({display:"flex",gap:"8px",flexWrap:"wrap",marginBottom:"14px"});
