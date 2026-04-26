@@ -97,7 +97,8 @@ function generateBBCode(){
   var c=state.char;
   var lines=[];
   lines.push("[center][size=5][b][color=#4d7a4d]"+(c.name||"???")+"[/color][/b][/size]");
-  var sub=[c.age&&c.age+" Jahre",c.gender,c.occult].filter(Boolean).join(" · ");
+  var ageStr = c.age ? (/jahre?\s*$/i.test(c.age.trim()) ? c.age : c.age+" Jahre") : "";
+  var sub=[ageStr,c.gender,c.occult].filter(Boolean).join(" · ");
   if(sub)lines.push("[center][i]"+sub+"[/i][/center]");
   if(c.job)lines.push("[center][color=#3d6f8a]"+c.job+"[/color][/center]");
   if(c.origin)lines.push("[center]aus "+c.origin+"[/center]");
@@ -108,7 +109,7 @@ function generateBBCode(){
       .filter(function(f){return f&&c[f.key]&&c[f.key].trim&&c[f.key].trim()&&skip.indexOf(f.key)===-1;});
     if(!sf.length)return;
     lines.push("\n[b][color=#3d6f8a]— "+sec.title.toUpperCase()+" —[/color][/b]");
-    sf.forEach(function(f){lines.push("[b]"+f.label+":[/b]\n"+c[f.key]);});
+    sf.forEach(function(f){lines.push("[b]"+f.label+":[/b]\n"+c[f.key]+"\n");});
   });
   return lines.join("\n");
 }
