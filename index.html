@@ -389,7 +389,10 @@ html{overscroll-behavior:none}
 
 <div id="main">
   <div id="left">
-    <div class="sec-label">Navigation</div>
+    <div class="sec-label">Andere Welten</div>
+    <a class="nav-item" onclick="openOtherWorld()" style="cursor:pointer">🌑 Andere Welten</a>
+
+    <div class="sec-label" style="margin-top:14px">Navigation</div>
     <a class="nav-item" href="https://www.simsforumrpg.de/forum.php" target="_blank">📋 Forum</a>
     <a class="nav-item" onclick="openCharView()" style="cursor:pointer">👤 Charaktere</a>
     <a class="nav-item" href="https://www.simsforumrpg.de/f58642-Kreationen-und-Geschichten.html" target="_blank">🎨 Kreativ-Ecke</a>
@@ -399,11 +402,11 @@ html{overscroll-behavior:none}
     <a class="nav-item" href="https://www.simsforumrpg.de/f15063-Foren-Hub-Neulinge-starten-hier.html" target="_blank">📖 RPG Hub</a>
     <a class="nav-item" href="https://www.simsforumrpg.de/page-simsweltnews.html" target="_blank">📰 SimsWelt News</a>
     <a class="nav-item" href="https://www.simsforumrpg.de/gallery.php" target="_blank">🖼️ Bildergalerie</a>
-    <div class="sec-label">Ausserhalb</div>
-    <a class="nav-item" onclick="openOtherWorld()" style="cursor:pointer">🌑 Andere Welten</a>
-    <div class="sec-label" style="margin-top:14px">Online</div>
+
+    <div class="sec-label" style="margin-top:14px">Index &amp; Statistik</div>
+    <div style="font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.5px;margin-bottom:4px">ONLINE</div>
     <div id="sidebar-online"><div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div></div>
-    <div class="sec-label" style="margin-top:10px">Stats</div>
+    <div style="font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.5px;margin-top:10px;margin-bottom:4px">STATS</div>
     <div id="sidebar-stats">
       <div class="stat-row"><span class="stat-key">Posts</span><span>–</span></div>
       <div class="stat-row"><span class="stat-key">Themen</span><span>–</span></div>
@@ -1381,6 +1384,9 @@ function fetchSheetLots(cb){
       const imgIdx = headers.indexOf('bild url');
       const groupIdx = headers.indexOf('dot-gruppe');
       const rentIdx = headers.indexOf('mietinfo');
+      const catIdx = headers.indexOf('category');
+      const hasAtlasIdx = headers.indexOf('has_atlas');
+      const extUrlIdx = headers.indexOf('external_url');
       sheetLots = {};
       sheetWorldMeta = {};
       rows.slice(1).filter(r=>r.trim()).forEach(r=>{
@@ -1394,8 +1400,15 @@ function fetchSheetLots(cb){
           if(!sheetWorldMeta[world]) sheetWorldMeta[world] = {};
           const rent = get(rentIdx);
           const img = get(imgIdx);
+          const cat = get(catIdx);
+          const hasAtlasStr = get(hasAtlasIdx).toUpperCase();
+          const extUrl = get(extUrlIdx);
           if(rent) sheetWorldMeta[world].rent = rent;
           if(img) sheetWorldMeta[world].img = img;
+          if(cat) sheetWorldMeta[world].category = cat;
+          // hasAtlas: leer = TRUE (default für die 31 RPG-Welten), explizit FALSE = externe Welt
+          sheetWorldMeta[world].hasAtlas = hasAtlasStr !== 'FALSE';
+          if(extUrl) sheetWorldMeta[world].externalUrl = extUrl;
           return;
         }
         if(!sheetLots[world]) sheetLots[world] = {};
@@ -2328,9 +2341,39 @@ const OTHERWORLDS_DATA=[
 ];
 
 function openOtherWorld(){
+  // Daten aus sheetWorldMeta sammeln: Welten mit hasAtlas=FALSE → ins Modal
+  // Plus: Bloodmoon Valley als Sonderfall (RPG-Welt MIT eigener ATLAS-Karte aber UND im Modal)
+  var data = [];
+  Object.keys(sheetWorldMeta).forEach(function(wname){
+    var m = sheetWorldMeta[wname];
+    if(m.hasAtlas === false){
+      data.push({
+        name: wname,
+        type: m.category || 'Andere Welt',
+        img: m.img || null,
+        url: m.externalUrl || null
+      });
+    }
+  });
+  // Bloodmoon Valley: hardcoded in OTHERWORLDS_DATA war schon spezial — RPG-Welt im Modal
+  // Wenn vorhanden, vorne anhängen
+  var bm = sheetWorldMeta['Bloodmoon Valley'];
+  if(bm && bm.hasAtlas !== false){
+    data.unshift({
+      name: 'Bloodmoon Valley',
+      type: bm.category || 'Vampirwelt',
+      img: bm.img || null,
+      world: 'Bloodmoon Valley'  // öffnet ATLAS-Welt statt URL
+    });
+  }
+  // Fallback: wenn Sheet noch nicht geladen, hardcoded Liste verwenden
+  if(!data.length){
+    data = OTHERWORLDS_DATA;
+  }
+
   var grid=document.getElementById('otherworld-grid');
   grid.innerHTML='';
-  OTHERWORLDS_DATA.forEach(function(ow){
+  data.forEach(function(ow){
     var tile=document.createElement('div');
     tile.className='otherworld-tile'+((!ow.world&&!ow.url)?' empty':'');
     if(ow.img){
