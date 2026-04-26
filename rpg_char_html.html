@@ -102,7 +102,6 @@ function generateBBCode(){
   if(sub)lines.push("[center][i]"+sub+"[/i][/center]");
   if(c.job)lines.push("[center][color=#3d6f8a]"+c.job+"[/color][/center]");
   if(c.origin)lines.push("[center]aus "+c.origin+"[/center]");
-  lines.push("[hr]");
   lines.push("");
   var skip=["name","age","gender","occult","job","origin"];
   SECTIONS.slice(0,-1).forEach(function(sec){
