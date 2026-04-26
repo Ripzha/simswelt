@@ -1669,8 +1669,11 @@ function updateSidebarActivity(){
     var color=WORLD_COLORS[c.lastSeenName]||'#4a6a7a';
     var nameShort=c.n.split(' ')[0];
     var player=c.p?'<span style="color:rgba(255,255,255,0.35);font-weight:400;margin-left:4px">&middot; '+c.p+'</span>':'';
+    var portrait=c.img
+      ?'<img src="'+c.img+'" style="width:20px;height:20px;border-radius:50%;object-fit:cover;object-position:50% 30%;flex-shrink:0;border:1.5px solid '+color+';box-shadow:0 0 4px '+color+'88">'
+      :'<div style="width:20px;height:20px;border-radius:50%;background:'+color+';display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:600;flex-shrink:0;box-shadow:0 0 4px '+color+'88">'+nameShort.charAt(0)+'</div>';
     return '<div class="activity-item" style="cursor:pointer" data-url="'+c.lastSeenUrl+'" title="'+c.n+(c.p?' (gespielt von '+c.p+')':'')+' — '+(c.lastSeenDate||'')+'">'
-      +'<div class="activity-dot" style="background:'+color+';box-shadow:0 0 5px '+color+'"></div>'
+      +portrait
       +'<div style="min-width:0;flex:1"><div class="activity-name">'+nameShort+player+'</div><div class="activity-world">'+c.lastSeenName+'</div></div>'
       +'</div>';
   }).join('');
@@ -1779,8 +1782,13 @@ function updateSidebarForum(){
         if(title.length>28) title=title.substr(0,26)+'…';
         var user=ev.user||'Jemand';
         if(user.length>22) user=user.substr(0,20)+'…';
+        // Avatar mit Type-Icon-Badge unten rechts
+        var avatar=ev.avatar
+          ?'<img src="'+ev.avatar+'" style="width:22px;height:22px;border-radius:50%;object-fit:cover;display:block;border:0.5px solid rgba(255,255,255,0.15)">'
+          :'<div style="width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:11px;color:rgba(255,255,255,0.5)">'+(user.charAt(0)||'?')+'</div>';
+        var badge='<div style="position:absolute;bottom:-2px;right:-2px;width:12px;height:12px;border-radius:50%;background:#0a1420;display:flex;align-items:center;justify-content:center;font-size:8px;border:1px solid rgba(255,255,255,0.1)">'+typeIcon(ev.type)+'</div>';
         return '<div class="activity-item" style="cursor:pointer" data-url="'+ev.url+'" title="'+(ev.user||'')+' '+(ev.action||'')+': '+(ev.title||'')+'">'
-          +'<div style="font-size:11px;width:14px;text-align:center;flex-shrink:0">'+typeIcon(ev.type)+'</div>'
+          +'<div style="position:relative;flex-shrink:0">'+avatar+badge+'</div>'
           +'<div style="min-width:0;flex:1">'
           +'<div class="activity-name" style="font-size:10px">'+user+'</div>'
           +'<div class="activity-world" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(ev.action||'')+(title?' &middot; '+title:'')+'</div>'
