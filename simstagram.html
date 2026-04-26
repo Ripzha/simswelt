@@ -571,38 +571,98 @@ let pwTimer  = null;   // popup-watch interval
 // ╔══════════════════════════════════════════════════════════╗
 //   LOAD FEED
 // ╚══════════════════════════════════════════════════════════╝
+//   Strategie:
+//   1. localStorage-Cache vom letzten Mal sofort anzeigen (instant)
+//   2. Page 1 frisch holen, rendern (~1 Sek)
+//   3. Pages 2-6 parallel im Hintergrund, an posts[] anhängen, einmal re-rendern
+// ╚══════════════════════════════════════════════════════════╝
 async function loadFeed(showSpinner = true) {
   const feed = $('feed');
-  if (showSpinner) feed.innerHTML = `<div class="status"><div class="spin"></div><span>Posts laden…</span></div>`;
+  const TOTAL_PAGES = 6;
+
+  // ── Phase 1: localStorage zeigen (Stale-While-Revalidate) ──
+  let hadCache = false;
   try {
-    const res  = await fetch(APPSSCRIPT_FEED);
+    const cached = localStorage.getItem('simsta_feed_cache_v1');
+    if (cached) {
+      const data = JSON.parse(cached);
+      if (data && Array.isArray(data.posts) && data.posts.length) {
+        posts = data.posts;
+        curPage = 0;
+        buildStories();
+        buildFeed();
+        checkHashRoute(); // wenn #post-XXXX → öffnen
+        hadCache = true;
+        showSpinner = false;
+      }
+    }
+  } catch(_) {}
+
+  if (showSpinner) feed.innerHTML = `<div class="status"><div class="spin"></div><span>Posts laden…</span></div>`;
+
+  // ── Phase 2: Page 1 frisch holen ──
+  let page1Posts = [];
+  try {
+    const res  = await fetch(APPSSCRIPT_FEED + '&page=1');
     const raw  = await res.text();
     let data;
     try { data = JSON.parse(raw); }
     catch(e) { throw new Error('Apps Script gibt kein gültiges JSON zurück.\n\nAntwort:\n' + raw.slice(0,300)); }
 
-    posts = Array.isArray(data) ? data : (data.posts || data.items || data.data || []);
+    page1Posts = Array.isArray(data) ? data : (data.posts || data.items || data.data || []);
 
-    // ── DEBUG MODE ─────────────────────────────────────────
-    if (IS_DEBUG) {
-      showDebug(data, posts);
-      return;
+    // Debug-Mode (nur bei Page 1 sinnvoll)
+    if (IS_DEBUG) { showDebug(data, page1Posts); return; }
+
+    if (!page1Posts.length && !hadCache) {
+      throw new Error('Keine Posts gefunden. Das Apps Script gibt ein leeres Array zurück.');
     }
 
-    if (!posts.length) throw new Error('Keine Posts gefunden. Das Apps Script gibt ein leeres Array zurück.');
+    posts = page1Posts;
     curPage = 0;
     buildStories();
     buildFeed();
-    // Wenn URL #post-XXXX hat, gleich aufmachen
     checkHashRoute();
   } catch(e) {
-    feed.innerHTML = `<div class="status">
-      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--dim)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
-      <span style="max-width:300px">${X(e.message)}</span>
-      <a href="${APPSSCRIPT}" target="_blank" style="color:var(--acc);font-size:12px">Apps Script direkt öffnen →</a>
-    </div>`;
-    console.error('[Simstagram] Feed error:', e);
+    if (!hadCache) {
+      feed.innerHTML = `<div class="status">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--dim)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+        <span style="max-width:300px">${X(e.message)}</span>
+        <a href="${APPSSCRIPT}" target="_blank" style="color:var(--acc);font-size:12px">Apps Script direkt öffnen →</a>
+      </div>`;
+    }
+    console.error('[Simstagram] Feed page 1 error:', e);
+    return;
   }
+
+  // ── Phase 3: Pages 2-6 parallel im Hintergrund ──
+  const seen = new Set(posts.map(p => F(p, 'id')));
+  const promises = [];
+  for (let pg = 2; pg <= TOTAL_PAGES; pg++) {
+    promises.push(
+      fetch(APPSSCRIPT_FEED + '&page=' + pg)
+        .then(r => r.json())
+        .then(data => {
+          const more = Array.isArray(data) ? data : (data.posts || []);
+          more.forEach(p => {
+            const id = F(p, 'id');
+            if (id && !seen.has(id)) {
+              seen.add(id);
+              posts.push(p);
+            }
+          });
+        })
+        .catch(err => console.warn('[Simstagram] Page ' + pg + ':', err.message))
+    );
+  }
+  await Promise.all(promises);
+
+  // Einmal am Ende re-rendern — Pagination expandiert sich, aktuelle Seite bleibt sichtbar
+  buildStories();
+  buildFeed();
+
+  // Cache speichern
+  try { localStorage.setItem('simsta_feed_cache_v1', JSON.stringify({posts: posts, ts: Date.now()})); } catch(_) {}
 }
 
 // ╔══════════════════════════════════════════════════════════╗
