@@ -1705,7 +1705,8 @@ function updateSidebarStats(){
     }).catch(function(){});
 }
 
-// Top 3 neueste Charaktere — sortiert nach Sheet-Timestamp (d.m.yyyy)
+// Top 3 neueste Charaktere — sortiert nach Forum-Thread-ID (höchste = neueste,
+// weil Xobor monoton hochzählt und Edits die ID nicht verändern)
 function updateSidebarNewChars(){
   var el=document.getElementById('sidebar-newchars');
   if(!el) return;
@@ -1713,34 +1714,32 @@ function updateSidebarNewChars(){
     el.innerHTML='<div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div>';
     return;
   }
-  function tsKey(s){
-    if(!s) return 0;
-    // Format: "d.m.yyyy" (vom Apps Script addCharGet)
-    var p=String(s).split('.');
-    if(p.length===3){
-      return parseInt(p[2])*10000+parseInt(p[1])*100+parseInt(p[0]);
-    }
-    // Fallback für JS-Date-Strings
-    var d=new Date(s);
-    return isNaN(d.getTime())?0:d.getTime();
+  var TYPE_LABELS={
+    'haupt':'Hauptcharakter',
+    'neben':'Nebencharakter',
+    'randfigur':'Randfigur',
+    'passant':'Passant'
+  };
+  function threadIdFromUrl(u){
+    var m=(u||'').match(/\/t(\d+)f/);
+    return m?parseInt(m[1]):0;
   }
-  var withTs=CHARS.filter(function(c){return c.ts&&c.u;}).slice();
-  withTs.sort(function(a,b){return tsKey(b.ts)-tsKey(a.ts);});
-  var top=withTs.slice(0,3);
+  var withId=CHARS.filter(function(c){return c.u && threadIdFromUrl(c.u)>0;}).slice();
+  withId.sort(function(a,b){return threadIdFromUrl(b.u)-threadIdFromUrl(a.u);});
+  var top=withId.slice(0,3);
   if(!top.length){
     el.innerHTML='<div style="font-size:10px;color:rgba(255,255,255,0.2)">Keine Daten</div>';
     return;
   }
   el.innerHTML=top.map(function(c){
     var nameShort=c.n.length>22?c.n.substr(0,20)+'…':c.n;
-    var sub=(c.h||c.p||'').toString();
-    if(sub.length>26) sub=sub.substr(0,24)+'…';
+    var typeLabel=TYPE_LABELS[c.type]||c.type||'';
     var portrait=c.img
-      ?'<img src="'+c.img+'" style="width:18px;height:18px;border-radius:50%;object-fit:cover;flex-shrink:0;border:0.5px solid rgba(255,255,255,0.15)">'
+      ?'<img src="'+c.img+'" style="width:18px;height:18px;border-radius:50%;object-fit:cover;object-position:50% 30%;flex-shrink:0;border:0.5px solid rgba(255,255,255,0.15)">'
       :'<div style="width:18px;height:18px;border-radius:50%;background:rgba(74,170,106,0.25);display:flex;align-items:center;justify-content:center;font-size:9px;color:#4aaa6a;flex-shrink:0;border:0.5px solid rgba(74,170,106,0.4)">'+(c.n.charAt(0)||'?')+'</div>';
-    return '<div class="activity-item" style="cursor:pointer" data-url="'+c.u+'" title="'+c.n+(c.p?' (gespielt von '+c.p+')':'')+' — angelegt '+c.ts+'">'
+    return '<div class="activity-item" style="cursor:pointer" data-url="'+c.u+'" title="'+c.n+(c.p?' (gespielt von '+c.p+')':'')+'">'
       +portrait
-      +'<div style="min-width:0;flex:1"><div class="activity-name">'+nameShort+'</div><div class="activity-world">'+sub+'</div></div>'
+      +'<div style="min-width:0;flex:1"><div class="activity-name">'+nameShort+'</div><div class="activity-world">'+typeLabel+'</div></div>'
       +'</div>';
   }).join('');
   el.querySelectorAll('[data-url]').forEach(function(item){
