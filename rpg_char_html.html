@@ -108,8 +108,13 @@ function generateBBCode(){
     var sf=sec.fields.map(function(k){return FIELDS.find(function(f){return f.key===k;});})
       .filter(function(f){return f&&c[f.key]&&c[f.key].trim&&c[f.key].trim()&&skip.indexOf(f.key)===-1;});
     if(!sf.length)return;
-    lines.push("\n[b][color=#3d6f8a]— "+sec.title.toUpperCase()+" —[/color][/b]");
-    sf.forEach(function(f){lines.push("[b]"+f.label+":[/b]\n"+c[f.key]+"\n");});
+    lines.push("");
+    lines.push("[b][color=#3d6f8a]— "+sec.title.toUpperCase()+" —[/color][/b]");
+    lines.push("");
+    sf.forEach(function(f){
+      lines.push("[b]"+f.label+":[/b]\n"+c[f.key]);
+      lines.push("");
+    });
   });
   return lines.join("\n");
 }
