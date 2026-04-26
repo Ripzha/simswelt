@@ -396,6 +396,21 @@ html{overscroll-behavior:none}
     <a class="nav-item" href="https://www.simsforumrpg.de/gallery.php" target="_blank">🖼️ Bildergalerie</a>
     <div class="sec-label">Ausserhalb</div>
     <a class="nav-item" onclick="openOtherWorld()" style="cursor:pointer">🌑 Andere Welten</a>
+    <div class="sec-label" style="margin-top:14px">Online</div>
+    <div id="sidebar-online"><div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div></div>
+    <div class="sec-label" style="margin-top:10px">Stats</div>
+    <div id="sidebar-stats">
+      <div class="stat-row"><span class="stat-key">Posts</span><span>–</span></div>
+      <div class="stat-row"><span class="stat-key">Themen</span><span>–</span></div>
+      <div class="stat-row"><span class="stat-key">Mitglieder</span><span>–</span></div>
+    </div>
+    <div id="discord-btn" onclick="window.open('https://discord.gg/FGB8Mfj','_blank')" style="margin-top:10px">
+      <span style="font-size:14px">💬</span>
+      <div><div style="font-size:11px;font-weight:500">Discord</div><div style="font-size:10px;color:rgba(255,255,255,0.35)">Community</div></div>
+    </div>
+    <div style="text-align:center;margin-top:8px;padding-top:8px;border-top:0.5px solid rgba(255,255,255,0.05)">
+      <a href="https://www.simsforumrpg.de/faq.php#impressum" target="_blank" style="font-size:9px;color:rgba(255,255,255,0.2);text-decoration:none;letter-spacing:1px">IMPRESSUM</a>
+    </div>
   </div>
 
   <div id="center">
@@ -492,23 +507,12 @@ html{overscroll-behavior:none}
       <div id="sidebar-activity"></div>
     </div>
     <div>
-      <div class="sec-label">Online</div>
-      <div id="sidebar-online"><div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div></div>
+      <div class="sec-label">Neue Charaktere</div>
+      <div id="sidebar-newchars"><div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div></div>
     </div>
     <div>
-      <div class="sec-label">Stats</div>
-      <div id="sidebar-stats">
-      <div class="stat-row"><span class="stat-key">Posts</span><span>–</span></div>
-      <div class="stat-row"><span class="stat-key">Themen</span><span>–</span></div>
-      <div class="stat-row"><span class="stat-key">Mitglieder</span><span>–</span></div>
-      </div>
-    </div>
-    <div id="discord-btn" onclick="window.open('https://discord.gg/FGB8Mfj','_blank')">
-      <span style="font-size:14px">💬</span>
-      <div><div style="font-size:11px;font-weight:500">Discord</div><div style="font-size:10px;color:rgba(255,255,255,0.35)">Community beitreten</div></div>
-    </div>
-    <div style="text-align:center;margin-top:8px;padding-top:8px;border-top:0.5px solid rgba(255,255,255,0.05)">
-      <a href="https://www.simsforumrpg.de/faq.php#impressum" target="_blank" style="font-size:9px;color:rgba(255,255,255,0.2);text-decoration:none;letter-spacing:1px">IMPRESSUM</a>
+      <div class="sec-label">Im Forum</div>
+      <div id="sidebar-forum"><div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div></div>
     </div>
   </div>
 </div>
@@ -1664,9 +1668,10 @@ function updateSidebarActivity(){
   el.innerHTML=top.map(function(c){
     var color=WORLD_COLORS[c.lastSeenName]||'#4a6a7a';
     var nameShort=c.n.split(' ')[0];
-    return '<div class="activity-item" style="cursor:pointer" data-url="'+c.lastSeenUrl+'" title="'+c.n+' — '+(c.lastSeenDate||'')+'">'
+    var player=c.p?'<span style="color:rgba(255,255,255,0.35);font-weight:400;margin-left:4px">&middot; '+c.p+'</span>':'';
+    return '<div class="activity-item" style="cursor:pointer" data-url="'+c.lastSeenUrl+'" title="'+c.n+(c.p?' (gespielt von '+c.p+')':'')+' — '+(c.lastSeenDate||'')+'">'
       +'<div class="activity-dot" style="background:'+color+';box-shadow:0 0 5px '+color+'"></div>'
-      +'<div><div class="activity-name">'+nameShort+'</div><div class="activity-world">'+c.lastSeenName+'</div></div>'
+      +'<div style="min-width:0;flex:1"><div class="activity-name">'+nameShort+player+'</div><div class="activity-world">'+c.lastSeenName+'</div></div>'
       +'</div>';
   }).join('');
   el.querySelectorAll('[data-url]').forEach(function(item){
@@ -1696,6 +1701,101 @@ function updateSidebarStats(){
     }
     }).catch(function(){});
 }
+
+// Top 3 neueste Charaktere — sortiert nach Sheet-Timestamp (d.m.yyyy)
+function updateSidebarNewChars(){
+  var el=document.getElementById('sidebar-newchars');
+  if(!el) return;
+  if(!CHARS.length){
+    el.innerHTML='<div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div>';
+    return;
+  }
+  function tsKey(s){
+    if(!s) return 0;
+    // Format: "d.m.yyyy" (vom Apps Script addCharGet)
+    var p=String(s).split('.');
+    if(p.length===3){
+      return parseInt(p[2])*10000+parseInt(p[1])*100+parseInt(p[0]);
+    }
+    // Fallback für JS-Date-Strings
+    var d=new Date(s);
+    return isNaN(d.getTime())?0:d.getTime();
+  }
+  var withTs=CHARS.filter(function(c){return c.ts&&c.u;}).slice();
+  withTs.sort(function(a,b){return tsKey(b.ts)-tsKey(a.ts);});
+  var top=withTs.slice(0,3);
+  if(!top.length){
+    el.innerHTML='<div style="font-size:10px;color:rgba(255,255,255,0.2)">Keine Daten</div>';
+    return;
+  }
+  el.innerHTML=top.map(function(c){
+    var nameShort=c.n.length>22?c.n.substr(0,20)+'…':c.n;
+    var sub=(c.h||c.p||'').toString();
+    if(sub.length>26) sub=sub.substr(0,24)+'…';
+    var portrait=c.img
+      ?'<img src="'+c.img+'" style="width:18px;height:18px;border-radius:50%;object-fit:cover;flex-shrink:0;border:0.5px solid rgba(255,255,255,0.15)">'
+      :'<div style="width:18px;height:18px;border-radius:50%;background:rgba(74,170,106,0.25);display:flex;align-items:center;justify-content:center;font-size:9px;color:#4aaa6a;flex-shrink:0;border:0.5px solid rgba(74,170,106,0.4)">'+(c.n.charAt(0)||'?')+'</div>';
+    return '<div class="activity-item" style="cursor:pointer" data-url="'+c.u+'" title="'+c.n+(c.p?' (gespielt von '+c.p+')':'')+' — angelegt '+c.ts+'">'
+      +portrait
+      +'<div style="min-width:0;flex:1"><div class="activity-name">'+nameShort+'</div><div class="activity-world">'+sub+'</div></div>'
+      +'</div>';
+  }).join('');
+  el.querySelectorAll('[data-url]').forEach(function(item){
+    item.addEventListener('click',function(){window.open(this.getAttribute('data-url'),'_blank');});
+  });
+}
+
+// Forum-Aktivität ausserhalb RPG-Welten (Galerie, Blog, OOC-Bereiche)
+function updateSidebarForum(){
+  var el=document.getElementById('sidebar-forum');
+  if(!el) return;
+  fetch(SCRIPT_URL+'?action=forumActivity')
+    .then(function(r){return r.json();})
+    .then(function(events){
+      if(!Array.isArray(events)||!events.length){
+        el.innerHTML='<div style="font-size:10px;color:rgba(255,255,255,0.2)">Keine Aktivität</div>';
+        return;
+      }
+      var now=Math.floor(Date.now()/1000);
+      function relTime(ts){
+        var s=now-ts;
+        if(s<60) return 'jetzt';
+        if(s<3600) return Math.floor(s/60)+' Min';
+        if(s<86400) return Math.floor(s/3600)+' Std';
+        if(s<7*86400) return Math.floor(s/86400)+' d';
+        var d=new Date(ts*1000);
+        return d.getDate()+'.'+(d.getMonth()+1)+'.';
+      }
+      function typeIcon(t){
+        if(t==='forum_topic') return '💬';
+        if(t==='forum_message') return '↩';
+        if(t==='gallery_picture') return '🖼';
+        if(t==='blog_entry') return '📝';
+        if(t==='blog_comment') return '💭';
+        return '·';
+      }
+      el.innerHTML=events.slice(0,6).map(function(ev){
+        var title=(ev.title||'');
+        if(title.length>28) title=title.substr(0,26)+'…';
+        var user=ev.user||'Jemand';
+        if(user.length>22) user=user.substr(0,20)+'…';
+        return '<div class="activity-item" style="cursor:pointer" data-url="'+ev.url+'" title="'+(ev.user||'')+' '+(ev.action||'')+': '+(ev.title||'')+'">'
+          +'<div style="font-size:11px;width:14px;text-align:center;flex-shrink:0">'+typeIcon(ev.type)+'</div>'
+          +'<div style="min-width:0;flex:1">'
+          +'<div class="activity-name" style="font-size:10px">'+user+'</div>'
+          +'<div class="activity-world" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(ev.action||'')+(title?' &middot; '+title:'')+'</div>'
+          +'<div style="font-size:9px;color:rgba(255,255,255,0.25);margin-top:1px">vor '+relTime(ev.ts)+'</div>'
+          +'</div></div>';
+      }).join('');
+      el.querySelectorAll('[data-url]').forEach(function(item){
+        item.addEventListener('click',function(){window.open(this.getAttribute('data-url'),'_blank');});
+      });
+    })
+    .catch(function(){
+      el.innerHTML='<div style="font-size:10px;color:rgba(255,80,80,0.4)">Fehler</div>';
+    });
+}
+
 function buildCharTokensHtml(chars){
   if(!chars||!chars.length) return '';
   var MAX=5;
@@ -2902,6 +3002,7 @@ async function fetchCharsFromScript(){
         if(_co&&_co.classList.contains('open')){charRenderFiltered();buildPlayerFilter();}
         updateAllTokens();
         updateSidebarActivity();
+        updateSidebarNewChars();
       }
     }
   }catch(e){}
@@ -2919,7 +3020,7 @@ async function fetchCharsFromScript(){
       else if(t.indexOf('passant')>-1)t='passant';
       else if(t.indexOf('statist')>-1)t='randfigur';
       else t='haupt';
-      return{n:c.name||'',p:(c.player||'').trim(),type:t,u:c.threadUrl||'',h:c.home||'',img:c.portraitUrl||'',age:c.age||'',job:c.job||'',okkult:c.Okkult||c.okkult||'',gender:c.gender||c.Geschlecht||'',lastSeenName:c.lastSeenName||'',lastSeenUrl:c.lastSeenUrl||'',lastSeenDate:c.lastSeenDate||''};
+      return{n:c.name||'',p:(c.player||'').trim(),type:t,u:c.threadUrl||'',h:c.home||'',img:c.portraitUrl||'',age:c.age||'',job:c.job||'',okkult:c.Okkult||c.okkult||'',gender:c.gender||c.Geschlecht||'',lastSeenName:c.lastSeenName||'',lastSeenUrl:c.lastSeenUrl||'',lastSeenDate:c.lastSeenDate||'',ts:c.Timestamp||c.timestamp||''};
     });
     if(fresh.length>0){
       CHARS.length=0;
@@ -2936,6 +3037,7 @@ async function fetchCharsFromScript(){
   }
   updateAllTokens();
   updateSidebarActivity();
+  updateSidebarNewChars();
   // Rebuild age filter if open
   if(document.getElementById('char-age-bar')&&document.getElementById('char-age-bar').classList.contains('open'))buildAgeFilter();
 }
@@ -3216,8 +3318,12 @@ window.addEventListener('hashchange',function(){
 window.addEventListener('load',function(){
   updateSidebarStats();
   fetchCharsFromScript();
+  updateSidebarForum();
   repositionTooltips();
   fetchSheetLots();
+  // Periodische Updates: Forum-Feed alle 5 Min, Stats/Online alle 2 Min
+  setInterval(updateSidebarForum, 5*60*1000);
+  setInterval(updateSidebarStats, 2*60*1000);
   if(location.hash.match(/^#chars-/)){
     openCharView(location.hash.replace('#chars-',''));
   }
