@@ -96,13 +96,14 @@ var FORUM_IDS={haupt:"51849",neben:"51850",randfigur:"51851",passant:"52617"};
 function generateBBCode(){
   var c=state.char;
   var lines=[];
-  lines.push("[center][size=5][b][color=#4d7a4d]"+(c.name||"???")+"[/color][/b][/size]");
+  lines.push("[center][size=5][b][color=#4d7a4d]"+(c.name||"???")+"[/color][/b][/size][/center]");
   var ageStr = c.age ? (/jahre?\s*$/i.test(c.age.trim()) ? c.age : c.age+" Jahre") : "";
   var sub=[ageStr,c.gender,c.occult].filter(Boolean).join(" · ");
   if(sub)lines.push("[center][i]"+sub+"[/i][/center]");
   if(c.job)lines.push("[center][color=#3d6f8a]"+c.job+"[/color][/center]");
   if(c.origin)lines.push("[center]aus "+c.origin+"[/center]");
   lines.push("[hr]");
+  lines.push("");
   var skip=["name","age","gender","occult","job","origin"];
   SECTIONS.slice(0,-1).forEach(function(sec){
     var sf=sec.fields.map(function(k){return FIELDS.find(function(f){return f.key===k;});})
