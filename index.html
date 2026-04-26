@@ -1406,8 +1406,9 @@ function fetchSheetLots(cb){
           if(rent) sheetWorldMeta[world].rent = rent;
           if(img) sheetWorldMeta[world].img = img;
           if(cat) sheetWorldMeta[world].category = cat;
-          // hasAtlas: leer = TRUE (default für die 31 RPG-Welten), explizit FALSE = externe Welt
-          sheetWorldMeta[world].hasAtlas = hasAtlasStr !== 'FALSE';
+          // hasAtlas: FALSE (englisch) oder FALSCH (Schweiz/DE-Sheet) = externe Welt;
+          // alles andere (TRUE/WAHR/leer) = RPG-Welt mit ATLAS-Karte
+          sheetWorldMeta[world].hasAtlas = !(hasAtlasStr === 'FALSE' || hasAtlasStr === 'FALSCH');
           if(extUrl) sheetWorldMeta[world].externalUrl = extUrl;
           return;
         }
