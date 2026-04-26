@@ -330,10 +330,417 @@ function mkAI(key,label,val){
 }
 
 // ── Render field ──
+
+// Lazy-loaded Daten für Wohnort-Picker (1× pro Bogen-Sitzung)
+// Quellen:
+//   ATLAS_DATA = {worldLots, BUILDINGS}  — geparst aus index.html (für Lot-Positionen)
+//   WORLDS_META = [{name, image, category, hasAtlas, externalUrl}]  — aus Sheet-CSV
+//   LOTS_CACHE = aus Apps Script (für Lot-Namen, Bilder, Thread-URLs)
+//   CHARS_CACHE = aus Apps Script (für „aktiv: X" Hinweis)
+var ATLAS_DATA=null;
+var WORLDS_META=null;
+var LOTS_CACHE=null;
+var CHARS_CACHE=null;
+var DATA_LOADING=false;
+// State des Pickers
+var HOME_STATE={stage:1,world:"",building:""};
+function loadHomeData(cb){
+  if(ATLAS_DATA&&WORLDS_META&&LOTS_CACHE&&CHARS_CACHE){cb();return;}
+  if(DATA_LOADING){setTimeout(function(){loadHomeData(cb);},200);return;}
+  DATA_LOADING=true;
+  Promise.all([
+    loadAtlasJsData_(),
+    loadSheetWorldMeta_(),
+    fetch(APPS_SCRIPT_URL+"?action=getLots").then(function(r){return r.json();}),
+    fetch(APPS_SCRIPT_URL+"?action=chars").then(function(r){return r.json();})
+  ]).then(function(res){
+    ATLAS_DATA=res[0]||{worldLots:{},BUILDINGS:{}};
+    WORLDS_META=Array.isArray(res[1])?res[1]:[];
+    LOTS_CACHE=Array.isArray(res[2])?res[2]:[];
+    CHARS_CACHE=Array.isArray(res[3])?res[3]:[];
+    DATA_LOADING=false;cb();
+  }).catch(function(e){
+    console.error("[Char-Bogen] Lade-Fehler:",e);
+    ATLAS_DATA=ATLAS_DATA||{worldLots:{},BUILDINGS:{}};
+    WORLDS_META=WORLDS_META||[];
+    LOTS_CACHE=LOTS_CACHE||[];CHARS_CACHE=CHARS_CACHE||[];
+    DATA_LOADING=false;cb();
+  });
+}
+// Holt index.html same-origin und parst worldLots + BUILDINGS via JS-Eval
+function loadAtlasJsData_(){
+  return fetch("https://ripzha.github.io/simswelt/index.html").then(function(r){return r.text();}).then(function(html){
+    function extractObj(name){
+      var re=new RegExp("const\\s+"+name+"\\s*=\\s*\\{");
+      var m=re.exec(html);
+      if(!m)return null;
+      var s=m.index;
+      var i=html.indexOf("{",s),d=0;
+      while(i<html.length){
+        if(html[i]==="{")d++;
+        else if(html[i]==="}"){d--;if(d===0)break;}
+        i++;
+      }
+      return html.substring(s+"const ".length,i+1);
+    }
+    var wl=extractObj("worldLots");
+    var bd=extractObj("BUILDINGS");
+    if(!wl)return{worldLots:{},BUILDINGS:{}};
+    try{
+      var fn=new Function(
+        'var BASE="https://www.simsforumrpg.de/";'+
+        'var IMG="https://files.homepagemodules.de/b855163/resize/1920x1200/";'+
+        (bd?"var "+bd+";":"var BUILDINGS={};")+
+        "var "+wl+";"+
+        "return {worldLots:worldLots,BUILDINGS:BUILDINGS};"
+      );
+      return fn();
+    }catch(e){console.error("Eval Fehler",e);return{worldLots:{},BUILDINGS:{}};}
+  });
+}
+// Welt-Anker aus Sheet-CSV (gleiche URL wie ATLAS verwendet)
+function loadSheetWorldMeta_(){
+  return fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRGJifryvR2cW2gOBiG3x1p-Gy-lXe5pLMValomH8hTXNW0AiiRsWO5tM4mL85TCE0mU9jjbIkksHil/pub?output=csv").then(function(r){return r.text();}).then(function(csv){
+    var rows=csv.split("\n");
+    var headers=rows[0].split(",").map(function(h){return h.replace(/"/g,"").trim().toLowerCase();});
+    var wIdx=headers.indexOf("welt"),nIdx=headers.indexOf("nr."),imgIdx=headers.indexOf("bild url"),catIdx=headers.indexOf("category"),haIdx=headers.indexOf("has_atlas"),exIdx=headers.indexOf("external_url");
+    var out=[];
+    rows.slice(1).filter(function(r){return r.trim();}).forEach(function(r){
+      var cols=r.split(",");
+      var get=function(i){return i<0?"":(cols[i]||"").replace(/"/g,"").trim();};
+      var welt=get(wIdx),nr=get(nIdx);
+      if(!welt||nr)return;  // nur Welt-Anker (Welt gesetzt, Nr leer)
+      var ha=get(haIdx).toUpperCase();
+      out.push({
+        name:welt,
+        image:get(imgIdx),
+        category:get(catIdx),
+        hasAtlas:!(ha==="FALSE"||ha==="FALSCH"),
+        externalUrl:get(exIdx)
+      });
+    });
+    return out;
+  });
+}
+
+// Hilfsfunktionen
+function homeThreadId_(u){var m=(u||"").match(/\/t(\d+)f/);return m?m[1]:"";}
+function homeOccupantsByUrl_(lotUrl){
+  if(!lotUrl||!CHARS_CACHE)return[];
+  var tid=homeThreadId_(lotUrl);
+  if(!tid)return[];
+  return CHARS_CACHE.filter(function(c){
+    var cu=c.lastSeenUrl||c.lastSeen||"";
+    return cu&&homeThreadId_(cu)===tid;
+  });
+}
+
+function mkHomePicker(){
+  var pick=div({marginBottom:"8px"});
+
+  // Banner: aktueller Wert
+  if(state.char.home){
+    var cur=div({background:C.card2,border:"1px solid "+C.teal,borderRadius:"8px",padding:"10px 12px",marginBottom:"10px",display:"flex",alignItems:"center",gap:"10px"});
+    cur.appendChild(div({fontSize:"13px",color:C.text,flex:"1"},["✓ "+state.char.home]));
+    var clr=mk("button",{background:"none",border:"1px solid "+C.border,color:C.muted,cursor:"pointer",borderRadius:"6px",padding:"4px 10px",fontSize:"11px"},["Ändern"]);
+    clr.addEventListener("click",function(){
+      state.char.home="";HOME_STATE={stage:1,world:"",building:""};
+      saveLocalDraft();redrawHomePicker();
+    });
+    cur.appendChild(clr);
+    pick.appendChild(cur);
+  }
+
+  // Loading
+  if(!ATLAS_DATA||!WORLDS_META){
+    pick.appendChild(div({padding:"12px",textAlign:"center",color:C.muted,fontSize:"12px",border:"1px dashed "+C.border,borderRadius:"8px"},["Lade Welten..."]));
+    loadHomeData(function(){redrawHomePicker();});
+    return pick;
+  }
+
+  // Stage-Router
+  if(HOME_STATE.stage===3 && HOME_STATE.world && HOME_STATE.building){
+    pick.appendChild(mkBuildingStage_());
+  } else if(HOME_STATE.stage===2 && HOME_STATE.world){
+    var wmeta=WORLDS_META.find(function(w){return w.name===HOME_STATE.world;});
+    if(wmeta && !wmeta.hasAtlas){
+      pick.appendChild(mkExternalWorldStage_(wmeta));
+    } else {
+      pick.appendChild(mkWorldStage_());
+    }
+  } else {
+    pick.appendChild(mkWorldGridStage_());
+  }
+
+  // Freitext-Fallback unten
+  var fb=div({marginTop:"12px",paddingTop:"10px",borderTop:"1px dashed "+C.border});
+  fb.appendChild(div({fontSize:"10px",color:C.muted,marginBottom:"4px",letterSpacing:"1px"},["ODER FREITEXT (z.B. obdachlos, gerade auf Reisen)"]));
+  var ti=document.createElement("input");
+  Object.assign(ti.style,INP);
+  ti.value=state.char.home||"";
+  ti.placeholder="z.B. bei Familie unter der Brücke";
+  ti.addEventListener("input",function(){state.char.home=ti.value;saveLocalDraft();});
+  fb.appendChild(ti);
+  pick.appendChild(fb);
+  return pick;
+}
+
+// STAGE 1: Welt-Grid mit Welt-Bildern
+function mkWorldGridStage_(){
+  var wrap=div({});
+  wrap.appendChild(div({fontSize:"11px",color:C.muted,marginBottom:"8px",letterSpacing:"1px"},["WELT WÄHLEN"]));
+  // Sortieren: erst RPG-Welten (hasAtlas), dann externe
+  var sorted=WORLDS_META.slice().sort(function(a,b){
+    if(a.hasAtlas!==b.hasAtlas)return a.hasAtlas?-1:1;
+    return a.name.localeCompare(b.name);
+  });
+  var grid=div({display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(130px,1fr))",gap:"8px"});
+  sorted.forEach(function(w){
+    var card=div({background:C.card2,border:"1px solid "+C.border,borderRadius:"8px",overflow:"hidden",cursor:"pointer",position:"relative",transition:"all 0.15s"});
+    card.addEventListener("mouseenter",function(){card.style.borderColor=C.teal;card.style.transform="translateY(-1px)";});
+    card.addEventListener("mouseleave",function(){card.style.borderColor=C.border;card.style.transform="";});
+    card.addEventListener("click",function(){
+      HOME_STATE={stage:2,world:w.name,building:""};redrawHomePicker();
+    });
+    if(w.image){
+      var im=document.createElement("img");
+      im.src=w.image;
+      Object.assign(im.style,{width:"100%",height:"75px",objectFit:"cover",display:"block"});
+      card.appendChild(im);
+    } else {
+      card.appendChild(div({width:"100%",height:"75px",background:C.card,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"22px",opacity:"0.4"},["🌑"]));
+    }
+    if(!w.hasAtlas){
+      card.appendChild(div({position:"absolute",top:"5px",right:"5px",fontSize:"8px",fontWeight:"700",letterSpacing:"0.5px",padding:"2px 5px",borderRadius:"3px",background:"rgba(140,110,180,0.85)",color:"#fff"},["EXTERN"]));
+    }
+    var txt=div({padding:"6px 8px"});
+    txt.appendChild(div({fontSize:"12px",fontWeight:"600",color:C.text,marginBottom:"1px",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"},[w.name]));
+    if(w.category)txt.appendChild(div({fontSize:"10px",color:C.muted,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"},[w.category]));
+    card.appendChild(txt);
+    grid.appendChild(card);
+  });
+  wrap.appendChild(grid);
+  return wrap;
+}
+
+// STAGE 2A: Mini-Karte mit Lot-Dots für RPG-Welten
+function mkWorldStage_(){
+  var wrap=div({});
+  // Header mit Zurück
+  var hdr=div({display:"flex",alignItems:"center",gap:"8px",marginBottom:"8px"});
+  var back=mk("button",{background:"none",border:"1px solid "+C.border,color:C.muted,cursor:"pointer",borderRadius:"6px",padding:"4px 10px",fontSize:"11px"},["← Welten"]);
+  back.addEventListener("click",function(){HOME_STATE={stage:1,world:"",building:""};redrawHomePicker();});
+  hdr.appendChild(back);
+  hdr.appendChild(div({fontSize:"13px",fontWeight:"600",color:C.text},[HOME_STATE.world]));
+  wrap.appendChild(hdr);
+
+  var wmeta=WORLDS_META.find(function(w){return w.name===HOME_STATE.world;});
+  var lots=(ATLAS_DATA.worldLots[HOME_STATE.world]||[]).filter(function(l){return l&&typeof l.x==="number"&&typeof l.y==="number";});
+
+  if(!lots.length){
+    wrap.appendChild(div({padding:"16px",textAlign:"center",color:C.muted,fontSize:"12px",border:"1px dashed "+C.border,borderRadius:"8px"},["Diese Welt hat noch keine kalibrierten Wohnorte."]));
+    return wrap;
+  }
+
+  // Mini-Karte
+  var mapCard=div({position:"relative",width:"100%",aspectRatio:"1920/1200",background:C.card,borderRadius:"8px",overflow:"hidden",border:"1px solid "+C.border,marginBottom:"10px"});
+  if(wmeta&&wmeta.image){
+    var bg=document.createElement("img");
+    bg.src=wmeta.image;
+    Object.assign(bg.style,{width:"100%",height:"100%",objectFit:"cover",display:"block",filter:"brightness(0.7) saturate(0.95)"});
+    mapCard.appendChild(bg);
+  }
+
+  // Cluster-Detection: gruppiere Lots an gleicher Position (Toleranz 0.5%)
+  var groups=[];
+  lots.forEach(function(l){
+    var found=groups.find(function(g){return Math.abs(g.x-l.x)<0.5 && Math.abs(g.y-l.y)<0.5 && (!!g.lots[0].building)===(!!l.building);});
+    if(found){found.lots.push(l);}
+    else{groups.push({x:l.x,y:l.y,lots:[l]});}
+  });
+
+  // Selected lot ID for highlight
+  var selectedLotKey=null;
+
+  groups.forEach(function(g){
+    var isCluster=g.lots.length>1;
+    var isBuilding=!!g.lots[0].building;
+    var dot=div({position:"absolute",left:g.x+"%",top:g.y+"%",transform:"translate(-50%,-50%)",cursor:"pointer",zIndex:5});
+    var size=isCluster?"22px":"14px";
+    var inner=div({width:size,height:size,borderRadius:"50%",border:"1.5px solid "+(isBuilding?"rgba(120,170,255,0.8)":"rgba(255,165,0,0.7)"),background:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"10px",color:"#fff",boxShadow:"0 0 6px rgba(0,0,0,0.6)"});
+    if(isBuilding)inner.textContent="🏢";
+    else if(isCluster)inner.textContent=String(g.lots.length);
+    dot.appendChild(inner);
+    // Tooltip
+    var tip=div({position:"absolute",bottom:"calc(100% + 4px)",left:"50%",transform:"translateX(-50%)",background:"rgba(5,12,22,0.95)",color:"#fff",padding:"4px 8px",borderRadius:"4px",fontSize:"11px",whiteSpace:"nowrap",pointerEvents:"none",opacity:"0",transition:"opacity 0.1s",border:"0.5px solid "+C.border});
+    var tipText=isCluster?(isBuilding?(g.lots[0].name||g.lots[0].nr):g.lots.length+" Wohnorte"):(g.lots[0].name||g.lots[0].nr);
+    tip.textContent=tipText;
+    dot.appendChild(tip);
+    dot.addEventListener("mouseenter",function(){tip.style.opacity="1";inner.style.transform="scale(1.3)";});
+    dot.addEventListener("mouseleave",function(){tip.style.opacity="0";inner.style.transform="";});
+    dot.addEventListener("click",function(e){
+      e.stopPropagation();
+      if(isBuilding){
+        // Stage 3: Apartment-Innen
+        HOME_STATE={stage:3,world:HOME_STATE.world,building:g.lots[0].building};
+        redrawHomePicker();
+      } else if(isCluster){
+        // Sub-Liste neben der Karte einblenden
+        showClusterPopup_(g);
+      } else {
+        // Direkt wählen
+        var l=g.lots[0];
+        var label=l.name||l.nr;
+        state.char.home=HOME_STATE.world+" "+label;
+        saveLocalDraft();redrawHomePicker();
+      }
+    });
+    mapCard.appendChild(dot);
+  });
+  wrap.appendChild(mapCard);
+
+  // Cluster-Popup-Container (fix unterhalb der Karte, gefüllt bei Klick)
+  var clusterBox=div({});
+  clusterBox.id="home-cluster-list";
+  wrap.appendChild(clusterBox);
+
+  return wrap;
+}
+function showClusterPopup_(g){
+  var box=document.getElementById("home-cluster-list");
+  if(!box)return;
+  box.innerHTML="";
+  var hdr=div({fontSize:"11px",color:C.muted,marginBottom:"6px",letterSpacing:"1px"},[g.lots.length+" WOHNORTE AN DIESEM PUNKT"]);
+  box.appendChild(hdr);
+  var list=div({display:"flex",flexDirection:"column",gap:"4px"});
+  g.lots.forEach(function(l){
+    var label=l.name||l.nr;
+    var occ=l.url?homeOccupantsByUrl_(l.url):[];
+    var item=div({background:C.card2,border:"1px solid "+C.border,borderRadius:"6px",padding:"8px 10px",cursor:"pointer",display:"flex",alignItems:"center",gap:"10px"});
+    item.addEventListener("mouseenter",function(){item.style.borderColor=C.teal;});
+    item.addEventListener("mouseleave",function(){item.style.borderColor=C.border;});
+    item.addEventListener("click",function(){
+      state.char.home=HOME_STATE.world+" "+label;
+      saveLocalDraft();redrawHomePicker();
+    });
+    item.appendChild(div({fontSize:"12px",color:C.text,flex:"1"},[label]));
+    if(occ.length){
+      var occText="aktiv: "+occ.slice(0,2).map(function(c){return c.name||c.n;}).join(", ");
+      if(occ.length>2)occText+=" +"+(occ.length-2);
+      item.appendChild(div({fontSize:"10px",color:C.muted,fontStyle:"italic"},[occText]));
+    }
+    list.appendChild(item);
+  });
+  box.appendChild(list);
+}
+
+// STAGE 2B: Externe Welt — kein Picker, einfach Bild + Button
+function mkExternalWorldStage_(wmeta){
+  var wrap=div({});
+  var hdr=div({display:"flex",alignItems:"center",gap:"8px",marginBottom:"8px"});
+  var back=mk("button",{background:"none",border:"1px solid "+C.border,color:C.muted,cursor:"pointer",borderRadius:"6px",padding:"4px 10px",fontSize:"11px"},["← Welten"]);
+  back.addEventListener("click",function(){HOME_STATE={stage:1,world:"",building:""};redrawHomePicker();});
+  hdr.appendChild(back);
+  hdr.appendChild(div({fontSize:"13px",fontWeight:"600",color:C.text},[wmeta.name]));
+  wrap.appendChild(hdr);
+
+  var card=div({background:C.card2,border:"1px solid "+C.border,borderRadius:"8px",overflow:"hidden",marginBottom:"10px"});
+  if(wmeta.image){
+    var im=document.createElement("img");
+    im.src=wmeta.image;
+    Object.assign(im.style,{width:"100%",height:"180px",objectFit:"cover",display:"block"});
+    card.appendChild(im);
+  } else {
+    card.appendChild(div({width:"100%",height:"100px",background:C.card,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"32px",opacity:"0.4"},["🌑"]));
+  }
+  var info=div({padding:"12px"});
+  if(wmeta.category)info.appendChild(div({fontSize:"10px",color:C.muted,letterSpacing:"1px",marginBottom:"4px"},[wmeta.category.toUpperCase()]));
+  info.appendChild(div({fontSize:"13px",color:C.text,marginBottom:"10px"},["Externe Welt — keine Karte mit Wohnorten, dein Charakter lebt einfach in "+wmeta.name+"."]));
+
+  var btnRow=div({display:"flex",gap:"6px"});
+  var pick=mk("button",{background:C.teal,color:"#0a1420",border:"none",borderRadius:"6px",padding:"8px 14px",fontSize:"12px",fontWeight:"600",cursor:"pointer",flex:"1"},["In "+wmeta.name+" wohnen"]);
+  pick.addEventListener("click",function(){
+    state.char.home=wmeta.name;
+    saveLocalDraft();redrawHomePicker();
+  });
+  btnRow.appendChild(pick);
+  if(wmeta.externalUrl){
+    var link=mk("a",{background:"none",border:"1px solid "+C.border,color:C.muted,borderRadius:"6px",padding:"7px 12px",fontSize:"11px",textDecoration:"none"},["Forum-Thread →"]);
+    link.href=wmeta.externalUrl;link.target="_blank";
+    btnRow.appendChild(link);
+  }
+  info.appendChild(btnRow);
+  card.appendChild(info);
+  wrap.appendChild(card);
+  return wrap;
+}
+
+// STAGE 3: Apartment-Innenraum mit Innen-Dots
+function mkBuildingStage_(){
+  var wrap=div({});
+  var hdr=div({display:"flex",alignItems:"center",gap:"8px",marginBottom:"8px"});
+  var back=mk("button",{background:"none",border:"1px solid "+C.border,color:C.muted,cursor:"pointer",borderRadius:"6px",padding:"4px 10px",fontSize:"11px"},["← "+HOME_STATE.world]);
+  back.addEventListener("click",function(){HOME_STATE={stage:2,world:HOME_STATE.world,building:""};redrawHomePicker();});
+  hdr.appendChild(back);
+  hdr.appendChild(div({fontSize:"13px",fontWeight:"600",color:C.text},["🏢 "+HOME_STATE.building]));
+  wrap.appendChild(hdr);
+
+  var b=ATLAS_DATA.BUILDINGS[HOME_STATE.building];
+  if(!b||!b.lots){
+    wrap.appendChild(div({padding:"16px",textAlign:"center",color:C.muted,fontSize:"12px"},["Keine Daten zu diesem Apartment gefunden."]));
+    return wrap;
+  }
+  var img=(b.imgs&&b.imgs[0])||"";
+
+  var mapCard=div({position:"relative",width:"100%",aspectRatio:"1920/1200",background:C.card,borderRadius:"8px",overflow:"hidden",border:"1px solid "+C.border,marginBottom:"10px"});
+  if(img){
+    var bg=document.createElement("img");
+    bg.src=img;
+    Object.assign(bg.style,{width:"100%",height:"100%",objectFit:"cover",display:"block",filter:"brightness(0.7)"});
+    mapCard.appendChild(bg);
+  }
+  b.lots.forEach(function(l){
+    if(typeof l.x!=="number"||typeof l.y!=="number")return;
+    var label=l.name||l.nr||"?";
+    var dot=div({position:"absolute",left:l.x+"%",top:l.y+"%",transform:"translate(-50%,-50%)",cursor:"pointer",zIndex:5});
+    var inner=div({width:"14px",height:"14px",borderRadius:"50%",border:"1.5px solid rgba(120,170,255,0.8)",background:"rgba(0,0,0,0.5)",boxShadow:"0 0 6px rgba(0,0,0,0.6)"});
+    dot.appendChild(inner);
+    var tip=div({position:"absolute",bottom:"calc(100% + 4px)",left:"50%",transform:"translateX(-50%)",background:"rgba(5,12,22,0.95)",color:"#fff",padding:"4px 8px",borderRadius:"4px",fontSize:"11px",whiteSpace:"nowrap",pointerEvents:"none",opacity:"0",transition:"opacity 0.1s",border:"0.5px solid "+C.border});
+    tip.textContent=label;
+    dot.appendChild(tip);
+    dot.addEventListener("mouseenter",function(){tip.style.opacity="1";inner.style.transform="scale(1.3)";});
+    dot.addEventListener("mouseleave",function(){tip.style.opacity="0";inner.style.transform="";});
+    dot.addEventListener("click",function(){
+      state.char.home=HOME_STATE.world+" "+HOME_STATE.building+" "+label;
+      saveLocalDraft();redrawHomePicker();
+    });
+    mapCard.appendChild(dot);
+  });
+  wrap.appendChild(mapCard);
+  return wrap;
+}
+
+function redrawHomePicker(){
+  var wrap=document.getElementById("home-picker-wrap");
+  if(!wrap)return;
+  wrap.innerHTML="";
+  wrap.appendChild(mkHomePicker());
+}
+
+
 function mkField(f){
   var wrap=div({marginBottom:"20px",borderBottom:"1px solid "+C.border,paddingBottom:"18px"});
   wrap.appendChild(mk("label",{display:"block",fontSize:"13px",fontWeight:"700",color:C.accent,marginBottom:"2px"},[f.label+(f.optional?" · optional":"")]));
   wrap.appendChild(div({fontSize:"12px",color:C.muted,marginBottom:"6px",fontStyle:"italic"},[f.hint]));
+  // Spezial: Wohnort-Picker statt simples Input
+  if(f.key==="home"){
+    var pwrap=div({});
+    pwrap.id="home-picker-wrap";
+    pwrap.appendChild(mkHomePicker());
+    wrap.appendChild(pwrap);
+    wrap.appendChild(mkAI(f.key,f.label,state.char[f.key]));
+    return wrap;
+  }
   if(f.key==="appearance"){
     var iw=div({marginBottom:"8px"});
     // Lokale Vorschau
