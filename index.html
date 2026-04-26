@@ -54,6 +54,9 @@ html{overscroll-behavior:none}
   /* In Welt-Ansicht: Lot-Tokens standardmässig weg, nur bei angeklicktem Lot zeigen */
   #world-image-area .dot-char-tokens{display:none!important}
   #world-image-area .lot-dot.show-tokens .dot-char-tokens{display:flex!important}
+  /* Cluster-Tokens (Wohnkomplex etc.) immer sichtbar — sonst sieht man auf Mobile gar nicht
+     dass dort jemand wohnt, weil cluster-dots kein show-tokens-Pattern haben */
+  #world-image-area .cluster-dot .dot-char-tokens{display:flex!important;transform:translateX(-50%) scale(0.85)}
   .world-dot .dot-pulse{width:18px!important;height:18px!important}
   .world-dot .dot-inner{width:6px!important;height:6px!important}
   /* Hover-Card (Welt-Vorschau) standardmässig weg, aber bei show-tokens sichtbar */
@@ -210,6 +213,8 @@ html{overscroll-behavior:none}
   .cluster-item.preview-active{display:flex;flex-direction:column;align-items:stretch;gap:0}
 }
 .cluster-pip{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.cluster-item-chars{margin-left:auto;display:flex;align-items:center;flex-shrink:0;padding-left:4px}
+.cluster-item-chars:empty{display:none}
 .building-dot .cluster-inner{background:rgba(100,160,255,0.2)!important;border-color:rgba(100,160,255,0.6)!important}
 .cluster-hover{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(5,12,22,0.97);border-radius:9px;overflow:hidden;z-index:30;pointer-events:none;min-width:165px;display:none}
 .cluster-dot:hover .cluster-hover{display:block}
@@ -1607,6 +1612,48 @@ function updateAllTokens(){
     }).join('')+(chars.length>5?'<div class="dot-char-token-wrap dot-char-token-extra"><div class="dot-char-token-ph">+'+(chars.length-5)+'</div></div>':'');
     el.innerHTML = inner;
   });
+  // Update cluster dots (Wohnkomplex etc.) — aggregiert über alle Lot-URLs der Gruppe
+  document.querySelectorAll('.dot-char-tokens[data-cluster-urls]').forEach(function(el){
+    var urls = (el.getAttribute('data-cluster-urls')||'').split('|').filter(Boolean);
+    if(!urls.length){ el.innerHTML=''; return; }
+    var threadIds = {};
+    urls.forEach(function(u){ var id=getThreadIdFromUrl(u); if(id) threadIds[id]=true; });
+    var seen = {};
+    var chars = [];
+    CHARS.forEach(function(c){
+      if(!c.lastSeenUrl) return;
+      var cid = getThreadIdFromUrl(c.lastSeenUrl);
+      if(!cid || !threadIds[cid]) return;
+      if(seen[c.n]) return;
+      seen[c.n] = true;
+      chars.push(c);
+    });
+    var inner = chars.map(function(c,i){
+      var name=c.n||'';
+      var inner2=c.img?'<img class="dot-char-token" src="'+c.img+'" alt="'+name+'">':'<div class="dot-char-token-ph">'+name.charAt(0)+'</div>';
+      var hidden=i>=5?'dot-char-token-hidden':'';
+      return '<div class="dot-char-token-wrap '+hidden+'">'+inner2+'<div class="dot-char-token-name">'+name+'</div></div>';
+    }).join('')+(chars.length>5?'<div class="dot-char-token-wrap dot-char-token-extra"><div class="dot-char-token-ph">+'+(chars.length-5)+'</div></div>':'');
+    el.innerHTML = inner;
+  });
+  // Update cluster-item char-indicators (kleine Avatare am rechten Rand jedes Popup-Items)
+  document.querySelectorAll('.cluster-item-chars[data-lot-url]').forEach(function(el){
+    var lotUrl = el.getAttribute('data-lot-url');
+    if(!lotUrl){ el.innerHTML=''; return; }
+    var tid = getThreadIdFromUrl(lotUrl);
+    var chars = CHARS.filter(function(c){
+      return c.lastSeenUrl && tid && getThreadIdFromUrl(c.lastSeenUrl) === tid;
+    });
+    if(!chars.length){ el.innerHTML=''; return; }
+    var html = chars.slice(0,3).map(function(c){
+      var name=(c.n||'').replace(/"/g,'&quot;');
+      return c.img
+        ? '<img src="'+c.img+'" title="'+name+'" style="width:18px;height:18px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(74,170,106,0.8);margin-left:-4px;box-shadow:0 0 4px rgba(74,170,106,0.5)">'
+        : '<div title="'+name+'" style="width:18px;height:18px;border-radius:50%;background:rgba(74,170,106,0.3);border:1.5px solid rgba(74,170,106,0.6);display:flex;align-items:center;justify-content:center;font-size:9px;color:#4aaa6a;margin-left:-4px">'+(c.n.charAt(0)||'?')+'</div>';
+    }).join('');
+    if(chars.length>3) html += '<span style="font-size:9px;color:#4aaa6a;margin-left:4px;font-weight:500">+'+(chars.length-3)+'</span>';
+    el.innerHTML = html;
+  });
 }
 
 // Dot colors per world type
@@ -2409,7 +2456,9 @@ function renderLots(w){
       })();
       const lbl=lblParts.sub?`${lblParts.main}<span class="lot-sublabel">${lblParts.sub}</span>`:lblParts.main;
       const lblPlain=lblParts.sub?`${lblParts.main} · ${lblParts.sub}`:lblParts.main;
-      const itemsHtml=group.lots.map(l=>`<div class="cluster-item" data-url="${l.url}">${l.img?`<img class="cluster-item-preview" src="${l.img}">`:''}<div class="cluster-pip" style="background:${l.active?'#4aaa6a':'rgba(255,255,255,0.4)'}"></div>${parseLotLabel(l).num}${parseLotLabel(l).sub?` <span style="color:rgba(255,255,255,0.45);font-size:10px">– ${parseLotLabel(l).sub}</span>`:''}</div>`).join('');
+      const itemsHtml=group.lots.map(l=>`<div class="cluster-item" data-url="${l.url}">${l.img?`<img class="cluster-item-preview" src="${l.img}">`:''}<div class="cluster-pip" style="background:${l.active?'#4aaa6a':'rgba(255,255,255,0.4)'}"></div>${parseLotLabel(l).num}${parseLotLabel(l).sub?` <span style="color:rgba(255,255,255,0.45);font-size:10px">– ${parseLotLabel(l).sub}</span>`:''}<div class="cluster-item-chars" data-lot-url="${l.url||''}"></div></div>`).join('');
+      // Alle Lot-URLs der Gruppe als Pipe-String — updateAllTokens zieht daraus die Char-Aggregation
+      const clusterUrls=group.lots.map(l=>l.url||'').filter(Boolean).join('|');
       const lotsWithImg=group.lots.filter(l=>l.img);
       // Wohnkomplex-Anker-Bild: wenn kein Lot ein eigenes Bild hat, schaue im
       // Sheet nach einem Anker (Zeile mit gleicher dotGroup, ohne threadUrl, mit imgUrl)
@@ -2436,7 +2485,7 @@ function renderLots(w){
         ?`<div class="cluster-hover" style="border:1px solid ${color}88;box-shadow:0 6px 28px ${color}44;min-width:180px"><img src="${buildingImg}" style="width:100%;height:110px;object-fit:cover;display:block"><div class="hover-footer"><span class="hover-type">${lblPlain}</span><span class="hover-action" style="color:${color}">Betreten →</span></div></div>`
         :(!isBuilding&&lotsWithImg.length>0)?`<div class="cluster-hover" style="border:1px solid ${color}88;box-shadow:0 6px 28px ${color}44"><div style="display:flex;gap:1px">${lotsWithImg.map(l=>`<div style="position:relative;flex:1;min-width:0"><img src="${l.img}" style="width:100%;height:75px;object-fit:cover;display:block"><div style="position:absolute;bottom:3px;left:5px;font-size:8px;font-weight:600;text-shadow:0 1px 3px #000;color:#fff">${parseLotLabel(l).num}</div></div>`).join('')}</div><div class="hover-footer"><span class="hover-type">${group.lots.length} Orte</span><span class="hover-action" style="color:${color}">Klicken →</span></div></div>`
         :(!isBuilding&&anchorImg)?`<div class="cluster-hover" style="border:1px solid ${color}88;box-shadow:0 6px 28px ${color}44;min-width:180px"><img src="${anchorImg}" style="width:100%;height:110px;object-fit:cover;display:block"><div class="hover-footer"><span class="hover-type">${group.lots.length} Orte</span><span class="hover-action" style="color:${color}">Klicken →</span></div></div>`:'';
-      cd.innerHTML=`<div class="cluster-inner" style="color:${color};border-color:${color};box-shadow:0 0 8px ${color}44">${isBuilding?'🏢':group.lots.length}</div><div class="cluster-label">${lbl}</div>${clusterHoverHtml}${isBuilding?'':` <div class="cluster-popup"><div style="font-size:10px;color:rgba(255,165,0,0.7);margin-bottom:6px;padding:0 4px">📦 ${group.lots.length} Orte</div>${itemsHtml}</div>`}`;
+      cd.innerHTML=`<div class="cluster-inner" style="color:${color};border-color:${color};box-shadow:0 0 8px ${color}44">${isBuilding?'🏢':group.lots.length}</div><div class="cluster-label">${lbl}</div><div class="dot-char-tokens" data-cluster-urls="${clusterUrls}"></div>${clusterHoverHtml}${isBuilding?'':` <div class="cluster-popup"><div style="font-size:10px;color:rgba(255,165,0,0.7);margin-bottom:6px;padding:0 4px">📦 ${group.lots.length} Orte</div>${itemsHtml}</div>`}`;
       // Cluster-Items: Zwei-Klick-Verhalten auf Mobile, direkt Öffnen auf Desktop
       cd.querySelectorAll('.cluster-item').forEach(item=>{
         item.addEventListener('click',e=>{
