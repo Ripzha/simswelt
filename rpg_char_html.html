@@ -1018,7 +1018,8 @@ function mkPostModal(){
     },true,true,false));
     toolRow.appendChild(btn("🔁 Forum-Fenster öffnen",C.muted,function(){
       var fid=FORUM_IDS[state.postType]||"51849";
-      window.open("https://www.simsforumrpg.de/new.php?forum="+fid,"_blank","noopener");
+      var nameParam = state.char.name ? "&plan_name="+encodeURIComponent(state.char.name) : "";
+      window.open("https://www.simsforumrpg.de/new.php?forum="+fid+nameParam,"_blank","noopener");
     },true,true,false));
     box.appendChild(toolRow);
 
@@ -1096,8 +1097,9 @@ function mkPostModal(){
       // BBCode in die Zwischenablage — Gast muss Strg+V im Forum
       if(navigator.clipboard){navigator.clipboard.writeText(bb);}
       else{var ta=document.createElement("textarea");ta.value=bb;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);}
-      // Neues Tab: einfach new.php (ohne Message-Parameter, weil der bei Login/Redirect sowieso verloren geht)
-      window.open("https://www.simsforumrpg.de/new.php?forum="+fid,"_blank","noopener");
+      // Neues Tab: new.php mit plan_name damit Char-Forum-Blaze den Namen kennt
+      var nameParam = state.char.name ? "&plan_name="+encodeURIComponent(state.char.name) : "";
+      window.open("https://www.simsforumrpg.de/new.php?forum="+fid+nameParam,"_blank","noopener");
       state.postCopied=true;
       draw();
     },false,false,false));
