@@ -1744,7 +1744,7 @@ function updateSidebarActivity(){
     var portrait=c.img
       ?'<img src="'+c.img+'" style="width:26px;height:26px;border-radius:50%;object-fit:cover;object-position:50% 30%;flex-shrink:0;border:1.5px solid '+color+';box-shadow:0 0 4px '+color+'88">'
       :'<div style="width:26px;height:26px;border-radius:50%;background:'+color+';display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:600;flex-shrink:0;box-shadow:0 0 4px '+color+'88">'+nameShort.charAt(0)+'</div>';
-    return '<div class="activity-item" style="cursor:pointer" data-url="'+c.lastSeenUrl+'" title="'+c.n+(c.p?' (gespielt von '+c.p+')':'')+' — '+(c.lastSeenDate||'')+'">'
+    return '<div class="activity-item" style="cursor:pointer" data-url="'+c.lastSeenUrl+'">'
       +portrait
       +'<div style="min-width:0;flex:1"><div class="activity-name">'+nameShort+player+'</div><div class="activity-world">'+c.lastSeenName+'</div></div>'
       +'</div>';
