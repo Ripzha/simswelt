@@ -1759,22 +1759,37 @@ function updateSidebarActivity(){
 var _activityPreviewCache = {};
 var _activityPreviewEl = null;
 var _activityPreviewTimer = null;
+var _activityPrefetchIdx = 0;
 
 function attachActivityPreview(item){
   var url = item.getAttribute('data-url');
   if(!url) return;
   if(window.matchMedia('(pointer:coarse)').matches) return; // kein Hover auf Touch
 
+  // Prefetch staggered (alle 120ms eine URL holen) damit der erste Hover sofort da ist
+  if(_activityPreviewCache[url] === undefined){
+    var idx = _activityPrefetchIdx++;
+    setTimeout(function(){ prefetchActivityPreview(url); }, idx * 120);
+  }
+
   item.addEventListener('mouseenter', function(){
     clearTimeout(_activityPreviewTimer);
     _activityPreviewTimer = setTimeout(function(){
       showActivityPreview(item, url);
-    }, 400);
+    }, 180);
   });
   item.addEventListener('mouseleave', function(){
     clearTimeout(_activityPreviewTimer);
     hideActivityPreview();
   });
+}
+
+function prefetchActivityPreview(url){
+  if(_activityPreviewCache[url] !== undefined) return;
+  fetch(SCRIPT_URL+'?action=postPreview&url='+encodeURIComponent(url))
+    .then(function(r){return r.json();})
+    .then(function(data){ _activityPreviewCache[url] = data; })
+    .catch(function(){ _activityPreviewCache[url] = null; });
 }
 
 function showActivityPreview(item, url){
