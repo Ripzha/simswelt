@@ -2562,6 +2562,8 @@ function renderLots(w){
       wia.appendChild(cd);
     }
     group.lots.forEach(lot=>{
+      // Skip Lots ohne Namen (sonst zeigt die Pill "undefined")
+      if(!lot.name) return;
       const pill=document.createElement('div');
       pill.className='lot-pill';
       pill.style.cssText=`background:${lot.active?'rgba(74,170,106,0.15)':'rgba(255,255,255,0.05)'};border-color:${lot.active?'#4aaa6a55':'rgba(255,255,255,0.1)'};color:${lot.active?'#4aaa6a':'rgba(255,255,255,0.5)'}`;
