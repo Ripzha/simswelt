@@ -1805,7 +1805,14 @@ function showActivityPreview(item, url){
   if(_activityPreviewCache[url] !== undefined){
     var data = _activityPreviewCache[url];
     if(!data || !data.text){ hideActivityPreview(); return; }
-    div.textContent = data.text;
+    div.innerHTML = '';
+    var txt = document.createElement('div');
+    txt.textContent = data.text;
+    div.appendChild(txt);
+    var hint = document.createElement('div');
+    hint.style.cssText = 'margin-top:6px;font-style:normal;font-size:9px;color:rgba(74,170,106,0.75);letter-spacing:0.5px;text-transform:uppercase';
+    hint.textContent = '→ Klicken & weiterlesen';
+    div.appendChild(hint);
     position();
     return;
   }
@@ -1819,7 +1826,14 @@ function showActivityPreview(item, url){
       _activityPreviewCache[url] = data;
       if(_activityPreviewEl !== div) return;
       if(!data || !data.text){ hideActivityPreview(); return; }
-      div.textContent = data.text;
+      div.innerHTML = '';
+      var txt = document.createElement('div');
+      txt.textContent = data.text;
+      div.appendChild(txt);
+      var hint = document.createElement('div');
+      hint.style.cssText = 'margin-top:6px;font-style:normal;font-size:9px;color:rgba(74,170,106,0.75);letter-spacing:0.5px;text-transform:uppercase';
+      hint.textContent = '→ Klicken & weiterlesen';
+      div.appendChild(hint);
       position();
     })
     .catch(function(){
