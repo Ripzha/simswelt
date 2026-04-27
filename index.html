@@ -1766,10 +1766,16 @@ function attachActivityPreview(item){
   if(!url) return;
   if(window.matchMedia('(pointer:coarse)').matches) return; // kein Hover auf Touch
 
-  // Prefetch staggered (alle 120ms eine URL holen) damit der erste Hover sofort da ist
+  // Prefetch nur wenn User echt da ist (nicht Bot/Scraper):
+  // - Mindestens 1 Mal Interaktion
+  // - Tab im Vordergrund
+  // - 2s Mindest-Verweildauer auf der Seite
   if(_activityPreviewCache[url] === undefined){
     var idx = _activityPrefetchIdx++;
-    setTimeout(function(){ prefetchActivityPreview(url); }, idx * 120);
+    setTimeout(function(){
+      if(!_hasInteracted || !_isVisible()) return;
+      prefetchActivityPreview(url);
+    }, 2000 + idx * 120);
   }
 
   item.addEventListener('mouseenter', function(){
@@ -3538,6 +3544,27 @@ window.addEventListener('hashchange',function(){
   if(m)openCharView(m[1]);
   else if(!h&&document.getElementById('char-container').classList.contains('open'))closeCharView();
 });
+// ═══ Bot-Schutz / Quota-Sparmodus ════════════════════════════════
+// User-Interaktion zaehlt (Maus, Scroll, Touch, Keyboard).
+// Apps-Script-Calls die vermeidbar sind, warten bis User wirklich da ist.
+var _hasInteracted = false;
+function _markInteracted(){ _hasInteracted = true; }
+['mousemove','scroll','keydown','touchstart','click'].forEach(function(ev){
+  window.addEventListener(ev, _markInteracted, {once:true, passive:true});
+});
+
+// Tab-Visibility: nur wenn Tab im Vordergrund, periodische Updates laufen
+function _isVisible(){ return document.visibilityState !== 'hidden'; }
+
+// Wrapper fuer setInterval der pausiert wenn Tab versteckt
+function _smartInterval(fn, ms){
+  return setInterval(function(){
+    if(!_isVisible()) return;
+    fn();
+  }, ms);
+}
+// ══════════════════════════════════════════════════════════════════
+
 // Immer beim Laden: Chars + Stats holen (für Tokens + Sidebar)
 window.addEventListener('load',function(){
   updateSidebarStats();
@@ -3545,9 +3572,9 @@ window.addEventListener('load',function(){
   updateSidebarForum();
   repositionTooltips();
   fetchSheetLots();
-  // Periodische Updates: Forum-Feed alle 5 Min, Stats/Online alle 2 Min
-  setInterval(updateSidebarForum, 5*60*1000);
-  setInterval(updateSidebarStats, 2*60*1000);
+  // Periodische Updates pausieren wenn Tab versteckt
+  _smartInterval(updateSidebarForum, 5*60*1000);
+  _smartInterval(updateSidebarStats, 2*60*1000);
   if(location.hash.match(/^#chars-/)){
     openCharView(location.hash.replace('#chars-',''));
   }
