@@ -221,7 +221,8 @@ html{overscroll-behavior:none}
 .cluster-hover{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(5,12,22,0.97);border-radius:9px;overflow:hidden;z-index:30;pointer-events:none;min-width:165px;display:none}
 .cluster-dot:hover .cluster-hover{display:block}
 @media(max-width:768px){.cluster-hover{display:none!important}}
-.calib-btn{position:absolute;background:rgba(255,200,0,0.15);border:0.5px solid rgba(255,200,0,0.4);border-radius:5px;padding:4px 9px;font-size:10px;color:#ffcc44;cursor:pointer;z-index:20}
+.calib-btn{display:none;position:absolute;background:rgba(255,200,0,0.15);border:0.5px solid rgba(255,200,0,0.4);border-radius:5px;padding:4px 9px;font-size:10px;color:#ffcc44;cursor:pointer;z-index:20}
+body.admin-mode .calib-btn{display:block}
 #calib-map-btn{bottom:12px;right:12px}
 #calib-world-btn{left:12px;bottom:75px}
 .calib-panel{position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,0.96);border:1px solid rgba(255,200,0,0.4);border-radius:8px;padding:11px 13px;z-index:50;font-size:11px;width:230px;display:none}
@@ -2641,8 +2642,8 @@ document.getElementById('logo-icon').addEventListener('click',()=>{
   logoClicks++;clearTimeout(logoTimer);logoTimer=setTimeout(()=>logoClicks=0,2500);
   if(logoClicks>=5){logoClicks=0;if(adminMode){adminMode=false;closeAdmin();return;}const pw=prompt('Admin-Passwort:');if(pw===ADMIN_PASS){adminMode=true;openAdmin();}else if(pw!==null)alert('Falsches Passwort.');}
 });
-function openAdmin(){document.getElementById('admin-panel').classList.add('open');document.getElementById('logo-icon').classList.add('admin-active');updateSuggestBadge();renderAdminContent();}
-function closeAdmin(){document.getElementById('admin-panel').classList.remove('open');document.getElementById('logo-icon').classList.remove('admin-active');adminMode=false;}
+function openAdmin(){document.body.classList.add('admin-mode');document.getElementById('admin-panel').classList.add('open');document.getElementById('logo-icon').classList.add('admin-active');updateSuggestBadge();renderAdminContent();}
+function closeAdmin(){document.body.classList.remove('admin-mode');document.getElementById('admin-panel').classList.remove('open');document.getElementById('logo-icon').classList.remove('admin-active');adminMode=false;}
 function setAdminTab(t){adminTab=t;['lots','suggest','export','assign'].forEach(id=>document.getElementById('atab-'+id).classList.toggle('active',id===t));renderAdminContent();}
 function updateSuggestBadge(){const cnt=suggestions.filter(s=>s.status==='pending').length;const el=document.getElementById('admin-suggest-count');el.style.display=cnt>0?'inline-flex':'none';el.textContent=cnt;}
 function renderAdminContent(){const c=document.getElementById('admin-content');if(adminTab==='lots')c.innerHTML=renderLotsTab();else if(adminTab==='suggest')c.innerHTML=renderSuggestTab();else if(adminTab==='assign')renderAssignTab();else c.innerHTML=renderExportTab();}
