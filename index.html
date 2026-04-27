@@ -27,7 +27,13 @@ html{overscroll-behavior:none}
 .sec-label{font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1.5px;text-transform:uppercase;margin:6px 0 4px}
 .nav-item{padding:6px 8px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.07);border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:11px;color:#fff;text-decoration:none}
 .nav-item:hover,.nav-item:active{background:rgba(255,255,255,0.08)}
-.activity-item{padding:5px 7px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.07);border-radius:5px;display:flex;align-items:center;gap:7px;margin-bottom:4px}
+.activity-item{padding:5px 7px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.07);border-radius:5px;display:flex;align-items:center;gap:7px;margin-bottom:4px;position:relative}
+.activity-preview{position:fixed;background:rgba(5,12,22,0.97);border:0.5px solid rgba(74,170,106,0.3);border-radius:8px;padding:10px 12px;z-index:200;max-width:280px;font-size:11px;line-height:1.5;color:rgba(255,255,255,0.85);box-shadow:0 6px 24px rgba(0,0,0,0.85);pointer-events:none;font-style:italic}
+.activity-preview::before{content:"";position:absolute;width:8px;height:8px;background:rgba(5,12,22,0.97);border-left:0.5px solid rgba(74,170,106,0.3);border-bottom:0.5px solid rgba(74,170,106,0.3);transform:rotate(45deg)}
+.activity-preview.right::before{left:-5px;top:50%;margin-top:-4px}
+.activity-preview.left::before{right:-5px;top:50%;margin-top:-4px;transform:rotate(225deg)}
+.activity-preview-loading{color:rgba(255,255,255,0.4);font-style:normal;font-size:10px}
+@media (max-width:768px){.activity-preview{display:none!important}}
 .activity-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 .activity-name{font-size:11px;font-weight:500}
 .activity-world{font-size:10px;color:rgba(255,255,255,0.35)}
@@ -1745,7 +1751,88 @@ function updateSidebarActivity(){
   }).join('');
   el.querySelectorAll('[data-url]').forEach(function(item){
     item.addEventListener('click',function(){window.open(this.getAttribute('data-url'),'_blank');});
+    attachActivityPreview(item);
   });
+}
+
+// Hover-Preview-System (zeigt erste Saetze des letzten Posts)
+var _activityPreviewCache = {};
+var _activityPreviewEl = null;
+var _activityPreviewTimer = null;
+
+function attachActivityPreview(item){
+  var url = item.getAttribute('data-url');
+  if(!url) return;
+  if(window.matchMedia('(pointer:coarse)').matches) return; // kein Hover auf Touch
+
+  item.addEventListener('mouseenter', function(){
+    clearTimeout(_activityPreviewTimer);
+    _activityPreviewTimer = setTimeout(function(){
+      showActivityPreview(item, url);
+    }, 400);
+  });
+  item.addEventListener('mouseleave', function(){
+    clearTimeout(_activityPreviewTimer);
+    hideActivityPreview();
+  });
+}
+
+function showActivityPreview(item, url){
+  hideActivityPreview();
+  var rect = item.getBoundingClientRect();
+  var div = document.createElement('div');
+  div.className = 'activity-preview';
+  document.body.appendChild(div);
+  _activityPreviewEl = div;
+
+  function position(){
+    var w = 280;
+    var left = rect.left - w - 12;
+    var side = 'left';
+    if(left < 8){
+      left = rect.right + 12;
+      side = 'right';
+    }
+    var top = rect.top + rect.height/2 - 30;
+    if(top < 8) top = 8;
+    if(top + 100 > window.innerHeight) top = window.innerHeight - 110;
+    div.style.left = left + 'px';
+    div.style.top = top + 'px';
+    div.classList.remove('left','right');
+    div.classList.add(side);
+  }
+
+  if(_activityPreviewCache[url] !== undefined){
+    var data = _activityPreviewCache[url];
+    if(!data || !data.text){ hideActivityPreview(); return; }
+    div.textContent = data.text;
+    position();
+    return;
+  }
+
+  div.innerHTML = '<span class="activity-preview-loading">Lade Vorschau…</span>';
+  position();
+
+  fetch(SCRIPT_URL+'?action=postPreview&url='+encodeURIComponent(url))
+    .then(function(r){return r.json();})
+    .then(function(data){
+      _activityPreviewCache[url] = data;
+      if(_activityPreviewEl !== div) return;
+      if(!data || !data.text){ hideActivityPreview(); return; }
+      div.textContent = data.text;
+      position();
+    })
+    .catch(function(){
+      _activityPreviewCache[url] = null;
+      if(_activityPreviewEl === div) hideActivityPreview();
+    });
+}
+
+function hideActivityPreview(){
+  if(_activityPreviewEl){
+    _activityPreviewEl.remove();
+    _activityPreviewEl = null;
+  }
 }
 
 function updateSidebarStats(){
