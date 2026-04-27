@@ -193,7 +193,7 @@ html{overscroll-behavior:none}
 .cluster-dot:hover .cluster-inner{width:clamp(24px,2.4vw,34px);height:clamp(24px,2.4vw,34px)}
 .cluster-label{position:absolute;top:14px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;font-weight:500;text-shadow:0 1px 4px #000;pointer-events:none}
 /* Cluster-Tokens UNTER dem Cluster-Dot platzieren damit der Dot lesbar bleibt */
-.cluster-dot .dot-char-tokens{top:auto!important;bottom:calc(-1 * clamp(24px,2.4vw,34px) - 4px)}
+.cluster-dot .dot-char-tokens{top:auto!important;bottom:calc(-1 * clamp(24px,2.4vw,34px) + 4px)}
 .cluster-popup{position:absolute;bottom:25px;left:50%;transform:translateX(-50%);background:rgba(5,12,22,0.97);border:0.5px solid rgba(255,165,0,0.4);border-radius:8px;padding:8px;z-index:40;display:none;min-width:170px;box-shadow:0 6px 24px rgba(0,0,0,0.8)}
 .cluster-dot.open .cluster-popup{display:block}
 .cluster-item{padding:6px 8px;font-size:11px;cursor:pointer;border-radius:4px;display:flex;align-items:center;gap:7px;color:#fff;position:relative}
