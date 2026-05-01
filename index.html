@@ -2815,7 +2815,13 @@ function clearCalib(mode){if(mode==='map'){calibMapData=[];calibMapIdx=0;documen
 // ═══════════════════════════════════════════
 function closeAtlas(){
   localStorage.setItem('atlas_open','0');
-  window.parent.postMessage({action:'atlas-close'},'*');
+  // Im iframe-Embed (Xobor): Parent benachrichtigen, der schliesst den ATLAS-Frame.
+  // Standalone (direkter Aufruf): einfach zum Forum navigieren.
+  if(window.parent && window.parent !== window){
+    window.parent.postMessage({action:'atlas-close'},'*');
+  } else {
+    window.location.href = 'https://www.simsforumrpg.de/';
+  }
 }
 function toggleLegend(btn){btn.nextElementSibling.classList.toggle('open');}
 document.addEventListener('click',e=>{document.querySelectorAll('.legend-box.open').forEach(b=>{if(!b.previousElementSibling.contains(e.target)&&!b.contains(e.target))b.classList.remove('open');});});
