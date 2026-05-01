@@ -385,7 +385,6 @@ body.admin-mode .calib-btn{display:block}
   </div>
   <div style="display:flex;gap:7px;align-items:center">
     <button id="btn-close-atlas" onclick="closeAtlas()" style="background:rgba(255,80,80,0.12);border:0.5px solid rgba(255,80,80,0.25);border-radius:5px;color:rgba(255,130,130,0.85);font-size:10px;padding:5px 10px;cursor:pointer" title="Zur normalen Forenansicht">✕ Forum</button>
-    <a href="https://www.simsforumrpg.de/forum.php" target="_blank" id="btn-forum">📋 Forum</a>
     <button class="btn-auth" id="btn-login" onclick="window.open('https://www.simsforumrpg.de/anmeldung.php','_blank')">Anmelden</button>
     <button class="btn-auth" id="btn-register" onclick="window.open('https://www.simsforumrpg.de/anmeldung.php','_blank')">Registrieren</button>
   </div>
@@ -1895,17 +1894,18 @@ function showNavTip(item, text){
   div.textContent = text;
   document.body.appendChild(div);
   _navTipEl = div;
-  // Tooltip rechts neben Sidebar (Sidebar ist links, also Tooltip an die rechte Kante)
-  var w = 280;
+  // Echte Breite messen statt max-width annehmen — sonst rutscht der Tooltip
+  // bei kurzen Texten unnoetig weit weg vom Item
+  var w = div.offsetWidth;
   var left = rect.right + 12;
   var side = 'right';
   if(left + w > window.innerWidth - 8){
     left = rect.left - w - 12;
     side = 'left';
   }
-  var top = rect.top + rect.height/2 - 24;
+  var top = rect.top + rect.height/2 - div.offsetHeight/2;
   if(top < 8) top = 8;
-  if(top + 80 > window.innerHeight) top = window.innerHeight - 90;
+  if(top + div.offsetHeight > window.innerHeight - 8) top = window.innerHeight - div.offsetHeight - 8;
   div.style.left = left + 'px';
   div.style.top = top + 'px';
   div.classList.add(side);
