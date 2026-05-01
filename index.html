@@ -2019,7 +2019,7 @@ function updateSidebarForum(){
         if(t==='blog_comment') return '💭';
         return '·';
       }
-      el.innerHTML=events.slice(0,6).map(function(ev){
+      el.innerHTML=events.slice(0,4).map(function(ev){
         var title=(ev.title||'');
         if(title.length>28) title=title.substr(0,26)+'…';
         var user=ev.user||'Jemand';
@@ -2029,7 +2029,7 @@ function updateSidebarForum(){
           ?'<img src="'+ev.avatar+'" style="width:26px;height:26px;border-radius:50%;object-fit:cover;display:block;border:0.5px solid rgba(255,255,255,0.15)">'
           :'<div style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:13px;color:rgba(255,255,255,0.5)">'+(user.charAt(0)||'?')+'</div>';
         var badge='<div style="position:absolute;bottom:-2px;right:-2px;width:13px;height:13px;border-radius:50%;background:#0a1420;display:flex;align-items:center;justify-content:center;font-size:9px;border:1px solid rgba(255,255,255,0.1)">'+typeIcon(ev.type)+'</div>';
-        return '<div class="activity-item" style="cursor:pointer" data-url="'+ev.url+'" title="'+(ev.user||'')+' '+(ev.action||'')+': '+(ev.title||'')+'">'
+        return '<div class="activity-item" style="cursor:pointer" data-url="'+ev.url+'" data-type="'+ev.type+'" title="'+(ev.user||'')+' '+(ev.action||'')+': '+(ev.title||'')+'">'
           +'<div style="position:relative;flex-shrink:0">'+avatar+badge+'</div>'
           +'<div style="min-width:0;flex:1">'
           +'<div class="activity-name" style="font-size:10px">'+user+'</div>'
@@ -2037,8 +2037,28 @@ function updateSidebarForum(){
           +'<div style="font-size:9px;color:rgba(255,255,255,0.25);margin-top:1px">vor '+relTime(ev.ts)+'</div>'
           +'</div></div>';
       }).join('');
-      el.querySelectorAll('[data-url]').forEach(function(item){
-        item.addEventListener('click',function(){window.open(this.getAttribute('data-url'),'_blank');});
+      el.querySelectorAll('[data-url]').forEach(function(item, idx){
+        var url = item.getAttribute('data-url');
+        var type = item.getAttribute('data-type');
+        item.addEventListener('click',function(){window.open(url,'_blank');});
+        // Hover-Vorschau nur fuer Forum-Posts (forum_topic, forum_message) — bei Gallery/Blog
+        // liefert postPreview keinen Text, also gar nicht erst versuchen
+        if(type === 'forum_topic' || type === 'forum_message'){
+          // gestaffelter prefetch
+          setTimeout(function(){
+            if(typeof prefetchActivityPreview === 'function') prefetchActivityPreview(url);
+          }, 2500 + idx * 150);
+          item.addEventListener('mouseenter', function(){
+            clearTimeout(_activityPreviewTimer);
+            _activityPreviewTimer = setTimeout(function(){
+              showActivityPreview(item, url);
+            }, 180);
+          });
+          item.addEventListener('mouseleave', function(){
+            clearTimeout(_activityPreviewTimer);
+            hideActivityPreview();
+          });
+        }
       });
     })
     .catch(function(){
