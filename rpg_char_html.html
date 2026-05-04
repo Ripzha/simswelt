@@ -548,7 +548,7 @@ function mkWorldStage_(){
   wrap.appendChild(hdr);
 
   var wmeta=WORLDS_META.find(function(w){return w.name===HOME_STATE.world;});
-  var lots=(ATLAS_DATA.worldLots[HOME_STATE.world]||[]).filter(function(l){return l&&typeof l.x==="number"&&typeof l.y==="number"&&!l.outdoor;});
+  var lots=(ATLAS_DATA.worldLots[HOME_STATE.world]||[]).filter(function(l){return l&&typeof l.x==="number"&&typeof l.y==="number"&&!l.outdoor&&!l.info;});
 
   if(!lots.length){
     wrap.appendChild(div({padding:"16px",textAlign:"center",color:C.muted,fontSize:"12px",border:"1px dashed "+C.border,borderRadius:"8px"},["Diese Welt hat noch keine kalibrierten Wohnorte."]));
@@ -740,8 +740,8 @@ function mkBuildingStage_(){
 
   b.lots.forEach(function(l){
     if(typeof l.x!=="number"||typeof l.y!=="number")return;
-    // Outdoor-Lots (Gassen/Strassen) sind keine Wohnorte
-    if(l.outdoor)return;
+    // Outdoor-Lots (Gassen/Strassen) und Info-Lots (Portale etc.) sind keine Wohnorte
+    if(l.outdoor||l.info)return;
     // Floor-Filter: wenn lot.floors definiert ist, nur auf passender Etage zeigen
     if(Array.isArray(l.floors) && l.floors.indexOf(HOME_STATE.floorIdx)===-1) return;
     var label=l.name||l.nr||"?";
