@@ -595,7 +595,7 @@ function mkWorldStage_(){
       e.stopPropagation();
       if(isBuilding){
         // Stage 3: Apartment-Innen
-        HOME_STATE={stage:3,world:HOME_STATE.world,building:g.lots[0].building};
+        HOME_STATE={stage:3,world:HOME_STATE.world,building:g.lots[0].building,floorIdx:0};
         redrawHomePicker();
       } else if(isCluster){
         // Sub-Liste neben der Karte einblenden
@@ -703,7 +703,12 @@ function mkBuildingStage_(){
     wrap.appendChild(div({padding:"16px",textAlign:"center",color:C.muted,fontSize:"12px"},["Keine Daten zu diesem Apartment gefunden."]));
     return wrap;
   }
-  var img=(b.imgs&&b.imgs[0])||"";
+
+  // Floor-State: bei erstem Aufruf für dieses Building auf 0 initialisieren
+  if(typeof HOME_STATE.floorIdx!=="number") HOME_STATE.floorIdx=0;
+  var imgs=b.imgs||(b.img?[b.img]:[]);
+  if(HOME_STATE.floorIdx>=imgs.length) HOME_STATE.floorIdx=0;
+  var img=imgs[HOME_STATE.floorIdx]||"";
 
   var mapCard=div({position:"relative",width:"100%",aspectRatio:"1920/1200",background:C.card,borderRadius:"8px",overflow:"hidden",border:"1px solid "+C.border,marginBottom:"10px"});
   if(img){
@@ -712,8 +717,31 @@ function mkBuildingStage_(){
     Object.assign(bg.style,{width:"100%",height:"100%",objectFit:"cover",display:"block",filter:"brightness(0.7)"});
     mapCard.appendChild(bg);
   }
+
+  // Floor-Nav (rechts mittig, nur wenn mehrere Etagen)
+  if(imgs.length>1){
+    var floorNav=div({position:"absolute",right:"0",top:"50%",transform:"translateY(-50%)",zIndex:"10",display:"flex",flexDirection:"column",alignItems:"center",gap:"6px",padding:"8px 6px",background:"rgba(5,13,24,0.85)",borderRadius:"8px 0 0 8px",border:"0.5px solid "+C.border,borderRight:"none"});
+    var upBtn=mk("button",{background:"rgba(255,255,255,0.08)",border:"0.5px solid rgba(255,255,255,0.2)",borderRadius:"6px",color:"#fff",fontSize:"16px",width:"32px",height:"32px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",opacity:HOME_STATE.floorIdx>0?"1":"0.3"},["▲"]);
+    var label=div({fontSize:"10px",fontWeight:"700",color:"rgba(255,255,255,0.7)",minWidth:"28px",textAlign:"center"},[(HOME_STATE.floorIdx+1)+" / "+imgs.length]);
+    var downBtn=mk("button",{background:"rgba(255,255,255,0.08)",border:"0.5px solid rgba(255,255,255,0.2)",borderRadius:"6px",color:"#fff",fontSize:"16px",width:"32px",height:"32px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",opacity:HOME_STATE.floorIdx<imgs.length-1?"1":"0.3"},["▼"]);
+    upBtn.addEventListener("click",function(e){
+      e.stopPropagation();
+      if(HOME_STATE.floorIdx>0){HOME_STATE.floorIdx--;redrawHomePicker();}
+    });
+    downBtn.addEventListener("click",function(e){
+      e.stopPropagation();
+      if(HOME_STATE.floorIdx<imgs.length-1){HOME_STATE.floorIdx++;redrawHomePicker();}
+    });
+    floorNav.appendChild(upBtn);
+    floorNav.appendChild(label);
+    floorNav.appendChild(downBtn);
+    mapCard.appendChild(floorNav);
+  }
+
   b.lots.forEach(function(l){
     if(typeof l.x!=="number"||typeof l.y!=="number")return;
+    // Floor-Filter: wenn lot.floors definiert ist, nur auf passender Etage zeigen
+    if(Array.isArray(l.floors) && l.floors.indexOf(HOME_STATE.floorIdx)===-1) return;
     var label=l.name||l.nr||"?";
     var dot=div({position:"absolute",left:l.x+"%",top:l.y+"%",transform:"translate(-50%,-50%)",cursor:"pointer",zIndex:5});
     var inner=div({width:"14px",height:"14px",borderRadius:"50%",border:"1.5px solid rgba(120,170,255,0.8)",background:"rgba(0,0,0,0.5)",boxShadow:"0 0 6px rgba(0,0,0,0.6)"});
