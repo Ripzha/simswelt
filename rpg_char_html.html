@@ -710,11 +710,11 @@ function mkBuildingStage_(){
   if(HOME_STATE.floorIdx>=imgs.length) HOME_STATE.floorIdx=0;
   var img=imgs[HOME_STATE.floorIdx]||"";
 
-  var mapCard=div({position:"relative",width:"100%",aspectRatio:"1920/1200",background:C.card,borderRadius:"8px",overflow:"hidden",border:"1px solid "+C.border,marginBottom:"10px"});
+  var mapCard=div({position:"relative",width:"100%",background:C.card,borderRadius:"8px",overflow:"hidden",border:"1px solid "+C.border,marginBottom:"10px"});
   if(img){
     var bg=document.createElement("img");
     bg.src=img;
-    Object.assign(bg.style,{width:"100%",height:"100%",objectFit:"cover",display:"block",filter:"brightness(0.7)"});
+    Object.assign(bg.style,{width:"100%",height:"auto",display:"block",filter:"brightness(0.7)"});
     mapCard.appendChild(bg);
   }
 
