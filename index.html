@@ -1395,7 +1395,7 @@ var sheetLotsLoaded = false;
 
 function fetchSheetLots(cb){
   if(sheetLotsLoaded){ if(cb) cb(); return; }
-  fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vRGJifryvR2cW2gOBiG3x1p-Gy-lXe5pLMValomH8hTXNW0AiiRsWO5tM4mL85TCE0mU9jjbIkksHil/pub?output=csv')
+  fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vRRllRkwaCacdM0WZZT0cVQflhxJ9Fw5mgId-v615_kE2GdKdbwHMUYCG03HC8gUXfg7lucTs1Mqhg1/pub?gid=306313316&single=true&output=csv')
     .then(r=>r.text())
     .then(csv=>{
       const rows = csv.split('\n');
@@ -2864,7 +2864,7 @@ function renderAssignTab(){
   var c = document.getElementById('admin-content');
   c.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.3)">⏳ Lade Lots...</div>';
   if(_assignLots){ buildAssignUI(c); return; }
-  fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vRGJifryvR2cW2gOBiG3x1p-Gy-lXe5pLMValomH8hTXNW0AiiRsWO5tM4mL85TCE0mU9jjbIkksHil/pub?output=csv')
+  fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vRRllRkwaCacdM0WZZT0cVQflhxJ9Fw5mgId-v615_kE2GdKdbwHMUYCG03HC8gUXfg7lucTs1Mqhg1/pub?gid=306313316&single=true&output=csv')
     .then(function(r){return r.text();})
     .then(function(csv){
       var rows = csv.split('\n');
