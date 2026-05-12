@@ -3703,33 +3703,25 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
 // ═══════════════════════════════════════════════════════════════════════
 // Eve sitzt im Xobor-Header (anderer Origin), kann nicht direkt in unser DOM
 // greifen. Sie schickt postMessage({action:'atlas-highlight', selector:'...'})
-// und wir machen das Element pulsing.
+// und wir machen das Element pulsing — mit einem Glow statt Rahmen damit's
+// nicht wie ein Scrollbar aussieht.
 (function(){
   // CSS einmal injecten
   var style = document.createElement('style');
   style.textContent =
     '.atlas-highlighted{' +
-    '  position:relative !important;' +
-    '  z-index:9999 !important;' +
-    '  animation:atlasHighlightPulse 1.5s ease-in-out infinite;' +
+    '  animation:atlasHighlightGlow 1.5s ease-in-out infinite;' +
+    '  border-radius:8px;' +
     '}' +
-    '.atlas-highlighted::after{' +
-    '  content:"";' +
-    '  position:absolute;' +
-    '  top:-6px;left:-6px;right:-6px;bottom:-6px;' +
-    '  border:2px solid #4aaa6a;' +
-    '  border-radius:10px;' +
-    '  pointer-events:none;' +
-    '  box-shadow:0 0 20px rgba(74,170,106,0.6),inset 0 0 12px rgba(74,170,106,0.2);' +
-    '  animation:atlasHighlightBorder 1.5s ease-in-out infinite;' +
-    '}' +
-    '@keyframes atlasHighlightPulse{' +
-    '  0%,100%{filter:brightness(1)}' +
-    '  50%{filter:brightness(1.25)}' +
-    '}' +
-    '@keyframes atlasHighlightBorder{' +
-    '  0%,100%{opacity:0.7;transform:scale(1)}' +
-    '  50%{opacity:1;transform:scale(1.02)}' +
+    '@keyframes atlasHighlightGlow{' +
+    '  0%,100%{' +
+    '    box-shadow:0 0 0 0 rgba(74,170,106,0),0 0 0 rgba(74,170,106,0);' +
+    '    filter:brightness(1);' +
+    '  }' +
+    '  50%{' +
+    '    box-shadow:0 0 0 2px rgba(74,170,106,0.7),0 0 32px 6px rgba(74,170,106,0.45);' +
+    '    filter:brightness(1.18);' +
+    '  }' +
     '}';
   document.head.appendChild(style);
 
@@ -3757,6 +3749,23 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
   window.addEventListener('message', function(e){
     if (!e.data || e.data.action !== 'atlas-highlight') return;
     setHighlight(e.data.selector);
+  });
+
+  // Highlight clearen wenn der User in einen anderen Bereich navigiert
+  // (sonst bleibt z.B. der Charaktere-Tab-Link gehighlighted und ueberdeckt
+  // die Char-Karten dahinter)
+  function clearOnNavigation() {
+    if (currentHighlighted) {
+      clearHighlight();
+    }
+  }
+  // Bei Klick auf Nav-Items (linke Sidebar) Highlight clearen
+  document.addEventListener('click', function(e) {
+    var navItem = e.target.closest('.nav-item, .world-dot, .lot-dot, #char-create-btn');
+    if (navItem) {
+      // Mit Delay clearen damit der Click selbst noch durchgeht
+      setTimeout(clearOnNavigation, 100);
+    }
   });
 })();
 </script>
