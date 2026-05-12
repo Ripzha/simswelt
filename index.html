@@ -1395,7 +1395,7 @@ var sheetLotsLoaded = false;
 
 function fetchSheetLots(cb){
   if(sheetLotsLoaded){ if(cb) cb(); return; }
-  fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vRRllRkwaCacdM0WZZT0cVQflhxJ9Fw5mgId-v615_kE2GdKdbwHMUYCG03HC8gUXfg7lucTs1Mqhg1/pub?gid=306313316&single=true&output=csv')
+  fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vRGJifryvR2cW2gOBiG3x1p-Gy-lXe5pLMValomH8hTXNW0AiiRsWO5tM4mL85TCE0mU9jjbIkksHil/pub?output=csv')
     .then(r=>r.text())
     .then(csv=>{
       const rows = csv.split('\n');
@@ -2864,7 +2864,7 @@ function renderAssignTab(){
   var c = document.getElementById('admin-content');
   c.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.3)">⏳ Lade Lots...</div>';
   if(_assignLots){ buildAssignUI(c); return; }
-  fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vRRllRkwaCacdM0WZZT0cVQflhxJ9Fw5mgId-v615_kE2GdKdbwHMUYCG03HC8gUXfg7lucTs1Mqhg1/pub?gid=306313316&single=true&output=csv')
+  fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vRGJifryvR2cW2gOBiG3x1p-Gy-lXe5pLMValomH8hTXNW0AiiRsWO5tM4mL85TCE0mU9jjbIkksHil/pub?output=csv')
     .then(function(r){return r.text();})
     .then(function(csv){
       var rows = csv.split('\n');
@@ -3697,6 +3697,68 @@ setTimeout(repositionTooltips, 1000);
 
 document.querySelectorAll('.sheet').forEach(sheet=>{
 let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive:true});sheet.addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-sy>60)closeSheet();},{passive:true});});
+
+// ═══════════════════════════════════════════════════════════════════════
+//   ATLAS HIGHLIGHT (von Eve-Onboarding im Forum-Header gesteuert)
+// ═══════════════════════════════════════════════════════════════════════
+// Eve sitzt im Xobor-Header (anderer Origin), kann nicht direkt in unser DOM
+// greifen. Sie schickt postMessage({action:'atlas-highlight', selector:'...'})
+// und wir machen das Element pulsing.
+(function(){
+  // CSS einmal injecten
+  var style = document.createElement('style');
+  style.textContent =
+    '.atlas-highlighted{' +
+    '  position:relative !important;' +
+    '  z-index:9999 !important;' +
+    '  animation:atlasHighlightPulse 1.5s ease-in-out infinite;' +
+    '}' +
+    '.atlas-highlighted::after{' +
+    '  content:"";' +
+    '  position:absolute;' +
+    '  top:-6px;left:-6px;right:-6px;bottom:-6px;' +
+    '  border:2px solid #4aaa6a;' +
+    '  border-radius:10px;' +
+    '  pointer-events:none;' +
+    '  box-shadow:0 0 20px rgba(74,170,106,0.6),inset 0 0 12px rgba(74,170,106,0.2);' +
+    '  animation:atlasHighlightBorder 1.5s ease-in-out infinite;' +
+    '}' +
+    '@keyframes atlasHighlightPulse{' +
+    '  0%,100%{filter:brightness(1)}' +
+    '  50%{filter:brightness(1.25)}' +
+    '}' +
+    '@keyframes atlasHighlightBorder{' +
+    '  0%,100%{opacity:0.7;transform:scale(1)}' +
+    '  50%{opacity:1;transform:scale(1.02)}' +
+    '}';
+  document.head.appendChild(style);
+
+  var currentHighlighted = null;
+
+  function clearHighlight() {
+    if (currentHighlighted) {
+      currentHighlighted.classList.remove('atlas-highlighted');
+      currentHighlighted = null;
+    }
+  }
+
+  function setHighlight(selector) {
+    clearHighlight();
+    if (!selector) return;
+    try {
+      var el = document.querySelector(selector);
+      if (el) {
+        el.classList.add('atlas-highlighted');
+        currentHighlighted = el;
+      }
+    } catch(e) {}
+  }
+
+  window.addEventListener('message', function(e){
+    if (!e.data || e.data.action !== 'atlas-highlight') return;
+    setHighlight(e.data.selector);
+  });
+})();
 </script>
 </body>
 </html>
