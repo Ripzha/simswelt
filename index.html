@@ -3703,35 +3703,58 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
 // ═══════════════════════════════════════════════════════════════════════
 // Eve sitzt im Xobor-Header (anderer Origin), kann nicht direkt in unser DOM
 // greifen. Sie schickt postMessage({action:'atlas-highlight', selector:'...'})
-// und wir machen das Element pulsing — mit einem Glow statt Rahmen damit's
-// nicht wie ein Scrollbar aussieht.
+// und wir legen ein Overlay-Div ueber das Element. Wir machen das NICHT als
+// Klasse aufs Element selbst weil sonst overflow:auto/hidden den Glow
+// abschneiden wuerde (z.B. die scrollbare #left-Sidebar).
 (function(){
-  // CSS einmal injecten
   var style = document.createElement('style');
   style.textContent =
-    '.atlas-highlighted{' +
-    '  animation:atlasHighlightGlow 1.5s ease-in-out infinite;' +
+    '.atlas-highlight-overlay{' +
+    '  position:fixed;' +
+    '  pointer-events:none;' +
+    '  z-index:99999;' +
     '  border-radius:8px;' +
+    '  animation:atlasHighlightGlow 1.5s ease-in-out infinite;' +
     '}' +
     '@keyframes atlasHighlightGlow{' +
     '  0%,100%{' +
     '    box-shadow:0 0 0 0 rgba(74,170,106,0),0 0 0 rgba(74,170,106,0);' +
-    '    filter:brightness(1);' +
     '  }' +
     '  50%{' +
-    '    box-shadow:0 0 0 2px rgba(74,170,106,0.7),0 0 32px 6px rgba(74,170,106,0.45);' +
-    '    filter:brightness(1.18);' +
+    '    box-shadow:0 0 0 2px rgba(74,170,106,0.85),0 0 32px 6px rgba(74,170,106,0.55);' +
     '  }' +
     '}';
   document.head.appendChild(style);
 
-  var currentHighlighted = null;
+  var overlayEl = null;
+  var trackedElement = null;
+  var updateInterval = null;
 
   function clearHighlight() {
-    if (currentHighlighted) {
-      currentHighlighted.classList.remove('atlas-highlighted');
-      currentHighlighted = null;
+    if (overlayEl && overlayEl.parentNode) {
+      overlayEl.parentNode.removeChild(overlayEl);
     }
+    overlayEl = null;
+    trackedElement = null;
+    if (updateInterval) {
+      clearInterval(updateInterval);
+      updateInterval = null;
+    }
+  }
+
+  function positionOverlay() {
+    if (!overlayEl || !trackedElement) return;
+    var rect = trackedElement.getBoundingClientRect();
+    // Wenn Element nicht mehr sichtbar (rect zeros): Overlay verstecken
+    if (rect.width === 0 && rect.height === 0) {
+      overlayEl.style.display = 'none';
+      return;
+    }
+    overlayEl.style.display = 'block';
+    overlayEl.style.left = rect.left + 'px';
+    overlayEl.style.top = rect.top + 'px';
+    overlayEl.style.width = rect.width + 'px';
+    overlayEl.style.height = rect.height + 'px';
   }
 
   function setHighlight(selector) {
@@ -3739,10 +3762,15 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
     if (!selector) return;
     try {
       var el = document.querySelector(selector);
-      if (el) {
-        el.classList.add('atlas-highlighted');
-        currentHighlighted = el;
-      }
+      if (!el) return;
+      trackedElement = el;
+      overlayEl = document.createElement('div');
+      overlayEl.className = 'atlas-highlight-overlay';
+      document.body.appendChild(overlayEl);
+      positionOverlay();
+      // Position jeden Frame updaten — Element kann sich bewegen (Scrolling,
+      // Resize, dynamische Inhalte) und wir wollen den Glow nachziehen.
+      updateInterval = setInterval(positionOverlay, 60);
     } catch(e) {}
   }
 
@@ -3750,21 +3778,14 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
     if (!e.data || e.data.action !== 'atlas-highlight') return;
     setHighlight(e.data.selector);
   });
+  window.addEventListener('resize', positionOverlay);
 
-  // Highlight clearen wenn der User in einen anderen Bereich navigiert
-  // (sonst bleibt z.B. der Charaktere-Tab-Link gehighlighted und ueberdeckt
-  // die Char-Karten dahinter)
-  function clearOnNavigation() {
-    if (currentHighlighted) {
-      clearHighlight();
-    }
-  }
-  // Bei Klick auf Nav-Items (linke Sidebar) Highlight clearen
+  // Bei Klick auf Nav-Items/Dots Highlight automatisch clearen (sonst bleibt
+  // z.B. der Charaktere-Tab gehighlighted und ueberdeckt die Char-Karten)
   document.addEventListener('click', function(e) {
     var navItem = e.target.closest('.nav-item, .world-dot, .lot-dot, #char-create-btn');
     if (navItem) {
-      // Mit Delay clearen damit der Click selbst noch durchgeht
-      setTimeout(clearOnNavigation, 100);
+      setTimeout(clearHighlight, 100);
     }
   });
 })();
