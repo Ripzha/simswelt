@@ -127,6 +127,7 @@ html{overscroll-behavior:none}
 .lot-pip{width:5px;height:5px;border-radius:50%;flex-shrink:0}
 #suggest-bar-btn{padding:4px 9px;border-radius:5px;font-size:10px;cursor:pointer;background:rgba(74,170,106,0.12);border:0.5px solid rgba(74,170,106,0.3);color:rgba(74,170,106,0.8);white-space:nowrap;flex-shrink:0}
 .world-dot{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:10}
+.world-dot:hover{z-index:201}
 /* Welten-Suche Overlay */
 #world-search-box{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:50;width:280px;max-width:calc(100% - 24px)}
 #world-search-input{width:100%;padding:8px 32px 8px 32px;background:rgba(5,12,22,0.92);border:0.5px solid rgba(255,255,255,0.18);border-radius:8px;color:#fff;font-size:12px;font-family:inherit;outline:none;backdrop-filter:blur(8px);transition:border-color 0.15s}
@@ -161,11 +162,11 @@ html{overscroll-behavior:none}
 .dot-pulse{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border-radius:50%;opacity:0;border-width:1.5px;border-style:solid;animation:pulse 1.4s infinite;pointer-events:none}
 .world-dot:hover .dot-pulse{opacity:0.5}
 .dot-label{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;font-weight:500;text-shadow:0 1px 4px #000,0 0 8px #000;pointer-events:none}
-.hover-card{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);background:rgba(5,12,22,0.97);border-radius:9px;overflow:hidden;z-index:30;pointer-events:none;width:165px;display:none}
+.hover-card{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);background:rgba(5,12,22,0.97);border-radius:9px;overflow:hidden;z-index:200;pointer-events:none;width:165px;display:none}
 .world-dot:hover .hover-card{display:block}
 .hover-img{width:100%;height:95px;object-fit:cover;display:block}
 .hover-gradient{position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(transparent,rgba(5,12,22,0.95) 70%,rgba(5,12,22,1));z-index:1}
-.hover-name{font-size:12px;font-weight:600;color:#fff;position:absolute;bottom:30px;left:10px;right:10px;text-shadow:0 1px 3px rgba(0,0,0,0.95),0 0 8px rgba(0,0,0,0.7);z-index:2}
+.hover-name{font-size:12px;font-weight:600;color:#fff;position:absolute;bottom:5px;left:10px;right:10px;text-shadow:0 1px 3px rgba(0,0,0,0.95),0 0 8px rgba(0,0,0,0.7);z-index:2}
 .hover-footer{padding:5px 10px;display:flex;justify-content:space-between;align-items:center}
 .hover-type{font-size:10px;color:rgba(255,255,255,0.45)}
 .hover-action{font-size:10px;font-weight:500}
