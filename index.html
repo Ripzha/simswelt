@@ -378,6 +378,36 @@ body.admin-mode .calib-btn{display:block}
   #char-filter-bar{max-width:100%;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
   #char-filter-bar::-webkit-scrollbar{display:none}
 }
+#navi-btn{position:absolute;top:12px;right:12px;z-index:50;background:rgba(5,12,22,0.88);border:0.5px solid rgba(255,255,255,0.18);border-radius:7px;padding:6px 11px;font-size:11px;color:rgba(255,255,255,0.75);cursor:pointer;display:flex;align-items:center;gap:5px;backdrop-filter:blur(8px);transition:border-color 0.15s,color 0.15s}
+#navi-btn:hover{border-color:rgba(74,170,106,0.5);color:#fff}
+#navi-btn.active{border-color:rgba(74,170,106,0.6);color:#4aaa6a}
+#navi-btn .navi-icon{font-size:13px}
+#navi-panel{position:absolute;top:44px;right:12px;z-index:49;width:230px;background:rgba(5,12,22,0.97);border:0.5px solid rgba(255,255,255,0.12);border-radius:9px;backdrop-filter:blur(12px);overflow:hidden;display:none;animation:naviIn 0.18s ease}
+#navi-panel.open{display:block}
+@keyframes naviIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+#navi-panel .np-head{padding:10px 13px;border-bottom:0.5px solid rgba(255,255,255,0.07);font-size:10px;letter-spacing:1.5px;color:rgba(255,255,255,0.35);text-transform:uppercase;font-weight:500}
+#navi-panel .np-body{padding:12px 13px}
+.np-label{font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:4px;margin-top:8px}
+.np-label:first-child{margin-top:0}
+.np-select{width:100%;background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.12);border-radius:6px;color:#fff;font-size:11px;padding:6px 8px;cursor:pointer;outline:none;font-family:inherit}
+.np-select:focus{border-color:rgba(74,170,106,0.4)}
+.np-select option{background:#0a1628;color:#fff}
+.np-hint{font-size:10px;color:rgba(255,255,255,0.3);margin-top:4px}
+.np-calc-btn{width:100%;margin-top:11px;background:rgba(74,170,106,0.15);border:0.5px solid rgba(74,170,106,0.4);border-radius:6px;color:#4aaa6a;font-size:11px;padding:7px;cursor:pointer;font-family:inherit;transition:background 0.15s}
+.np-calc-btn:hover{background:rgba(74,170,106,0.25)}
+.np-mode-btn{flex:1;background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.1);border-radius:5px;color:rgba(255,255,255,0.45);font-size:10px;padding:5px 3px;cursor:pointer;font-family:inherit;transition:all 0.15s;white-space:nowrap}
+.np-mode-btn:hover{background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.7)}
+.np-mode-btn.active{background:rgba(74,170,106,0.15);border-color:rgba(74,170,106,0.45);color:#4aaa6a}
+.np-result{margin-top:12px;border-top:0.5px solid rgba(255,255,255,0.07);padding-top:10px;display:none}
+.np-time{font-size:18px;font-weight:500;color:#fff;margin-bottom:8px}
+.np-time span{font-size:11px;font-weight:400;color:rgba(255,255,255,0.4)}
+.np-route{list-style:none;font-size:11px;color:rgba(255,255,255,0.55);line-height:2}
+.np-route li{display:flex;align-items:center;gap:7px}
+.np-route li.np-endpoint{color:#fff;font-weight:500}
+.np-route li .np-dot-marker{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.3);flex-shrink:0}
+.np-route li.np-endpoint .np-dot-marker{background:#4aaa6a;box-shadow:0 0 5px rgba(74,170,106,0.6)}
+.np-route li .np-arrow{color:rgba(255,255,255,0.2);font-size:9px;flex-shrink:0}
+#navi-route-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:9;overflow:visible}
 </style>
 </head>
 <body>
@@ -449,6 +479,7 @@ body.admin-mode .calib-btn{display:block}
       <div class="image-area-wrap">
         <div id="map-image-area">
           <div id="map-bg"><img src="https://files.homepagemodules.de/b855163/resize/1920x1200/pictures_u1228_fMogNHsU.png" alt="Karte"></div>
+          <svg id="navi-route-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
         </div>
       </div>
       <div class="vignette"></div>
@@ -459,6 +490,29 @@ body.admin-mode .calib-btn{display:block}
         <div id="world-search-dropdown"></div>
       </div>
       <div id="map-legend">Hover = Vorschau · Klick = Betreten</div>
+      <button id="navi-btn" onclick="toggleNavi()" title="Navigationssystem">🧭 <span>Navigation</span></button>
+      <div id="navi-panel">
+        <div class="np-head">Navigationssystem</div>
+        <div class="np-body">
+          <div class="np-label">Startort</div>
+          <select class="np-select" id="navi-from"><option value="">— wählen —</option></select>
+          <div class="np-label">Zielort</div>
+          <select class="np-select" id="navi-to"><option value="">— wählen —</option></select>
+          <div class="np-label" style="margin-top:10px">Transportmittel</div>
+          <div id="navi-transport" style="display:flex;gap:5px;margin-top:2px">
+            <button class="np-mode-btn" data-mode="walk" onclick="setNaviMode('walk')">🚶 Zu Fuss</button>
+            <button class="np-mode-btn active" data-mode="car" onclick="setNaviMode('car')">🚗 Auto</button>
+            <button class="np-mode-btn" data-mode="transit" onclick="setNaviMode('transit')">🚆 ÖV</button>
+          </div>
+          <div class="np-hint">Tipp: Orte auf der Karte direkt anklicken zum Eintragen.</div>
+          <button class="np-calc-btn" onclick="calcNavi()">Route berechnen</button>
+          <div class="np-result" id="navi-result">
+            <div class="np-time" id="navi-time">—</div>
+            <ul class="np-route" id="navi-route-list"></ul>
+            <div id="navi-calc-info" style="margin-top:8px;padding-top:8px;border-top:0.5px solid rgba(255,255,255,0.07);font-size:10px;color:rgba(255,255,255,0.25);line-height:1.6">25 min pro Welt · +10 min bei grossem Abstand · Zwischenstopps = Welten auf der Route</div>
+          </div>
+        </div>
+      </div>
       <button class="calib-btn" id="calib-map-btn" onclick="toggleCalib('map')">⚙ Kalibrieren</button>
       <div class="calib-panel" id="calib-map-panel">
         <h4>⚙ Welten kalibrieren</h4>
@@ -2183,6 +2237,8 @@ worlds.forEach(w=>{
   el.addEventListener('click',e=>{
     e.stopPropagation();
     if(calibMapMode)return;
+    // Navi-Modus: Klick füllt Dropdown statt Welt zu betreten
+    if(window.naviDotClick && naviDotClick(w.name)) return;
     // Auf Mobile: erster Klick = Vorschau (Tokens + Focus), zweiter Klick = Welt betreten
     if(window.matchMedia('(pointer:coarse)').matches){
       if(el.classList.contains('show-tokens')){
@@ -3830,6 +3886,184 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
     document.addEventListener('touchend', onUp);
   }
   document.querySelectorAll('.calib-panel').forEach(makeDraggable);
+})();
+
+// ═══════════════════════════════════════════
+// NAVIGATIONSSYSTEM
+// ═══════════════════════════════════════════
+(function(){
+  let naviMode=false; // 'from' | 'to' | false
+  let naviTransport='car'; // 'walk' | 'car' | 'transit'
+
+  const TRANSPORT={
+    walk: {segMin:90, borderBonus:30, label:'zu Fuss'},
+    car:  {segMin:25, borderBonus:10, label:'mit dem Auto'},
+    transit:{segMin:15, borderBonus:5, label:'mit dem ÖV'}
+  };
+
+  window.setNaviMode=function(mode){
+    naviTransport=mode;
+    document.querySelectorAll('.np-mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+    // Wenn schon eine Route berechnet wurde, neu rechnen
+    if(document.getElementById('navi-result').style.display==='block') calcNavi();
+  };
+
+  // Dropdowns befüllen
+  function initNaviSelects(){
+    const selFrom=document.getElementById('navi-from');
+    const selTo=document.getElementById('navi-to');
+    worlds.forEach(w=>{
+      const a=document.createElement('option');a.value=w.name;a.textContent=w.name;selFrom.appendChild(a);
+      const b=document.createElement('option');b.value=w.name;b.textContent=w.name;selTo.appendChild(b);
+    });
+  }
+  initNaviSelects();
+
+  // Toggle Panel
+  window.toggleNavi=function(){
+    const panel=document.getElementById('navi-panel');
+    const btn=document.getElementById('navi-btn');
+    const open=panel.classList.toggle('open');
+    btn.classList.toggle('active',open);
+    if(!open) clearNaviRoute();
+  };
+
+  // Dot-Klick für Navi-Füllung (wird in worlds.forEach patch gerufen)
+  window.naviDotClick=function(worldName){
+    if(!document.getElementById('navi-panel').classList.contains('open')) return false;
+    const from=document.getElementById('navi-from');
+    const to=document.getElementById('navi-to');
+    if(!from.value || (from.value && to.value)){
+      from.value=worldName; to.value='';
+    } else {
+      to.value=worldName;
+    }
+    return true; // true = hat den Klick abgefangen
+  };
+
+  // Route berechnen
+  window.calcNavi=function(){
+    const fromName=document.getElementById('navi-from').value;
+    const toName=document.getElementById('navi-to').value;
+    if(!fromName||!toName){alert('Bitte Start und Ziel wählen.');return;}
+    if(fromName===toName){alert('Start und Ziel sind identisch.');return;}
+
+    const start=worlds.find(w=>w.name===fromName);
+    const end=worlds.find(w=>w.name===toName);
+    if(!start||!end) return;
+
+    // Euklidische Distanz zwischen zwei Welten (in % Einheiten)
+    function d(a,b){return Math.sqrt(Math.pow(a.x-b.x,2)+Math.pow(a.y-b.y,2));}
+
+    // Korridor-Pathfinding: alle Welten die nahe an der Verbindungslinie liegen
+    const dx=end.x-start.x, dy=end.y-start.y;
+    const lineLen=Math.sqrt(dx*dx+dy*dy);
+    const CORRIDOR=12; // % der Kartengrösse — Breite des Korridors
+
+    const waypoints=[];
+    worlds.forEach(w=>{
+      if(w.name===fromName||w.name===toName) return;
+      // Projektion auf die Linie
+      const t=((w.x-start.x)*dx+(w.y-start.y)*dy)/(lineLen*lineLen);
+      if(t<0.08||t>0.92) return; // ausserhalb der Strecke
+      const projX=start.x+t*dx, projY=start.y+t*dy;
+      const dist=Math.sqrt(Math.pow(w.x-projX,2)+Math.pow(w.y-projY,2));
+      if(dist<CORRIDOR) waypoints.push({...w,_t:t});
+    });
+    waypoints.sort((a,b)=>a._t-b._t);
+
+    const route=[start,...waypoints,end];
+    // Deduplizieren
+    const unique=[];
+    route.forEach(w=>{if(!unique.find(u=>u.name===w.name))unique.push(w);});
+
+    // Reisezeit berechnen
+    // Basis: 25 min pro Welt-zu-Welt-Abschnitt
+    // Grenzbonus: +10 min pro Abschnitt wenn Distanz > 20% der Diagonale (~28 Einheiten)
+    const DIAG=Math.sqrt(100*100+100*100);
+    const t=TRANSPORT[naviTransport];
+    let totalMins=0;
+    for(let i=0;i<unique.length-1;i++){
+      const segDist=d(unique[i],unique[i+1]);
+      totalMins+=t.segMin;
+      if(segDist>DIAG*0.2) totalMins+=t.borderBonus;
+    }
+    const h=Math.floor(totalMins/60);
+    const m=totalMins%60;
+    const timeStr=(h>0?h+'h ':'')+(m>0?m+' min':'');
+    const modeLabel=t.label;
+
+    // UI befüllen
+    document.getElementById('navi-time').innerHTML=timeStr+' <span>'+modeLabel+'</span>';
+    document.getElementById('navi-calc-info').textContent=t.segMin+' min pro Welt · +'+t.borderBonus+' min bei grossem Abstand · Zwischenstopps = Welten auf der Route';
+    const list=document.getElementById('navi-route-list');
+    list.innerHTML='';
+    unique.forEach((w,i)=>{
+      const li=document.createElement('li');
+      const isEnd=(i===0||i===unique.length-1);
+      if(isEnd) li.className='np-endpoint';
+      li.innerHTML='<div class="np-dot-marker"></div>'+(i>0?'<span class="np-arrow">▸</span> ':'')+w.name;
+      if(!isEnd) li.style.paddingLeft='4px';
+      list.appendChild(li);
+    });
+    document.getElementById('navi-result').style.display='block';
+
+    // Routenlinie auf Karte zeichnen
+    drawNaviRoute(unique);
+  };
+
+  function clearNaviRoute(){
+    const svg=document.getElementById('navi-route-svg');
+    if(svg) svg.innerHTML='';
+    document.getElementById('navi-result').style.display='none';
+  }
+
+  function drawNaviRoute(stops){
+    const svg=document.getElementById('navi-route-svg');
+    svg.innerHTML='';
+
+    // Gestrichelte Linie
+    for(let i=0;i<stops.length-1;i++){
+      const a=stops[i],b=stops[i+1];
+      const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1',a.x);line.setAttribute('y1',a.y);
+      line.setAttribute('x2',b.x);line.setAttribute('y2',b.y);
+      line.setAttribute('stroke','rgba(255,180,60,0.75)');
+      line.setAttribute('stroke-width','0.6');
+      line.setAttribute('stroke-dasharray','2 1.5');
+      line.setAttribute('vector-effect','non-scaling-stroke');
+      svg.appendChild(line);
+    }
+
+    // Punkte auf der Route hervorheben
+    document.querySelectorAll('.world-dot').forEach(el=>{
+      el.querySelector('.dot-inner').style.removeProperty('outline');
+    });
+    stops.forEach((w,i)=>{
+      const el=document.querySelector(`.world-dot[data-world-key="${w.name}"]`);
+      if(!el) return;
+      const inner=el.querySelector('.dot-inner');
+      if(i===0||i===stops.length-1){
+        inner.style.outline='2px solid rgba(255,180,60,0.9)';
+        inner.style.outlineOffset='3px';
+      } else {
+        inner.style.outline='1.5px solid rgba(255,180,60,0.5)';
+        inner.style.outlineOffset='2px';
+      }
+    });
+  }
+
+  // Panel schliessen wenn man von der Karte wegklickt
+  document.addEventListener('click',function(e){
+    if(!e.target.closest('#navi-panel')&&!e.target.closest('#navi-btn')){
+      const panel=document.getElementById('navi-panel');
+      if(panel.classList.contains('open')){
+        panel.classList.remove('open');
+        document.getElementById('navi-btn').classList.remove('active');
+      }
+    }
+  });
+
 })();
 
 </script>
