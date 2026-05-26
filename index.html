@@ -4039,15 +4039,27 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
     const svg=document.getElementById('navi-route-svg');
     svg.innerHTML='';
 
-    // Gestrichelte Linie
     for(let i=0;i<stops.length-1;i++){
       const a=stops[i],b=stops[i+1];
+
+      // Schatten-Linie (dunkel, breiter) — gibt Kontrast auf hellem Untergrund
+      const shadow=document.createElementNS('http://www.w3.org/2000/svg','line');
+      shadow.setAttribute('x1',a.x);shadow.setAttribute('y1',a.y);
+      shadow.setAttribute('x2',b.x);shadow.setAttribute('y2',b.y);
+      shadow.setAttribute('stroke','rgba(0,0,0,0.55)');
+      shadow.setAttribute('stroke-width','2.8');
+      shadow.setAttribute('stroke-linecap','round');
+      shadow.setAttribute('vector-effect','non-scaling-stroke');
+      svg.appendChild(shadow);
+
+      // Hauptlinie (weiss-gelb, gestrichelt)
       const line=document.createElementNS('http://www.w3.org/2000/svg','line');
       line.setAttribute('x1',a.x);line.setAttribute('y1',a.y);
       line.setAttribute('x2',b.x);line.setAttribute('y2',b.y);
-      line.setAttribute('stroke','rgba(255,180,60,0.75)');
-      line.setAttribute('stroke-width','0.6');
-      line.setAttribute('stroke-dasharray','2 1.5');
+      line.setAttribute('stroke','rgba(255,230,100,0.95)');
+      line.setAttribute('stroke-width','1.4');
+      line.setAttribute('stroke-dasharray','3 2');
+      line.setAttribute('stroke-linecap','round');
       line.setAttribute('vector-effect','non-scaling-stroke');
       svg.appendChild(line);
     }
@@ -4061,10 +4073,10 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
       if(!el) return;
       const inner=el.querySelector('.dot-inner');
       if(i===0||i===stops.length-1){
-        inner.style.outline='2px solid rgba(255,180,60,0.9)';
+        inner.style.outline='2px solid rgba(255,230,100,1)';
         inner.style.outlineOffset='3px';
       } else {
-        inner.style.outline='1.5px solid rgba(255,180,60,0.5)';
+        inner.style.outline='1.5px solid rgba(255,230,100,0.7)';
         inner.style.outlineOffset='2px';
       }
     });
