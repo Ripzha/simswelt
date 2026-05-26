@@ -3958,21 +3958,38 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
     // Korridor-Pathfinding: alle Welten die nahe an der Verbindungslinie liegen
     const dx=end.x-start.x, dy=end.y-start.y;
     const lineLen=Math.sqrt(dx*dx+dy*dy);
-    const CORRIDOR=12; // % der Kartengrösse — Breite des Korridors
+    const CORRIDOR=12;
 
     const waypoints=[];
     worlds.forEach(w=>{
       if(w.name===fromName||w.name===toName) return;
-      // Projektion auf die Linie
       const t=((w.x-start.x)*dx+(w.y-start.y)*dy)/(lineLen*lineLen);
-      if(t<0.08||t>0.92) return; // ausserhalb der Strecke
+      if(t<0.08||t>0.92) return;
       const projX=start.x+t*dx, projY=start.y+t*dy;
       const dist=Math.sqrt(Math.pow(w.x-projX,2)+Math.pow(w.y-projY,2));
-      if(dist<CORRIDOR) waypoints.push({...w,_t:t});
+      if(dist<CORRIDOR) waypoints.push({...w,_t:t,_dist:dist});
     });
     waypoints.sort((a,b)=>a._t-b._t);
 
-    const route=[start,...waypoints,end];
+    // Dedup: bei zwei Welten mit ähnlichem t-Wert (< 0.1 Abstand) nur die liniennächste behalten
+    const deduped=[];
+    for(let i=0;i<waypoints.length;i++){
+      const last=deduped[deduped.length-1];
+      if(last && Math.abs(waypoints[i]._t-last._t)<0.1){
+        if(waypoints[i]._dist<last._dist) deduped[deduped.length-1]=waypoints[i];
+      } else {
+        deduped.push(waypoints[i]);
+      }
+    }
+
+    // Max 4 Zwischenstopps — gleichmässig verteilt wenn mehr
+    let trimmed=deduped;
+    if(deduped.length>4){
+      const step=deduped.length/4;
+      trimmed=[0,1,2,3].map(i=>deduped[Math.min(Math.round(i*step),deduped.length-1)]);
+    }
+
+    const route=[start,...trimmed,end];
     // Deduplizieren
     const unique=[];
     route.forEach(w=>{if(!unique.find(u=>u.name===w.name))unique.push(w);});
