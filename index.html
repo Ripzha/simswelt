@@ -4484,7 +4484,7 @@ function initRoutenAdmin(root){
       li.innerHTML=txt;
       const del=document.createElement('button');
       del.className='ra-del-btn';del.textContent='✕';
-      del.onclick=()=>{delete customRoutes[k];saveRoutes(customRoutes);if(window.atlasCustomRoutes!==undefined)window.atlasCustomRoutes=customRoutes;raUpdateSavedList();raUpdateMissing();raUpdateExport();};
+      del.onclick=()=>{delete customRoutes[k];saveRoutes(customRoutes);if(window.atlasCustomRoutes!==undefined)window.atlasCustomRoutes=customRoutes;raUpdateSavedList();raUpdateMissing();raUpdateExport();drawGhostRoutes();};
       li.appendChild(del);ul.appendChild(li);
     });
   }
@@ -4532,7 +4532,7 @@ function initRoutenAdmin(root){
     if(!confirm('Alle gespeicherten Routen löschen?')) return;
     customRoutes={};saveRoutes(customRoutes);
     if(window.atlasCustomRoutes!==undefined) window.atlasCustomRoutes=customRoutes;
-    raUpdateSavedList();raUpdateMissing();raUpdateExport();
+    raUpdateSavedList();raUpdateMissing();raUpdateExport();drawGhostRoutes();
     raStatus('Alle Routen gelöscht','warn');
   };
 
@@ -4559,7 +4559,7 @@ function initRoutenAdmin(root){
   }
 
   // Bestehende Routen laden
-  raUpdateSavedList();raUpdateMissing();raUpdateExport();
+  raUpdateSavedList();raUpdateMissing();raUpdateExport();drawGhostRoutes();
 }
 
 // Globale Variable für Navi-System — wird beim Laden gesetzt
