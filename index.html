@@ -617,6 +617,7 @@ body.admin-mode .calib-btn{display:block}
     <button class="atab" id="atab-suggest" onclick="setAdminTab('suggest')">Vorschläge</button>
     <button class="atab" id="atab-export" onclick="setAdminTab('export')">Export</button>
     <button class="atab" id="atab-assign" onclick="setAdminTab('assign')">Zuweisen</button>
+    <button class="atab" id="atab-routen" onclick="setAdminTab('routen')">Routen</button>
   </div>
   <div id="admin-content"></div>
 </div>
@@ -2897,9 +2898,9 @@ document.getElementById('logo-icon').addEventListener('click',()=>{
 });
 function openAdmin(){document.body.classList.add('admin-mode');document.getElementById('admin-panel').classList.add('open');document.getElementById('logo-icon').classList.add('admin-active');updateSuggestBadge();renderAdminContent();}
 function closeAdmin(){document.body.classList.remove('admin-mode');document.getElementById('admin-panel').classList.remove('open');document.getElementById('logo-icon').classList.remove('admin-active');adminMode=false;}
-function setAdminTab(t){adminTab=t;['lots','suggest','export','assign'].forEach(id=>document.getElementById('atab-'+id).classList.toggle('active',id===t));renderAdminContent();}
+function setAdminTab(t){adminTab=t;['lots','suggest','export','assign','routen'].forEach(id=>document.getElementById('atab-'+id).classList.toggle('active',id===t));renderAdminContent();}
 function updateSuggestBadge(){const cnt=suggestions.filter(s=>s.status==='pending').length;const el=document.getElementById('admin-suggest-count');el.style.display=cnt>0?'inline-flex':'none';el.textContent=cnt;}
-function renderAdminContent(){const c=document.getElementById('admin-content');if(adminTab==='lots')c.innerHTML=renderLotsTab();else if(adminTab==='suggest')c.innerHTML=renderSuggestTab();else if(adminTab==='assign')renderAssignTab();else c.innerHTML=renderExportTab();}
+function renderAdminContent(){const c=document.getElementById('admin-content');if(adminTab==='lots')c.innerHTML=renderLotsTab();else if(adminTab==='suggest')c.innerHTML=renderSuggestTab();else if(adminTab==='assign')renderAssignTab();else if(adminTab==='routen'){renderRoutenTab(c);}else c.innerHTML=renderExportTab();}
 function renderLotsTab(){
   const wname=adminWorldFilter;
   const hardLots=worldLots[wname]||[];
@@ -3888,6 +3889,8 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
   document.querySelectorAll('.calib-panel').forEach(makeDraggable);
 })();
 
+/* ── ROUTEN-ADMIN CSS ── */
+
 // ═══════════════════════════════════════════
 // NAVIGATIONSSYSTEM
 // ═══════════════════════════════════════════
@@ -3952,51 +3955,57 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
     const end=worlds.find(w=>w.name===toName);
     if(!start||!end) return;
 
-    // Euklidische Distanz zwischen zwei Welten (in % Einheiten)
     function d(a,b){return Math.sqrt(Math.pow(a.x-b.x,2)+Math.pow(a.y-b.y,2));}
 
-    // Korridor-Pathfinding: alle Welten die nahe an der Verbindungslinie liegen
-    const dx=end.x-start.x, dy=end.y-start.y;
-    const lineLen=Math.sqrt(dx*dx+dy*dy);
-    const CORRIDOR=12;
+    // Custom-Route prüfen (gespeicherte Route hat Vorrang)
+    const cr=window.atlasCustomRoutes||{};
+    const customKey=fromName+'|'+toName+'|'+naviTransport;
+    let unique=null;
+    let customSegments=null;
 
-    const waypoints=[];
-    worlds.forEach(w=>{
-      if(w.name===fromName||w.name===toName) return;
-      const t=((w.x-start.x)*dx+(w.y-start.y)*dy)/(lineLen*lineLen);
-      if(t<0.08||t>0.92) return;
-      const projX=start.x+t*dx, projY=start.y+t*dy;
-      const dist=Math.sqrt(Math.pow(w.x-projX,2)+Math.pow(w.y-projY,2));
-      if(dist<CORRIDOR) waypoints.push({...w,_t:t,_dist:dist});
-    });
-    waypoints.sort((a,b)=>a._t-b._t);
-
-    // Dedup: bei zwei Welten mit ähnlichem t-Wert (< 0.1 Abstand) nur die liniennächste behalten
-    const deduped=[];
-    for(let i=0;i<waypoints.length;i++){
-      const last=deduped[deduped.length-1];
-      if(last && Math.abs(waypoints[i]._t-last._t)<0.1){
-        if(waypoints[i]._dist<last._dist) deduped[deduped.length-1]=waypoints[i];
-      } else {
-        deduped.push(waypoints[i]);
+    if(cr[customKey]){
+      const r=cr[customKey];
+      // Route aus Custom-Daten aufbauen
+      const worldPts=[start];
+      r.transits?.forEach(tname=>{const w=worlds.find(x=>x.name===tname);if(w)worldPts.push(w);});
+      worldPts.push(end);
+      unique=worldPts;
+      customSegments=r.points; // für Segment-Typ-Anzeige
+    } else {
+      // Fallback: Korridor-Algorithmus
+      const dx=end.x-start.x, dy=end.y-start.y;
+      const lineLen=Math.sqrt(dx*dx+dy*dy);
+      const CORRIDOR=12;
+      const waypoints=[];
+      worlds.forEach(w=>{
+        if(w.name===fromName||w.name===toName) return;
+        const t=((w.x-start.x)*dx+(w.y-start.y)*dy)/(lineLen*lineLen);
+        if(t<0.08||t>0.92) return;
+        const projX=start.x+t*dx, projY=start.y+t*dy;
+        const dist=Math.sqrt(Math.pow(w.x-projX,2)+Math.pow(w.y-projY,2));
+        if(dist<CORRIDOR) waypoints.push({...w,_t:t,_dist:dist});
+      });
+      waypoints.sort((a,b)=>a._t-b._t);
+      const deduped=[];
+      for(let i=0;i<waypoints.length;i++){
+        const last=deduped[deduped.length-1];
+        if(last&&Math.abs(waypoints[i]._t-last._t)<0.1){if(waypoints[i]._dist<last._dist)deduped[deduped.length-1]=waypoints[i];}
+        else deduped.push(waypoints[i]);
       }
+      let trimmed=deduped;
+      if(deduped.length>4){const step=deduped.length/4;trimmed=[0,1,2,3].map(i=>deduped[Math.min(Math.round(i*step),deduped.length-1)]);}
+      const route=[start,...trimmed,end];
+      const u=[];
+      route.forEach(w=>{if(!u.find(x=>x.name===w.name))u.push(w);});
+      unique=u;
     }
 
-    // Max 4 Zwischenstopps — gleichmässig verteilt wenn mehr
-    let trimmed=deduped;
-    if(deduped.length>4){
-      const step=deduped.length/4;
-      trimmed=[0,1,2,3].map(i=>deduped[Math.min(Math.round(i*step),deduped.length-1)]);
-    }
+    // Segment-Typen für Routen-Anzeige
+    const hasBoat=customSegments?.some(p=>p.segType==='boat');
+    const hasPlane=customSegments?.some(p=>p.segType==='plane');
+    const isCustom=!!cr[customKey];
 
-    const route=[start,...trimmed,end];
-    // Deduplizieren
-    const unique=[];
-    route.forEach(w=>{if(!unique.find(u=>u.name===w.name))unique.push(w);});
-
-    // Reisezeit berechnen
-    // Basis: 25 min pro Welt-zu-Welt-Abschnitt
-    // Grenzbonus: +10 min pro Abschnitt wenn Distanz > 20% der Diagonale (~28 Einheiten)
+    // Reisezeit
     const DIAG=Math.sqrt(100*100+100*100);
     const t=TRANSPORT[naviTransport];
     let totalMins=0;
@@ -4004,6 +4013,8 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
       const segDist=d(unique[i],unique[i+1]);
       totalMins+=t.segMin;
       if(segDist>DIAG*0.2) totalMins+=t.borderBonus;
+      // Boot/Flug-Abschnitte: +20 min für Umsteigen
+      if(customSegments&&(hasBoat||hasPlane)) totalMins+=20;
     }
     const h=Math.floor(totalMins/60);
     const m=totalMins%60;
@@ -4012,21 +4023,28 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
 
     // UI befüllen
     document.getElementById('navi-time').innerHTML=timeStr+' <span>'+modeLabel+'</span>';
-    document.getElementById('navi-calc-info').textContent=t.segMin+' min pro Welt · +'+t.borderBonus+' min bei grossem Abstand · Zwischenstopps = Welten auf der Route';
+    const infoExtra=(hasBoat?' · Boot-Überquerung':hasPlane?' · Flug-Abschnitt':isCustom?' · Geplante Route':'');
+    document.getElementById('navi-calc-info').textContent=t.segMin+' min pro Welt · +'+t.borderBonus+' min bei grossem Abstand'+infoExtra;
     const list=document.getElementById('navi-route-list');
     list.innerHTML='';
     unique.forEach((w,i)=>{
       const li=document.createElement('li');
       const isEnd=(i===0||i===unique.length-1);
       if(isEnd) li.className='np-endpoint';
-      li.innerHTML='<div class="np-dot-marker"></div>'+(i>0?'<span class="np-arrow">▸</span> ':'')+w.name;
+      let label=w.name;
+      li.innerHTML='<div class="np-dot-marker"></div>'+(i>0?'<span class="np-arrow">▸</span> ':'')+label;
       if(!isEnd) li.style.paddingLeft='4px';
       list.appendChild(li);
     });
+    // Boot/Flug Badge
+    if(hasBoat||hasPlane){
+      const badge=document.createElement('li');
+      badge.style.cssText='padding-top:6px;font-size:10px;color:'+(hasBoat?'#5a9fd4':'#b07add');
+      badge.textContent=hasBoat?'~ Wasserüberquerung per Boot':'✈ Flug-Abschnitt';
+      list.appendChild(badge);
+    }
     document.getElementById('navi-result').style.display='block';
-
-    // Routenlinie auf Karte zeichnen
-    drawNaviRoute(unique);
+    drawNaviRoute(unique,customSegments);
   };
 
   function clearNaviRoute(){
@@ -4035,50 +4053,40 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
     document.getElementById('navi-result').style.display='none';
   }
 
-  function drawNaviRoute(stops){
+  function drawNaviRoute(stops,customSegments){
     const svg=document.getElementById('navi-route-svg');
     svg.innerHTML='';
 
+    // Segment-Typ bestimmen: boot/plane aus customSegments wenn vorhanden
+    const hasBoat=customSegments?.some(p=>p.segType==='boat');
+    const hasPlane=customSegments?.some(p=>p.segType==='plane');
+    const lineColor=hasBoat?'rgba(80,170,240,0.9)':hasPlane?'rgba(200,140,255,0.9)':'rgba(255,230,100,0.95)';
+    const dashPattern=hasBoat?'2 3':hasPlane?'6 3':'3 2';
+
     for(let i=0;i<stops.length-1;i++){
       const a=stops[i],b=stops[i+1];
-
-      // Schatten-Linie (dunkel, breiter) — gibt Kontrast auf hellem Untergrund
       const shadow=document.createElementNS('http://www.w3.org/2000/svg','line');
       shadow.setAttribute('x1',a.x);shadow.setAttribute('y1',a.y);
       shadow.setAttribute('x2',b.x);shadow.setAttribute('y2',b.y);
-      shadow.setAttribute('stroke','rgba(0,0,0,0.55)');
-      shadow.setAttribute('stroke-width','2.8');
-      shadow.setAttribute('stroke-linecap','round');
-      shadow.setAttribute('vector-effect','non-scaling-stroke');
+      shadow.setAttribute('stroke','rgba(0,0,0,0.55)');shadow.setAttribute('stroke-width','2.8');
+      shadow.setAttribute('stroke-linecap','round');shadow.setAttribute('vector-effect','non-scaling-stroke');
       svg.appendChild(shadow);
-
-      // Hauptlinie (weiss-gelb, gestrichelt)
       const line=document.createElementNS('http://www.w3.org/2000/svg','line');
       line.setAttribute('x1',a.x);line.setAttribute('y1',a.y);
       line.setAttribute('x2',b.x);line.setAttribute('y2',b.y);
-      line.setAttribute('stroke','rgba(255,230,100,0.95)');
-      line.setAttribute('stroke-width','1.4');
-      line.setAttribute('stroke-dasharray','3 2');
-      line.setAttribute('stroke-linecap','round');
+      line.setAttribute('stroke',lineColor);line.setAttribute('stroke-width','1.4');
+      line.setAttribute('stroke-dasharray',dashPattern);line.setAttribute('stroke-linecap','round');
       line.setAttribute('vector-effect','non-scaling-stroke');
       svg.appendChild(line);
     }
 
-    // Punkte auf der Route hervorheben
-    document.querySelectorAll('.world-dot').forEach(el=>{
-      el.querySelector('.dot-inner').style.removeProperty('outline');
-    });
+    document.querySelectorAll('.world-dot').forEach(el=>{el.querySelector('.dot-inner').style.removeProperty('outline');});
     stops.forEach((w,i)=>{
       const el=document.querySelector(`.world-dot[data-world-key="${w.name}"]`);
       if(!el) return;
       const inner=el.querySelector('.dot-inner');
-      if(i===0||i===stops.length-1){
-        inner.style.outline='2px solid rgba(255,230,100,1)';
-        inner.style.outlineOffset='3px';
-      } else {
-        inner.style.outline='1.5px solid rgba(255,230,100,0.7)';
-        inner.style.outlineOffset='2px';
-      }
+      if(i===0||i===stops.length-1){inner.style.outline='2px solid rgba(255,230,100,1)';inner.style.outlineOffset='3px';}
+      else{inner.style.outline='1.5px solid rgba(255,230,100,0.7)';inner.style.outlineOffset='2px';}
     });
   }
 
@@ -4092,6 +4100,402 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
       }
     }
   });
+
+})();
+
+
+// ═══════════════════════════════════════════════════════
+// ROUTEN-ADMIN
+// ═══════════════════════════════════════════════════════
+(function(){
+
+// Storage
+const STORAGE_KEY='atlas_custom_routes';
+function loadRoutes(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')}catch(e){return {};}}
+function saveRoutes(r){localStorage.setItem(STORAGE_KEY,JSON.stringify(r));}
+
+let customRoutes=loadRoutes();
+
+// Routen-Tab rendern — baut das Panel in den admin-content div
+window.renderRoutenTab=function(container){
+  container.innerHTML='';
+  const el=document.createElement('div');
+  el.id='routen-admin-root';
+  container.appendChild(el);
+  initRoutenAdmin(el);
+};
+
+function initRoutenAdmin(root){
+  const SEG={
+    road:{stroke:'rgba(255,220,80,0.92)',shadow:'rgba(0,0,0,0.55)',dash:'3 2'},
+    boat:{stroke:'rgba(80,170,240,0.92)',shadow:'rgba(0,20,60,0.55)',dash:'2 4'},
+    plane:{stroke:'rgba(200,140,255,0.92)',shadow:'rgba(20,0,60,0.55)',dash:'6 3'}
+  };
+
+  let transport='car', segType='road';
+  let fromW=null, toW=null, points=[];
+
+  root.innerHTML=`
+  <style>
+  #ra-wrap{display:flex;flex-direction:column;gap:10px}
+  #ra-mapbox{position:relative;width:100%;aspect-ratio:16/9;background:#1a2535;border-radius:7px;border:0.5px solid rgba(255,200,0,0.2);overflow:hidden;cursor:crosshair;user-select:none;flex-shrink:0}
+  #ra-mapsvg{width:100%;height:100%;display:block}
+  .ra-row{display:flex;gap:6px}
+  .ra-label{font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;margin-top:8px}
+  .ra-label:first-child{margin-top:0}
+  .ra-tb{flex:1;padding:5px 3px;font-size:10px;border:0.5px solid rgba(255,255,255,0.1);border-radius:5px;background:transparent;color:rgba(255,255,255,0.4);cursor:pointer;font-family:inherit;transition:all 0.15s}
+  .ra-tb.car.on{background:rgba(74,170,106,0.15);border-color:rgba(74,170,106,0.4);color:#4aaa6a}
+  .ra-tb.walk.on{background:rgba(180,130,70,0.15);border-color:rgba(180,130,70,0.4);color:#c4935a}
+  .ra-tb.transit.on{background:rgba(80,140,220,0.15);border-color:rgba(80,140,220,0.4);color:#7aacee}
+  .ra-tb.road.on{background:rgba(255,220,80,0.1);border-color:rgba(255,220,80,0.35);color:#ffd84a}
+  .ra-tb.boat.on{background:rgba(50,130,200,0.15);border-color:rgba(50,130,200,0.4);color:#5a9fd4}
+  .ra-tb.plane.on{background:rgba(160,100,220,0.15);border-color:rgba(160,100,220,0.4);color:#b07add}
+  .ra-sel{width:100%;background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.12);border-radius:5px;color:#fff;font-size:11px;padding:5px 7px;cursor:pointer;outline:none;font-family:inherit;margin-bottom:4px}
+  .ra-sel option{background:#0a1628}
+  .ra-hint{font-size:10px;color:rgba(255,255,255,0.3);line-height:1.5;padding:6px 8px;background:rgba(255,255,255,0.03);border-radius:5px}
+  .ra-hint b{color:rgba(255,255,255,0.7)}
+  .ra-btns{display:flex;gap:5px;margin-top:6px}
+  .ra-btn{flex:1;padding:6px;font-size:10px;border:0.5px solid rgba(255,255,255,0.1);border-radius:5px;background:transparent;color:rgba(255,255,255,0.4);cursor:pointer;font-family:inherit;transition:all 0.15s}
+  .ra-btn.ok{border-color:rgba(74,170,106,0.4);color:#4aaa6a}
+  .ra-btn.del{border-color:rgba(255,80,80,0.4);color:#ff8080}
+  .ra-status{font-size:10px;padding:3px 0;min-height:15px;color:rgba(255,255,255,0.35)}
+  .ra-status.ok{color:#4aaa6a}
+  .ra-status.warn{color:#f5a623}
+  #ra-saved{list-style:none;font-size:10px;max-height:80px;overflow-y:auto;margin-top:4px}
+  #ra-saved li{padding:3px 0;border-bottom:0.5px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);display:flex;justify-content:space-between;align-items:center;gap:6px}
+  #ra-saved li:last-child{border:none}
+  #ra-saved li b{color:rgba(255,255,255,0.85);font-weight:500}
+  .ra-del-btn{font-size:9px;color:rgba(255,80,80,0.5);cursor:pointer;padding:1px 4px;border:0.5px solid rgba(255,80,80,0.2);border-radius:3px;background:none;flex-shrink:0}
+  #ra-missing{list-style:none;font-size:10px;max-height:120px;overflow-y:auto;margin-top:4px}
+  #ra-missing li{padding:3px 0;border-bottom:0.5px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:6px;cursor:pointer;color:rgba(255,255,255,0.35)}
+  #ra-missing li:hover{color:rgba(255,255,255,0.7)}
+  #ra-missing li:last-child{border:none}
+  .ra-miss-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,80,80,0.6);flex-shrink:0}
+  .ra-load{font-size:9px;color:rgba(80,140,220,0.7);padding:1px 5px;border:0.5px solid rgba(80,140,220,0.3);border-radius:3px;white-space:nowrap;margin-left:auto}
+  .ra-prog-bar{height:3px;background:rgba(255,255,255,0.06);border-radius:2px;margin-bottom:6px;overflow:hidden}
+  .ra-prog-fill{height:100%;background:#4aaa6a;border-radius:2px;transition:width 0.3s}
+  .ra-prog-lbl{font-size:10px;color:rgba(255,255,255,0.3);display:flex;justify-content:space-between;margin-bottom:3px}
+  .ra-export-box{font-size:10px;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.04);border-radius:5px;padding:8px;font-family:monospace;word-break:break-all;max-height:60px;overflow-y:auto;margin-top:6px}
+  </style>
+  <div id="ra-wrap">
+    <div id="ra-mapbox">
+      <svg id="ra-mapsvg" viewBox="0 0 560 315" xmlns="http://www.w3.org/2000/svg" style="pointer-events:none">
+        <rect width="560" height="315" fill="#1a2535"/>
+        <g id="ra-dots-g" style="pointer-events:all"></g>
+        <g id="ra-lines-g"></g>
+        <g id="ra-wp-g" style="pointer-events:all"></g>
+      </svg>
+    </div>
+    <div class="ra-label">Transportmodus</div>
+    <div class="ra-row">
+      <button class="ra-tb car on" id="ra-tm-car" onclick="raTM('car')">Auto</button>
+      <button class="ra-tb walk" id="ra-tm-walk" onclick="raTM('walk')">Zu Fuss</button>
+      <button class="ra-tb transit" id="ra-tm-transit" onclick="raTM('transit')">OEV</button>
+    </div>
+    <div class="ra-label">Abschnittstyp</div>
+    <div class="ra-row">
+      <button class="ra-tb road on" id="ra-st-road" onclick="raST('road')">Strasse</button>
+      <button class="ra-tb boat" id="ra-st-boat" onclick="raST('boat')">Boot</button>
+      <button class="ra-tb plane" id="ra-st-plane" onclick="raST('plane')">Flugzeug</button>
+    </div>
+    <div class="ra-label">Route</div>
+    <select class="ra-sel" id="ra-from"><option value="">Start...</option></select>
+    <select class="ra-sel" id="ra-to"><option value="">Ziel...</option></select>
+    <div class="ra-hint" id="ra-hint">Welt anklicken = <b>Start</b> setzen</div>
+    <div class="ra-btns">
+      <button class="ra-btn del" onclick="raClear()">Leeren</button>
+      <button class="ra-btn ok" onclick="raSave()">Speichern</button>
+    </div>
+    <div class="ra-status" id="ra-status"></div>
+    <div class="ra-label">Gespeicherte Routen</div>
+    <ul id="ra-saved"></ul>
+    <div class="ra-label">Fehlende Welten</div>
+    <div class="ra-prog-lbl"><span id="ra-prog-txt">0 von ${worlds.length}</span><span id="ra-prog-pct" style="color:rgba(255,255,255,0.7);font-weight:500">0%</span></div>
+    <div class="ra-prog-bar"><div class="ra-prog-fill" id="ra-prog-fill" style="width:0%"></div></div>
+    <ul id="ra-missing"></ul>
+    <div class="ra-label">Export</div>
+    <div class="ra-btns">
+      <button class="ra-btn ok" onclick="raCopyExport()">JSON kopieren</button>
+      <button class="ra-btn del" onclick="raClearAll()">Alle loeschen</button>
+    </div>
+    <div class="ra-export-box" id="ra-export-box">Noch keine Routen gespeichert.</div>
+  </div>`;
+
+  const SVG_W=560,SVG_H=315;
+  const sx=v=>v/100*SVG_W, sy=v=>v/100*SVG_H;
+  const rv=v=>Math.round(v*10)/10;
+
+  const mapbox=document.getElementById('ra-mapbox');
+  const dotsG=document.getElementById('ra-dots-g');
+  const linesG=document.getElementById('ra-lines-g');
+  const wpG=document.getElementById('ra-wp-g');
+
+  // Welten-Dots aufbauen
+  worlds.forEach(w=>{
+    const selF=document.getElementById('ra-from');
+    const selT=document.getElementById('ra-to');
+    [selF,selT].forEach(s=>{const o=document.createElement('option');o.value=w.name;o.textContent=w.name;s.appendChild(o);});
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.style.cursor='pointer';
+    g.addEventListener('click',e=>{e.stopPropagation();raWorldClick(w,e);});
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',sx(w.x));c.setAttribute('cy',sy(w.y));c.setAttribute('r','5');
+    c.setAttribute('fill','#3a6a5a');c.setAttribute('stroke','#7abf9a');c.setAttribute('stroke-width','1');
+    c.id='ra-dot-'+w.name.replace(/[\s.]/g,'_');
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',sx(w.x)+7);t.setAttribute('y',sy(w.y)+3);
+    t.setAttribute('font-size','7');t.setAttribute('fill','#7ab4a0');
+    t.textContent=w.name;
+    g.appendChild(c);g.appendChild(t);dotsG.appendChild(g);
+  });
+
+  document.getElementById('ra-from').onchange=function(){const w=worlds.find(x=>x.name===this.value);if(w){fromW=w;raRedraw();}};
+  document.getElementById('ra-to').onchange=function(){const w=worlds.find(x=>x.name===this.value);if(w){toW=w;raRedraw();}};
+
+  // Klick auf leere Karte = freier Wegpunkt
+  mapbox.addEventListener('click',function(e){
+    if(e.target.closest('g')) return;
+    const r=mapbox.getBoundingClientRect();
+    const x=rv((e.clientX-r.left)/r.width*100);
+    const y=rv((e.clientY-r.top)/r.height*100);
+    points.push({x,y,segType,isWorld:false});
+    raRedraw();raStatus('Wegpunkt ('+segType+') gesetzt');
+  });
+
+  function raWorldClick(w,e){
+    if(!fromW){
+      fromW=w;document.getElementById('ra-from').value=w.name;
+      raDotColor(w,'#f5a623');raStatus('Start: '+w.name);
+    } else if(!toW&&w.name!==fromW.name){
+      toW=w;document.getElementById('ra-to').value=w.name;
+      raDotColor(w,'#4aaa6a');raStatus('Ziel: '+w.name);
+    } else if(w.name!==fromW?.name&&w.name!==toW?.name){
+      points.push({x:w.x,y:w.y,segType,isWorld:true,worldName:w.name});
+      raDotColor(w,'rgba(200,200,200,0.45)');
+      raStatus('Durchfahrt: '+w.name);
+    }
+    raRedraw();
+  }
+
+  function raDotColor(w,col){
+    const c=document.getElementById('ra-dot-'+w.name.replace(/[\s.]/g,'_'));
+    if(c) c.setAttribute('fill',col);
+  }
+
+  function catmullPath(pts){
+    if(pts.length<2) return null;
+    if(pts.length===2) return`M${rv(pts[0].x)} ${rv(pts[0].y)} L${rv(pts[1].x)} ${rv(pts[1].y)}`;
+    let d=`M${rv(pts[0].x)} ${rv(pts[0].y)}`;
+    for(let i=0;i<pts.length-1;i++){
+      const p0=pts[Math.max(i-1,0)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(i+2,pts.length-1)];
+      const c1x=p1.x+(p2.x-p0.x)/6,c1y=p1.y+(p2.y-p0.y)/6;
+      const c2x=p2.x-(p3.x-p1.x)/6,c2y=p2.y-(p3.y-p1.y)/6;
+      d+=` C${rv(c1x)} ${rv(c1y)},${rv(c2x)} ${rv(c2y)},${rv(p2.x)} ${rv(p2.y)}`;
+    }
+    return d;
+  }
+
+  function raRedraw(){
+    wpG.innerHTML='';linesG.innerHTML='';
+    const all=[];
+    if(fromW) all.push({x:fromW.x,y:fromW.y,segType:'road',isWorld:true,worldName:fromW.name});
+    points.forEach(p=>all.push(p));
+    if(toW) all.push({x:toW.x,y:toW.y,segType:'road',isWorld:true,worldName:toW.name});
+    if(all.length<2){raUpdateHint();return;}
+
+    // Segmente nach Type gruppieren und Bezier zeichnen
+    const svgPts=all.map(p=>({x:sx(p.x),y:sy(p.y),segType:p.segType}));
+    let i=0;
+    while(i<svgPts.length-1){
+      const ct=svgPts[i+1].segType||svgPts[i].segType||'road';
+      const seg=[svgPts[i]];
+      let j=i+1;
+      while(j<svgPts.length&&(svgPts[j].segType||ct)===ct){seg.push(svgPts[j]);j++;}
+      const path=catmullPath(seg);
+      if(path){
+        const sc=SEG[ct]||SEG.road;
+        ['shadow','main'].forEach(layer=>{
+          const el=document.createElementNS('http://www.w3.org/2000/svg','path');
+          el.setAttribute('d',path);el.setAttribute('fill','none');
+          if(layer==='shadow'){el.setAttribute('stroke',sc.shadow);el.setAttribute('stroke-width','3');el.setAttribute('stroke-linecap','round');el.setAttribute('stroke-linejoin','round');}
+          else{el.setAttribute('stroke',sc.stroke);el.setAttribute('stroke-width','1.5');el.setAttribute('stroke-dasharray',sc.dash);el.setAttribute('stroke-linecap','round');el.setAttribute('stroke-linejoin','round');}
+          linesG.appendChild(el);
+        });
+      }
+      i=j-1;
+    }
+
+    // Wegpunkt-Dots
+    points.forEach((wp,i)=>{
+      const sc=SEG[wp.segType]||SEG.road;
+      const cx=sx(wp.x),cy=sy(wp.y);
+      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',cx);c.setAttribute('cy',cy);c.setAttribute('r',wp.isWorld?'5':'3');
+      c.setAttribute('fill',wp.isWorld?'rgba(200,200,200,0.35)':sc.stroke.replace('0.92','1'));
+      c.setAttribute('stroke','rgba(0,0,0,0.4)');c.setAttribute('stroke-width','0.8');
+      c.style.cursor='pointer';c.style.pointerEvents='all';
+      c.addEventListener('click',e=>{e.stopPropagation();points.splice(i,1);raRedraw();raStatus('Entfernt');});
+      wpG.appendChild(c);
+      if(wp.worldName){
+        const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+        t.setAttribute('x',cx+6);t.setAttribute('y',cy-5);
+        t.setAttribute('font-size','6.5');t.setAttribute('fill','rgba(200,200,200,0.45)');
+        t.textContent='('+wp.worldName.split(' ')[0]+')';
+        wpG.appendChild(t);
+      }
+    });
+    raUpdateHint();
+  }
+
+  window.raTM=function(t){transport=t;['car','walk','transit'].forEach(x=>document.getElementById('ra-tm-'+x).className='ra-tb '+x+(t===x?' on':''));};
+  window.raST=function(t){segType=t;['road','boat','plane'].forEach(x=>document.getElementById('ra-st-'+x).className='ra-tb '+x+(t===x?' on':''));};
+
+  window.raClear=function(){
+    fromW=null;toW=null;points=[];
+    document.getElementById('ra-from').value='';document.getElementById('ra-to').value='';
+    worlds.forEach(w=>raDotColor(w,'#3a6a5a'));
+    raRedraw();raStatus('Geleert');
+  };
+
+  window.raSave=function(){
+    if(!fromW||!toW){raStatus('Start und Ziel setzen','warn');return;}
+
+    // Ankerpunkte: Start + alle Durchfahrt-Welten + Ziel
+    const anchors=[
+      {worldName:fromW.name,x:fromW.x,y:fromW.y},
+      ...points.filter(p=>p.isWorld).map(p=>({worldName:p.worldName,x:p.x,y:p.y})),
+      {worldName:toW.name,x:toW.x,y:toW.y}
+    ];
+
+    // Wegpunkte zwischen zwei Ankern (nach Index in points[])
+    function wpsBetween(aName,bName){
+      const worldIdxs=points.map((p,i)=>p.isWorld?{worldName:p.worldName,i}:null).filter(Boolean);
+      const idxA=aName===fromW.name?-1:(worldIdxs.find(w=>w.worldName===aName)?.i??-1);
+      const idxB=bName===toW.name?points.length:(worldIdxs.find(w=>w.worldName===bName)?.i??points.length);
+      return points.filter((p,i)=>!p.isWorld&&i>idxA&&i<idxB);
+    }
+
+    let cnt=0;
+    for(let i=0;i<anchors.length-1;i++){
+      const a=anchors[i],b=anchors[i+1];
+      const wps=wpsBetween(a.worldName,b.worldName);
+      const transits=points.filter(p=>{
+        if(!p.isWorld) return false;
+        const pi=points.indexOf(p);
+        const aIdx=a.worldName===fromW.name?-1:points.findIndex(p2=>p2.isWorld&&p2.worldName===a.worldName);
+        const bIdx=b.worldName===toW.name?points.length:points.findIndex(p2=>p2.isWorld&&p2.worldName===b.worldName);
+        return pi>aIdx&&pi<bIdx;
+      }).map(p=>p.worldName);
+
+      // Vorwärts
+      customRoutes[a.worldName+'|'+b.worldName+'|'+transport]={from:a.worldName,to:b.worldName,transport,points:wps,transits};
+      // Rückwärts
+      customRoutes[b.worldName+'|'+a.worldName+'|'+transport]={from:b.worldName,to:a.worldName,transport,points:[...wps].reverse(),transits:[...transits].reverse()};
+      cnt+=2;
+    }
+    saveRoutes(customRoutes);
+    // Globale Variable für Navi-System aktualisieren
+    if(window.atlasCustomRoutes!==undefined) window.atlasCustomRoutes=customRoutes;
+    raUpdateSavedList();raUpdateMissing();raUpdateExport();
+    raStatus(cnt+' Routen gespeichert','ok');
+  };
+
+  function raUpdateSavedList(){
+    const ul=document.getElementById('ra-saved');if(!ul)return;
+    ul.innerHTML='';
+    const keys=Object.keys(customRoutes);
+    if(!keys.length){ul.innerHTML='<li style="color:rgba(255,255,255,0.25);padding:3px 0">Noch keine</li>';return;}
+    keys.slice(-10).reverse().forEach(k=>{
+      const r=customRoutes[k];
+      const li=document.createElement('li');
+      const hasBoat=r.points.some(p=>p.segType==='boat');
+      const hasPlane=r.points.some(p=>p.segType==='plane');
+      let txt='<b>'+r.from.split(' ')[0]+' → '+r.to.split(' ')[0]+'</b> <span>('+r.transport+')</span>';
+      if(hasBoat) txt+=' <span style="color:#5a9fd4">Boot</span>';
+      if(hasPlane) txt+=' <span style="color:#b07add">Flug</span>';
+      li.innerHTML=txt;
+      const del=document.createElement('button');
+      del.className='ra-del-btn';del.textContent='✕';
+      del.onclick=()=>{delete customRoutes[k];saveRoutes(customRoutes);if(window.atlasCustomRoutes!==undefined)window.atlasCustomRoutes=customRoutes;raUpdateSavedList();raUpdateMissing();raUpdateExport();};
+      li.appendChild(del);ul.appendChild(li);
+    });
+  }
+
+  function raUpdateMissing(){
+    const covered=new Set();
+    Object.values(customRoutes).forEach(r=>{
+      covered.add(r.from);covered.add(r.to);
+      r.transits?.forEach(t=>covered.add(t));
+    });
+    const missing=worlds.filter(w=>!covered.has(w.name));
+    const pct=Math.round((worlds.length-missing.length)/worlds.length*100);
+    const pt=document.getElementById('ra-prog-txt');
+    const pp=document.getElementById('ra-prog-pct');
+    const pf=document.getElementById('ra-prog-fill');
+    if(pt) pt.textContent=(worlds.length-missing.length)+' von '+worlds.length+' Welten';
+    if(pp) pp.textContent=pct+'%';
+    if(pf) pf.style.width=pct+'%';
+    const ul=document.getElementById('ra-missing');if(!ul)return;
+    ul.innerHTML='';
+    if(!missing.length){ul.innerHTML='<li style="color:#4aaa6a;padding:4px 0;font-size:10px">Alle Welten abgedeckt ✓</li>';return;}
+    missing.forEach(w=>{
+      const li=document.createElement('li');
+      li.innerHTML='<div class="ra-miss-dot"></div><span style="flex:1">'+w.name+'</span><span class="ra-load">als Start</span>';
+      li.addEventListener('click',()=>{
+        raClear();fromW=w;document.getElementById('ra-from').value=w.name;
+        raDotColor(w,'#f5a623');raStatus('Start: '+w.name);raUpdateHint();
+      });
+      ul.appendChild(li);
+    });
+  }
+
+  function raUpdateExport(){
+    const box=document.getElementById('ra-export-box');if(!box)return;
+    const keys=Object.keys(customRoutes);
+    box.textContent=keys.length?JSON.stringify(customRoutes,null,1).substring(0,400)+(JSON.stringify(customRoutes).length>400?'...':''):'Noch keine Routen.';
+  }
+
+  window.raCopyExport=function(){
+    navigator.clipboard.writeText(JSON.stringify(customRoutes,null,2));
+    raStatus('JSON kopiert ✓','ok');
+  };
+
+  window.raClearAll=function(){
+    if(!confirm('Alle gespeicherten Routen löschen?')) return;
+    customRoutes={};saveRoutes(customRoutes);
+    if(window.atlasCustomRoutes!==undefined) window.atlasCustomRoutes=customRoutes;
+    raUpdateSavedList();raUpdateMissing();raUpdateExport();
+    raStatus('Alle Routen gelöscht','warn');
+  };
+
+  function raStatus(msg,type){
+    const el=document.getElementById('ra-status');if(!el)return;
+    el.textContent=msg;el.className='ra-status'+(type?' '+type:'');
+  }
+  function raUpdateHint(){
+    const h=document.getElementById('ra-hint');if(!h)return;
+    if(!fromW) h.innerHTML='Welt anklicken = <b>Start</b> setzen';
+    else if(!toW) h.innerHTML='<b>'+fromW.name+'</b>. Zweite Welt = Ziel.';
+    else h.innerHTML='Karte = freier Wegpunkt ('+segType+'). Welt = Durchfahrt. Punkt klicken = löschen.';
+  }
+
+  // Karte mit Weltbild befüllen (gleiche Map-URL wie Hauptkarte)
+  const mapImg=document.querySelector('#map-bg img');
+  if(mapImg){
+    const bg=document.createElementNS('http://www.w3.org/2000/svg','image');
+    bg.setAttribute('href',mapImg.src);
+    bg.setAttribute('x','0');bg.setAttribute('y','0');
+    bg.setAttribute('width','560');bg.setAttribute('height','315');
+    bg.setAttribute('preserveAspectRatio','xMidYMid slice');
+    document.getElementById('ra-mapsvg').insertBefore(bg,dotsG);
+  }
+
+  // Bestehende Routen laden
+  raUpdateSavedList();raUpdateMissing();raUpdateExport();
+}
+
+// Globale Variable für Navi-System — wird beim Laden gesetzt
+window.atlasCustomRoutes=loadRoutes();
 
 })();
 
