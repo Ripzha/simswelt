@@ -4262,7 +4262,7 @@ function initRoutenAdmin(root){
     [selF,selT].forEach(s=>{const o=document.createElement('option');o.value=w.name;o.textContent=w.name;s.appendChild(o);});
     const g=document.createElementNS('http://www.w3.org/2000/svg','g');
     g.style.cursor='pointer';
-    g.addEventListener('click',e=>{e.stopPropagation();raWorldClick(w,e);});
+    g.addEventListener('click',e=>{e.stopPropagation();raWorldClick(w);});
     const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
     c.setAttribute('cx',sx(w.x));c.setAttribute('cy',sy(w.y));c.setAttribute('r','5');
     c.setAttribute('fill','#3a6a5a');c.setAttribute('stroke','#7abf9a');c.setAttribute('stroke-width','1');
@@ -4277,17 +4277,24 @@ function initRoutenAdmin(root){
   document.getElementById('ra-from').onchange=function(){const w=worlds.find(x=>x.name===this.value);if(w){fromW=w;raRedraw();}};
   document.getElementById('ra-to').onchange=function(){const w=worlds.find(x=>x.name===this.value);if(w){toW=w;raRedraw();}};
 
+  // SVG-native Koordinatenumrechnung — funktioniert unabhängig von Layout, Padding, Zoom
+  function getCoords(e){
+    const svgEl=document.getElementById('ra-mapsvg');
+    const pt=svgEl.createSVGPoint();
+    pt.x=e.clientX; pt.y=e.clientY;
+    const svgPt=pt.matrixTransform(svgEl.getScreenCTM().inverse());
+    return{x:rv(svgPt.x/SVG_W*100), y:rv(svgPt.y/SVG_H*100)};
+  }
+
   // Klick auf leere Karte = freier Wegpunkt
   mapbox.addEventListener('click',function(e){
     if(e.target.closest('g')) return;
-    const r=mapbox.getBoundingClientRect();
-    const x=rv((e.clientX-r.left)/r.width*100);
-    const y=rv((e.clientY-r.top)/r.height*100);
+    const{x,y}=getCoords(e);
     points.push({x,y,segType,isWorld:false});
     raRedraw();raStatus('Wegpunkt ('+segType+') gesetzt');
   });
 
-  function raWorldClick(w,e){
+  function raWorldClick(w){
     if(!fromW){
       fromW=w;document.getElementById('ra-from').value=w.name;
       raDotColor(w,'#f5a623');raStatus('Start: '+w.name);
