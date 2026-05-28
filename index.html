@@ -4203,6 +4203,7 @@ function initRoutenAdmin(root){
       <div id="ra-mapbox">
         <svg id="ra-mapsvg" viewBox="0 0 560 315" xmlns="http://www.w3.org/2000/svg" style="pointer-events:none">
           <rect width="560" height="315" fill="#1a2535"/>
+          <g id="ra-ghost-g" style="pointer-events:none;opacity:0.35"></g>
           <g id="ra-dots-g" style="pointer-events:all"></g>
           <g id="ra-lines-g"></g>
           <g id="ra-wp-g" style="pointer-events:all"></g>
@@ -4254,6 +4255,40 @@ function initRoutenAdmin(root){
   const dotsG=document.getElementById('ra-dots-g');
   const linesG=document.getElementById('ra-lines-g');
   const wpG=document.getElementById('ra-wp-g');
+  const ghostG=document.getElementById('ra-ghost-g');
+
+  // Ghost-Routen: alle bereits gespeicherten Routen für aktuellen Transportmodus hell einblenden
+  function drawGhostRoutes(){
+    ghostG.innerHTML='';
+    const SEG_GHOST={
+      road:'rgba(255,220,80,0.9)',
+      boat:'rgba(80,170,240,0.9)',
+      plane:'rgba(200,140,255,0.9)'
+    };
+    Object.values(customRoutes).filter(r=>r.transport===transport).forEach(r=>{
+      // Punkte der Route: Start-Welt + Wegpunkte + End-Welt
+      const startW=worlds.find(w=>w.name===r.from);
+      const endW=worlds.find(w=>w.name===r.to);
+      if(!startW||!endW) return;
+      const allPts=[
+        {x:sx(startW.x),y:sy(startW.y),segType:'road'},
+        ...(r.points||[]).map(p=>({x:sx(p.x),y:sy(p.y),segType:p.segType||'road'})),
+        {x:sx(endW.x),y:sy(endW.y),segType:'road'}
+      ];
+      // Segmente zeichnen
+      for(let i=0;i<allPts.length-1;i++){
+        const a=allPts[i],b=allPts[i+1];
+        const st=b.segType||a.segType||'road';
+        const col=SEG_GHOST[st]||SEG_GHOST.road;
+        const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+        ln.setAttribute('x1',a.x);ln.setAttribute('y1',a.y);
+        ln.setAttribute('x2',b.x);ln.setAttribute('y2',b.y);
+        ln.setAttribute('stroke',col);ln.setAttribute('stroke-width','1.2');
+        ln.setAttribute('stroke-dasharray','2 2');ln.setAttribute('stroke-linecap','round');
+        ghostG.appendChild(ln);
+      }
+    });
+  }
 
   // Welten-Dots aufbauen
   worlds.forEach(w=>{
@@ -4329,6 +4364,7 @@ function initRoutenAdmin(root){
 
   function raRedraw(){
     wpG.innerHTML='';linesG.innerHTML='';
+    drawGhostRoutes();
     const all=[];
     if(fromW) all.push({x:fromW.x,y:fromW.y,segType:'road',isWorld:true,worldName:fromW.name});
     points.forEach(p=>all.push(p));
@@ -4379,7 +4415,7 @@ function initRoutenAdmin(root){
     raUpdateHint();
   }
 
-  window.raTM=function(t){transport=t;['car','walk','transit'].forEach(x=>document.getElementById('ra-tm-'+x).className='ra-tb '+x+(t===x?' on':''));};
+  window.raTM=function(t){transport=t;['car','walk','transit'].forEach(x=>document.getElementById('ra-tm-'+x).className='ra-tb '+x+(t===x?' on':''));drawGhostRoutes();};
   window.raST=function(t){segType=t;['road','boat','plane'].forEach(x=>document.getElementById('ra-st-'+x).className='ra-tb '+x+(t===x?' on':''));};
 
   window.raClear=function(){
@@ -4428,7 +4464,7 @@ function initRoutenAdmin(root){
     saveRoutes(customRoutes);
     // Globale Variable für Navi-System aktualisieren
     if(window.atlasCustomRoutes!==undefined) window.atlasCustomRoutes=customRoutes;
-    raUpdateSavedList();raUpdateMissing();raUpdateExport();
+    raUpdateSavedList();raUpdateMissing();raUpdateExport();drawGhostRoutes();
     raStatus(cnt+' Routen gespeichert','ok');
   };
 
