@@ -4234,13 +4234,21 @@ function initRoutenAdmin(root){
     <div class="ra-status" id="ra-status"></div>
     <div class="ra-label">Gespeicherte Routen</div>
     <ul id="ra-saved"></ul>
+    <div class="ra-label">Netzanalyse</div>
+    <div class="ra-btns">
+      <button class="ra-btn ok" onclick="raAnalyzeNet()">Netz analysieren</button>
+    </div>
+    <div id="ra-analysis" style="display:none;margin-top:6px"></div>
     <div class="ra-label">Fehlende Welten</div>
     <div class="ra-prog-lbl"><span id="ra-prog-txt">0 von ${worlds.length}</span><span id="ra-prog-pct" style="color:rgba(255,255,255,0.7);font-weight:500">0%</span></div>
     <div class="ra-prog-bar"><div class="ra-prog-fill" id="ra-prog-fill" style="width:0%"></div></div>
     <ul id="ra-missing"></ul>
-    <div class="ra-label">Export</div>
+    <div class="ra-label">Export / Import</div>
     <div class="ra-btns">
       <button class="ra-btn ok" onclick="raCopyExport()">JSON kopieren</button>
+      <button class="ra-btn ok" onclick="raImportPrompt()">JSON importieren</button>
+    </div>
+    <div class="ra-btns" style="margin-top:5px">
       <button class="ra-btn del" onclick="raClearAll()">Alle loeschen</button>
     </div>
     <div class="ra-export-box" id="ra-export-box">Noch keine Routen gespeichert.</div>
@@ -4490,33 +4498,53 @@ function initRoutenAdmin(root){
     });
   }
 
+  const IGNORED_KEY='atlas_routes_ignored';
+  let ignoredWorlds=new Set(JSON.parse(localStorage.getItem(IGNORED_KEY)||'[]'));
+
   function raUpdateMissing(){
     const covered=new Set();
     Object.values(customRoutes).forEach(r=>{
       covered.add(r.from);covered.add(r.to);
       r.transits?.forEach(t=>covered.add(t));
     });
-    const missing=worlds.filter(w=>!covered.has(w.name));
-    const pct=Math.round((worlds.length-missing.length)/worlds.length*100);
+    const missing=worlds.filter(w=>!covered.has(w.name)&&!ignoredWorlds.has(w.name));
+    const ignored=worlds.filter(w=>!covered.has(w.name)&&ignoredWorlds.has(w.name));
+    const total=worlds.filter(w=>!covered.has(w.name)).length;
+    const pct=Math.round((worlds.length-worlds.filter(w=>!covered.has(w.name)).length)/worlds.length*100);
     const pt=document.getElementById('ra-prog-txt');
     const pp=document.getElementById('ra-prog-pct');
     const pf=document.getElementById('ra-prog-fill');
-    if(pt) pt.textContent=(worlds.length-missing.length)+' von '+worlds.length+' Welten';
+    if(pt) pt.textContent=(worlds.length-worlds.filter(w=>!covered.has(w.name)).length)+' von '+worlds.length+' Welten';
     if(pp) pp.textContent=pct+'%';
     if(pf) pf.style.width=pct+'%';
     const ul=document.getElementById('ra-missing');if(!ul)return;
     ul.innerHTML='';
-    if(!missing.length){ul.innerHTML='<li style="color:#4aaa6a;padding:4px 0;font-size:10px">Alle Welten abgedeckt ✓</li>';return;}
+    if(!missing.length&&!ignored.length){ul.innerHTML='<li style="color:#4aaa6a;padding:4px 0;font-size:10px">Alle Welten abgedeckt ✓</li>';return;}
     missing.forEach(w=>{
       const li=document.createElement('li');
-      li.innerHTML='<div class="ra-miss-dot"></div><span style="flex:1">'+w.name+'</span><span class="ra-load">als Start</span>';
-      li.addEventListener('click',()=>{
+      li.innerHTML='<div class="ra-miss-dot"></div><span style="flex:1">'+w.name+'</span><span class="ra-load" style="margin-right:4px">als Start</span><span class="ra-load" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);cursor:pointer" onclick="raIgnoreWorld(\''+w.name.replace(/'/g,"\\'")+'\')" title="Aus Liste ausblenden">✕</span>';
+      li.querySelector('.ra-load').addEventListener('click',()=>{
         raClear();fromW=w;document.getElementById('ra-from').value=w.name;
         raDotColor(w,'#f5a623');raStatus('Start: '+w.name);raUpdateHint();
       });
       ul.appendChild(li);
     });
+    if(ignored.length){
+      const div=document.createElement('li');
+      div.style.cssText='color:rgba(255,255,255,0.2);font-size:9px;padding-top:6px;cursor:default;border:none;display:block';
+      div.textContent='Ignoriert ('+ignored.length+'): '+ignored.map(w=>w.name).join(', ');
+      const reset=document.createElement('span');
+      reset.textContent=' · zurücksetzen';reset.style.cssText='color:rgba(80,140,220,0.5);cursor:pointer';
+      reset.onclick=()=>{ignoredWorlds.clear();localStorage.setItem(IGNORED_KEY,'[]');raUpdateMissing();};
+      div.appendChild(reset);ul.appendChild(div);
+    }
   }
+
+  window.raIgnoreWorld=function(name){
+    ignoredWorlds.add(name);
+    localStorage.setItem(IGNORED_KEY,JSON.stringify([...ignoredWorlds]));
+    raUpdateMissing();
+  };
 
   function raUpdateExport(){
     const box=document.getElementById('ra-export-box');if(!box)return;
@@ -4525,10 +4553,136 @@ function initRoutenAdmin(root){
     box.textContent=Object.keys(clean).length?JSON.stringify(clean,null,2):'Noch keine Routen.';
   }
 
+  window.raAnalyzeNet=function(){
+    const box=document.getElementById('ra-analysis');
+    if(!box) return;
+    box.style.display='block';
+    box.innerHTML='<div style="font-size:10px;color:rgba(255,255,255,0.3)">Analysiere...</div>';
+
+    // Graph aus customRoutes aufbauen — Knoten = Weltnamen, Kanten = gespeicherte Routen
+    const graph={};
+    worlds.forEach(w=>{graph[w.name]=[];});
+
+    Object.values(customRoutes).filter(r=>r.from!==r.to).forEach(r=>{
+      if(!graph[r.from]) graph[r.from]=[];
+      // Kantengewicht = echte Pfadlänge in % der Kartengrösse
+      const fromW=worlds.find(w=>w.name===r.from);
+      const toW=worlds.find(w=>w.name===r.to);
+      if(!fromW||!toW) return;
+      let dist=0;
+      const allPts=[{x:fromW.x,y:fromW.y},...(r.points||[]),{x:toW.x,y:toW.y}];
+      for(let i=0;i<allPts.length-1;i++){
+        const a=allPts[i],b=allPts[i+1];
+        dist+=Math.sqrt(Math.pow(a.x-b.x,2)+Math.pow(a.y-b.y,2));
+      }
+      graph[r.from].push({to:r.to,dist,segTypes:[...(new Set(r.points.map(p=>p.segType||'road')))]});
+    });
+
+    // Dijkstra von einer Quelle
+    function dijkstra(start){
+      const dist={};const prev={};const visited=new Set();
+      worlds.forEach(w=>{dist[w.name]=Infinity;});
+      dist[start]=0;
+      const queue=new Set(worlds.map(w=>w.name));
+      while(queue.size){
+        // Nächster unbesuchter mit kleinstem Abstand
+        let u=null;
+        queue.forEach(n=>{if(u===null||dist[n]<dist[u])u=n;});
+        if(dist[u]===Infinity) break;
+        queue.delete(u);
+        (graph[u]||[]).forEach(edge=>{
+          const alt=dist[u]+edge.dist;
+          if(alt<dist[edge.to]){dist[edge.to]=alt;prev[edge.to]=u;}
+        });
+      }
+      return{dist,prev};
+    }
+
+    // Luftlinie zwischen zwei Welten
+    function airDist(a,b){
+      return Math.sqrt(Math.pow(a.x-b.x,2)+Math.pow(a.y-b.y,2));
+    }
+
+    // Für alle Weltenpaare Umweg-Faktor berechnen
+    const issues=[];
+    const isolated=[];
+
+    worlds.forEach(w=>{
+      const {dist,prev}=dijkstra(w.name);
+      worlds.forEach(t=>{
+        if(t.name===w.name) return;
+        if(dist[t.name]===Infinity){
+          // Nur einmal pro Paar
+          if(w.name<t.name) isolated.push(w.name+' ↔ '+t.name);
+          return;
+        }
+        const ww=worlds.find(x=>x.name===w.name);
+        const tw=worlds.find(x=>x.name===t.name);
+        const air=airDist(ww,tw);
+        if(air<3) return; // Sehr nah beieinander ignorieren
+        const factor=dist[t.name]/Math.max(air,1);
+        if(factor>2.8&&w.name<t.name){
+          // Pfad rekonstruieren
+          const path=[];let cur=t.name;
+          while(cur){path.unshift(cur);cur=prev[cur];}
+          issues.push({from:w.name,to:t.name,factor:Math.round(factor*10)/10,hops:path.length-1,path});
+        }
+      });
+    });
+
+    issues.sort((a,b)=>b.factor-a.factor);
+
+    // Ergebnis anzeigen
+    let html='<div style="font-size:10px;line-height:1.7">';
+
+    if(isolated.length){
+      html+='<div style="color:#ff8080;font-weight:500;margin-bottom:6px">⚠ Nicht verbunden ('+isolated.length+'):</div>';
+      isolated.slice(0,5).forEach(p=>{
+        html+='<div style="color:rgba(255,120,120,0.7);padding:2px 0;border-bottom:0.5px solid rgba(255,255,255,0.05)">'+p+'</div>';
+      });
+      if(isolated.length>5) html+='<div style="color:rgba(255,255,255,0.2)">...und '+(isolated.length-5)+' weitere</div>';
+      html+='<div style="height:8px"></div>';
+    } else {
+      html+='<div style="color:#4aaa6a;margin-bottom:6px">✓ Alle Welten verbunden</div>';
+    }
+
+    if(issues.length){
+      html+='<div style="color:#f5a623;font-weight:500;margin-bottom:4px">Grosse Umwege ('+issues.length+'):</div>';
+      issues.slice(0,8).forEach(issue=>{
+        html+='<div style="padding:3px 0;border-bottom:0.5px solid rgba(255,255,255,0.05)">';
+        html+='<span style="color:rgba(255,255,255,0.7)">'+issue.from.split(' ')[0]+' → '+issue.to.split(' ')[0]+'</span>';
+        html+=' <span style="color:#f5a623">'+issue.factor+'×</span>';
+        html+=' <span style="color:rgba(255,255,255,0.3)">via '+issue.path.slice(1,-1).map(n=>n.split(' ')[0]).join('→')+'</span>';
+        html+='</div>';
+      });
+      if(issues.length>8) html+='<div style="color:rgba(255,255,255,0.2);margin-top:3px">...und '+(issues.length-8)+' weitere</div>';
+    } else {
+      html+='<div style="color:#4aaa6a">✓ Keine grossen Umwege gefunden</div>';
+    }
+
+    html+='</div>';
+    box.innerHTML=html;
+  };
+
   window.raCopyExport=function(){
     const clean=Object.fromEntries(Object.entries(customRoutes).filter(([k,r])=>r.from!==r.to));
     navigator.clipboard.writeText(JSON.stringify(clean,null,2));
     raStatus('JSON kopiert ✓','ok');
+  };
+
+  window.raImportPrompt=function(){
+    const txt=prompt('JSON einfügen:');
+    if(!txt) return;
+    try{
+      const parsed=JSON.parse(txt);
+      // Selbst-Routen rausfiltern
+      const clean=Object.fromEntries(Object.entries(parsed).filter(([k,r])=>r.from!==r.to));
+      customRoutes=clean;
+      saveRoutes(customRoutes);
+      if(window.atlasCustomRoutes!==undefined) window.atlasCustomRoutes=customRoutes;
+      raUpdateSavedList();raUpdateMissing();raUpdateExport();drawGhostRoutes();
+      raStatus(Object.keys(clean).length+' Routen importiert','ok');
+    }catch(e){raStatus('Ungültiges JSON','warn');}
   };
 
   window.raClearAll=function(){
