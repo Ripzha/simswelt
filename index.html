@@ -4647,12 +4647,24 @@ function initRoutenAdmin(root){
     }
 
     if(issues.length){
-      html+='<div style="color:#f5a623;font-weight:500;margin-bottom:4px">Grosse Umwege ('+issues.length+'):</div>';
+      // Häufigste Zwischen-Welt in Umwegen = Hotspot
+      const hotspot={};
+      issues.forEach(issue=>issue.path.slice(1,-1).forEach(n=>{hotspot[n]=(hotspot[n]||0)+1;}));
+      const topHotspot=Object.entries(hotspot).sort((a,b)=>b[1]-a[1])[0];
+
+      html+='<div style="padding:5px 8px;background:rgba(245,166,35,0.08);border-radius:5px;margin-bottom:8px;font-size:10px">';
+      html+='<span style="color:#f5a623;font-weight:500">Tipp:</span> ';
+      if(topHotspot) html+='Viele Umwege führen über <b style="color:rgba(255,255,255,0.7)">'+topHotspot[0]+'</b> ('+topHotspot[1]+'×). ';
+      html+='Direkte Routen von/zu dieser Welt würden am meisten bringen.</div>';
+
+      html+='<div style="color:#f5a623;font-weight:500;margin-bottom:4px">Top Umwege — direkte Route empfohlen:</div>';
       issues.slice(0,8).forEach(issue=>{
-        html+='<div style="padding:3px 0;border-bottom:0.5px solid rgba(255,255,255,0.05)">';
-        html+='<span style="color:rgba(255,255,255,0.7)">'+issue.from.split(' ')[0]+' → '+issue.to.split(' ')[0]+'</span>';
-        html+=' <span style="color:#f5a623">'+issue.factor+'×</span>';
-        html+=' <span style="color:rgba(255,255,255,0.3)">via '+issue.path.slice(1,-1).map(n=>n.split(' ')[0]).join('→')+'</span>';
+        const saving=Math.round((1-1/issue.factor)*100);
+        html+='<div style="padding:4px 0;border-bottom:0.5px solid rgba(255,255,255,0.05)">';
+        html+='<div><span style="color:rgba(255,255,255,0.8);font-weight:500">'+issue.from.split(' ')[0]+' → '+issue.to.split(' ')[0]+'</span>';
+        html+=' <span style="color:#f5a623">'+issue.factor+'× Umweg</span></div>';
+        html+='<div style="color:rgba(255,255,255,0.25);font-size:9px">aktuell via: '+issue.path.slice(1,-1).map(n=>n.split(' ')[0]).join(' → ')+'</div>';
+        html+='<div style="color:#4aaa6a;font-size:9px">→ Direkte Route würde ~'+saving+'% Zeit sparen</div>';
         html+='</div>';
       });
       if(issues.length>8) html+='<div style="color:rgba(255,255,255,0.2);margin-top:3px">...und '+(issues.length-8)+' weitere</div>';
