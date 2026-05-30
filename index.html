@@ -616,7 +616,6 @@ body.admin-mode .calib-btn{display:block}
   <div class="admin-tabs">
     <button class="atab active" id="atab-assign" onclick="setAdminTab('assign')">Zuweisen</button>
     <button class="atab" id="atab-routen" onclick="setAdminTab('routen')">Routen</button>
-    <button class="atab" id="atab-chars" onclick="setAdminTab('chars')">Charaktere</button>
   </div>
   <div id="admin-content"></div>
 </div>
@@ -2897,9 +2896,9 @@ document.getElementById('logo-icon').addEventListener('click',()=>{
 });
 function openAdmin(){document.body.classList.add('admin-mode');document.getElementById('admin-panel').classList.add('open');document.getElementById('logo-icon').classList.add('admin-active');adminTab='assign';setAdminTab('assign');}
 function closeAdmin(){document.body.classList.remove('admin-mode');document.getElementById('admin-panel').classList.remove('open');document.getElementById('logo-icon').classList.remove('admin-active');adminMode=false;}
-function setAdminTab(t){adminTab=t;['assign','routen','chars'].forEach(id=>document.getElementById('atab-'+id).classList.toggle('active',id===t));renderAdminContent();}
+function setAdminTab(t){adminTab=t;['assign','routen'].forEach(id=>document.getElementById('atab-'+id).classList.toggle('active',id===t));renderAdminContent();}
 function updateSuggestBadge(){const cnt=suggestions.filter(s=>s.status==='pending').length;const el=document.getElementById('admin-suggest-count');el.style.display=cnt>0?'inline-flex':'none';el.textContent=cnt;}
-function renderAdminContent(){const c=document.getElementById('admin-content');if(adminTab==='assign')renderAssignTab(c);else if(adminTab==='routen')renderRoutenTab(c);else if(adminTab==='chars')renderCharsTab(c);}
+function renderAdminContent(){const c=document.getElementById('admin-content');if(adminTab==='assign')renderAssignTab(c);else if(adminTab==='routen')renderRoutenTab(c);}
 function renderLotsTab(){
   const wname=adminWorldFilter;
   const hardLots=worldLots[wname]||[];
