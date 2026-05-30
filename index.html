@@ -3950,101 +3950,105 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
     const toName=document.getElementById('navi-to').value;
     if(!fromName||!toName){alert('Bitte Start und Ziel wählen.');return;}
     if(fromName===toName){alert('Start und Ziel sind identisch.');return;}
-
     const start=worlds.find(w=>w.name===fromName);
     const end=worlds.find(w=>w.name===toName);
     if(!start||!end) return;
 
-    function d(a,b){return Math.sqrt(Math.pow(a.x-b.x,2)+Math.pow(a.y-b.y,2));}
+    // Netz: localStorage (Editor) hat Vorrang, sonst eingebettete Routen
+    const net=Object.keys(window.atlasCustomRoutes||{}).length>0
+      ? window.atlasCustomRoutes
+      : (window.ATLAS_ROUTES||{});
 
-    // Custom-Route prüfen (gespeicherte Route hat Vorrang)
-    const cr=window.atlasCustomRoutes||{};
-    const customKey=fromName+'|'+toName+'|'+naviTransport;
-    let unique=null;
-    let customSegments=null;
+    // Graph aufbauen — NUR aus dem definierten Netz, kein Luftlinien-Fallback
+    const graph={};
+    worlds.forEach(w=>{graph[w.name]=[];});
+    Object.values(net).filter(r=>r.from&&r.to&&r.from!==r.to).forEach(r=>{
+      if(!graph[r.from]) graph[r.from]=[];
+      const fW=worlds.find(w=>w.name===r.from);
+      const tW=worlds.find(w=>w.name===r.to);
+      if(!fW||!tW) return;
+      let dist=0;
+      const pts=[{x:fW.x,y:fW.y},...(r.points||[]),{x:tW.x,y:tW.y}];
+      for(let i=0;i<pts.length-1;i++) dist+=Math.sqrt(Math.pow(pts[i].x-pts[i+1].x,2)+Math.pow(pts[i].y-pts[i+1].y,2));
+      graph[r.from].push({to:r.to,dist,key:r.from+'|'+r.to+'|'+r.transport});
+    });
 
-    if(cr[customKey]){
-      const r=cr[customKey];
-      // Route aus Custom-Daten aufbauen
-      const worldPts=[start];
-      r.transits?.forEach(tname=>{const w=worlds.find(x=>x.name===tname);if(w)worldPts.push(w);});
-      worldPts.push(end);
-      unique=worldPts;
-      customSegments=r.points; // für Segment-Typ-Anzeige
-    } else {
-      // Fallback: Korridor-Algorithmus
-      const dx=end.x-start.x, dy=end.y-start.y;
-      const lineLen=Math.sqrt(dx*dx+dy*dy);
-      const CORRIDOR=12;
-      const waypoints=[];
-      worlds.forEach(w=>{
-        if(w.name===fromName||w.name===toName) return;
-        const t=((w.x-start.x)*dx+(w.y-start.y)*dy)/(lineLen*lineLen);
-        if(t<0.08||t>0.92) return;
-        const projX=start.x+t*dx, projY=start.y+t*dy;
-        const dist=Math.sqrt(Math.pow(w.x-projX,2)+Math.pow(w.y-projY,2));
-        if(dist<CORRIDOR) waypoints.push({...w,_t:t,_dist:dist});
+    // Dijkstra
+    const distMap={},prevMap={};
+    worlds.forEach(w=>{distMap[w.name]=Infinity;});
+    distMap[fromName]=0;
+    const queue=new Set(worlds.map(w=>w.name));
+    while(queue.size){
+      let u=null;queue.forEach(n=>{if(u===null||distMap[n]<distMap[u])u=n;});
+      if(distMap[u]===Infinity) break;
+      queue.delete(u);
+      (graph[u]||[]).forEach(e=>{
+        const alt=distMap[u]+e.dist;
+        if(alt<distMap[e.to]){distMap[e.to]=alt;prevMap[e.to]={node:u,key:e.key};}
       });
-      waypoints.sort((a,b)=>a._t-b._t);
-      const deduped=[];
-      for(let i=0;i<waypoints.length;i++){
-        const last=deduped[deduped.length-1];
-        if(last&&Math.abs(waypoints[i]._t-last._t)<0.1){if(waypoints[i]._dist<last._dist)deduped[deduped.length-1]=waypoints[i];}
-        else deduped.push(waypoints[i]);
-      }
-      let trimmed=deduped;
-      if(deduped.length>4){const step=deduped.length/4;trimmed=[0,1,2,3].map(i=>deduped[Math.min(Math.round(i*step),deduped.length-1)]);}
-      const route=[start,...trimmed,end];
-      const u=[];
-      route.forEach(w=>{if(!u.find(x=>x.name===w.name))u.push(w);});
-      unique=u;
     }
 
-    // Segment-Typen für Routen-Anzeige
-    const hasBoat=customSegments?.some(p=>p.segType==='boat');
-    const hasPlane=customSegments?.some(p=>p.segType==='plane');
-    const isCustom=!!cr[customKey];
+    if(distMap[toName]===Infinity){
+      document.getElementById('navi-result').style.display='block';
+      document.getElementById('navi-time').innerHTML='<span style="color:rgba(255,80,80,0.8)">Keine Route im Netz</span>';
+      document.getElementById('navi-route-list').innerHTML='<li style="font-size:10px;color:rgba(255,255,255,0.3)">Für diese Verbindung wurde noch keine Route eingezeichnet.</li>';
+      document.getElementById('navi-calc-info').textContent='Route fehlt im Netz.';
+      return;
+    }
 
-    // Reisezeit
-    const DIAG=Math.sqrt(100*100+100*100);
-    const t=TRANSPORT[naviTransport];
+    // Pfad + verwendete Routen-Keys rekonstruieren
+    const pathNames=[];const usedKeys=[];let cur=toName;
+    while(cur){pathNames.unshift(cur);if(prevMap[cur]){usedKeys.unshift(prevMap[cur].key);cur=prevMap[cur].node;}else break;}
+
+    // Segment-Typen + Wegpunkte sammeln
+    let hasBoat=false,hasPlane=false;
+    const allWaypoints=[];
+    usedKeys.forEach((key,ki)=>{
+      const r=net[key];if(!r) return;
+      r.points.forEach(p=>{if(p.segType==='boat')hasBoat=true;if(p.segType==='plane')hasPlane=true;});
+      const fW=worlds.find(w=>w.name===r.from);
+      if(ki===0) allWaypoints.push({x:fW.x,y:fW.y,segType:'road'});
+      (r.points||[]).forEach(p=>allWaypoints.push(p));
+      const tW=worlds.find(w=>w.name===r.to);
+      allWaypoints.push({x:tW.x,y:tW.y,segType:'road'});
+    });
+
+    // Reisezeit: echte Pfadlänge × Geschwindigkeitsfaktor pro Segment
+    // Faktor = Minuten pro Karteneinheit (1 Einheit ≈ ca. 1km im Massstab)
+    const SPEED={car:{road:2.8,boat:4,plane:0.8},transit:{road:3.5,boat:3.2,plane:0.8},walk:{road:14,boat:3.2,plane:0.8}};
+    const sp=SPEED[naviTransport]||SPEED.car;
     let totalMins=0;
-    for(let i=0;i<unique.length-1;i++){
-      const segDist=d(unique[i],unique[i+1]);
-      totalMins+=t.segMin;
-      if(segDist>DIAG*0.2) totalMins+=t.borderBonus;
-      // Boot/Flug-Abschnitte: +20 min für Umsteigen
-      if(customSegments&&(hasBoat||hasPlane)) totalMins+=20;
+    for(let i=0;i<allWaypoints.length-1;i++){
+      const segDist=Math.sqrt(Math.pow(allWaypoints[i].x-allWaypoints[i+1].x,2)+Math.pow(allWaypoints[i].y-allWaypoints[i+1].y,2));
+      const st=allWaypoints[i+1].segType||'road';
+      totalMins+=segDist*(sp[st]||sp.road);
     }
-    const h=Math.floor(totalMins/60);
-    const m=totalMins%60;
+    totalMins=Math.max(1,Math.round(totalMins));
+    const h=Math.floor(totalMins/60),m=totalMins%60;
     const timeStr=(h>0?h+'h ':'')+(m>0?m+' min':'');
-    const modeLabel=t.label;
+    const modeLabels={car:'mit dem Auto',transit:'mit dem OEV',walk:'zu Fuss'};
 
-    // UI befüllen
-    document.getElementById('navi-time').innerHTML=timeStr+' <span>'+modeLabel+'</span>';
-    const infoExtra=(hasBoat?' · Boot-Überquerung':hasPlane?' · Flug-Abschnitt':isCustom?' · Geplante Route':'');
-    document.getElementById('navi-calc-info').textContent=t.segMin+' min pro Welt · +'+t.borderBonus+' min bei grossem Abstand'+infoExtra;
+    document.getElementById('navi-time').innerHTML=timeStr+' <span>'+(modeLabels[naviTransport]||'')+'</span>';
+    document.getElementById('navi-calc-info').textContent='Route folgt dem Strassennetz ('+(pathNames.length)+' Orte)'+(hasBoat?' · Boot-Abschnitt':hasPlane?' · Flug-Abschnitt':'');
+
     const list=document.getElementById('navi-route-list');
     list.innerHTML='';
-    unique.forEach((w,i)=>{
+    pathNames.forEach((name,i)=>{
       const li=document.createElement('li');
-      const isEnd=(i===0||i===unique.length-1);
+      const isEnd=(i===0||i===pathNames.length-1);
       if(isEnd) li.className='np-endpoint';
-      let label=w.name;
-      li.innerHTML='<div class="np-dot-marker"></div>'+(i>0?'<span class="np-arrow">▸</span> ':'')+label;
+      li.innerHTML='<div class="np-dot-marker"></div>'+(i>0?'<span class="np-arrow">&#9658;</span> ':'')+name;
       if(!isEnd) li.style.paddingLeft='4px';
       list.appendChild(li);
     });
-    // Boot/Flug Badge
     if(hasBoat||hasPlane){
       const badge=document.createElement('li');
       badge.style.cssText='padding-top:6px;font-size:10px;color:'+(hasBoat?'#5a9fd4':'#b07add');
-      badge.textContent=hasBoat?'~ Wasserüberquerung per Boot':'✈ Flug-Abschnitt';
+      badge.textContent=hasBoat?'~ Wasserueberquerung per Boot':'Flug-Abschnitt';
       list.appendChild(badge);
     }
     document.getElementById('navi-result').style.display='block';
-    drawNaviRoute(unique,customSegments);
+    drawNaviRoute(pathNames.map(n=>worlds.find(w=>w.name===n)),allWaypoints);
   };
 
   function clearNaviRoute(){
@@ -4053,39 +4057,49 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
     document.getElementById('navi-result').style.display='none';
   }
 
-  function drawNaviRoute(stops,customSegments){
+  function drawNaviRoute(stops,allWaypoints){
     const svg=document.getElementById('navi-route-svg');
     svg.innerHTML='';
 
-    // Segment-Typ bestimmen: boot/plane aus customSegments wenn vorhanden
-    const hasBoat=customSegments?.some(p=>p.segType==='boat');
-    const hasPlane=customSegments?.some(p=>p.segType==='plane');
-    const lineColor=hasBoat?'rgba(80,170,240,0.9)':hasPlane?'rgba(200,140,255,0.9)':'rgba(255,230,100,0.95)';
-    const dashPattern=hasBoat?'2 3':hasPlane?'6 3':'3 2';
+    // Wenn echte Wegpunkte vorhanden: entlang der Route zeichnen
+    const pts=allWaypoints&&allWaypoints.length>0 ? allWaypoints : stops;
 
-    for(let i=0;i<stops.length-1;i++){
-      const a=stops[i],b=stops[i+1];
+    // Farbe nach dominantem Segment-Typ
+    const hasBoat=pts.some&&pts.some(p=>p.segType==='boat');
+    const hasPlane=pts.some&&pts.some(p=>p.segType==='plane');
+
+    for(let i=0;i<pts.length-1;i++){
+      const a=pts[i],b=pts[i+1];
+      const ax='x' in a?a.x:a.x, ay='y' in a?a.y:a.y;
+      const bx='x' in b?b.x:b.x, by='y' in b?b.y:b.y;
+      const st=b.segType||'road';
+      const lineColor=st==='boat'?'rgba(80,170,240,0.9)':st==='plane'?'rgba(200,140,255,0.9)':'rgba(255,230,100,0.95)';
+      const dash=st==='boat'?'2 3':st==='plane'?'6 3':'3 2';
+
       const shadow=document.createElementNS('http://www.w3.org/2000/svg','line');
-      shadow.setAttribute('x1',a.x);shadow.setAttribute('y1',a.y);
-      shadow.setAttribute('x2',b.x);shadow.setAttribute('y2',b.y);
+      shadow.setAttribute('x1',ax);shadow.setAttribute('y1',ay);
+      shadow.setAttribute('x2',bx);shadow.setAttribute('y2',by);
       shadow.setAttribute('stroke','rgba(0,0,0,0.55)');shadow.setAttribute('stroke-width','2.8');
       shadow.setAttribute('stroke-linecap','round');shadow.setAttribute('vector-effect','non-scaling-stroke');
       svg.appendChild(shadow);
+
       const line=document.createElementNS('http://www.w3.org/2000/svg','line');
-      line.setAttribute('x1',a.x);line.setAttribute('y1',a.y);
-      line.setAttribute('x2',b.x);line.setAttribute('y2',b.y);
+      line.setAttribute('x1',ax);line.setAttribute('y1',ay);
+      line.setAttribute('x2',bx);line.setAttribute('y2',by);
       line.setAttribute('stroke',lineColor);line.setAttribute('stroke-width','1.4');
-      line.setAttribute('stroke-dasharray',dashPattern);line.setAttribute('stroke-linecap','round');
+      line.setAttribute('stroke-dasharray',dash);line.setAttribute('stroke-linecap','round');
       line.setAttribute('vector-effect','non-scaling-stroke');
       svg.appendChild(line);
     }
 
+    // Welt-Dots hervorheben
     document.querySelectorAll('.world-dot').forEach(el=>{el.querySelector('.dot-inner').style.removeProperty('outline');});
-    stops.forEach((w,i)=>{
+    (stops||[]).forEach((w,i)=>{
+      if(!w) return;
       const el=document.querySelector(`.world-dot[data-world-key="${w.name}"]`);
       if(!el) return;
       const inner=el.querySelector('.dot-inner');
-      if(i===0||i===stops.length-1){inner.style.outline='2px solid rgba(255,230,100,1)';inner.style.outlineOffset='3px';}
+      if(i===0||i===(stops.length-1)){inner.style.outline='2px solid rgba(255,230,100,1)';inner.style.outlineOffset='3px';}
       else{inner.style.outline='1.5px solid rgba(255,230,100,0.7)';inner.style.outlineOffset='2px';}
     });
   }
