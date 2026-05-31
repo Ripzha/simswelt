@@ -445,7 +445,7 @@ function loadSheetWorldMeta_(){
   return fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRGJifryvR2cW2gOBiG3x1p-Gy-lXe5pLMValomH8hTXNW0AiiRsWO5tM4mL85TCE0mU9jjbIkksHil/pub?output=csv").then(function(r){return r.text();}).then(function(csv){
     var rows=csv.split("\n");
     var headers=rows[0].split(",").map(function(h){return h.replace(/"/g,"").trim().toLowerCase();});
-    var wIdx=headers.indexOf("welt"),nIdx=headers.indexOf("nr."),imgIdx=headers.indexOf("bild url"),urlIdx=headers.indexOf("thread url"),catIdx=headers.indexOf("category"),haIdx=headers.indexOf("has_atlas"),exIdx=headers.indexOf("external_url");
+    var wIdx=headers.indexOf("welt"),nIdx=headers.indexOf("nr."),imgIdx=headers.indexOf("bild url"),urlIdx=headers.indexOf("thread url"),catIdx=headers.indexOf("category"),haIdx=headers.indexOf("has_atlas"),exIdx=headers.indexOf("external_url"),expIdx=headers.indexOf("experience_required");
     var out=[];
     rows.slice(1).filter(function(r){return r.trim();}).forEach(function(r){
       var cols=r.split(",");
@@ -453,13 +453,15 @@ function loadSheetWorldMeta_(){
       var welt=get(wIdx),nr=get(nIdx);
       if(!welt||nr)return;  // nur Welt-Anker (Welt gesetzt, Nr leer)
       var ha=get(haIdx).toUpperCase();
+      var exp=get(expIdx).toUpperCase();
       out.push({
         name:welt,
         image:get(imgIdx),
         category:get(catIdx),
         hasAtlas:!(ha==="FALSE"||ha==="FALSCH"),
         externalUrl:get(exIdx),
-        forumUrl:get(urlIdx)
+        forumUrl:get(urlIdx),
+        experienceRequired:(exp==="TRUE"||exp==="JA"||exp==="1")
       });
     });
     return out;
@@ -515,13 +517,14 @@ function mkHomePicker(){
     pick.appendChild(mkWorldGridStage_());
   }
 
-  // Freitext-Fallback unten
+  // Freitext-Fallback unten — auch fuer erfundene Welten die erfahrene Spieler kennen
   var fb=div({marginTop:"12px",paddingTop:"10px",borderTop:"1px dashed "+C.border});
-  fb.appendChild(div({fontSize:"10px",color:C.muted,marginBottom:"4px",letterSpacing:"1px"},["ODER FREITEXT (z.B. obdachlos, gerade auf Reisen)"]));
+  fb.appendChild(div({fontSize:"10px",color:C.muted,marginBottom:"4px",letterSpacing:"1px"},["ODER FREITEXT"]));
+  fb.appendChild(div({fontSize:"10px",color:C.muted,marginBottom:"6px",fontStyle:"italic",lineHeight:"1.4"},["z.B. obdachlos, gerade auf Reisen — oder wenn dein Char in einer erfundenen Welt wohnt (Bloodmoon Valley etc.), tipp den Welt-Namen hier ein."]));
   var ti=document.createElement("input");
   Object.assign(ti.style,INP);
   ti.value=state.char.home||"";
-  ti.placeholder="z.B. bei Familie unter der Brücke";
+  ti.placeholder="z.B. Bloodmoon Valley, bei Familie unter der Brücke";
   ti.addEventListener("input",function(){state.char.home=ti.value;saveLocalDraft();});
   fb.appendChild(ti);
   pick.appendChild(fb);
@@ -532,8 +535,11 @@ function mkHomePicker(){
 function mkWorldGridStage_(){
   var wrap=div({});
   wrap.appendChild(div({fontSize:"11px",color:C.muted,marginBottom:"8px",letterSpacing:"1px"},["WELT WÄHLEN"]));
+  // Filter: erfundene Welten (experienceRequired) werden ausgeblendet.
+  // Erfahrene Spieler die sie kennen koennen sie unten im Freitext eintragen.
+  var visibleWorlds=WORLDS_META.filter(function(w){return !w.experienceRequired;});
   // Sortieren: erst RPG-Welten (hasAtlas), dann externe
-  var sorted=WORLDS_META.slice().sort(function(a,b){
+  var sorted=visibleWorlds.slice().sort(function(a,b){
     if(a.hasAtlas!==b.hasAtlas)return a.hasAtlas?-1:1;
     return a.name.localeCompare(b.name);
   });
