@@ -445,7 +445,7 @@ body.admin-mode .calib-btn{display:block}
     <a class="nav-item" onclick="openOtherWorld()" style="cursor:pointer" data-tip="Eigene Welten der Community jenseits der Sims-4-Karte — Vampire, Sci-Fi, Märchen. Bloodmoon Valley wartet.">🌑 Andere Welten</a>
 
     <div class="sec-label" style="margin-top:14px">Navigation</div>
-    <a class="nav-item" href="https://www.simsforumrpg.de/forum.php" target="_blank" data-tip="Zurück zum Heimathafen — alle Threads, Beiträge und Diskussionen auf simsforumrpg.de">📋 Forum</a>
+    <a class="nav-item" href="https://www.simsforumrpg.de/member-data.php" target="_blank" data-tip="Dein eigenes Forenprofil — Avatar, Signatur, Benachrichtigungen und Einstellungen anpassen">⚙️ Mein Profil</a>
     <a class="nav-item" onclick="openCharView()" style="cursor:pointer" data-tip="Stöber durch alle Charaktere des RPGs — mit Filter, Suche und Bogen-Vorschau">👤 Charaktere</a>
     <a class="nav-item" href="https://www.simsforumrpg.de/f58855-Ankuendigungen-und-Neuigkeiten.html" target="_blank" data-tip="Was neu ist, was kommt, was sich ändert — News direkt von der Forenleitung">📢 Ankündigungen</a>
     <a class="nav-item" href="https://www.simsforumrpg.de/f57699-Schreibuebungen.html" target="_blank" data-tip="Verschiedene spannende Schreibübungen mit Oma Käthe und der Community — bleib in Form oder schreib dich warm!">📝 Schreibübungen</a>
@@ -498,9 +498,9 @@ body.admin-mode .calib-btn{display:block}
         <div id="world-search-dropdown"></div>
       </div>
       <div id="map-legend">Hover = Vorschau · Klick = Betreten</div>
-      <button id="navi-btn" onclick="toggleNavi()" title="Routenplaner"><span class="navi-icon">🧭</span> <span class="navi-label-desktop">Navigation</span><span class="navi-label-mobile">Routenplaner</span></button>
+      <button id="navi-btn" onclick="toggleNavi()" title="Routenplaner"><span class="navi-icon">🧭</span> <span class="navi-label-desktop">Routenplaner</span><span class="navi-label-mobile">Routenplaner</span></button>
       <div id="navi-panel">
-        <div class="np-head">Navigationssystem</div>
+        <div class="np-head">Routenplaner</div>
         <div class="np-body">
           <div class="np-label">Startort</div>
           <select class="np-select" id="navi-from"><option value="">— wählen —</option></select>
@@ -652,7 +652,7 @@ body.admin-mode .calib-btn{display:block}
 <!-- MOBILE BAR -->
 <div id="mob-bar">
   <button class="mob-btn" id="mob-back" onclick="goBack()" style="display:none"><span class="mob-icon">←</span><span>Zurück</span></button>
-  <button class="mob-btn" onclick="window.open('https://www.simsforumrpg.de/forum.php','_blank')"><span class="mob-icon">📋</span><span>Forum</span></button>
+  <button class="mob-btn" onclick="window.open('https://www.simsforumrpg.de/member-data.php','_blank')"><span class="mob-icon">⚙️</span><span>Profil</span></button>
   <button class="mob-btn" onclick="openSheet('nav')"><span class="mob-icon">🗺️</span><span>Navigation</span></button>
   <button class="mob-btn" onclick="openSheet('info')"><span class="mob-icon">📊</span><span>Stats</span></button>
   <button class="mob-btn" onclick="window.open('https://discord.gg/FGB8Mfj','_blank')"><span class="mob-icon">💬</span><span>Discord</span></button>
@@ -716,7 +716,7 @@ body.admin-mode .calib-btn{display:block}
     </div>
 <div class="sheet" id="sheet-nav">
   <div class="sheet-handle"></div><div class="sheet-title">Navigation</div>
-  <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/forum.php" target="_blank">📋 Forum</a>
+  <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/member-data.php" target="_blank">⚙️ Mein Profil</a>
   <a class="nav-item" style="margin-bottom:6px;cursor:pointer" onclick="openCharView();closeSheet()">👤 Charaktere</a>
   <a class="nav-item" style="margin-bottom:6px;cursor:pointer" onclick="openOtherWorld();closeSheet()">🌑 Andere Welten</a>
   <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/f58855-Ankuendigungen-und-Neuigkeiten.html" target="_blank">📢 Ankündigungen</a>
