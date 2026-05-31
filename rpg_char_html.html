@@ -190,7 +190,7 @@ function mistral(messages,model,maxTok,cb){
     body:JSON.stringify({
       action:"mistral",
       messages:messages,
-      model:model||"mistral-small-latest",
+      model:model||"mistral-medium-latest",
       max_tokens:maxTok||800
     })
   }).then(function(r){return r.json();}).then(function(d){
@@ -210,7 +210,7 @@ function callAI(key,msg,histOverride){
   var newHist=hist.concat([{role:"user",content:msg}]);
   var sysMsg={role:"system",content:SYS+"\n\nCharakterbogen:\n"+charCtx()};
 
-  var model="mistral-small-latest";
+  var model="mistral-medium-latest";
   var sendHist=hist.concat([{role:"user",content:msg}]);
   mistral([sysMsg].concat(sendHist),model,800,function(err,text){
     var ai2=state.ai[key]||{msgs:[],history:[]};
@@ -274,7 +274,7 @@ function doImport(){
   mistral([
     {role:"system",content:"Analysiere einen Charakterbogen. Gib NUR ein JSON-Objekt zurück, keine Backticks, kein Markdown. Alle Werte als Strings. Felder: {"+fl+"}"},
     {role:"user",content:"Charakterbogen:\n\n"+txt}
-  ],"mistral-small-latest",2000,function(err,raw){
+  ],"mistral-medium-latest",2000,function(err,raw){
     if(err){alert("Fehler: "+err);state.importing=false;draw();return;}
     try{
       var p=JSON.parse(raw.replace(/```json|```/g,"").trim());
