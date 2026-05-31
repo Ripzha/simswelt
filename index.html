@@ -606,7 +606,7 @@ body.admin-mode .calib-btn{display:block}
     </div>
     <div>
       <div class="sec-label">Im Forum</div>
-      <div id="sidebar-forum"><div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div></div>
+      <div id="sidebar-forum" style="max-height:280px;overflow-y:auto;padding-right:2px"><div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div></div>
     </div>
   </div>
 </div>
@@ -1799,10 +1799,10 @@ function updateSidebarActivity(){
   // Deduplicate by name, keep first (= neuester)
   var seen=new Set();
   var unique=active.filter(function(c){if(seen.has(c.n))return false;seen.add(c.n);return true;});
-  var top=unique.slice(0,8);
+  var top=unique.slice(0,6);
 
   // Auffüllen bis 8 mit Chars ohne Datum (Sheet-Reihenfolge) falls Platz
-  if(top.length < 8){
+  if(top.length < 6){
     var already = new Set(top.map(function(c){return c.n;}));
     var filler = CHARS.filter(function(c){
       if(already.has(c.n)) return false;
@@ -2089,7 +2089,7 @@ function updateSidebarForum(){
         if(t==='rating') return '⭐';
         return '·';
       }
-      el.innerHTML=events.slice(0,4).map(function(ev){
+      el.innerHTML=events.slice(0,12).map(function(ev){
         var title=(ev.title||'');
         var titleShort = title.length>28 ? title.substr(0,26)+'…' : title;
         var user=ev.user||'Jemand';
