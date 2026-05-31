@@ -67,7 +67,8 @@ html{overscroll-behavior:none}
   .world-dot .dot-inner{width:6px!important;height:6px!important}
   /* Hover-Card (Welt-Vorschau) standardmässig weg, aber bei show-tokens sichtbar */
   .hover-card{display:none!important}
-  .world-dot.show-tokens .hover-card{display:block!important}
+  .world-dot.show-tokens .hover-card{display:block!important;pointer-events:auto!important;cursor:pointer}
+  .world-dot.show-tokens .hover-action{background:rgba(74,170,106,0.18)!important;border:0.5px solid rgba(74,170,106,0.5)!important;padding:5px 8px!important;border-radius:6px!important;display:inline-block!important;font-weight:600!important;font-size:11px!important}
   #mobile-dot-bar{display:none}
   #mobile-dot-bar.visible{display:flex}
 }
@@ -288,6 +289,11 @@ body.admin-mode .calib-btn{display:block}
 @media(max-width:768px){
   #left,#right{display:none!important}
   #mob-bar{display:flex!important}
+  /* Routenplaner-Btn (frueher "Navi") tiefer damit Welt-Suche oben frei bleibt */
+  #navi-btn{top:54px!important}
+  #navi-btn .navi-label-desktop{display:none!important}
+  #navi-btn .navi-label-mobile{display:inline!important}
+  #navi-panel{top:86px!important}
   #btn-login,#btn-register,#btn-forum{display:none}
   #world-lots-bar{bottom:calc(50px + env(safe-area-inset-bottom));flex-wrap:nowrap;overflow-x:auto;max-height:none;-webkit-overflow-scrolling:touch;scrollbar-width:none}
   #world-lots-bar::-webkit-scrollbar{display:none}
@@ -382,6 +388,8 @@ body.admin-mode .calib-btn{display:block}
 #navi-btn:hover{border-color:rgba(74,170,106,0.5);color:#fff}
 #navi-btn.active{border-color:rgba(74,170,106,0.6);color:#4aaa6a}
 #navi-btn .navi-icon{font-size:13px}
+#navi-btn .navi-label-mobile{display:none}
+#navi-btn .navi-label-desktop{display:inline}
 #navi-panel{position:absolute;top:44px;right:12px;z-index:49;width:230px;background:rgba(5,12,22,0.97);border:0.5px solid rgba(255,255,255,0.12);border-radius:9px;backdrop-filter:blur(12px);overflow:hidden;display:none;animation:naviIn 0.18s ease}
 #navi-panel.open{display:block}
 @keyframes naviIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
@@ -490,7 +498,7 @@ body.admin-mode .calib-btn{display:block}
         <div id="world-search-dropdown"></div>
       </div>
       <div id="map-legend">Hover = Vorschau · Klick = Betreten</div>
-      <button id="navi-btn" onclick="toggleNavi()" title="Navigationssystem">🧭 <span>Navigation</span></button>
+      <button id="navi-btn" onclick="toggleNavi()" title="Routenplaner"><span class="navi-icon">🧭</span> <span class="navi-label-desktop">Navigation</span><span class="navi-label-mobile">Routenplaner</span></button>
       <div id="navi-panel">
         <div class="np-head">Navigationssystem</div>
         <div class="np-body">
@@ -2232,7 +2240,7 @@ worlds.forEach(w=>{
   el.className='world-dot';
   el.dataset.worldKey=w.name;
   el.style.cssText=`left:${w.x}%;top:${w.y}%`;
-  el.innerHTML=`<div class="dot-pulse" style="width:34px;height:34px;border-color:${w.color}"></div><div class="dot-inner" style="width:11px;height:11px;background:${w.color};box-shadow:0 0 5px ${w.color}"></div><div class="dot-label">${w.name}</div><div class="dot-char-tokens" data-world-name="${w.name}"></div><div class="hover-card" style="border:1px solid ${w.color}88;box-shadow:0 6px 28px ${w.color}44"><div style="position:relative">${w.img?`<img class="hover-img" src="${w.img}" onerror="this.style.display='none'">`:''}<div class="hover-gradient"></div><div class="hover-name">${w.name}</div></div><div class="hover-footer"><span class="hover-type">${w.type}</span><span class="hover-action" style="color:${w.color}">Klicken →</span></div></div>`;
+  el.innerHTML=`<div class="dot-pulse" style="width:34px;height:34px;border-color:${w.color}"></div><div class="dot-inner" style="width:11px;height:11px;background:${w.color};box-shadow:0 0 5px ${w.color}"></div><div class="dot-label">${w.name}</div><div class="dot-char-tokens" data-world-name="${w.name}"></div><div class="hover-card" style="border:1px solid ${w.color}88;box-shadow:0 6px 28px ${w.color}44"><div style="position:relative">${w.img?`<img class="hover-img" src="${w.img}" onerror="this.style.display='none'">`:''}<div class="hover-gradient"></div><div class="hover-name">${w.name}</div></div><div class="hover-footer"><span class="hover-type">${w.type}</span><span class="hover-action" style="color:${w.color}">Öffnen →</span></div></div>`;
   el.addEventListener('click',e=>{
     e.stopPropagation();
     if(calibMapMode)return;
@@ -2258,6 +2266,18 @@ worlds.forEach(w=>{
       enterWorld(w);
     }
   });
+  // Mobile: hover-card selbst klickbar machen damit Tap auf den Card-Bereich
+  // (mit "Öffnen →"-Text) auch die Welt betritt. Vorher: pointer-events:none
+  // ließ Klicks durch — die landeten aber selten auf dem dot, sondern auf
+  // Hintergrund-Elementen. Card-direkt-Click ist robuster.
+  var hc = el.querySelector('.hover-card');
+  if(hc){
+    hc.addEventListener('click', function(ev){
+      if(!window.matchMedia('(pointer:coarse)').matches) return;
+      ev.stopPropagation();
+      enterWorld(w);
+    });
+  }
   mapIA.appendChild(el);
 });
 // Klick irgendwo anders (ausser auf einem world-dot) schliesst die Token-Vorschau
@@ -3964,8 +3984,26 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
   }
 
   window.addEventListener('message', function(e){
-    if (!e.data || e.data.action !== 'atlas-highlight') return;
-    setHighlight(e.data.selector);
+    if (!e.data) return;
+    // 'atlas-highlight' — Standard-Highlight per CSS-Selector
+    if (e.data.action === 'atlas-highlight') {
+      setHighlight(e.data.selector);
+      return;
+    }
+    // 'open-charview' — Eve kann den Charakter-Tab oeffnen damit der naechste
+    // Step (Charakter erstellen) sichtbaren Kontext hat (besonders Mobile-relevant).
+    if (e.data.action === 'open-charview') {
+      try {
+        if (typeof window.openCharView === 'function') {
+          window.openCharView();
+        }
+        // Falls Mobile: bottom-sheet ggf. zumachen (das wurde durch openCharView nicht angefasst)
+        if (typeof window.closeSheet === 'function') {
+          window.closeSheet();
+        }
+      } catch(err) {}
+      return;
+    }
   });
   window.addEventListener('resize', positionOverlay);
 
