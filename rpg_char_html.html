@@ -823,8 +823,18 @@ function mkField(f){
       iw.appendChild(img);
       iw.appendChild(btn("🔄 Anderes Bild",C.teal,function(){qs("imgInput").click();},true,true,false));
     } else {
-      iw.appendChild(btn("📷 Vorschau hochladen",C.teal,function(){qs("imgInput").click();},true,true,false));
+      iw.appendChild(btn("📷 Bild zur Vorschau hochladen",C.teal,function(){qs("imgInput").click();},true,true,false));
     }
+    // Klarstellung: Bild ist NUR lokal zur visuellen Inspiration. Es wird NICHT
+    // mit dem BBCode ins Forum gepostet. Forum-Bild laedt der User separat in
+    // seinem Post hoch (oder Blaze hilft ihm dabei).
+    iw.appendChild(div({
+      fontSize:"10px",
+      color:C.muted,
+      marginTop:"4px",
+      lineHeight:"1.5",
+      fontStyle:"italic"
+    },["Nur lokale Vorschau zur visuellen Inspiration beim Schreiben — das Bild wird nicht automatisch ins Forum geladen. Wenn du es im Forum-Post haben möchtest, behalte die Original-Datei: beim Posten hängst du sie über die Büroklammer (📎) selbst an."]));
     wrap.appendChild(iw);
   }
   var inp=document.createElement(f.multi?"textarea":"input");
@@ -909,7 +919,7 @@ function mkSheet(){
   },["NÄCHSTER SCHRITT"]));
   wrap.appendChild(div({
     fontSize:"12px",color:C.muted,marginBottom:"10px",textAlign:"center",lineHeight:"1.5"
-  },["Klick auf „Im Forum posten\". Dein Bogen kommt in die Zwischenablage und das Forum öffnet sich. Nach dem Absenden landest du auf deiner Charakter-Seite — dort wird dein Charakter automatisch im ATLAS registriert."]));
+  },["Klick auf „Im Forum posten\". Dein Bogen kommt in die Zwischenablage und das Forum öffnet sich in einem neuen Tab. Nach dem Absenden landest du dort auf deiner Charakter-Seite — der Charakter wird automatisch im ATLAS registriert. Du musst nicht hierher zurückkehren — dieses Tab kannst du dann schliessen."]));
 
   // Hauptaktion: nur noch Forum-Post (ATLAS-Registrierung passiert von selbst)
   var btns=div({marginTop:"4px",display:"flex",gap:"8px",flexWrap:"wrap",justifyContent:"center"});
@@ -1235,7 +1245,7 @@ function mkPostModal(){
     howMobile.appendChild(document.createTextNode("ins Feld tippen und gedrückt halten → \"Einfügen\" wählen"));
     howBox.appendChild(howMobile);
     pasteList.appendChild(howBox);
-    pasteList.appendChild(mk("div",{marginTop:"3px"},["4. Absenden → fertig. Auf der Charakter-Seite wirst du gefragt ob er ins ATLAS-Sheet eingetragen werden soll."]));
+    pasteList.appendChild(mk("div",{marginTop:"3px"},["4. Absenden → fertig. Auf der Charakter-Seite wirst du gefragt ob er ins ATLAS-Sheet eingetragen werden soll. Du musst nicht zurück in dieses Tab — kannst es dann schliessen."]));
     pasteHint.appendChild(pasteList);
     box.appendChild(pasteHint);
 
