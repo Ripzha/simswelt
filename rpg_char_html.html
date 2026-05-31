@@ -1335,6 +1335,359 @@ function draw(){
 setupImgInput();
 loadLocalDraft();
 draw();
+
+
+// ═══════════════════════════════════════════════════════════════
+// EVE-GUIDE für den Char-Bogen
+// ═══════════════════════════════════════════════════════════════
+// - Reopen-Button (Fragezeichen unten rechts) IMMER sichtbar
+// - Auto-Popup beim ersten Besuch (kein localStorage-Check moeglich
+//   im Inkognito, deshalb sessionStorage als "schon gesehen"-Flag)
+// - 7 Steps die durch den Bogen fuehren: Begruessung, Bogen-Importieren-Button,
+//   Bekannte-Chars-Button, KI-Hilfe, Tabs, Im-Forum-Posten, Discord-Schluss
+// - Jeder Step kann ein Element hervorheben (Spotlight wie im Forum-Guide)
+// ═══════════════════════════════════════════════════════════════
+(function(){
+  var DONE_KEY = 'eve_charbogen_seen';
+  var CLOSED_KEY = 'eve_charbogen_closed_session';
+
+  var EVE_IMGS = [
+    'https://files.homepagemodules.de/b855163/resize/1920x1200/pictures_u1153_VSLsipkW.png',
+    'https://files.homepagemodules.de/b855163/resize/1920x1200/pictures_u1152_mqaXzPEn.png',
+    'https://files.homepagemodules.de/b855163/resize/1920x1200/pictures_u1150_xjPUYcNu.png',
+    'https://files.homepagemodules.de/b855163/resize/1920x1200/pictures_u1151_YImvSyHw.png',
+    'https://files.homepagemodules.de/b855163/resize/1920x1200/pictures_u1149_RrOhvmbf.png',
+    'https://files.homepagemodules.de/b855163/resize/1920x1200/pictures_u1148_iCMAzrYm.png'
+  ];
+
+  // Helfer um Elemente per Text-Label zu finden (keine IDs im Bogen)
+  function findByText(selector, text){
+    var els = document.querySelectorAll(selector);
+    for(var i = 0; i < els.length; i++){
+      if((els[i].textContent || '').trim().indexOf(text) !== -1) return els[i];
+    }
+    return null;
+  }
+  function findTabByText(text){
+    return findByText('#tabs button', text);
+  }
+
+  // Steps: jeder hat img, text, btns, optional highlight-Selektor
+  var STEPS = {
+    'intro': {
+      img: 0,
+      text: function(){
+        return 'Schön dass du dir einen Charakter erstellen willst — ich helf dir kurz durch den Bogen! Magst du eine Mini-Tour? Dauert nur 1 Minute.';
+      },
+      btns: function(){
+        return [
+          { label:'Ja, zeig mir', cls:'primary', act:'next', next:'import-btn' },
+          { label:'Nö, kenn ich', cls:'ghost', act:'close-soft' }
+        ];
+      }
+    },
+    'import-btn': {
+      img: 1,
+      highlight: function(){ return findByText('#main-wrap button', 'Bogen importieren'); },
+      text: function(){
+        return 'Oben links findest du <strong>📋 Bogen importieren</strong>. Wenn du schonmal einen Bogen angefangen hast oder einen von woanders übernehmen willst, kannst du den Text hier reinkopieren und es füllt sich alles automatisch.';
+      },
+      btns: function(){
+        return [
+          { label:'Weiter', cls:'primary', act:'next', next:'known-chars' },
+          { label:'Schliessen', cls:'ghost', act:'close-soft' }
+        ];
+      }
+    },
+    'known-chars': {
+      img: 2,
+      highlight: function(){ return findByText('#main-wrap button', 'Bekannte Charaktere'); },
+      text: function(){
+        return 'Daneben siehst du <strong>👥 Bekannte Charaktere</strong>. Da kannst du Chars aus dem Forum als „Bekannte" markieren — die KI weiss dann beim Helfen wer dein Char schon kennt und kann damit arbeiten.';
+      },
+      btns: function(){
+        return [
+          { label:'Weiter', cls:'primary', act:'next', next:'ai-help' },
+          { label:'Schliessen', cls:'ghost', act:'close-soft' }
+        ];
+      }
+    },
+    'ai-help': {
+      img: 3,
+      text: function(){
+        return 'Bei vielen Feldern siehst du den Button <strong>✨ Tipps & Fragen</strong>. Die KI gibt dir Anregungen und Fragen zum Nachdenken — sie schreibt dir <em>keinen</em> fertigen Text zum Reinkopieren. Wir arbeiten gerne mit KI, aber bitte kein Copy-Paste — der Bogen soll deine Stimme tragen. Die KI ist ein super Werkzeug für Kreativität, mehr nicht.';
+      },
+      btns: function(){
+        return [
+          { label:'Verstanden', cls:'primary', act:'next', next:'tabs' },
+          { label:'Schliessen', cls:'ghost', act:'close-soft' }
+        ];
+      }
+    },
+    'tabs': {
+      img: 4,
+      highlight: function(){ return document.getElementById('tabs'); },
+      text: function(){
+        return 'Oben siehst du die <strong>Abschnitte</strong>: Identität, Leben, Zuhause, Charakter und Blatt. Das sind die Kategorien durch die du arbeitest. Du kannst zwischen ihnen springen — was du eingibst wird automatisch zwischengespeichert.';
+      },
+      btns: function(){
+        return [
+          { label:'Weiter', cls:'primary', act:'next', next:'post' },
+          { label:'Schliessen', cls:'ghost', act:'close-soft' }
+        ];
+      }
+    },
+    'post': {
+      img: 5,
+      onEnter: function(){
+        // Zum Blatt-Tab (letzter Tab) springen damit "Im Forum posten" sichtbar wird
+        var tabBtns = document.querySelectorAll('#tabs button');
+        if(tabBtns.length){
+          var blatt = tabBtns[tabBtns.length - 1];
+          if(blatt && (blatt.textContent || '').indexOf('Blatt') !== -1){
+            blatt.click();
+          }
+        }
+      },
+      highlight: function(){
+        // "Im Forum posten" gibts mehrfach (im Blatt-Tab + im Modal) — den ersten sichtbaren
+        var btns = document.querySelectorAll('#main-wrap button');
+        for(var i = 0; i < btns.length; i++){
+          if((btns[i].textContent || '').indexOf('Im Forum posten') !== -1){
+            return btns[i];
+          }
+        }
+        return null;
+      },
+      text: function(){
+        return 'Im letzten Tab <strong>Blatt</strong> findest du <strong>📤 Im Forum posten</strong>. Klick drauf wenn du fertig bist — dein Bogen kommt in die Zwischenablage und das Forum öffnet sich in einem neuen Tab zum Absenden. Du musst nicht hierher zurück — das Tab kannst du danach schliessen.';
+      },
+      btns: function(){
+        return [
+          { label:'Weiter', cls:'primary', act:'next', next:'discord' },
+          { label:'Schliessen', cls:'ghost', act:'close-soft' }
+        ];
+      }
+    },
+    'discord': {
+      img: 0,
+      text: function(){
+        return 'Falls du irgendwo hängst: komm einfach in unseren <strong><a href="https://www.simsforumrpg.de/page-855163-1.html" target="_blank" style="color:#4aaa6a;text-decoration:underline">Discord</a></strong> und schreib zum Beispiel „Hey ich erstell grad einen Char und da ist dies und das, was muss ich machen?" — wir helfen gern. Viel Spass beim Erschaffen!';
+      },
+      btns: function(){
+        return [
+          { label:'Danke Eve!', cls:'primary', act:'close-soft' }
+        ];
+      }
+    }
+  };
+
+  // ─── DOM ───────────────────────────────────────────────────────
+  var overlay, fig, img, bubble, textEl, btnsEl, closeBtn, reopen, spotlight;
+  function appendDom(){
+    if(overlay) return;
+    overlay = document.createElement('div'); overlay.id = 'ec-overlay';
+    fig = document.createElement('div'); fig.id = 'ec-fig';
+    img = document.createElement('img'); img.id = 'ec-img'; img.src = EVE_IMGS[0]; img.alt = 'Eve';
+    fig.appendChild(img);
+    bubble = document.createElement('div'); bubble.id = 'ec-bubble';
+    var miniPortrait = document.createElement('img'); miniPortrait.id = 'ec-mini'; miniPortrait.src = EVE_IMGS[0]; miniPortrait.alt = 'Eve';
+    bubble.appendChild(miniPortrait);
+    var nameTag = document.createElement('div'); nameTag.id = 'ec-name-tag'; nameTag.textContent = 'Eve';
+    bubble.appendChild(nameTag);
+    textEl = document.createElement('div'); textEl.id = 'ec-text';
+    btnsEl = document.createElement('div'); btnsEl.id = 'ec-btns';
+    closeBtn = document.createElement('div'); closeBtn.id = 'ec-close'; closeBtn.textContent = '✕';
+    closeBtn.onclick = closeSoft;
+    bubble.appendChild(textEl); bubble.appendChild(btnsEl); bubble.appendChild(closeBtn);
+    overlay.appendChild(fig); overlay.appendChild(bubble);
+    document.body.appendChild(overlay);
+
+    reopen = document.createElement('div'); reopen.id = 'ec-reopen'; reopen.textContent = '?';
+    reopen.title = 'Eve braucht? Klick!';
+    reopen.onclick = function(){
+      try { sessionStorage.removeItem(CLOSED_KEY); } catch(e){}
+      render('intro');
+    };
+    document.body.appendChild(reopen);
+
+    spotlight = document.createElement('div'); spotlight.id = 'ec-spotlight';
+    document.body.appendChild(spotlight);
+  }
+
+  function closeSoft(){
+    if(overlay) overlay.classList.add('hidden');
+    if(spotlight) spotlight.classList.remove('active');
+    if(reopen) reopen.classList.add('visible');
+    try { sessionStorage.setItem(CLOSED_KEY, '1'); } catch(e){}
+    try { localStorage.setItem(DONE_KEY, '1'); } catch(e){}
+  }
+
+  function clearHighlight(){
+    if(spotlight) spotlight.classList.remove('active');
+    // Highlight-Klasse von vorherigen Elementen entfernen
+    document.querySelectorAll('.ec-highlighted').forEach(function(el){
+      el.classList.remove('ec-highlighted');
+    });
+  }
+
+  function setHighlight(el){
+    clearHighlight();
+    if(!el) return;
+    el.classList.add('ec-highlighted');
+    // Spotlight-Box um Element platzieren
+    var r = el.getBoundingClientRect();
+    if(r.width === 0 && r.height === 0) return; // Element ist hidden
+    spotlight.style.left = (r.left - 8) + 'px';
+    spotlight.style.top = (r.top - 8) + 'px';
+    spotlight.style.width = (r.width + 16) + 'px';
+    spotlight.style.height = (r.height + 16) + 'px';
+    spotlight.classList.add('active');
+    // Scroll-into-view falls nicht sichtbar
+    if(r.top < 0 || r.bottom > window.innerHeight){
+      el.scrollIntoView({behavior:'smooth', block:'center'});
+      // Nach Scroll-Animation Position aktualisieren
+      setTimeout(function(){
+        var r2 = el.getBoundingClientRect();
+        spotlight.style.left = (r2.left - 8) + 'px';
+        spotlight.style.top = (r2.top - 8) + 'px';
+      }, 350);
+    }
+  }
+
+  var curStepId = 'intro';
+  function render(stepId){
+    if(!STEPS[stepId]) return;
+    appendDom();
+    var step = STEPS[stepId];
+    curStepId = stepId;
+
+    overlay.classList.remove('hidden');
+    if(reopen) reopen.classList.remove('visible');
+
+    img.src = EVE_IMGS[step.img] || EVE_IMGS[0];
+    var mini = document.getElementById('ec-mini');
+    if(mini) mini.src = EVE_IMGS[step.img] || EVE_IMGS[0];
+    textEl.innerHTML = step.text();
+    // Step-spezifischer onEnter (z.B. Tab wechseln)
+    if(typeof step.onEnter === 'function'){
+      try { step.onEnter(); } catch(e){}
+    }
+
+    btnsEl.innerHTML = '';
+    var btns = step.btns();
+    btns.forEach(function(b){
+      var el = document.createElement('button');
+      el.className = 'ec-btn ' + (b.cls || 'primary');
+      el.textContent = b.label;
+      el.onclick = function(){
+        if(b.act === 'close-soft'){ closeSoft(); return; }
+        if(b.act === 'next' && b.next){ render(b.next); return; }
+      };
+      btnsEl.appendChild(el);
+    });
+
+    // Highlight setzen — laengere Verzoegerung damit DOM nach evtl. onEnter (Tab-Wechsel) stabil ist
+    setTimeout(function(){
+      var hl = step.highlight ? step.highlight() : null;
+      setHighlight(hl);
+    }, 200);
+  }
+
+  // Reposition Spotlight bei Resize/Scroll
+  window.addEventListener('resize', function(){
+    if(spotlight && spotlight.classList.contains('active')){
+      var step = STEPS[curStepId];
+      var hl = step && step.highlight ? step.highlight() : null;
+      if(hl) setHighlight(hl);
+    }
+  });
+  window.addEventListener('scroll', function(){
+    if(spotlight && spotlight.classList.contains('active')){
+      var step = STEPS[curStepId];
+      var hl = step && step.highlight ? step.highlight() : null;
+      if(hl){
+        var r = hl.getBoundingClientRect();
+        if(r.width){
+          spotlight.style.left = (r.left - 8) + 'px';
+          spotlight.style.top = (r.top - 8) + 'px';
+        }
+      }
+    }
+  }, {passive:true});
+
+  // ─── Styles ────────────────────────────────────────────────────
+  var css = document.createElement('style');
+  css.textContent = '\
+    #ec-overlay { position:fixed; bottom:20px; right:20px; z-index:100001; display:flex; flex-direction:column; align-items:flex-end; pointer-events:none; }\
+    #ec-overlay.hidden { display:none; }\
+    #ec-fig { height:240px; width:380px; flex-shrink:0; transform-origin:bottom right; align-self:flex-end; margin-right:-10px; }\
+    #ec-img { height:240px; width:380px; object-fit:contain; object-position:center bottom; display:block; filter:drop-shadow(0 6px 14px rgba(0,0,0,0.5)); mix-blend-mode:lighten; }\
+    #ec-bubble { background: linear-gradient(145deg,#0d2218 0%,#081610 100%); border:2.5px solid #4aaa6a; border-radius:18px 18px 18px 4px; padding:14px 16px 12px; width:300px; box-shadow:0 0 0 1px rgba(74,170,106,0.3),0 0 24px rgba(74,170,106,0.35),0 8px 28px rgba(0,0,0,0.7); font-size:13.5px; line-height:1.6; color:#e0e8e0; position:relative; pointer-events:all; }\
+    #ec-bubble::after { content:""; position:absolute; bottom:-13px; right:28px; width:0; height:0; border-left:10px solid transparent; border-right:6px solid transparent; border-top:13px solid #0d2218; filter:drop-shadow(0 3px 0px #4aaa6a); }\
+    #ec-name-tag { position:absolute; top:-12px; left:14px; background:#4aaa6a; color:#fff; padding:2px 10px; border-radius:6px; font-size:11px; font-weight:700; letter-spacing:1px; }\
+    #ec-text { margin-top:4px; margin-bottom:10px; }\
+    #ec-text a { color:#4aaa6a; }\
+    #ec-btns { display:flex; gap:6px; flex-wrap:wrap; }\
+    .ec-btn { font-family:inherit; font-size:12px; padding:7px 12px; border-radius:6px; cursor:pointer; border:1px solid transparent; font-weight:600; }\
+    .ec-btn.primary { background:#4aaa6a; color:#fff; border-color:#4aaa6a; }\
+    .ec-btn.primary:hover { background:#5cba7a; }\
+    .ec-btn.ghost { background:transparent; color:#9aa; border-color:rgba(255,255,255,0.15); }\
+    .ec-btn.ghost:hover { background:rgba(255,255,255,0.05); color:#fff; }\
+    #ec-close { position:absolute; top:-9px; right:-9px; background:#0d2218; border:1.5px solid #4aaa6a; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer; color:#9aa; }\
+    #ec-close:hover { color:#fff; background:#1a3a28; }\
+    #ec-reopen { position:fixed; bottom:24px; right:24px; width:44px; height:44px; border-radius:50%; background:linear-gradient(145deg,#4aaa6a,#3a8a5a); color:#fff; font-size:22px; font-weight:700; display:none; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 16px rgba(0,0,0,0.5),0 0 0 2px rgba(74,170,106,0.3); z-index:100001; transition:transform 0.2s; }\
+    #ec-reopen.visible { display:flex; }\
+    #ec-reopen:hover { transform:scale(1.1); }\
+    #ec-spotlight { position:fixed; pointer-events:none; z-index:100000; border:2px solid #4aaa6a; border-radius:8px; box-shadow:0 0 0 9999px rgba(0,0,0,0.55), 0 0 20px rgba(74,170,106,0.6); transition:all 0.3s ease; opacity:0; }\
+    #ec-spotlight.active { opacity:1; }\
+    .ec-highlighted { position:relative; z-index:100000 !important; }\
+    #ec-mini { display:none; }\
+    @media(max-width:768px){\
+      #ec-fig { display:none; }\
+      #ec-overlay { bottom:80px; right:12px; left:12px; align-items:flex-end; padding-right:10px; }\
+      #ec-bubble { width:calc(100vw - 30px); max-width:320px; font-size:13px; border-radius:18px; padding:20px 70px 12px 16px; }\
+      #ec-bubble::after { display:none; }\
+      #ec-mini { display:block; position:absolute; top:-20px; right:14px; width:46px; height:46px; border-radius:50%; border:2.5px solid #4aaa6a; object-fit:cover; object-position:center 15%; background:#0d2218; box-shadow:0 3px 10px rgba(0,0,0,0.6); }\
+      #ec-name-tag { top:-12px; left:14px; right:auto; }\
+      #ec-reopen { bottom:90px; right:15px; width:42px; height:42px; font-size:20px; }\
+    }\
+  ';
+  document.head.appendChild(css);
+
+  // ─── Auto-Start ────────────────────────────────────────────────
+  // - Wenn noch nie gesehen → Auto-Popup mit intro
+  // - Wenn schon gesehen (localStorage) ODER in dieser Session geschlossen → nur Reopen-Button
+  function init(){
+    appendDom();
+    var seen = false;
+    var closedSession = false;
+    try { seen = !!localStorage.getItem(DONE_KEY); } catch(e){}
+    try { closedSession = !!sessionStorage.getItem(CLOSED_KEY); } catch(e){}
+
+    // Auf dem Char-Bogen IMMER nur das Fragezeichen — kein Auto-Popup.
+    // Der Bogen laeuft auf GitHub Pages, wir koennen User nicht zuverlaessig als
+    // "neu" identifizieren. Statt zu raten lassen wir den User entscheiden.
+    overlay.classList.add('hidden');
+    reopen.classList.add('visible');
+  }
+
+  // Warten bis Bogen-DOM gerendert ist (draw() laeuft am Ende)
+  if(document.readyState === 'complete' || document.readyState === 'interactive'){
+    setTimeout(init, 600);
+  } else {
+    window.addEventListener('DOMContentLoaded', function(){ setTimeout(init, 600); });
+  }
+
+  // Debug-Helfer
+  window._eveReset = function(){
+    try { localStorage.removeItem(DONE_KEY); sessionStorage.removeItem(CLOSED_KEY); } catch(e){}
+    if(overlay) overlay.classList.remove('hidden');
+    if(reopen) reopen.classList.remove('visible');
+    render('intro');
+  };
+})();
+
 </script>
 </body>
 </html>
