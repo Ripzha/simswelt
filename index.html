@@ -2084,6 +2084,9 @@ function updateSidebarForum(){
         if(t==='gallery_picture') return '🖼';
         if(t==='blog_entry') return '📝';
         if(t==='blog_comment') return '💭';
+        if(t==='user_profile') return '👋';
+        if(t==='usergbook_message') return '📖';
+        if(t==='rating') return '⭐';
         return '·';
       }
       el.innerHTML=events.slice(0,4).map(function(ev){
