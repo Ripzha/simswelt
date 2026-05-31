@@ -31,22 +31,48 @@ var FIELDS=[
   {key:"gender",label:"Geschlecht",hint:"Männlich, weiblich, divers?",multi:false},
   {key:"orientation",label:"Orientierung",hint:"Zu welchem Geschlecht fühlt sich der Charakter hingezogen?",multi:false,optional:true},
   {key:"occult",label:"Okkultismus",hint:"Vampir, Magier, Meersim oder Alien?",multi:false,optional:true},
-  {key:"job",label:"Beruf",hint:"Was arbeitet dein Charakter?",multi:false},
-  {key:"wealth",label:"Einkommen / Vermögen",hint:"Reich, arm, durchschnittlich?",multi:false},
+  {key:"job",label:"Beruf",hint:"Was arbeitet dein Charakter?",multi:true},
+  {key:"wealth",label:"Einkommen / Vermögen",hint:"Reich, arm, durchschnittlich?",multi:true},
   {key:"goals",label:"Ziele",hint:"Welches Ziel verfolgt dein Sim?",multi:true},
-  {key:"group",label:"Gruppierung",hint:"In einer Gruppe? Angesehen oder verrufen?",multi:false,optional:true},
-  {key:"origin",label:"Herkunft",hint:"Wo kommt dein Charakter her?",multi:false},
+  {key:"group",label:"Gruppierung",hint:"In einer Gruppe? Angesehen oder verrufen?",multi:true,optional:true},
+  {key:"origin",label:"Herkunft",hint:"Wo kommt dein Charakter her? z.B. \"aus Sulani\" oder \"Geboren in Britechester...\"",multi:true},
   {key:"hobbies",label:"Hobbies",hint:"Was macht dein Charakter in der Freizeit?",multi:true},
   {key:"home",label:"Wohnort / Haus",hint:"Wähle eine noch freie Kartennummer.",multi:false},
-  {key:"livingSit",label:"Wohnsituation",hint:"Allein, WG, bei den Eltern, mit Partner?",multi:false},
+  {key:"livingSit",label:"Wohnsituation",hint:"Allein, WG, bei den Eltern, mit Partner?",multi:true},
   {key:"family",label:"Familie / Tiere / NPCs",hint:"Verwandtschaft, Freunde, Feinde?",multi:true},
   {key:"skills",label:"Fähigkeiten",hint:"Was kann dein Charakter besonders gut?",multi:true},
   {key:"appearance",label:"Aussehen",hint:"Wie gross? Besondere Merkmale?",multi:true},
-  {key:"voice",label:"Stimme",hint:"Hoch, tief, rau, sanft?",multi:false},
-  {key:"scent",label:"Geruch / Duft",hint:"Wie riecht der Charakter?",multi:false},
+  {key:"voice",label:"Stimme",hint:"Hoch, tief, rau, sanft?",multi:true},
+  {key:"scent",label:"Geruch / Duft",hint:"Wie riecht der Charakter?",multi:true},
   {key:"personality",label:"Persönlichkeit",hint:"Lustig? Verschlossen? Draufgänger?",multi:true},
   {key:"history",label:"Geschichte",hint:"Was hat dein Charakter bisher erlebt?",multi:true}
 ];
+
+// Pro-Feld-Kontext fuer die KI-Hilfe — klarstellt was im jeweiligen Feld
+// gemeint ist. Verhindert dass Mistral "Orientierung" als Lebensrichtung
+// oder "Okkultismus" als esoterische Praktik interpretiert.
+var FIELD_AI_CONTEXT={
+  name:"Der Vorname und ggf. Nachname oder Kosename des Charakters.",
+  age:"Numerisches Alter oder Geburtsdatum. Bei Sims meist 18-80 Jahre.",
+  gender:"Geschlechtsidentitaet: maennlich, weiblich, divers, non-binaer etc.",
+  orientation:"SEXUELLE ORIENTIERUNG: hetero, schwul, lesbisch, bi, pan, asexuell etc. Nicht zu verwechseln mit Lebensziel oder Religion.",
+  occult:"OKKULT-STATUS in Sims 4: Vampir, Werwolf, Magier (Hexe/Hexer), Meersim, Alien, Pflanzensim, Geist, Servo (Roboter), oder normaler Sim. Es geht NICHT um esoterische Praktiken oder Religion.",
+  job:"Beruf oder Berufung des Charakters, z.B. Arzt, Detektiv, Musiker, Bauer, arbeitssuchend.",
+  wealth:"Finanzielle Lage und Lebensstandard: reich, arm, durchschnittlich, Schulden, Erbe.",
+  goals:"Was will der Charakter im Leben erreichen? Kurzfristig und langfristig.",
+  group:"Soziale Gruppe oder Zugehoerigkeit: Familie, Clique, Verein, Subkultur, Aussenseiter.",
+  origin:"Herkunft im Sinne von Geburtsort, Heimat oder familiaere/kulturelle Wurzeln.",
+  hobbies:"Freizeitbeschaeftigungen, Leidenschaften abseits vom Beruf.",
+  home:"Aktueller Wohnort im RPG-Universum (Welt-Name + ggf. Grundstuecks-Nummer).",
+  livingSit:"Wohnsituation: allein, WG, mit Familie/Partner, Hausbesitz oder Miete.",
+  family:"Familienverhaeltnisse, Tiere und wichtige Nicht-Spieler-Charaktere im Umfeld.",
+  skills:"Faehigkeiten und Talente des Charakters — was kann er besonders gut?",
+  appearance:"Aeusseres Erscheinungsbild: Koerperbau, Haare, Augen, Stil, Narben, Auffaelligkeiten.",
+  voice:"Klang der Stimme: Tonhoehe, Lautstaerke, Akzent, Sprechgewohnheiten.",
+  scent:"Wie riecht der Charakter? Parfum, natuerlicher Duft, Beruf-bedingter Geruch.",
+  personality:"Charaktereigenschaften, Temperament, Eigenheiten.",
+  history:"Bisheriger Lebenslauf, praegende Erlebnisse, Geschichte vor dem RPG-Start."
+};
 
 var SECTIONS=[
   {title:"Identität",fields:["name","age","gender","orientation","occult"]},
@@ -101,7 +127,7 @@ function generateBBCode(){
   var sub=[ageStr,c.gender,c.occult].filter(Boolean).join(" · ");
   if(sub)lines.push("[center][i]"+sub+"[/i][/center]");
   if(c.job)lines.push("[center][color=#3d6f8a]"+c.job+"[/color][/center]");
-  if(c.origin)lines.push("[center]aus "+c.origin+"[/center]");
+  if(c.origin)lines.push("[center]"+c.origin+"[/center]");
   lines.push("");
   var skip=["name","age","gender","occult","job","origin"];
   SECTIONS.slice(0,-1).forEach(function(sec){
@@ -268,7 +294,7 @@ function downloadDoc(){
   var sub=[state.char.age&&state.char.age+" Jahre",state.char.gender,state.char.occult].filter(Boolean).join(" · ");
   if(sub)h.push('<p class="s">'+sub+"</p>");
   if(state.char.job)h.push('<p class="s" style="color:#3d6f8a">'+state.char.job+"</p>");
-  if(state.char.origin)h.push('<p class="s">aus '+state.char.origin+"</p>");
+  if(state.char.origin)h.push('<p class="s">'+state.char.origin+"</p>");
   h.push('<hr style="border:none;border-top:2px solid #4d7a4d;margin:8px 0 16px"/>');
   SECTIONS.slice(0,-1).forEach(function(sec){
     var sf=sec.fields.map(function(k){return FIELDS.find(function(f){return f.key===k;});}).filter(function(f){return f&&state.char[f.key]&&skip.indexOf(f.key)===-1;});
@@ -289,9 +315,13 @@ function mkAI(key,label,val){
   var wrap=div({marginTop:"6px"});
   var hasContent=(ai.msgs&&ai.msgs.length>0)||ai.loading;
   var firstLoad=ai.loading&&(!ai.msgs||!ai.msgs.length);
+  // Pro-Feld-Kontext fuer die KI damit z.B. "Orientierung" nicht falsch
+  // interpretiert wird (sexuelle Orientierung, nicht Lebensziel) und
+  // "Okkultismus" nicht als esoterische Praktik (Sims-4-Okkultzustaende).
+  var fieldCtx=FIELD_AI_CONTEXT[key]||"";
   var startPrompt=key==="appearance"
-    ?'Feld: "Aussehen". Bisheriger Inhalt: "'+(val||"leer")+'". Stelle 3-4 konkrete Fragen die helfen das Aussehen des Charakters zu beschreiben – z.B. zu Körperbau, Haaren, Augen, besonderen Merkmalen, Narben, wie er sich bewegt oder wirkt. Kein Beschreibungstext, nur Fragen.'
-    :'Feld: "'+label+'". Bisheriger Inhalt: "'+(val||"leer")+'". Gib 1-2 kurze Autoren-Tipps für dieses Feld, dann 2-3 Fragen die der Nutzer sich stellen kann um das Feld zu füllen.';
+    ?'Feld: "Aussehen". Bisheriger Inhalt: "'+(val||"leer")+'". Stelle 3-4 konkrete Fragen die helfen das Aussehen des Charakters zu beschreiben - z.B. zu Koerperbau, Haaren, Augen, besonderen Merkmalen, Narben, wie er sich bewegt oder wirkt. Kein Beschreibungstext, nur Fragen.'
+    :'Feld: "'+label+'"'+(fieldCtx?' ('+fieldCtx+')':'')+'. Bisheriger Inhalt: "'+(val||"leer")+'". Gib 1-2 kurze Autoren-Tipps fuer dieses Feld, dann 2-3 Fragen die der Nutzer sich stellen kann um das Feld zu fuellen.';
 
   if(!hasContent){
     wrap.appendChild(btn("✨ Tipps & Fragen",C.teal,function(){callAI(key,startPrompt,[]);},true,true,false));
@@ -852,7 +882,7 @@ function mkSheet(){
   var sub=[state.char.age&&state.char.age+" Jahre",state.char.gender,state.char.occult].filter(Boolean).join(" · ");
   if(sub)hi.appendChild(div({fontSize:"13px",color:C.muted,marginTop:"2px"},[sub]));
   if(state.char.job)hi.appendChild(div({fontSize:"13px",color:C.teal,marginTop:"4px"},[state.char.job]));
-  if(state.char.origin)hi.appendChild(div({fontSize:"12px",color:C.muted,marginTop:"2px"},["aus "+state.char.origin]));
+  if(state.char.origin)hi.appendChild(div({fontSize:"12px",color:C.muted,marginTop:"2px"},[state.char.origin]));
   hdr.appendChild(hi);sheet.appendChild(hdr);
   var body=div({padding:"18px"});
   var skip=["name","age","gender","occult","job","origin"];
@@ -870,18 +900,32 @@ function mkSheet(){
     body.appendChild(sd);
   });
   sheet.appendChild(body);wrap.appendChild(sheet);
-  var btns=div({marginTop:"12px",display:"flex",gap:"8px",flexWrap:"wrap"});
-  btns.appendChild(btn("📤 Im Forum posten",C.accent,function(){state.showPost=true;draw();},false,false,false));
-  btns.appendChild(btn("⬇ Als Word herunterladen",C.teal,downloadDoc,false,true,false));
-  btns.appendChild(btn("🗺 In ATLAS registrieren",C.muted,function(){state.showAtlas=true;draw();},false,true,false));
-  btns.appendChild(btn("↺ Neu starten",C.muted,function(){
+  // Reihenfolge-Hinweis: erst Forum-Post, dann ATLAS-Registrierung
+  wrap.appendChild(div({
+    fontSize:"10px",fontWeight:"800",letterSpacing:"3px",color:C.teal,
+    marginTop:"18px",marginBottom:"4px",textAlign:"center"
+  },["NÄCHSTE SCHRITTE"]));
+  wrap.appendChild(div({
+    fontSize:"12px",color:C.muted,marginBottom:"10px",textAlign:"center",lineHeight:"1.5"
+  },["Erst im Forum posten — danach in ATLAS registrieren mit der Thread-URL."]));
+
+  // Hauptaktionen (Forum + ATLAS) mit klarer Reihenfolge
+  var btns=div({marginTop:"4px",display:"flex",gap:"8px",flexWrap:"wrap",justifyContent:"center"});
+  btns.appendChild(btn("1️⃣ Im Forum posten",C.accent,function(){state.showPost=true;draw();},false,false,false));
+  btns.appendChild(btn("2️⃣ In ATLAS registrieren",C.teal,function(){state.showAtlas=true;draw();},false,false,false));
+  wrap.appendChild(btns);
+
+  // Nebenaktionen (Download, Neu starten) kleiner darunter
+  var sideBtns=div({marginTop:"14px",display:"flex",gap:"8px",flexWrap:"wrap",justifyContent:"center"});
+  sideBtns.appendChild(btn("⬇ Als Word herunterladen",C.muted,downloadDoc,false,true,false));
+  sideBtns.appendChild(btn("↺ Neu starten",C.muted,function(){
     if(!confirm("Neuen Charakter erstellen? Alle Eingaben werden gelöscht."))return;
     FIELDS.forEach(function(f){state.char[f.key]="";});
     state.imgPreview=null;state.imgB64=null;state.imgMime=null;state.ai={};state.step=0;
     try{localStorage.removeItem('sw_charbogen');}catch(e){}
     draw();
   },false,true,false));
-  wrap.appendChild(btns);
+  wrap.appendChild(sideBtns);
   return wrap;
 }
 
@@ -1045,7 +1089,39 @@ function mkPostModal(){
     }
     steps.appendChild(mkStep(1,"Wechsle ins Forum-Fenster und logge dich ein (oder registriere dich, dein Bogen bleibt hier erhalten)"));
     steps.appendChild(mkStep(2,"Gib den Namen deines Charakters als Titel ein"));
-    steps.appendChild(mkStep(3,"Klick ins Nachrichten-Feld, dann Strg+V / Cmd+V zum Einfügen"));
+
+    // Step 3: hervorgehobener Block weil Copy-Paste der entscheidende Schritt ist
+    // — auf Mobile uebersehen viele User dass Strg+V nicht funktioniert.
+    var pasteStep=div({
+      display:"flex",gap:"10px",marginBottom:"8px",
+      background:"rgba(74,170,106,0.12)",
+      border:"1.5px solid rgba(74,170,106,0.5)",
+      borderRadius:"8px",
+      padding:"10px 12px"
+    });
+    pasteStep.appendChild(div({
+      background:C.accent,color:C.bg,
+      width:"22px",height:"22px",minWidth:"22px",
+      borderRadius:"50%",
+      display:"flex",alignItems:"center",justifyContent:"center",
+      fontWeight:"800",fontSize:"12px"
+    },["3"]));
+    var pasteCol=div({flex:"1",fontSize:"12px",color:C.text,lineHeight:"1.5"});
+    pasteCol.appendChild(mk("div",{fontWeight:"800",color:C.accent,marginBottom:"3px"},["BBCode einfügen — wichtigster Schritt"]));
+    pasteCol.appendChild(mk("div",{marginBottom:"6px"},["Klick ins Nachrichten-Feld im Forum, dann einfügen:"]));
+    var pasteHow=div({fontSize:"11px",color:C.muted,lineHeight:"1.6"});
+    var howDesktop=mk("div",{});
+    howDesktop.appendChild(mk("strong",{color:C.text},["Desktop: "]));
+    howDesktop.appendChild(document.createTextNode("Strg+V (Windows) oder Cmd+V (Mac)"));
+    pasteHow.appendChild(howDesktop);
+    var howMobile=mk("div",{marginTop:"2px"});
+    howMobile.appendChild(mk("strong",{color:C.text},["Handy: "]));
+    howMobile.appendChild(document.createTextNode("ins Feld tippen und gedrückt halten → \"Einfügen\" wählen"));
+    pasteHow.appendChild(howMobile);
+    pasteCol.appendChild(pasteHow);
+    pasteStep.appendChild(pasteCol);
+    steps.appendChild(pasteStep);
+
     steps.appendChild(mkStep(4,'Unten auf „Absenden" klicken — dein Thread ist online'));
     box.appendChild(steps);
 
