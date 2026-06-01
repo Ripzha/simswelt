@@ -23,11 +23,11 @@ html{overscroll-behavior:none}
 #main{flex:1;display:flex;min-height:0;overflow:hidden}
 #left{width:165px;flex-shrink:0;background:rgba(0,0,0,0.55);border-right:0.5px solid rgba(255,255,255,0.06);padding:12px 10px;display:flex;flex-direction:column;gap:4px;overflow-y:auto}
 #right{width:165px;flex-shrink:0;background:rgba(0,0,0,0.55);border-left:0.5px solid rgba(255,255,255,0.06);padding:12px 10px;display:flex;flex-direction:column;gap:10px;overflow-y:auto}
-#left,#right,#admin-content,#world-search-dropdown,.calib-log,.suggest-box,.suggest-copy-box,.sheet,#world-lots-bar{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.15) transparent}
-#left::-webkit-scrollbar,#right::-webkit-scrollbar,#admin-content::-webkit-scrollbar,#world-search-dropdown::-webkit-scrollbar,.calib-log::-webkit-scrollbar,.suggest-box::-webkit-scrollbar,.suggest-copy-box::-webkit-scrollbar,.sheet::-webkit-scrollbar{width:6px;height:6px;background:transparent}
-#left::-webkit-scrollbar-thumb,#right::-webkit-scrollbar-thumb,#admin-content::-webkit-scrollbar-thumb,#world-search-dropdown::-webkit-scrollbar-thumb,.calib-log::-webkit-scrollbar-thumb,.suggest-box::-webkit-scrollbar-thumb,.suggest-copy-box::-webkit-scrollbar-thumb,.sheet::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:3px}
+#left,#right,#admin-content,#world-search-dropdown,.calib-log,.sheet,#world-lots-bar{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.15) transparent}
+#left::-webkit-scrollbar,#right::-webkit-scrollbar,#admin-content::-webkit-scrollbar,#world-search-dropdown::-webkit-scrollbar,.calib-log::-webkit-scrollbar,.sheet::-webkit-scrollbar{width:6px;height:6px;background:transparent}
+#left::-webkit-scrollbar-thumb,#right::-webkit-scrollbar-thumb,#admin-content::-webkit-scrollbar-thumb,#world-search-dropdown::-webkit-scrollbar-thumb,.calib-log::-webkit-scrollbar-thumb,.sheet::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:3px}
 #left::-webkit-scrollbar-thumb:hover,#right::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.22)}
-#left::-webkit-scrollbar-track,#right::-webkit-scrollbar-track,#admin-content::-webkit-scrollbar-track,#world-search-dropdown::-webkit-scrollbar-track,.calib-log::-webkit-scrollbar-track,.suggest-box::-webkit-scrollbar-track,.suggest-copy-box::-webkit-scrollbar-track,.sheet::-webkit-scrollbar-track{background:transparent}
+#left::-webkit-scrollbar-track,#right::-webkit-scrollbar-track,#admin-content::-webkit-scrollbar-track,#world-search-dropdown::-webkit-scrollbar-track,.calib-log::-webkit-scrollbar-track,.sheet::-webkit-scrollbar-track{background:transparent}
 #center{flex:1;position:relative;overflow:hidden}
 .sec-label{font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1.5px;text-transform:uppercase;margin:6px 0 4px}
 .nav-item{padding:6px 8px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.07);border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:11px;color:#fff;text-decoration:none}
@@ -131,7 +131,6 @@ html{overscroll-behavior:none}
 #world-lots-bar{position:absolute;bottom:0;left:0;right:0;border-top:0.5px solid rgba(255,255,255,0.07);padding:8px 12px;background:rgba(0,0,0,0.8);display:flex;gap:6px;align-items:center;z-index:10;max-height:88px;flex-wrap:wrap;overflow-y:auto}
 .lot-pill{padding:4px 9px;border-radius:5px;font-size:10px;cursor:pointer;display:flex;align-items:center;gap:4px;border:0.5px solid transparent;white-space:nowrap;flex-shrink:0}
 .lot-pip{width:5px;height:5px;border-radius:50%;flex-shrink:0}
-#suggest-bar-btn{padding:4px 9px;border-radius:5px;font-size:10px;cursor:pointer;background:rgba(74,170,106,0.12);border:0.5px solid rgba(74,170,106,0.3);color:rgba(74,170,106,0.8);white-space:nowrap;flex-shrink:0}
 .world-dot{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:10}
 .world-dot:hover{z-index:201}
 /* Welten-Suche Overlay */
@@ -276,12 +275,6 @@ body.admin-mode .calib-btn{display:block}
 .badge-hard{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.4)}
 .badge-custom{background:rgba(255,200,0,0.15);color:#ffcc44}
 .badge-active{background:rgba(74,170,106,0.2);color:#4aaa6a}
-#admin-suggest-count{display:none;background:#ff5555;color:#fff;border-radius:50%;width:14px;height:14px;font-size:8px;font-weight:700;align-items:center;justify-content:center;margin-left:4px}
-#suggest-modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:450;display:none;align-items:flex-end;justify-content:center}
-#suggest-modal.open{display:flex}
-.suggest-box{background:rgba(6,14,26,0.99);border:0.5px solid rgba(74,170,106,0.3);border-radius:14px 14px 0 0;padding:18px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto}
-.suggest-handle{width:36px;height:3px;background:rgba(255,255,255,0.2);border-radius:2px;margin:0 auto 16px}
-.suggest-copy-box{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:6px;padding:10px;font-size:10px;font-family:monospace;color:#aaa;margin-top:10px;line-height:1.6;max-height:120px;overflow-y:auto;white-space:pre-wrap}
 #mob-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(6,12,24,0.97);border-top:0.5px solid rgba(255,255,255,0.1);z-index:200;height:calc(50px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
 .mob-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-size:8px;color:rgba(255,255,255,0.4);background:none;border:none;padding:0;-webkit-tap-highlight-color:transparent;height:50px}
 .mob-btn .mob-icon{font-size:17px;line-height:1}
@@ -622,7 +615,6 @@ body.admin-mode .calib-btn{display:block}
     <div style="display:flex;align-items:center;gap:8px">
       <span style="font-size:13px">🔧</span>
       <span style="font-size:12px;color:#ffcc44;font-weight:500">Admin — Projekt ATLAS</span>
-      <span id="admin-suggest-count"></span>
     </div>
     <button onclick="closeAdmin()" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:18px">✕</button>
   </div>
@@ -631,27 +623,6 @@ body.admin-mode .calib-btn{display:block}
     <button class="atab" id="atab-routen" onclick="setAdminTab('routen')">Routen</button>
   </div>
   <div id="admin-content"></div>
-</div>
-
-<!-- USER SUGGEST MODAL -->
-<div id="suggest-modal">
-  <div class="suggest-box">
-    <div class="suggest-handle"></div>
-    <div style="font-size:14px;font-weight:500;margin-bottom:4px">📍 Ort vorschlagen</div>
-    <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:16px">Dein Vorschlag landet in der Admin-Queue.</div>
-    <div class="a-form-row"><div class="a-label">Welt</div><select class="a-select" id="sug-world"></select></div>
-    <div class="a-form-row"><div class="a-label">Ort-Name</div><input class="a-input" id="sug-name" placeholder="z.B. Nr. 5 - Meine Wohnung"></div>
-    <div class="a-form-row"><div class="a-label">Thread-URL</div><input class="a-input" id="sug-url" placeholder="https://www.simsforumrpg.de/t..."></div>
-    <div style="display:flex;gap:8px;margin-top:14px">
-      <button class="a-btn a-btn-primary" style="flex:1" onclick="submitSuggestion()">Einreichen</button>
-      <button class="a-btn a-btn-ghost" onclick="closeSuggest()">Abbrechen</button>
-    </div>
-    <div id="sug-result" style="display:none;margin-top:14px">
-      <div style="font-size:11px;color:#4aaa6a;margin-bottom:6px">✓ Eingereicht! Kopiere für Discord:</div>
-      <div class="suggest-copy-box" id="sug-copy-text"></div>
-      <button class="a-btn a-btn-primary" style="width:100%;margin-top:8px" onclick="copySuggest()">📋 Kopieren</button>
-    </div>
-  </div>
 </div>
 
 <!-- MOBILE BAR -->
@@ -1496,12 +1467,10 @@ let calibMapMode=false,calibWorldMode=false;
 let calibMapData=[],calibWorldData=[],calibMapIdx=0;
 let posMode=false,posModeCallback=null,pendingPos=null;
 let customLots=JSON.parse(localStorage.getItem('sw_custom_lots')||'{}');
-let suggestions=JSON.parse(localStorage.getItem('sw_suggestions')||'[]');
 let hiddenLots=JSON.parse(localStorage.getItem('sw_hidden_lots')||'{}');
 let renamedLots=JSON.parse(localStorage.getItem('sw_renamed_lots')||'{}');
 let adminWorldFilter=worlds[0].name,adminTab='lots';
 function saveLots(){localStorage.setItem('sw_custom_lots',JSON.stringify(customLots))}
-function saveSugs(){localStorage.setItem('sw_suggestions',JSON.stringify(suggestions))}
 function saveHidden(){localStorage.setItem('sw_hidden_lots',JSON.stringify(hiddenLots))}
 function saveRenamed(){localStorage.setItem('sw_renamed_lots',JSON.stringify(renamedLots))}
 
@@ -2893,7 +2862,6 @@ function renderLots(w){
       bar.appendChild(pill);
     });
   });
-  const sbtn=document.createElement('button');sbtn.id='suggest-bar-btn';sbtn.textContent='+ Ort vorschlagen';sbtn.onclick=openSuggest;bar.appendChild(sbtn);
 }
 
 // ═══════════════════════════════════════════
@@ -2971,7 +2939,6 @@ document.getElementById('logo-icon').addEventListener('click',()=>{
 function openAdmin(){document.body.classList.add('admin-mode');document.getElementById('admin-panel').classList.add('open');document.getElementById('logo-icon').classList.add('admin-active');adminTab='assign';setAdminTab('assign');}
 function closeAdmin(){document.body.classList.remove('admin-mode');document.getElementById('admin-panel').classList.remove('open');document.getElementById('logo-icon').classList.remove('admin-active');adminMode=false;}
 function setAdminTab(t){adminTab=t;['assign','routen'].forEach(id=>document.getElementById('atab-'+id).classList.toggle('active',id===t));renderAdminContent();}
-function updateSuggestBadge(){const cnt=suggestions.filter(s=>s.status==='pending').length;const el=document.getElementById('admin-suggest-count');el.style.display=cnt>0?'inline-flex':'none';el.textContent=cnt;}
 function renderAdminContent(){const c=document.getElementById('admin-content');if(adminTab==='assign')renderAssignTab(c);else if(adminTab==='routen')renderRoutenTab(c);}
 function renderLotsTab(){
   const wname=adminWorldFilter;
@@ -3261,7 +3228,6 @@ function renderCharsTab(c){
   });
 }
 
-function renderSuggestTab(){const pending=suggestions.filter(s=>s.status==='pending');if(!pending.length)return`<div style="font-size:11px;color:rgba(255,255,255,0.3);text-align:center;padding:30px 0">Keine Vorschläge</div>`;return pending.map((s,i)=>`<div class="suggest-entry" style="background:rgba(255,255,255,0.04);border:0.5px solid rgba(74,170,106,0.2);border-radius:6px;padding:10px;margin-bottom:8px"><div style="font-size:12px;font-weight:500;margin-bottom:3px">${s.name}</div><div style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:8px">🌍 ${s.world} · ${new Date(s.ts).toLocaleDateString('de-CH')}</div><div style="font-size:10px;color:rgba(100,180,255,0.7);word-break:break-all;margin-bottom:10px">${s.url}</div><div style="display:flex;gap:8px"><button class="a-btn a-btn-primary" style="flex:1" onclick="approveSuggestion(${i})">✓</button><button class="a-btn a-btn-danger" onclick="rejectSuggestion(${i})">✕</button></div></div>`).join('');}
 function renderExportTab(){
   const combined={};
   [...Object.keys(worldLots),...Object.keys(customLots)].forEach(k=>{
@@ -3290,19 +3256,13 @@ function cancelPosMode(){posMode=false;worldC.style.cursor='default';document.ge
 function addCustomLot(){const name=document.getElementById('a-new-name')?.value?.trim();let url=document.getElementById('a-new-url')?.value?.trim();const active=document.getElementById('a-new-active')?.checked||false;if(!name){alert('Name eingeben.');return;}if(!url){url=worlds.find(w=>w.name===adminWorldFilter)?.url||BASE;}if(!pendingPos){alert('Position setzen.');return;}const wname=adminWorldFilter;if(!customLots[wname])customLots[wname]=[];customLots[wname].push({name,url,x:pendingPos.x,y:pendingPos.y,active});pendingPos=null;saveLots();if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();}
 function removeCustomLot(wname,idx){if(!confirm(`"${customLots[wname][idx].name}" löschen?`))return;customLots[wname].splice(idx,1);if(!customLots[wname].length)delete customLots[wname];saveLots();if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();}
 function toggleCustomActive(wname,idx){customLots[wname][idx].active=!customLots[wname][idx].active;saveLots();if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();}
-function approveSuggestion(i){const pending=suggestions.filter(s=>s.status==='pending');const s=pending[i];const wname=s.world;if(!customLots[wname])customLots[wname]=[];customLots[wname].push({name:s.name,url:s.url,x:50,y:50,active:false,_needsCalib:true});s.status='approved';saveLots();saveSugs();updateSuggestBadge();if(currentWorld?.name===wname)renderLots(currentWorld);renderAdminContent();alert(`✓ "${s.name}" hinzugefügt.\n\nPosition setzen:\n1. Welt "${wname}" betreten\n2. Admin-Panel öffnen → Ort in Liste finden\n3. Den 📍-Button klicken\n4. Auf die richtige Stelle im Weltbild klicken`);}
-function rejectSuggestion(i){suggestions.filter(s=>s.status==='pending')[i].status='rejected';saveSugs();updateSuggestBadge();renderAdminContent();}
 function copyExport(){const combined={};[...Object.keys(worldLots),...Object.keys(customLots)].forEach(k=>{const renamed=renamedLots[k]||{};combined[k]=[...(worldLots[k]||[]).filter(l=>!(hiddenLots[k]||[]).includes(l.name)).map(l=>({...l,name:renamed[l.name]||l.name})),...(customLots[k]||[]).map(l=>{const c={...l};delete c._src;delete c._needsCalib;return c;})];});navigator.clipboard.writeText('const worldLots='+JSON.stringify(combined,null,2)+';').then(()=>alert('✓ Kopiert! Jetzt in GitHub einfügen.'));}
 function clearAllCustom(){if(!confirm('Alle custom Lots löschen?'))return;customLots={};localStorage.removeItem('sw_custom_lots');if(currentWorld)renderLots(currentWorld);renderAdminContent();}
 
 // ═══════════════════════════════════════════
 // USER SUGGEST
 // ═══════════════════════════════════════════
-function openSuggest(){const modal=document.getElementById('suggest-modal');modal.classList.add('open');document.getElementById('sug-result').style.display='none';document.getElementById('sug-name').value='';document.getElementById('sug-url').value='';const sel=document.getElementById('sug-world');sel.innerHTML=worlds.map(w=>`<option value="${w.name}" ${currentWorld?.name===w.name?'selected':''}>${w.name}</option>`).join('');}
-function closeSuggest(){document.getElementById('suggest-modal').classList.remove('open');}
-document.getElementById('suggest-modal').addEventListener('click',e=>{if(e.target===document.getElementById('suggest-modal'))closeSuggest();});
-function submitSuggestion(){const world=document.getElementById('sug-world').value;const name=document.getElementById('sug-name').value.trim();const url=document.getElementById('sug-url').value.trim();if(!name){alert('Name eingeben.');return;}if(!url||!url.startsWith('http')){alert('Gültige URL eingeben.');return;}suggestions.push({world,name,url,status:'pending',ts:Date.now()});saveSugs();updateSuggestBadge();document.getElementById('sug-copy-text').textContent=`📍 Ort-Vorschlag für Projekt ATLAS\nWelt: ${world}\nOrt: ${name}\nURL: ${url}`;document.getElementById('sug-result').style.display='block';}
-function copySuggest(){navigator.clipboard.writeText(document.getElementById('sug-copy-text').textContent).then(()=>alert('✓ Kopiert!'));}
+
 
 // ═══════════════════════════════════════════
 // MOBILE SHEETS
