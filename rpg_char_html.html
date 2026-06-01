@@ -442,17 +442,35 @@ function loadAtlasJsData_(){
 }
 // Welt-Anker aus Sheet-CSV (gleiche URL wie ATLAS verwendet)
 function loadSheetWorldMeta_(){
+  // Echter CSV-Parser der Kommas innerhalb von Anfuehrungszeichen respektiert.
+  // Vorher: r.split(",") brach bei jedem Komma in einer Zelle (z.B. lange URLs oder
+  // mietinfo mit "Bla, blub"). Dadurch landete experience_required in der falschen Spalte.
+  function parseCsvLine(line){
+    var result=[], cur="", inQuotes=false;
+    for(var i=0;i<line.length;i++){
+      var ch=line[i];
+      if(ch==='"'){
+        if(inQuotes && line[i+1]==='"'){ cur+='"'; i++; }
+        else inQuotes=!inQuotes;
+      } else if(ch==="," && !inQuotes){
+        result.push(cur); cur="";
+      } else {
+        cur+=ch;
+      }
+    }
+    result.push(cur);
+    return result;
+  }
   return fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRGJifryvR2cW2gOBiG3x1p-Gy-lXe5pLMValomH8hTXNW0AiiRsWO5tM4mL85TCE0mU9jjbIkksHil/pub?output=csv").then(function(r){return r.text();}).then(function(csv){
     var rows=csv.split("\n");
-    var headers=rows[0].split(",").map(function(h){return h.replace(/"/g,"").trim().toLowerCase();});
+    var headers=parseCsvLine(rows[0]).map(function(h){return h.trim().toLowerCase();});
     var wIdx=headers.indexOf("welt"),nIdx=headers.indexOf("nr."),imgIdx=headers.indexOf("bild url"),urlIdx=headers.indexOf("thread url"),catIdx=headers.indexOf("category"),haIdx=headers.indexOf("has_atlas"),exIdx=headers.indexOf("external_url"),expIdx=headers.indexOf("experience_required");
-    // Debug: zeigt welche Spalten gefunden wurden (hilft falls "experience_required" nicht da ist)
     console.log("[Char-Bogen] Sheet-Headers:", headers);
     console.log("[Char-Bogen] expIdx (experience_required):", expIdx);
     var out=[];
     rows.slice(1).filter(function(r){return r.trim();}).forEach(function(r){
-      var cols=r.split(",");
-      var get=function(i){return i<0?"":(cols[i]||"").replace(/"/g,"").trim();};
+      var cols=parseCsvLine(r);
+      var get=function(i){return i<0?"":(cols[i]||"").trim();};
       var welt=get(wIdx),nr=get(nIdx);
       if(!welt||nr)return;  // nur Welt-Anker (Welt gesetzt, Nr leer)
       var ha=get(haIdx).toUpperCase();
