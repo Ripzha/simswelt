@@ -1400,6 +1400,7 @@ draw();
       },
       btns: function(){
         return [
+          { label:'← Zurück', cls:'ghost', act:'next', next:'intro' },
           { label:'Weiter', cls:'primary', act:'next', next:'known-chars' },
           { label:'Schliessen', cls:'ghost', act:'close-soft' }
         ];
@@ -1413,6 +1414,7 @@ draw();
       },
       btns: function(){
         return [
+          { label:'← Zurück', cls:'ghost', act:'next', next:'import-btn' },
           { label:'Weiter', cls:'primary', act:'next', next:'ai-help' },
           { label:'Schliessen', cls:'ghost', act:'close-soft' }
         ];
@@ -1425,6 +1427,7 @@ draw();
       },
       btns: function(){
         return [
+          { label:'← Zurück', cls:'ghost', act:'next', next:'known-chars' },
           { label:'Verstanden', cls:'primary', act:'next', next:'tabs' },
           { label:'Schliessen', cls:'ghost', act:'close-soft' }
         ];
@@ -1438,6 +1441,7 @@ draw();
       },
       btns: function(){
         return [
+          { label:'← Zurück', cls:'ghost', act:'next', next:'ai-help' },
           { label:'Weiter', cls:'primary', act:'next', next:'post' },
           { label:'Schliessen', cls:'ghost', act:'close-soft' }
         ];
@@ -1470,6 +1474,7 @@ draw();
       },
       btns: function(){
         return [
+          { label:'← Zurück', cls:'ghost', act:'next', next:'tabs' },
           { label:'Weiter', cls:'primary', act:'next', next:'discord' },
           { label:'Schliessen', cls:'ghost', act:'close-soft' }
         ];
@@ -1482,6 +1487,7 @@ draw();
       },
       btns: function(){
         return [
+          { label:'← Zurück', cls:'ghost', act:'next', next:'post' },
           { label:'Danke Eve!', cls:'primary', act:'close-soft' }
         ];
       }
@@ -1506,7 +1512,7 @@ draw();
     closeBtn = document.createElement('div'); closeBtn.id = 'ec-close'; closeBtn.textContent = '✕';
     closeBtn.onclick = closeSoft;
     bubble.appendChild(textEl); bubble.appendChild(btnsEl); bubble.appendChild(closeBtn);
-    overlay.appendChild(fig); overlay.appendChild(bubble);
+    overlay.appendChild(bubble); overlay.appendChild(fig);
     document.body.appendChild(overlay);
 
     reopen = document.createElement('div'); reopen.id = 'ec-reopen'; reopen.textContent = '?';
