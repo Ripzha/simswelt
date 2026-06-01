@@ -446,6 +446,9 @@ function loadSheetWorldMeta_(){
     var rows=csv.split("\n");
     var headers=rows[0].split(",").map(function(h){return h.replace(/"/g,"").trim().toLowerCase();});
     var wIdx=headers.indexOf("welt"),nIdx=headers.indexOf("nr."),imgIdx=headers.indexOf("bild url"),urlIdx=headers.indexOf("thread url"),catIdx=headers.indexOf("category"),haIdx=headers.indexOf("has_atlas"),exIdx=headers.indexOf("external_url"),expIdx=headers.indexOf("experience_required");
+    // Debug: zeigt welche Spalten gefunden wurden (hilft falls "experience_required" nicht da ist)
+    console.log("[Char-Bogen] Sheet-Headers:", headers);
+    console.log("[Char-Bogen] expIdx (experience_required):", expIdx);
     var out=[];
     rows.slice(1).filter(function(r){return r.trim();}).forEach(function(r){
       var cols=r.split(",");
@@ -454,6 +457,8 @@ function loadSheetWorldMeta_(){
       if(!welt||nr)return;  // nur Welt-Anker (Welt gesetzt, Nr leer)
       var ha=get(haIdx).toUpperCase();
       var exp=get(expIdx).toUpperCase();
+      // Robuste Truthy-Erkennung: TRUE, WAHR, JA, YES, 1, X, OK
+      var isExpReq=(exp==="TRUE"||exp==="WAHR"||exp==="JA"||exp==="YES"||exp==="1"||exp==="X"||exp==="OK");
       out.push({
         name:welt,
         image:get(imgIdx),
@@ -461,9 +466,10 @@ function loadSheetWorldMeta_(){
         hasAtlas:!(ha==="FALSE"||ha==="FALSCH"),
         externalUrl:get(exIdx),
         forumUrl:get(urlIdx),
-        experienceRequired:(exp==="TRUE"||exp==="JA"||exp==="1")
+        experienceRequired:isExpReq
       });
     });
+    console.log("[Char-Bogen] Welten gefiltert (experienceRequired):", out.filter(function(w){return w.experienceRequired;}).map(function(w){return w.name;}));
     return out;
   });
 }
@@ -1387,8 +1393,21 @@ draw();
       },
       btns: function(){
         return [
-          { label:'Ja, zeig mir', cls:'primary', act:'next', next:'import-btn' },
+          { label:'Ja, zeig mir', cls:'primary', act:'next', next:'char-types' },
           { label:'Nö, kenn ich', cls:'ghost', act:'close-soft' }
+        ];
+      }
+    },
+    'char-types': {
+      img: 1,
+      text: function(){
+        return 'Erstmal: <strong>welche Rolle</strong> spielt dein Char?<br><br>• <strong>Haupt</strong> — meist dein erster Char, hat eine eigene Story die du verfolgst, wohnt in deinem Sims-4-Savefile.<br>• <strong>Neben</strong> — kann auch eine Story haben, lebt aber nicht im Savefile (Platzmangel).<br>• <strong>Randfigur</strong> — unterstützt Haupt- oder Nebenfiguren in deren Storys.<br>• <strong>Passant</strong> — Char ohne eigene Story, taucht situativ auf.<br><br>Du kannst Chars später <strong>befördern oder degradieren</strong>, wie es passt.';
+      },
+      btns: function(){
+        return [
+          { label:'← Zurück', cls:'ghost', act:'next', next:'intro' },
+          { label:'Verstanden', cls:'primary', act:'next', next:'import-btn' },
+          { label:'Schliessen', cls:'ghost', act:'close-soft' }
         ];
       }
     },
@@ -1400,7 +1419,7 @@ draw();
       },
       btns: function(){
         return [
-          { label:'← Zurück', cls:'ghost', act:'next', next:'intro' },
+          { label:'← Zurück', cls:'ghost', act:'next', next:'char-types' },
           { label:'Weiter', cls:'primary', act:'next', next:'known-chars' },
           { label:'Schliessen', cls:'ghost', act:'close-soft' }
         ];
@@ -1410,7 +1429,7 @@ draw();
       img: 2,
       highlight: function(){ return findByText('#main-wrap button', 'Bekannte Charaktere'); },
       text: function(){
-        return 'Daneben siehst du <strong>👥 Bekannte Charaktere</strong>. Da kannst du Chars aus dem Forum als „Bekannte" markieren — die KI weiss dann beim Helfen wer dein Char schon kennt und kann damit arbeiten.';
+        return 'Daneben siehst du <strong>👥 Bekannte Charaktere</strong>. Hier trägst du Chars ein die <strong>dein Char</strong> kennt — Familie, Freunde, Kollegen, Rivalen, Exes. Pro bekanntem Char kannst du <strong>Details ergänzen</strong> (wie sie sich kennen, Beziehungsdynamik etc.). Wenn die KI dir später Tipps gibt, berücksichtigt sie diese Beziehungen.';
       },
       btns: function(){
         return [
@@ -1470,7 +1489,7 @@ draw();
         return null;
       },
       text: function(){
-        return 'Im letzten Tab <strong>Blatt</strong> findest du <strong>📤 Im Forum posten</strong>. Klick drauf wenn du fertig bist — dein Bogen kommt in die Zwischenablage und das Forum öffnet sich in einem neuen Tab zum Absenden. Du musst nicht hierher zurück — das Tab kannst du danach schliessen.';
+        return 'Im letzten Tab <strong>Blatt</strong> findest du <strong>📤 Im Forum posten</strong>. Klick drauf wenn du fertig bist — <strong>dein kompletter Bogen wird automatisch kopiert</strong> und das Forum öffnet sich. Du musst nur noch im Forum-Textfeld einmal <strong>einfügen</strong> (Strg+V oder Rechtsklick → Einfügen) und absenden.';
       },
       btns: function(){
         return [
@@ -1483,7 +1502,7 @@ draw();
     'discord': {
       img: 0,
       text: function(){
-        return 'Falls du irgendwo hängst: komm einfach in unseren <strong><a href="https://www.simsforumrpg.de/page-855163-1.html" target="_blank" style="color:#4aaa6a;text-decoration:underline">Discord</a></strong> und schreib zum Beispiel „Hey ich erstell grad einen Char und da ist dies und das, was muss ich machen?" — wir helfen gern. Viel Spass beim Erschaffen!';
+        return 'Falls du irgendwo hängst: komm einfach in unseren <strong><a href="https://www.simsforumrpg.de/page-855163-1.html" target="_blank" style="color:#3a8aaa;text-decoration:underline">Discord</a></strong> und schreib zum Beispiel „Hey ich erstell grad einen Char und da ist dies und das, was muss ich machen?" — wir helfen gern. Viel Spass beim Erschaffen!';
       },
       btns: function(){
         return [
@@ -1635,23 +1654,24 @@ draw();
     #ec-overlay.hidden { display:none; }\
     #ec-fig { height:240px; width:380px; flex-shrink:0; transform-origin:bottom right; align-self:flex-end; margin-right:-10px; }\
     #ec-img { height:240px; width:380px; object-fit:contain; object-position:center bottom; display:block; filter:drop-shadow(0 6px 14px rgba(0,0,0,0.5)); mix-blend-mode:lighten; }\
-    #ec-bubble { background: linear-gradient(145deg,#0d2218 0%,#081610 100%); border:2.5px solid #4aaa6a; border-radius:18px 18px 18px 4px; padding:14px 16px 12px; width:300px; box-shadow:0 0 0 1px rgba(74,170,106,0.3),0 0 24px rgba(74,170,106,0.35),0 8px 28px rgba(0,0,0,0.7); font-size:13.5px; line-height:1.6; color:#e0e8e0; position:relative; pointer-events:all; }\
-    #ec-bubble::after { content:""; position:absolute; bottom:-13px; right:28px; width:0; height:0; border-left:10px solid transparent; border-right:6px solid transparent; border-top:13px solid #0d2218; filter:drop-shadow(0 3px 0px #4aaa6a); }\
-    #ec-name-tag { position:absolute; top:-12px; left:14px; background:#4aaa6a; color:#fff; padding:2px 10px; border-radius:6px; font-size:11px; font-weight:700; letter-spacing:1px; }\
+    #ec-bubble { background: linear-gradient(145deg,#0d1f2d 0%,#081420 100%); border:2.5px solid #3a8aaa; border-radius:18px 18px 18px 4px; padding:14px 16px 12px; width:300px; box-shadow:0 0 0 1px rgba(58,138,170,0.3),0 0 24px rgba(58,138,170,0.35),0 8px 28px rgba(0,0,0,0.7); font-size:13.5px; line-height:1.6; color:#e0eaf0; position:relative; pointer-events:all; }\
+    #ec-bubble::after { content:""; position:absolute; bottom:-13px; right:28px; width:0; height:0; border-left:10px solid transparent; border-right:6px solid transparent; border-top:13px solid #0d1f2d; filter:drop-shadow(0 3px 0px #3a8aaa); }\
+    #ec-name-tag { position:absolute; top:-12px; left:14px; background:#3a8aaa; color:#fff; padding:2px 10px; border-radius:6px; font-size:11px; font-weight:700; letter-spacing:1px; }\
     #ec-text { margin-top:4px; margin-bottom:10px; }\
-    #ec-text a { color:#4aaa6a; }\
-    #ec-btns { display:flex; gap:6px; flex-wrap:wrap; }\
-    .ec-btn { font-family:inherit; font-size:12px; padding:7px 12px; border-radius:6px; cursor:pointer; border:1px solid transparent; font-weight:600; }\
-    .ec-btn.primary { background:#4aaa6a; color:#fff; border-color:#4aaa6a; }\
-    .ec-btn.primary:hover { background:#5cba7a; }\
-    .ec-btn.ghost { background:transparent; color:#9aa; border-color:rgba(255,255,255,0.15); }\
-    .ec-btn.ghost:hover { background:rgba(255,255,255,0.05); color:#fff; }\
-    #ec-close { position:absolute; top:-9px; right:-9px; background:#0d2218; border:1.5px solid #4aaa6a; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer; color:#9aa; }\
-    #ec-close:hover { color:#fff; background:#1a3a28; }\
-    #ec-reopen { position:fixed; bottom:24px; right:24px; width:44px; height:44px; border-radius:50%; background:linear-gradient(145deg,#4aaa6a,#3a8a5a); color:#fff; font-size:22px; font-weight:700; display:none; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 16px rgba(0,0,0,0.5),0 0 0 2px rgba(74,170,106,0.3); z-index:100001; transition:transform 0.2s; }\
+    #ec-text a { color:#3a8aaa; }\
+    #ec-btns { display:flex; gap:7px; flex-wrap:wrap; justify-content:flex-end; }\
+    .ec-btn { font-family:inherit; font-size:12px; padding:7px 14px; border-radius:6px; cursor:pointer; border:1.5px solid transparent; font-weight:600; transition:transform 0.15s,filter 0.15s,background 0.15s; }\
+    .ec-btn:hover { transform:translateY(-1px); }\
+    .ec-btn.primary { background:#3a8aaa; color:#0d1f2d; border-color:#3a8aaa; }\
+    .ec-btn.primary:hover { filter:brightness(1.15); }\
+    .ec-btn.ghost { background:transparent; color:#3a8aaa; border-color:#3a8aaa; }\
+    .ec-btn.ghost:hover { background:rgba(58,138,170,0.12); }\
+    #ec-close { position:absolute; top:-9px; right:-9px; background:#0d1f2d; border:1.5px solid #3a8aaa; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer; color:#9ab; }\
+    #ec-close:hover { color:#fff; background:#1a2f3d; }\
+    #ec-reopen { position:fixed; bottom:24px; right:24px; width:44px; height:44px; border-radius:50%; background:linear-gradient(145deg,#3a8aaa,#2a6a8a); color:#fff; font-size:22px; font-weight:700; display:none; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 16px rgba(0,0,0,0.5),0 0 0 2px rgba(58,138,170,0.3); z-index:100001; transition:transform 0.2s; }\
     #ec-reopen.visible { display:flex; }\
     #ec-reopen:hover { transform:scale(1.1); }\
-    #ec-spotlight { position:fixed; pointer-events:none; z-index:100000; border:2px solid #4aaa6a; border-radius:8px; box-shadow:0 0 0 9999px rgba(0,0,0,0.55), 0 0 20px rgba(74,170,106,0.6); transition:all 0.3s ease; opacity:0; }\
+    #ec-spotlight { position:fixed; pointer-events:none; z-index:100000; border:2px solid #3a8aaa; border-radius:8px; box-shadow:0 0 0 9999px rgba(0,0,0,0.55), 0 0 20px rgba(58,138,170,0.6); transition:all 0.3s ease; opacity:0; }\
     #ec-spotlight.active { opacity:1; }\
     .ec-highlighted { position:relative; z-index:100000 !important; }\
     #ec-mini { display:none; }\
