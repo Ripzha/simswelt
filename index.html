@@ -326,7 +326,7 @@ body.admin-mode .calib-btn{display:block}
 .ow-info{padding:10px 12px}
 .ow-type{font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:3px}
 .ow-name{font-size:14px;font-weight:700;color:#e0e8e0}
-#char-container{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:#050d18;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#char-container{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:#050d18;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain}
 #char-container.open{display:block}
 #char-header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:0.5px solid rgba(255,255,255,0.08);flex-wrap:wrap;background:#050d18}
 #char-tabs{display:flex;gap:4px;flex-shrink:0}
@@ -373,7 +373,7 @@ body.admin-mode .calib-btn{display:block}
 #chc-lastseen{font-size:10px;color:rgba(100,180,120,0.7);margin-top:2px}
 #chc-link{font-size:9px;color:rgba(255,255,255,0.25);margin-top:4px;border-top:0.5px solid rgba(255,255,255,0.06);padding-top:6px}
 @media(max-width:768px){
-  #char-grid{grid-template-columns:repeat(3,1fr);gap:6px;padding:8px}
+  #char-grid{grid-template-columns:repeat(3,1fr);gap:6px;padding:8px;padding-bottom:calc(60px + env(safe-area-inset-bottom))}
   #char-header{padding:8px 10px;gap:6px}
   .tab-short{display:inline}
   .tab-long{display:none}
