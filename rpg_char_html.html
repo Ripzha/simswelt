@@ -122,25 +122,37 @@ var FORUM_IDS={haupt:"51849",neben:"51850",randfigur:"51851",passant:"52617"};
 function generateBBCode(){
   var c=state.char;
   var lines=[];
+  // ── Schicke Kopf-Karte ──
+  // Nur kurze, garantiert-knappe Felder im Header. Beruf und Herkunft koennen
+  // beliebig lang werden (Freitext) — die sprengen die zentrierte Karte, also
+  // stehen sie nur ausgeschrieben in der Leben-Sektion.
   lines.push("[center][size=5][b][color=#4d7a4d]"+(c.name||"???")+"[/color][/b][/size][/center]");
   var ageStr = c.age ? (/jahre?\s*$/i.test(c.age.trim()) ? c.age : c.age+" Jahre") : "";
-  var sub=[ageStr,c.gender,c.occult].filter(Boolean).join(" · ");
+  var sub=[ageStr,c.gender,c.orientation,c.occult].filter(Boolean).join(" · ");
   if(sub)lines.push("[center][i]"+sub+"[/i][/center]");
-  if(c.job)lines.push("[center][color=#3d6f8a]"+c.job+"[/color][/center]");
-  if(c.origin)lines.push("[center]"+c.origin+"[/center]");
+  // Visuelle Trennung (Xobor hat kein [hr] — Unicode-Linie statt dessen)
   lines.push("");
-  var skip=["name","age","gender","occult","job","origin"];
+  lines.push("[center][color=#9aaa9a]━━━━━━━━━━━━━━━━━━━━[/color][/center]");
+  lines.push("");
+
+  // ── Alle Sektionen mit allen Feldern als ausgeschriebene Liste ──
+  // Identitaet kommt zuerst (auch wenn manche Felder schon im Header sind — doppelt
+  // ist sicherer als wenn der Forum-Leser etwas verpasst, weil das Auge die
+  // Header-Karte als Bild und nicht als Datenliste liest).
   SECTIONS.slice(0,-1).forEach(function(sec){
     var sf=sec.fields.map(function(k){return FIELDS.find(function(f){return f.key===k;});})
-      .filter(function(f){return f&&c[f.key]&&c[f.key].trim&&c[f.key].trim()&&skip.indexOf(f.key)===-1;});
+      .filter(function(f){return f&&c[f.key]&&c[f.key].trim&&c[f.key].trim();});
     if(!sf.length)return;
-    lines.push("");
     lines.push("[b][color=#3d6f8a]— "+sec.title.toUpperCase()+" —[/color][/b]");
     lines.push("");
     sf.forEach(function(f){
-      lines.push("[b]"+f.label+":[/b]\n"+c[f.key]);
+      lines.push("[b]"+f.label+":[/b]");
+      lines.push(c[f.key]);
       lines.push("");
     });
+    // Sektion-Ende: Unicode-Trennlinie (zarter als die Kopf-Trennung)
+    lines.push("[center][color=#9aaa9a]· · ·[/color][/center]");
+    lines.push("");
   });
   return lines.join("\n");
 }
@@ -1171,8 +1183,14 @@ function mkPostModal(){
     var toolRow=div({display:"flex",gap:"8px",flexWrap:"wrap",marginBottom:"14px"});
     toolRow.appendChild(btn("📋 BBCode nochmal kopieren",C.muted,function(){
       var bb=generateBBCode();
-      if(navigator.clipboard){navigator.clipboard.writeText(bb);}
-      else{var ta=document.createElement("textarea");ta.value=bb;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);}
+      // Synchrones Fallback + Promise — siehe Hauptpost-Button fuer Details
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(bb).catch(function(){
+          var ta=document.createElement("textarea");ta.value=bb;ta.style.position="fixed";ta.style.top="-1000px";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(ta);
+        });
+      } else {
+        var ta=document.createElement("textarea");ta.value=bb;ta.style.position="fixed";ta.style.top="-1000px";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(ta);
+      }
       alert("BBCode erneut in Zwischenablage kopiert.");
     },true,true,false));
     toolRow.appendChild(btn("🔁 Forum-Fenster öffnen",C.muted,function(){
@@ -1285,14 +1303,37 @@ function mkPostModal(){
       var bb=generateBBCode();
       var fid=FORUM_IDS[state.postType]||"51849";
       saveLocalDraft();
-      // BBCode in die Zwischenablage — Gast muss Strg+V im Forum
-      if(navigator.clipboard){navigator.clipboard.writeText(bb);}
-      else{var ta=document.createElement("textarea");ta.value=bb;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);}
-      // Neues Tab: new.php mit plan_name damit Char-Forum-Blaze den Namen kennt
       var nameParam = state.char.name ? "&plan_name="+encodeURIComponent(state.char.name) : "";
-      window.open("https://www.simsforumrpg.de/new.php?forum="+fid+nameParam,"_blank","noopener");
-      state.postCopied=true;
-      draw();
+      var forumUrl = "https://www.simsforumrpg.de/new.php?forum="+fid+nameParam;
+      // BBCode in die Zwischenablage. WICHTIG: Erst Clipboard-Write abwarten,
+      // DANN erst window.open — sonst kann das Tab-Öffnen den Write abbrechen
+      // (Fokuswechsel vom Tab) und der User landet im Forum mit leerem Clipboard.
+      // Zusätzlich: execCommand-Fallback IMMER versuchen wenn Promise rejected
+      // (z.B. Permissions-Denied in einigen Browsern).
+      function fallbackCopy(){
+        var ta=document.createElement("textarea");
+        ta.value=bb;
+        ta.style.position="fixed";ta.style.top="-1000px";
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); } catch(e) { console.warn("Copy-Fallback failed:", e); }
+        document.body.removeChild(ta);
+      }
+      function openForum(){
+        window.open(forumUrl,"_blank","noopener");
+        state.postCopied=true;
+        draw();
+      }
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(bb).then(openForum).catch(function(err){
+          console.warn("Clipboard-API fehlgeschlagen, nutze Fallback:", err);
+          fallbackCopy();
+          openForum();
+        });
+      } else {
+        fallbackCopy();
+        openForum();
+      }
     },false,false,false));
     box.appendChild(row);
   }
