@@ -473,7 +473,7 @@ function loadSheetWorldMeta_(){
     result.push(cur);
     return result;
   }
-  return fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRGJifryvR2cW2gOBiG3x1p-Gy-lXe5pLMValomH8hTXNW0AiiRsWO5tM4mL85TCE0mU9jjbIkksHil/pub?output=csv").then(function(r){return r.text();}).then(function(csv){
+  return fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRRllRkwaCacdM0WZZT0cVQflhxJ9Fw5mgId-v615_kE2GdKdbwHMUYCG03HC8gUXfg7lucTs1Mqhg1/pub?output=csv&gid=306313316&single=true").then(function(r){return r.text();}).then(function(csv){
     var rows=csv.split("\n");
     var headers=parseCsvLine(rows[0]).map(function(h){return h.trim().toLowerCase();});
     var wIdx=headers.indexOf("welt"),nIdx=headers.indexOf("nr."),imgIdx=headers.indexOf("bild url"),urlIdx=headers.indexOf("thread url"),catIdx=headers.indexOf("category"),haIdx=headers.indexOf("has_atlas"),exIdx=headers.indexOf("external_url"),expIdx=headers.indexOf("experience_required");
@@ -1045,7 +1045,7 @@ function mkCtxModal(){
 
 // ── ATLAS Registrierung ──
 var APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbzJ_fMI1LBjmFAQDhjD1sr3hJtdUj4OOor_WiWX3asl_eX0FXDN1wr64cNON3odhHdX/exec";
-var SHEET_CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRRllRkwaCacdM0WZZT0cVQflhxJ9Fw5mgId-v615_kE2GdKdbwHMUYCG03HC8gUXfg7lucTs1Mqhg1/pub?output=csv";
+var SHEET_CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRRllRkwaCacdM0WZZT0cVQflhxJ9Fw5mgId-v615_kE2GdKdbwHMUYCG03HC8gUXfg7lucTs1Mqhg1/pub?output=csv&gid=474514580&single=true";
 
 function mkAtlasModal(){
   var ov=div({position:"fixed",inset:"0",background:"rgba(0,0,0,0.6)",zIndex:"200",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"});
