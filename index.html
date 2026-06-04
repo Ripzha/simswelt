@@ -478,15 +478,75 @@ body.admin-mode .calib-btn{display:block}
   bottom:-12px;
   transform:translateX(-50%);
   display:flex;align-items:center;justify-content:center;
-  pointer-events:none;
+  pointer-events:auto;
   z-index:3;
+  height:clamp(18px,2vw,28px);
 }
+/* Wenn Portal links am Rand klebt: Tokens nach rechts vom Portal versetzen */
+#otherworld-portal[data-edge="left"] .ow-portal-tokens{
+  left:auto;right:-60%;bottom:50%;
+  transform:translateY(50%);
+}
+/* Wenn rechts: Tokens nach links vom Portal versetzen */
+#otherworld-portal[data-edge="right"] .ow-portal-tokens{
+  left:-60%;right:auto;bottom:50%;
+  transform:translateY(50%);
+}
+/* Oben/unten: Tokens bleiben mittig unter/über dem Portal */
+#otherworld-portal[data-edge="top"] .ow-portal-tokens{
+  top:auto;bottom:-12px;left:50%;
+  transform:translateX(-50%);
+}
+#otherworld-portal[data-edge="bottom"] .ow-portal-tokens{
+  bottom:auto;top:-12px;left:50%;
+  transform:translateX(-50%);
+}
+
+/* Hover: Tokens spreizen + wachsen wie bei Welt-Dot-Tokens */
+.ow-portal-tokens:hover .ow-portal-token-wrap{margin-left:4px}
+.ow-portal-tokens .ow-portal-token-wrap:first-child{margin-left:0 !important}
+.ow-portal-tokens:hover .ow-portal-token,
+.ow-portal-tokens:hover img.ow-portal-token{
+  width:clamp(24px,2.6vw,36px) !important;
+  height:clamp(24px,2.6vw,36px) !important;
+}
+.ow-portal-tokens:hover .ow-portal-token-ph{
+  width:clamp(24px,2.6vw,36px) !important;
+  height:clamp(24px,2.6vw,36px) !important;
+  font-size:clamp(10px,1vw,14px) !important;
+}
+.ow-portal-tokens:hover .ow-portal-count{
+  width:clamp(24px,2.6vw,36px) !important;
+  height:clamp(24px,2.6vw,36px) !important;
+  font-size:clamp(10px,1vw,14px) !important;
+}
+.ow-portal-token-hidden{display:none}
+.ow-portal-tokens:hover .ow-portal-token-hidden{display:block}
+.ow-portal-tokens:hover .ow-portal-count{display:none}
+
 .ow-portal-token-wrap{
   position:relative;
   margin-left:clamp(-10px,-0.7vw,-6px);
+  transition:margin 0.2s ease;
   pointer-events:auto;
 }
-.ow-portal-token-wrap:first-child{margin-left:0}
+.ow-portal-token-wrap:hover .ow-portal-token-name{display:block}
+.ow-portal-token-name{
+  display:none;
+  position:absolute;
+  bottom:calc(100% + 4px);left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,0.92);
+  color:#fff;
+  font-size:9px;
+  white-space:nowrap;
+  padding:2px 6px;
+  border-radius:4px;
+  pointer-events:none;
+  z-index:100;
+  border:0.5px solid rgba(255,255,255,0.15);
+}
+
 .ow-portal-token,
 img.ow-portal-token{
   display:block;
@@ -496,6 +556,7 @@ img.ow-portal-token{
   object-fit:cover;
   border:1.5px solid rgba(74,170,106,0.8);
   box-shadow:0 1px 4px rgba(0,0,0,0.8);
+  transition:width 0.2s ease, height 0.2s ease;
 }
 .ow-portal-token-ph{
   width:clamp(18px,2vw,28px);
@@ -507,6 +568,7 @@ img.ow-portal-token{
   font-size:clamp(8px,0.8vw,11px);
   color:#4aaa6a;
   box-shadow:0 1px 4px rgba(0,0,0,0.8);
+  transition:width 0.2s ease, height 0.2s ease, font-size 0.2s ease;
 }
 .ow-portal-count{
   width:clamp(18px,2vw,28px);
@@ -519,6 +581,7 @@ img.ow-portal-token{
   font-size:clamp(8px,0.8vw,11px);
   font-weight:600;
   box-shadow:0 1px 4px rgba(0,0,0,0.8);
+  transition:width 0.2s ease, height 0.2s ease;
 }
 
 /* Tokens auf "Andere Welten"-Kacheln */
@@ -2360,16 +2423,23 @@ function updateOtherworldPortalTokens(){
   var tokensEl = portal.querySelector('.ow-portal-tokens');
   if(!tokensEl) return;
   var chars = getCharsInOuterWorlds();
+  if(!chars.length){ tokensEl.innerHTML = ''; return; }
   var MAX = 4;
-  var visible = chars.slice(0, MAX);
-  var extra = chars.length - MAX;
-  var html = visible.map(function(c){
+  // Alle Tokens rendern, alles ueber MAX bekommt .ow-portal-token-hidden
+  // → wird bei Hover sichtbar (genauso wie bei den Welt-Dot-Tokens)
+  var html = chars.map(function(c, i){
     var inner = c.img
       ? '<img class="ow-portal-token" src="' + c.img + '" alt="' + (c.n||'') + '" loading="lazy">'
       : '<div class="ow-portal-token-ph">' + ((c.n||'?').charAt(0)) + '</div>';
     var name = (c.n||'').replace(/"/g,'&quot;');
-    return '<div class="ow-portal-token-wrap" title="' + name + '">' + inner + '</div>';
+    var hiddenClass = i >= MAX ? ' ow-portal-token-hidden' : '';
+    return '<div class="ow-portal-token-wrap' + hiddenClass + '">' +
+      inner +
+      '<div class="ow-portal-token-name">' + name + '</div>' +
+      '</div>';
   }).join('');
+  // +N-Count nur wenn mehr als MAX (verschwindet bei Hover, dann sieht man die hidden Tokens)
+  var extra = chars.length - MAX;
   if(extra > 0){
     html += '<div class="ow-portal-token-wrap"><div class="ow-portal-count">+' + extra + '</div></div>';
   }
