@@ -584,12 +584,13 @@ img.ow-portal-token{
   transition:width 0.2s ease, height 0.2s ease;
 }
 
-/* Tokens auf "Andere Welten"-Kacheln */
+/* Tokens auf "Andere Welten"-Kacheln — rechts oben aufs Bild, nicht überm Namen */
 .otherworld-tile{position:relative}
 .otherworld-tile .dot-char-tokens{
   position:absolute;
-  top:auto;bottom:8px;left:50%;
-  transform:translateX(-50%);
+  top:8px;right:8px;
+  left:auto;bottom:auto;
+  transform:none;
   display:flex !important;
   z-index:3;
 }
@@ -3105,7 +3106,7 @@ function openOtherWorld(){
       name: 'Bloodmoon Valley',
       type: bm.category || 'Vampirwelt',
       img: bm.img || null,
-      world: 'Bloodmoon Valley'  // öffnet ATLAS-Welt statt URL
+      world: otherworlds[0]  // Welt-OBJEKT (nicht String) damit enterWorld() funktioniert
     });
   }
   // Fallback: wenn Sheet noch nicht geladen, hardcoded Liste verwenden
