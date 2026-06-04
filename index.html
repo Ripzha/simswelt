@@ -471,51 +471,54 @@ body.admin-mode .calib-btn{display:block}
   50%{transform:rotate(2deg)}
 }
 
-/* Tokens am Portal — kreisförmig drumherum verteilt (wie Satelliten) */
+/* Tokens am Portal — am unteren Rand, gleicher Stil wie Welt-Dot-Tokens */
 .ow-portal-tokens{
   position:absolute;
-  top:50%;left:50%;
-  width:0;height:0; /* Tokens werden via --tx/--ty positioniert, Container ist Anker-Punkt */
+  left:50%;
+  bottom:-12px;
+  transform:translateX(-50%);
+  display:flex;align-items:center;justify-content:center;
   pointer-events:none;
   z-index:3;
 }
 .ow-portal-token-wrap{
-  position:absolute;
-  top:50%;left:50%;
-  /* via JS gesetzt: --tx, --ty (Offset vom Portal-Mittelpunkt) */
-  transform:translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px)));
+  position:relative;
+  margin-left:clamp(-10px,-0.7vw,-6px);
   pointer-events:auto;
-  animation:tokenFloat 4s ease-in-out infinite;
-  animation-delay:var(--delay, 0s);
 }
-@keyframes tokenFloat{
-  0%,100%{transform:translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px))) scale(1)}
-  50%{transform:translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px) - 2px)) scale(1.04)}
-}
-.ow-portal-token{
+.ow-portal-token-wrap:first-child{margin-left:0}
+.ow-portal-token,
+img.ow-portal-token{
   display:block;
-  width:22px;height:22px;border-radius:50%;
-  border:1.5px solid rgba(74,170,106,0.85);
-  background:#0a1420;
+  width:clamp(18px,2vw,28px);
+  height:clamp(18px,2vw,28px);
+  border-radius:50%;
   object-fit:cover;
-  box-shadow:0 0 6px rgba(74,170,106,0.5);
+  border:1.5px solid rgba(74,170,106,0.8);
+  box-shadow:0 1px 4px rgba(0,0,0,0.8);
 }
 .ow-portal-token-ph{
-  width:22px;height:22px;border-radius:50%;
-  border:1.5px solid rgba(74,170,106,0.85);
-  background:#1a3328;color:#a8d4b8;
+  width:clamp(18px,2vw,28px);
+  height:clamp(18px,2vw,28px);
+  border-radius:50%;
+  background:rgba(74,170,106,0.3);
+  border:1.5px solid rgba(74,170,106,0.6);
   display:flex;align-items:center;justify-content:center;
-  font-size:10px;font-weight:600;
-  box-shadow:0 0 6px rgba(74,170,106,0.5);
+  font-size:clamp(8px,0.8vw,11px);
+  color:#4aaa6a;
+  box-shadow:0 1px 4px rgba(0,0,0,0.8);
 }
 .ow-portal-count{
-  width:22px;height:22px;border-radius:50%;
-  background:rgba(74,170,106,0.95);
-  border:1.5px solid rgba(168,212,184,0.9);
+  width:clamp(18px,2vw,28px);
+  height:clamp(18px,2vw,28px);
+  border-radius:50%;
+  background:rgba(74,170,106,0.85);
+  border:1.5px solid rgba(168,212,184,0.85);
   color:#fff;
   display:flex;align-items:center;justify-content:center;
-  font-size:10px;font-weight:600;
-  box-shadow:0 0 6px rgba(74,170,106,0.6);
+  font-size:clamp(8px,0.8vw,11px);
+  font-weight:600;
+  box-shadow:0 1px 4px rgba(0,0,0,0.8);
 }
 
 /* Tokens auf "Andere Welten"-Kacheln */
@@ -2353,33 +2356,19 @@ function updateOtherworldPortalTokens(){
   var tokensEl = portal.querySelector('.ow-portal-tokens');
   if(!tokensEl) return;
   var chars = getCharsInOuterWorlds();
-  var MAX = 5; // mehr Platz weil sie kreisförmig sitzen
+  var MAX = 4;
   var visible = chars.slice(0, MAX);
   var extra = chars.length - MAX;
-  // Tokens kreisförmig um Portal-Mittelpunkt verteilen
-  // Radius = Portal-halb + Abstand. Portal=88px, also r=52 ist knapp ausserhalb
-  var RADIUS = 52;
-  var total = visible.length + (extra > 0 ? 1 : 0);
-  if(total === 0){ tokensEl.innerHTML = ''; return; }
-  var items = visible.map(function(c){
+  var html = visible.map(function(c){
     var inner = c.img
       ? '<img class="ow-portal-token" src="' + c.img + '" alt="' + (c.n||'') + '" loading="lazy">'
       : '<div class="ow-portal-token-ph">' + ((c.n||'?').charAt(0)) + '</div>';
-    return {html: inner, name: c.n || ''};
-  });
-  if(extra > 0){
-    items.push({html: '<div class="ow-portal-count">+' + extra + '</div>', name: '+'+extra});
-  }
-  // Starte oben (-90°) und verteile gleichmaessig im Kreis
-  var startAngle = -Math.PI / 2;
-  var step = (Math.PI * 2) / items.length;
-  var html = items.map(function(it, i){
-    var angle = startAngle + i * step;
-    var tx = Math.round(Math.cos(angle) * RADIUS);
-    var ty = Math.round(Math.sin(angle) * RADIUS);
-    var delay = (i * 0.3).toFixed(2) + 's';
-    return '<div class="ow-portal-token-wrap" style="--tx:' + tx + 'px;--ty:' + ty + 'px;--delay:' + delay + '" title="' + it.name.replace(/"/g,'&quot;') + '">' + it.html + '</div>';
+    var name = (c.n||'').replace(/"/g,'&quot;');
+    return '<div class="ow-portal-token-wrap" title="' + name + '">' + inner + '</div>';
   }).join('');
+  if(extra > 0){
+    html += '<div class="ow-portal-token-wrap"><div class="ow-portal-count">+' + extra + '</div></div>';
+  }
   tokensEl.innerHTML = html;
 }
 // Backward-compat: alter Name wird in updateAllTokens noch aufgerufen
