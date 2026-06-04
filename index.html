@@ -414,6 +414,113 @@ body.admin-mode .calib-btn{display:block}
 .np-route li.np-endpoint .np-dot-marker{background:#4aaa6a;box-shadow:0 0 5px rgba(74,170,106,0.6)}
 .np-route li .np-arrow{color:rgba(255,255,255,0.2);font-size:9px;flex-shrink:0}
 #navi-route-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:9;overflow:visible}
+
+/* ═══ "Andere Welten"-Sterntor: Mini-Karte am Rand mit Partikel-Effekt ═══ */
+#otherworld-portal{
+  position:absolute;
+  /* Default: rechts mittig. Verschiebbar entlang der Raender. */
+  top:50%;right:14px;left:auto;bottom:auto;
+  transform:translateY(-50%);
+  width:88px;height:88px;
+  z-index:20;
+  cursor:grab;
+  user-select:none;
+  touch-action:none;
+  pointer-events:auto;
+}
+#otherworld-portal.dragging{cursor:grabbing;opacity:0.85}
+#otherworld-portal:hover .ow-portal-frame{
+  border-color:rgba(74,170,106,0.85);
+  box-shadow:
+    0 0 18px rgba(74,170,106,0.45),
+    inset 0 0 16px rgba(74,170,106,0.25);
+}
+#otherworld-portal:hover .ow-portal-compass{transform:rotate(8deg)}
+
+.ow-portal-particles{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:120px;height:120px;
+  pointer-events:none;
+  z-index:1;
+}
+.ow-portal-frame{
+  position:absolute;
+  top:8px;left:8px;right:8px;bottom:8px;
+  border:1.5px solid rgba(74,170,106,0.5);
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(15,40,30,0.7) 0%, rgba(8,20,16,0.85) 70%, rgba(4,13,20,0.95) 100%);
+  box-shadow:
+    0 0 12px rgba(74,170,106,0.25),
+    inset 0 0 12px rgba(74,170,106,0.15);
+  display:flex;align-items:center;justify-content:center;
+  z-index:2;
+  transition:border-color 0.25s, box-shadow 0.25s;
+  overflow:hidden;
+}
+.ow-portal-compass{
+  width:62px;height:62px;
+  filter:drop-shadow(0 0 4px rgba(74,170,106,0.5));
+  transition:transform 0.6s ease-out;
+  animation:compassDrift 14s ease-in-out infinite;
+}
+@keyframes compassDrift{
+  0%,100%{transform:rotate(-2deg)}
+  50%{transform:rotate(2deg)}
+}
+
+/* Tokens am Portal — am unteren Rand schwebend */
+.ow-portal-tokens{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:-8px;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;
+  z-index:3;
+  height:22px;
+}
+.ow-portal-token{
+  width:22px;height:22px;border-radius:50%;
+  border:1.5px solid rgba(74,170,106,0.85);
+  background:#0a1420;
+  margin-left:-7px;
+  object-fit:cover;
+  box-shadow:0 0 6px rgba(74,170,106,0.5);
+}
+.ow-portal-token:first-child{margin-left:0}
+.ow-portal-token-ph{
+  width:22px;height:22px;border-radius:50%;
+  border:1.5px solid rgba(74,170,106,0.85);
+  background:#1a3328;color:#a8d4b8;
+  margin-left:-7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:600;
+  box-shadow:0 0 6px rgba(74,170,106,0.5);
+}
+.ow-portal-token-ph:first-child{margin-left:0}
+.ow-portal-count{
+  width:22px;height:22px;border-radius:50%;
+  background:rgba(74,170,106,0.95);
+  border:1.5px solid rgba(168,212,184,0.9);
+  color:#fff;
+  margin-left:-7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:600;
+  box-shadow:0 0 6px rgba(74,170,106,0.6);
+}
+
+/* Tokens auf "Andere Welten"-Kacheln */
+.otherworld-tile{position:relative}
+.otherworld-tile .dot-char-tokens{
+  position:absolute;
+  top:auto;bottom:8px;left:50%;
+  transform:translateX(-50%);
+  display:flex !important;
+  z-index:3;
+}
 </style>
 </head>
 <body>
@@ -486,6 +593,42 @@ body.admin-mode .calib-btn{display:block}
         <div id="map-image-area">
           <div id="map-bg"><img src="https://files.homepagemodules.de/b855163/resize/1920x1200/pictures_u1228_fMogNHsU.png" alt="Karte" decoding="async" fetchpriority="high"></div>
           <svg id="navi-route-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+          <!-- "Andere Welten"-Portal: Kompass-Rose mit Partikeln drumrum -->
+          <div id="otherworld-portal" title="Welten ausserhalb" role="button" tabindex="0">
+            <canvas class="ow-portal-particles" width="120" height="120"></canvas>
+            <div class="ow-portal-frame">
+              <svg class="ow-portal-compass" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <!-- Aeusserer Ring -->
+                <circle cx="20" cy="20" r="17" fill="none" stroke="rgba(168,212,184,0.35)" stroke-width="0.5"/>
+                <!-- Innerer Ring -->
+                <circle cx="20" cy="20" r="11" fill="none" stroke="rgba(168,212,184,0.25)" stroke-width="0.5"/>
+                <!-- Himmelsrichtungs-Marker (kleine Striche) -->
+                <line x1="20" y1="3"  x2="20" y2="6"  stroke="rgba(168,212,184,0.6)" stroke-width="0.6" stroke-linecap="round"/>
+                <line x1="20" y1="34" x2="20" y2="37" stroke="rgba(168,212,184,0.4)" stroke-width="0.5" stroke-linecap="round"/>
+                <line x1="3"  y1="20" x2="6"  y2="20" stroke="rgba(168,212,184,0.4)" stroke-width="0.5" stroke-linecap="round"/>
+                <line x1="34" y1="20" x2="37" y2="20" stroke="rgba(168,212,184,0.4)" stroke-width="0.5" stroke-linecap="round"/>
+                <!-- Kompass-Rose: 4 Spitzen (N,S,O,W) als Rauten -->
+                <!-- Nord (heller, betont) -->
+                <polygon points="20,5 22.5,20 20,16 17.5,20" fill="rgba(168,212,184,0.95)" stroke="rgba(74,170,106,0.8)" stroke-width="0.3"/>
+                <!-- Sued -->
+                <polygon points="20,35 22.5,20 20,24 17.5,20" fill="rgba(74,170,106,0.55)" stroke="rgba(74,170,106,0.6)" stroke-width="0.3"/>
+                <!-- Ost -->
+                <polygon points="35,20 20,22.5 24,20 20,17.5" fill="rgba(74,170,106,0.55)" stroke="rgba(74,170,106,0.6)" stroke-width="0.3"/>
+                <!-- West -->
+                <polygon points="5,20 20,22.5 16,20 20,17.5" fill="rgba(74,170,106,0.55)" stroke="rgba(74,170,106,0.6)" stroke-width="0.3"/>
+                <!-- Diagonale Spitzen (NO, SO, SW, NW) - duenner -->
+                <polygon points="30.6,9.4 21.4,21.4 20,18.6 18.6,20" fill="rgba(74,170,106,0.3)"/>
+                <polygon points="30.6,30.6 21.4,18.6 18.6,20 20,21.4" fill="rgba(74,170,106,0.3)"/>
+                <polygon points="9.4,30.6 18.6,18.6 20,21.4 21.4,20" fill="rgba(74,170,106,0.3)"/>
+                <polygon points="9.4,9.4 18.6,21.4 21.4,20 20,18.6" fill="rgba(74,170,106,0.3)"/>
+                <!-- Mittelpunkt -->
+                <circle cx="20" cy="20" r="1.4" fill="rgba(168,212,184,0.95)"/>
+                <!-- N-Markierung -->
+                <text x="20" y="2.3" text-anchor="middle" font-size="3.2" font-weight="600" fill="rgba(168,212,184,0.9)" font-family="system-ui,sans-serif">N</text>
+              </svg>
+            </div>
+            <div class="ow-portal-tokens"></div>
+          </div>
         </div>
       </div>
       <div class="vignette"></div>
@@ -1778,6 +1921,8 @@ function updateAllTokens(){
     if(chars.length>3) html += '<span style="font-size:9px;color:#4aaa6a;margin-left:4px;font-weight:500">+'+(chars.length-3)+'</span>';
     el.innerHTML = html;
   });
+  // Update Andere-Welten-Pfeil Tokens
+  if(typeof updateOtherworldArrowTokens === 'function') updateOtherworldArrowTokens();
 }
 
 // Dot colors per world type
@@ -2183,6 +2328,222 @@ function getCharsAtWorld(worldName){
     // wenn URL gelöscht wurde verschwindet der Token
     return c.lastSeenName && c.lastSeenUrl && c.lastSeenName.toLowerCase()===worldName.toLowerCase();
   });
+}
+
+// ═══ "Andere Welten"-Sterntor: Portal-Mini-Karte mit Partikeln, Drag + Tokens ═══
+// Aussenwelt-Chars = Chars deren lastSeenName eine "hasAtlas=false"-Welt ist
+function getCharsInOuterWorlds(){
+  return CHARS.filter(function(c){
+    if(!c.lastSeenName || !c.lastSeenUrl) return false;
+    var meta = sheetWorldMeta[c.lastSeenName];
+    if(!meta) return false;
+    return meta.hasAtlas === false;
+  });
+}
+
+function updateOtherworldPortalTokens(){
+  var portal = document.getElementById('otherworld-portal');
+  if(!portal) return;
+  var tokensEl = portal.querySelector('.ow-portal-tokens');
+  if(!tokensEl) return;
+  var chars = getCharsInOuterWorlds();
+  var MAX = 3;
+  var visible = chars.slice(0, MAX);
+  var extra = chars.length - MAX;
+  var html = visible.map(function(c){
+    if(c.img){
+      return '<img class="ow-portal-token" src="' + c.img + '" alt="' + (c.n||'') + '" loading="lazy">';
+    }
+    return '<div class="ow-portal-token-ph">' + ((c.n||'?').charAt(0)) + '</div>';
+  }).join('');
+  if(extra > 0) html += '<div class="ow-portal-count">+' + extra + '</div>';
+  tokensEl.innerHTML = html;
+}
+// Backward-compat: alter Name wird in updateAllTokens noch aufgerufen
+function updateOtherworldArrowTokens(){ updateOtherworldPortalTokens(); }
+
+// Partikel-Animation: kleine Lichtpunkte die ins Portal rein wirbeln
+function startPortalParticles(canvas){
+  if(!canvas || canvas._started) return;
+  canvas._started = true;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var cx = W/2, cy = H/2;
+  var maxR = 50;
+  var particles = [];
+  var COUNT = 18;
+
+  function spawn(){
+    var angle = Math.random() * Math.PI * 2;
+    var radius = maxR + Math.random() * 14;
+    return {
+      angle: angle,
+      radius: radius,
+      maxRadius: radius,
+      speed: 0.008 + Math.random() * 0.012,
+      shrink: 0.18 + Math.random() * 0.22,
+      size: 0.8 + Math.random() * 1.4,
+      alpha: 0.55 + Math.random() * 0.4,
+      hueShift: Math.random() * 0.4
+    };
+  }
+  for(var i=0;i<COUNT;i++){
+    var p = spawn();
+    p.radius = Math.random() * maxR;
+    particles.push(p);
+  }
+
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    for(var i=0;i<particles.length;i++){
+      var p = particles[i];
+      p.angle += p.speed;
+      p.radius -= p.shrink;
+      var x = cx + Math.cos(p.angle) * p.radius;
+      var y = cy + Math.sin(p.angle) * p.radius;
+      var fade = Math.max(0, p.radius / p.maxRadius);
+      var alpha = p.alpha * fade;
+      var size = p.size * (0.6 + 0.4 * fade);
+      // Greener near center, lighter at edge
+      var g = 170 + Math.floor(40 * (1 - fade));
+      ctx.beginPath();
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(168, ' + g + ', 138, ' + alpha.toFixed(3) + ')';
+      ctx.shadowColor = 'rgba(74,170,106,0.6)';
+      ctx.shadowBlur = 4;
+      ctx.fill();
+      if(p.radius < 4){
+        particles[i] = spawn();
+      }
+    }
+    canvas._raf = requestAnimationFrame(frame);
+  }
+  frame();
+}
+
+// Drag-Logik: Portal bleibt am Karten-Rand, snapt automatisch
+function initOtherworldPortal(){
+  var portal = document.getElementById('otherworld-portal');
+  if(!portal) return;
+  var container = document.getElementById('map-image-area');
+  if(!container) return;
+
+  // Partikel starten
+  var canvas = portal.querySelector('.ow-portal-particles');
+  if(canvas) startPortalParticles(canvas);
+
+  // Gespeicherte Position laden (Migration vom alten Key)
+  var saved = null;
+  try {
+    saved = JSON.parse(localStorage.getItem('sw_ow_portal_pos') || 'null');
+    if(!saved) saved = JSON.parse(localStorage.getItem('sw_ow_arrow_pos') || 'null');
+  } catch(_){}
+  if(saved && saved.edge && typeof saved.pct === 'number'){
+    applyPosition(saved.edge, saved.pct);
+  } else {
+    applyPosition('right', 50);
+  }
+
+  function applyPosition(edge, pct){
+    portal.setAttribute('data-edge', edge);
+    portal.style.left = portal.style.right = portal.style.top = portal.style.bottom = 'auto';
+    portal.style.transform = '';
+    var off = '14px'; // Abstand vom Rand
+    if(edge === 'right'){
+      portal.style.right = off;
+      portal.style.top = pct + '%';
+      portal.style.transform = 'translateY(-50%)';
+    } else if(edge === 'left'){
+      portal.style.left = off;
+      portal.style.top = pct + '%';
+      portal.style.transform = 'translateY(-50%)';
+    } else if(edge === 'top'){
+      portal.style.top = off;
+      portal.style.left = pct + '%';
+      portal.style.transform = 'translateX(-50%)';
+    } else if(edge === 'bottom'){
+      portal.style.bottom = off;
+      portal.style.left = pct + '%';
+      portal.style.transform = 'translateX(-50%)';
+    }
+  }
+
+  var dragging = false;
+  var startX = 0, startY = 0;
+  var moved = false;
+
+  function onPointerDown(e){
+    dragging = true;
+    moved = false;
+    startX = e.clientX || 0;
+    startY = e.clientY || 0;
+    portal.classList.add('dragging');
+    try { portal.setPointerCapture && portal.setPointerCapture(e.pointerId); } catch(_){}
+    e.preventDefault();
+  }
+
+  function onPointerMove(e){
+    if(!dragging) return;
+    var x = e.clientX || 0;
+    var y = e.clientY || 0;
+    if(Math.abs(x - startX) > 4 || Math.abs(y - startY) > 4) moved = true;
+    if(!moved) return;
+
+    var r = container.getBoundingClientRect();
+    var localX = Math.max(0, Math.min(r.width, x - r.left));
+    var localY = Math.max(0, Math.min(r.height, y - r.top));
+
+    var distLeft = localX, distRight = r.width - localX;
+    var distTop = localY, distBottom = r.height - localY;
+    var min = Math.min(distLeft, distRight, distTop, distBottom);
+    var edge, pct;
+    if(min === distLeft){ edge = 'left'; pct = (localY / r.height) * 100; }
+    else if(min === distRight){ edge = 'right'; pct = (localY / r.height) * 100; }
+    else if(min === distTop){ edge = 'top'; pct = (localX / r.width) * 100; }
+    else { edge = 'bottom'; pct = (localX / r.width) * 100; }
+    pct = Math.max(10, Math.min(90, pct));
+    applyPosition(edge, pct);
+  }
+
+  function onPointerUp(e){
+    if(!dragging) return;
+    dragging = false;
+    portal.classList.remove('dragging');
+    try { portal.releasePointerCapture && portal.releasePointerCapture(e.pointerId); } catch(_){}
+
+    if(moved){
+      var edge = portal.getAttribute('data-edge') || 'right';
+      var pct = 50;
+      if(edge === 'right' || edge === 'left'){
+        pct = parseFloat(portal.style.top) || 50;
+      } else {
+        pct = parseFloat(portal.style.left) || 50;
+      }
+      try { localStorage.setItem('sw_ow_portal_pos', JSON.stringify({edge:edge, pct:pct})); } catch(_){}
+    } else {
+      if(typeof openOtherWorld === 'function') openOtherWorld();
+    }
+  }
+
+  portal.addEventListener('pointerdown', onPointerDown);
+  portal.addEventListener('pointermove', onPointerMove);
+  portal.addEventListener('pointerup', onPointerUp);
+  portal.addEventListener('pointercancel', onPointerUp);
+
+  portal.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      if(typeof openOtherWorld === 'function') openOtherWorld();
+    }
+  });
+
+  updateOtherworldPortalTokens();
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', initOtherworldPortal);
+} else {
+  initOtherworldPortal();
 }
 function parseLotLabel(lot){
   const name=lot.name||'';
@@ -2685,6 +3046,17 @@ function openOtherWorld(){
     var name=document.createElement('div');name.className='ow-name';name.textContent=ow.name;
     info.appendChild(type);info.appendChild(name);
     tile.appendChild(info);
+    // Tokens auf der Kachel anzeigen (Chars deren lastSeenName = diese Welt)
+    var tileChars = getCharsAtWorld(ow.name);
+    if(tileChars.length){
+      var tokensWrap = document.createElement('div');
+      tokensWrap.innerHTML = buildCharTokensHtml(tileChars);
+      var inner = tokensWrap.firstChild;
+      if(inner){
+        inner.setAttribute('data-world-name', ow.name); // updateAllTokens kann's spaeter refreshen
+        tile.appendChild(inner);
+      }
+    }
     if(ow.world){
       tile.addEventListener('click',function(){
         closeOtherWorlds();
