@@ -2341,12 +2341,16 @@ function getCharsAtWorld(worldName){
 
 // ═══ "Andere Welten"-Sterntor: Portal-Mini-Karte mit Partikeln, Drag + Tokens ═══
 // Aussenwelt-Chars = Chars deren lastSeenName eine "hasAtlas=false"-Welt ist
+// PLUS Sonderfall Bloodmoon Valley (hasAtlas=true, aber im Modal — siehe openOtherWorld)
 function getCharsInOuterWorlds(){
   return CHARS.filter(function(c){
     if(!c.lastSeenName || !c.lastSeenUrl) return false;
     var meta = sheetWorldMeta[c.lastSeenName];
     if(!meta) return false;
-    return meta.hasAtlas === false;
+    if(meta.hasAtlas === false) return true;
+    // Sonderfall: Bloodmoon Valley wird auch im Modal gelistet
+    if(c.lastSeenName === 'Bloodmoon Valley') return true;
+    return false;
   });
 }
 
