@@ -53,8 +53,8 @@ html{overscroll-behavior:none}
 #world-bg{position:absolute;inset:0;overflow:hidden}
 #world-bg img{width:100%;height:100%;object-fit:fill;filter:brightness(0.65) saturate(0.9);display:block}
 .image-area-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
-#world-image-area{position:relative;flex-shrink:0;width:min(100%,100vh * 1920/1200);height:min(100%,100vw * 1200/1920);aspect-ratio:1920/1200;overflow:visible;transform-origin:0 0}
-#map-image-area{position:relative;flex-shrink:0;max-width:100%;max-height:100%;overflow:visible;transform-origin:0 0}
+#world-image-area{position:relative;flex-shrink:0;width:min(100%,100vh * 1920/1200);height:min(100%,100vw * 1200/1920);aspect-ratio:1920/1200;overflow:visible;transform-origin:50% 50%}
+#map-image-area{position:relative;flex-shrink:0;max-width:100%;max-height:100%;overflow:visible;transform-origin:50% 50%}
 #world-bg,#world-container,#map-container{background:#040d14}
 @media(pointer:coarse){
   /* Labels komplett weg auf Touch-Devices — Suchleiste oben ist besser */
@@ -305,7 +305,9 @@ body.admin-mode .calib-btn{display:block}
 .sheet-overlay.open{display:block}
 .sheet{position:fixed;bottom:0;left:0;right:0;z-index:260;background:rgba(8,16,28,0.99);border-top:0.5px solid rgba(255,255,255,0.1);border-radius:14px 14px 0 0;padding:14px 14px calc(14px + env(safe-area-inset-bottom));max-height:75vh;overflow-y:auto;transform:translateY(100%);transition:transform 0.28s ease}
 .sheet.open{transform:translateY(0)}
-.sheet-handle{width:36px;height:3px;background:rgba(255,255,255,0.2);border-radius:2px;margin:0 auto 14px}
+.sheet-handle{width:80px;height:24px;margin:-6px auto 8px;cursor:grab;display:flex;align-items:center;justify-content:center}
+.sheet-handle::before{content:'';width:36px;height:3px;background:rgba(255,255,255,0.2);border-radius:2px}
+.sheet-handle:active{cursor:grabbing}
 .sheet-title{font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
 .sheet-section{margin-bottom:18px}
 .sheet-section:last-child{margin-bottom:0}
@@ -3981,29 +3983,26 @@ function makePinchZoom(el,opts={}){
     const ww=wrap.clientWidth,wh=wrap.clientHeight;
     const ew=el.offsetWidth,eh=el.offsetHeight;
     const sw=ew*sc,sh=eh*sc;
-    // map-image-area hat transform-origin: 0 0 (oben links)
-    // -> Element-Bounds nach Skalierung: (tx, ty) bis (tx+sw, ty+sh)
-    // -> Damit rechter Rand nicht innerhalb Wrap: tx >= ww - sw
-    // -> Damit linker Rand nicht rechts von Wrap-Start: tx <= 0
-    // Wenn Element kleiner als Wrap (sw <= ww), zentrieren mit (ww-sw)/2
+    // transform-origin: 50% 50% — Element wird von Mitte aus skaliert.
+    // Bei tx=0, ty=0 ist Element flex-zentriert im Wrap.
+    // Max-Pan: solang Element-Kante nicht in den Wrap reinrutscht.
+    // Wenn sw > ww: max |tx| = (sw - ww) / 2
+    // Wenn sw <= ww: tx muss 0 sein (sonst Lücken sichtbar)
+    // Auf Touch + Zoom: vertikales Pan erlauben fuer 16:9-Karten auf Hochformat
     const isTouch = window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
     const isZoomed = sc > 1.05;
-    // Wenn Element rein passt: zentrieren
-    if(sw <= ww){
-      tx = (ww - sw) / 2;
+    const allowExtraPan = isTouch && isZoomed;
+    if(sw <= ww && !allowExtraPan){
+      tx = 0;
     } else {
-      // Element groesser als Wrap: erlauben dass von ww-sw bis 0 panbar
-      tx = clamp(tx, ww - sw, 0);
+      const maxTx = Math.max((sw - ww) / 2, allowExtraPan ? sw / 4 : 0);
+      tx = clamp(tx, -maxTx, maxTx);
     }
-    if(sh <= wh){
-      // Touch-Devices: bei Zoom auch vertikales Pan erlauben fuer 16:9-Karten auf Hochformat
-      if(isTouch && isZoomed){
-        ty = clamp(ty, wh - sh, 0);
-      } else {
-        ty = (wh - sh) / 2;
-      }
+    if(sh <= wh && !allowExtraPan){
+      ty = 0;
     } else {
-      ty = clamp(ty, wh - sh, 0);
+      const maxTy = Math.max((sh - wh) / 2, allowExtraPan ? sh / 4 : 0);
+      ty = clamp(ty, -maxTy, maxTy);
     }
   }
   function reset(){tx=0;ty=0;sc=1;apply();}
@@ -4624,20 +4623,17 @@ function repositionTooltips(){
 setTimeout(repositionTooltips, 1000);
 
 document.querySelectorAll('.sheet').forEach(sheet=>{
-  let sy=0, startedOnHandle=false, startedAtTop=false;
+  let sy=0, startedOnHandle=false;
   sheet.addEventListener('touchstart', e=>{
     sy = e.touches[0].clientY;
-    // Schliessen erlaubt wenn:
-    //  - Touch startet am Handle (visuell oben — User will Sheet "zumachen")
-    //  - ODER Sheet ist oben gescrollt UND User wischt von oben nach unten
+    // Schliessen nur wenn Touch am Handle (Grip oben) startet.
+    // Sonst: User scrollt im Sheet — kein Schliess-Trigger, sonst frisst es scroll-up gestures.
     startedOnHandle = !!e.target.closest('.sheet-handle');
-    startedAtTop = sheet.scrollTop <= 0;
   }, {passive:true});
   sheet.addEventListener('touchend', e=>{
+    if(!startedOnHandle) return;
     const dy = e.changedTouches[0].clientY - sy;
-    if(dy <= 60) return; // nicht weit genug nach unten
-    // Nur schliessen wenn Handle gegriffen ODER von oben gepullt
-    if(startedOnHandle || startedAtTop) closeSheet();
+    if(dy > 60) closeSheet();
   }, {passive:true});
 });
 
