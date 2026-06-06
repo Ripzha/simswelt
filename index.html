@@ -78,6 +78,21 @@ html{overscroll-behavior:none}
   #world-image-area .cluster-dot .dot-char-tokens{display:flex!important;transform:translateX(-50%) scale(0.85)}
   .world-dot .dot-pulse{width:18px!important;height:18px!important}
   .world-dot .dot-inner{width:6px!important;height:6px!important}
+  /* Vergrößerte Hit-Area auf Touch: unsichtbares Click-Padding um den Dot
+     damit Tap nicht millimetergenau sein muss. */
+  .world-dot::before,
+  .lot-dot::before{
+    content:'';
+    position:absolute;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    width:44px;height:44px;
+    background:transparent;
+    z-index:1;
+    pointer-events:auto;
+  }
+  /* Stellen sicher dass world-dot/lot-dot Position-Kontext fuer ::before haben */
+  .world-dot,.lot-dot{position:absolute}
   /* Hover-Card (Welt-Vorschau) standardmässig weg, aber bei show-tokens sichtbar */
   .hover-card{display:none!important}
   .world-dot.show-tokens .hover-card{display:block!important;pointer-events:auto!important;cursor:pointer}
