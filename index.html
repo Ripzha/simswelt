@@ -37,7 +37,33 @@ html{overscroll-behavior:none}
 .activity-preview::before{content:"";position:absolute;width:8px;height:8px;background:rgba(5,12,22,0.97);border-left:0.5px solid rgba(74,170,106,0.3);border-bottom:0.5px solid rgba(74,170,106,0.3);transform:rotate(45deg)}
 .activity-preview.right::before{left:-5px;top:50%;margin-top:-4px}
 .activity-preview.left::before{right:-5px;top:50%;margin-top:-4px;transform:rotate(225deg)}
-.activity-preview-loading{color:rgba(255,255,255,0.4);font-style:normal;font-size:10px}
+.activity-preview-loading{color:rgba(255,255,255,0.4);font-style:normal;font-size:10px;display:flex;align-items:center;gap:8px}
+.activity-preview-loading .mini-compass{
+  width:14px;height:14px;flex-shrink:0;
+  position:relative;
+}
+.activity-preview-loading .mini-compass::before{
+  content:'';
+  position:absolute;inset:0;
+  border-radius:50%;
+  border:0.5px solid rgba(168,212,184,0.3);
+}
+.activity-preview-loading .mini-compass::after{
+  content:'';
+  position:absolute;
+  top:1px;left:50%;
+  width:1px;height:5px;
+  margin-left:-0.5px;
+  background:#a8d4b8;
+  transform-origin:0.5px 6px;
+  animation:miniCompassSpin 1.4s cubic-bezier(0.5,0.05,0.5,0.95) infinite;
+}
+@keyframes miniCompassSpin {
+  0%   { transform: rotate(0deg) }
+  35%  { transform: rotate(140deg) }
+  55%  { transform: rotate(95deg) }
+  100% { transform: rotate(360deg) }
+}
 @media (max-width:768px){.activity-preview{display:none!important}}
 .activity-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 .activity-name{font-size:11px;font-weight:500}
@@ -236,7 +262,11 @@ body:has(#building-container[style*="display:block"]) #atlasEventPill{display:no
 .dot-label{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;font-weight:500;text-shadow:0 1px 4px #000,0 0 8px #000;pointer-events:none}
 .hover-card{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);background:rgba(5,12,22,0.97);border-radius:9px;overflow:hidden;z-index:200;pointer-events:none;width:165px;display:none}
 .world-dot:hover .hover-card{display:block}
-.hover-img{width:100%;height:95px;object-fit:cover;display:block}
+.hover-img{width:100%;height:95px;object-fit:cover;display:block;background:linear-gradient(90deg,rgba(168,212,184,0.04) 0%,rgba(168,212,184,0.1) 50%,rgba(168,212,184,0.04) 100%);background-size:200% 100%;animation:imgShimmer 1.6s ease-in-out infinite}
+@keyframes imgShimmer{
+  0%   { background-position: 100% 0 }
+  100% { background-position: -100% 0 }
+}
 .hover-gradient{position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(transparent,rgba(5,12,22,0.95) 70%,rgba(5,12,22,1));z-index:1}
 .hover-name{font-size:12px;font-weight:600;color:#fff;position:absolute;bottom:5px;left:10px;right:10px;text-shadow:0 1px 3px rgba(0,0,0,0.95),0 0 8px rgba(0,0,0,0.7);z-index:2}
 .hover-footer{padding:5px 10px;display:flex;justify-content:space-between;align-items:center}
@@ -2267,7 +2297,7 @@ function showActivityPreview(item, url){
     return;
   }
 
-  div.innerHTML = '<span class="activity-preview-loading">Lade Vorschau…</span>';
+  div.innerHTML = '<span class="activity-preview-loading"><span class="mini-compass" aria-hidden="true"></span>Lade Vorschau…</span>';
   position();
 
   fetch(SCRIPT_URL+'?action=postPreview&url='+encodeURIComponent(url))
