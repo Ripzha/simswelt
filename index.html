@@ -1782,6 +1782,9 @@ function fetchSheetLots(cb){
         }
       });
       sheetLotsLoaded = true;
+      // Portal-Tokens jetzt updaten — sheetWorldMeta ist jetzt befüllt,
+      // dadurch werden Toronto/Kanada/etc-Chars (hasAtlas=false) sichtbar
+      if(typeof updateOtherworldPortalTokens === 'function') updateOtherworldPortalTokens();
       if(cb) cb();
     })
     .catch(()=>{ sheetLotsLoaded = true; if(cb) cb(); });
