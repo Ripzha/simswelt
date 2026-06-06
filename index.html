@@ -8,7 +8,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:sans-serif;background:#0a1420;color:#fff;height:100dvh;display:flex;flex-direction:column;overflow:hidden;overscroll-behavior:none}
 html{overscroll-behavior:none}
-#topnav{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(0,0,0,0.75);border-bottom:0.5px solid rgba(255,255,255,0.08);flex-shrink:0;z-index:100}
+#topnav{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;padding-right:56px;background:rgba(0,0,0,0.75);border-bottom:0.5px solid rgba(255,255,255,0.08);flex-shrink:0;z-index:100}
 .logo{display:flex;align-items:center;gap:8px}
 .logo-icon{width:24px;height:24px;background:#2a5a3a;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
 .logo-icon.admin-active{background:#7a4a00;box-shadow:0 0 8px rgba(255,200,0,0.5)}
@@ -62,9 +62,16 @@ html{overscroll-behavior:none}
   /* Char-Tokens auf Kontinentkarte standardmässig versteckt — nur anzeigen wenn angeklickt */
   #map-image-area .dot-char-tokens{display:none!important}
   #map-image-area .world-dot.show-tokens .dot-char-tokens{display:flex!important;transform:translateX(-50%) scale(0.85);top:14px!important}
+  /* Bei Zoom >= 50% (sc >= 1.5): Tokens generell zeigen (kleiner skaliert),
+     damit man auf Mobile sehen kann wer wo ist. Tap-Preview bleibt für Details. */
+  #map-image-area.tokens-on-zoom .dot-char-tokens{display:flex!important;transform:translateX(-50%) scale(0.55);top:12px!important;pointer-events:none}
+  #map-image-area.tokens-on-zoom .world-dot.show-tokens .dot-char-tokens{transform:translateX(-50%) scale(0.85);top:14px!important;pointer-events:auto}
   /* In Welt-Ansicht: Lot-Tokens standardmässig weg, nur bei angeklicktem Lot zeigen */
   #world-image-area .dot-char-tokens{display:none!important}
   #world-image-area .lot-dot.show-tokens .dot-char-tokens{display:flex!important}
+  /* Bei Zoom in Welt-Ansicht analog */
+  #world-image-area.tokens-on-zoom .dot-char-tokens{display:flex!important;transform:translateX(-50%) scale(0.55);pointer-events:none}
+  #world-image-area.tokens-on-zoom .lot-dot.show-tokens .dot-char-tokens{transform:translateX(-50%) scale(1);pointer-events:auto}
   /* Cluster-Tokens (Wohnkomplex etc.) immer sichtbar — sonst sieht man auf Mobile gar nicht
      dass dort jemand wohnt, weil cluster-dots kein show-tokens-Pattern haben */
   #world-image-area .cluster-dot .dot-char-tokens{display:flex!important;transform:translateX(-50%) scale(0.85)}
@@ -614,9 +621,8 @@ img.ow-portal-token{
     <span class="subtitle" id="world-subtitle"></span>
   </div>
   <div style="display:flex;gap:7px;align-items:center">
-    <button id="btn-close-atlas" onclick="closeAtlas()" style="background:rgba(255,80,80,0.12);border:0.5px solid rgba(255,80,80,0.25);border-radius:5px;color:rgba(255,130,130,0.85);font-size:10px;padding:5px 10px;cursor:pointer" title="Zur normalen Forenansicht">✕ Forum</button>
-    <button class="btn-auth" id="btn-login" onclick="window.open('https://www.simsforumrpg.de/anmeldung.php','_blank')">Anmelden</button>
-    <button class="btn-auth" id="btn-register" onclick="window.open('https://www.simsforumrpg.de/anmeldung.php','_blank')">Registrieren</button>
+    <button class="btn-auth" id="btn-login" onclick="window.open('https://www.simsforumrpg.de/anmeldung.php','_blank')" style="display:none">Anmelden</button>
+    <button class="btn-auth" id="btn-register" onclick="window.open('https://www.simsforumrpg.de/anmeldung.php','_blank')" style="display:none">Registrieren</button>
   </div>
 </div>
 
@@ -877,7 +883,7 @@ img.ow-portal-token{
           <div id="char-subtitle" style="font-size:10px;color:rgba(255,255,255,0.25)"></div>
           <a id="char-create-btn" href="https://ripzha.github.io/simswelt/rpg_char_html.html" target="_blank">✚ Charakter erstellen</a>
           <div style="flex:1"></div>
-          <button id="char-close" onclick="closeCharView()" style="background:transparent;border:none;color:rgba(255,255,255,0.5);font-size:18px;cursor:pointer;padding:0;line-height:1;flex-shrink:0">✕</button>
+          <button id="char-close" onclick="closeCharView()" title="Zurück zur Karte" style="background:transparent;border:none;color:rgba(255,255,255,0.5);font-size:18px;cursor:pointer;padding:0;line-height:1;flex-shrink:0;margin-right:46px">←</button>
         </div>
         <!-- Zeile 2: Aktionen -->
         <div style="display:flex;align-items:center;gap:6px;width:100%;flex-wrap:wrap;margin-top:6px">
@@ -3248,7 +3254,8 @@ function renderLots(w){
         e.stopPropagation();
         if(calibWorldMode||posMode)return;
         if(!lot.url)return; // Komplex-Anker o.ae. ohne URL: kein about:blank-Klick
-        if(window.matchMedia('(max-width:768px)').matches){
+        // Touch-Devices (egal welche Bildschirmgrösse): Tap-Preview-Tap-Enter Pattern
+        if(window.matchMedia('(pointer:coarse)').matches){
           // Erster Klick: Tokens zeigen + mobile-bar
           // Zweiter Klick auf selben Lot: direkt zum Thread
           if(ld.classList.contains('show-tokens')){
@@ -3893,6 +3900,8 @@ function makePinchZoom(el,opts={}){
   function apply(){
     el.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`;
     el.classList.toggle('zoom-labels',sc>=thresh);
+    // Tokens-Anzeige auf Touch-Devices: ab 50% Zoom (sc >= 1.5)
+    el.classList.toggle('tokens-on-zoom',sc>=1.5);
   }
   function clampPan(){
     const ww=wrap.clientWidth,wh=wrap.clientHeight;
@@ -4607,6 +4616,15 @@ let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive
 
   window.addEventListener('message', function(e){
     if (!e.data) return;
+    // 'auth-status' — Forum-JS (atlas_header) teilt mit ob User Gast ist.
+    // Wir zeigen Anmelden/Registrieren-Buttons nur fuer Gaeste.
+    if (e.data.action === 'auth-status') {
+      var login = document.getElementById('btn-login');
+      var reg = document.getElementById('btn-register');
+      if (login) login.style.display = e.data.isGuest ? 'inline-block' : 'none';
+      if (reg) reg.style.display = e.data.isGuest ? 'inline-block' : 'none';
+      return;
+    }
     // 'atlas-highlight' — Standard-Highlight per CSS-Selector
     if (e.data.action === 'atlas-highlight') {
       setHighlight(e.data.selector);
