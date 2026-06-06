@@ -63,14 +63,15 @@ html{overscroll-behavior:none}
   #map-image-area .dot-char-tokens{display:none!important}
   #map-image-area .world-dot.show-tokens .dot-char-tokens{display:flex!important;transform:translateX(-50%) scale(0.85);top:14px!important}
   /* Bei Zoom >= 50% (sc >= 1.5): Tokens generell zeigen (kleiner skaliert),
-     damit man auf Mobile sehen kann wer wo ist. Tap-Preview bleibt für Details. */
-  #map-image-area.tokens-on-zoom .dot-char-tokens{display:flex!important;transform:translateX(-50%) scale(0.55);top:12px!important;pointer-events:none}
+     damit man auf Mobile sehen kann wer wo ist. Tap-Preview bleibt für Details.
+     transform-origin oben damit Tokens beim Skalieren nah am Dot bleiben. */
+  #map-image-area.tokens-on-zoom .dot-char-tokens{display:flex!important;transform:translateX(-50%) scale(0.55);transform-origin:top center;top:8px!important;pointer-events:none}
   #map-image-area.tokens-on-zoom .world-dot.show-tokens .dot-char-tokens{transform:translateX(-50%) scale(0.85);top:14px!important;pointer-events:auto}
   /* In Welt-Ansicht: Lot-Tokens standardmässig weg, nur bei angeklicktem Lot zeigen */
   #world-image-area .dot-char-tokens{display:none!important}
   #world-image-area .lot-dot.show-tokens .dot-char-tokens{display:flex!important}
   /* Bei Zoom in Welt-Ansicht analog */
-  #world-image-area.tokens-on-zoom .dot-char-tokens{display:flex!important;transform:translateX(-50%) scale(0.55);pointer-events:none}
+  #world-image-area.tokens-on-zoom .dot-char-tokens{display:flex!important;transform:translateX(-50%) scale(0.55);transform-origin:top center;top:8px!important;pointer-events:none}
   #world-image-area.tokens-on-zoom .lot-dot.show-tokens .dot-char-tokens{transform:translateX(-50%) scale(1);pointer-events:auto}
   /* Cluster-Tokens (Wohnkomplex etc.) immer sichtbar — sonst sieht man auf Mobile gar nicht
      dass dort jemand wohnt, weil cluster-dots kein show-tokens-Pattern haben */
@@ -496,6 +497,13 @@ body.admin-mode .calib-btn{display:block}
   pointer-events:auto;
   z-index:3;
   height:clamp(18px,2vw,28px);
+}
+/* Touch-Devices: Portal-Tokens nur sichtbar wenn Karte mindestens 50% reingezoomt
+   (gleiche Logik wie für Welt-Dot-Tokens — sonst kluttert es auf Mobile).
+   Portal sitzt innerhalb #map-image-area, deshalb greift der Selektor direkt. */
+@media(pointer:coarse){
+  #map-image-area .ow-portal-tokens{display:none}
+  #map-image-area.tokens-on-zoom .ow-portal-tokens{display:flex}
 }
 /* Wenn Portal links am Rand klebt: Tokens nach rechts vom Portal versetzen */
 #otherworld-portal[data-edge="left"] .ow-portal-tokens{
