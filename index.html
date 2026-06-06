@@ -3085,6 +3085,9 @@ function enterWorld(w){
   var _cl0=getLots(w.name)[0];document.getElementById('calib-world-next').textContent=(_cl0?.nr||_cl0?.name||'—');
   document.getElementById('calib-world-count').textContent='0';
   exitBuilding();
+  // Loading-Screen nur beim ERSTEN Welt-Eintritt der Session (wenn Sheet-Lots noch nicht geladen)
+  var _showLoader = (typeof sheetLotsLoaded !== 'undefined' && !sheetLotsLoaded && typeof window.showAtlasLoading === 'function');
+  if(_showLoader) window.showAtlasLoading('Welt wird geladen…');
   fetchSheetLots(()=>{
     // Nach Sheet-Fetch: Bild + Rent nochmal setzen falls Sheet-Daten erst jetzt geladen
     setWorldBg();
@@ -3095,6 +3098,7 @@ function enterWorld(w){
       else {box.classList.remove('visible');box.innerHTML='';}
     }
     renderLots(w); if(adminMode)renderAdminContent(); setTimeout(updateAllTokens,100); setTimeout(repositionTooltips,200);
+    if(_showLoader && typeof window.hideAtlasLoading === 'function') window.hideAtlasLoading();
   });
 }
 
@@ -4218,7 +4222,11 @@ function reloadChars(){
   charFetched=false;
   var grid=document.getElementById('char-grid');
   if(grid)grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:22px;padding:60px;grid-column:1/-1;text-align:center">⏳</div>';
-  fetchCharsFromScript(null);
+  // Atlas Loading-Screen zeigen — User wartet aktiv auf Reload
+  if(typeof window.showAtlasLoading === 'function') window.showAtlasLoading('Charaktere laden…');
+  fetchCharsFromScript(null).finally(function(){
+    if(typeof window.hideAtlasLoading === 'function') window.hideAtlasLoading();
+  });
 }
 
 async function fetchCharsFromScript(){
