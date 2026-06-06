@@ -71,7 +71,7 @@ html{overscroll-behavior:none}
   #world-image-area .dot-char-tokens{display:none!important}
   #world-image-area .lot-dot.show-tokens .dot-char-tokens{display:flex!important}
   /* Bei Zoom in Welt-Ansicht analog */
-  #world-image-area.tokens-on-zoom .dot-char-tokens{display:flex!important;transform:translateX(-50%) scale(0.55);transform-origin:top center;top:8px!important;pointer-events:none}
+  #world-image-area.tokens-on-zoom .dot-char-tokens{display:flex!important;transform:translateX(-50%) scale(0.55);transform-origin:top center;top:14px!important;pointer-events:none}
   #world-image-area.tokens-on-zoom .lot-dot.show-tokens .dot-char-tokens{transform:translateX(-50%) scale(1);pointer-events:auto}
   /* Cluster-Tokens (Wohnkomplex etc.) immer sichtbar — sonst sieht man auf Mobile gar nicht
      dass dort jemand wohnt, weil cluster-dots kein show-tokens-Pattern haben */
@@ -321,6 +321,8 @@ body.admin-mode .calib-btn{display:block}
   #navi-btn .navi-label-mobile{display:inline!important}
   #navi-panel{top:86px!important}
   #btn-login,#btn-register,#btn-forum{display:none}
+  /* Topnav-Zurück verstecken — mob-bar unten hat eigenen Zurück-Button */
+  #btn-back{display:none!important}
   #world-lots-bar{bottom:calc(50px + env(safe-area-inset-bottom));flex-wrap:nowrap;overflow-x:auto;max-height:none;-webkit-overflow-scrolling:touch;scrollbar-width:none}
   #world-lots-bar::-webkit-scrollbar{display:none}
   #map-legend{bottom:calc(60px + env(safe-area-inset-bottom))}
@@ -4008,6 +4010,8 @@ function makePinchZoom(el,opts={}){
   function reset(){tx=0;ty=0;sc=1;apply();}
   wrap.addEventListener('touchstart',e=>{
     if(opts.guard&&opts.guard())return;
+    // Touch auf dem "Andere Welten"-Portal soll Portal-Drag triggern, nicht Karten-Pan
+    if(e.target.closest && e.target.closest('#otherworld-portal')) return;
     if(e.touches.length===1){
       p1x=e.touches[0].clientX-tx;
       p1y=e.touches[0].clientY-ty;
@@ -4016,15 +4020,21 @@ function makePinchZoom(el,opts={}){
       const a=e.touches[0],b=e.touches[1];
       pd0=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)||1;
       sc0=sc;
-      const r=el.getBoundingClientRect();
-      nlx=r.left-tx; nly=r.top-ty;
+      // Wrap-Center als Anker (passt zu transform-origin: 50% 50%)
+      const wr=wrap.getBoundingClientRect();
+      const wcx=wr.left+wr.width/2, wcy=wr.top+wr.height/2;
       const mx=(a.clientX+b.clientX)/2,my=(a.clientY+b.clientY)/2;
-      lx0=(mx-r.left)/sc;
-      ly0=(my-r.top)/sc;
+      // Element-lokale Koord des Fingerpunkts vor Skalierung (relativ zur Element-Mitte)
+      // Element-Mitte im Screen ist (wcx + tx, wcy + ty)
+      lx0=(mx-(wcx+tx))/sc0;
+      ly0=(my-(wcy+ty))/sc0;
+      // Wrap-Center als nlx/nly speichern fuer Move
+      nlx=wcx; nly=wcy;
     }
   },{passive:true});
   wrap.addEventListener('touchmove',e=>{
     if(opts.guard&&opts.guard())return;
+    if(e.target.closest && e.target.closest('#otherworld-portal')) return;
     if(e.touches.length===1&&sc>1.05){
       tx=e.touches[0].clientX-p1x;
       ty=e.touches[0].clientY-p1y;
@@ -4037,6 +4047,8 @@ function makePinchZoom(el,opts={}){
       const pd=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)||1;
       sc=clamp(sc0*(pd/pd0),1,maxSc);
       const mx=(a.clientX+b.clientX)/2,my=(a.clientY+b.clientY)/2;
+      // Fingerpunkt soll bei selben Element-Lokalkoord (lx0,ly0) bleiben
+      // -> mx = nlx + tx + lx0*sc -> tx = mx - nlx - lx0*sc
       tx=mx-nlx-lx0*sc;
       ty=my-nly-ly0*sc;
       clampPan();apply();e.preventDefault();
