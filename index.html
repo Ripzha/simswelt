@@ -3966,16 +3966,30 @@ function makePinchZoom(el,opts={}){
     const ww=wrap.clientWidth,wh=wrap.clientHeight;
     const ew=el.offsetWidth,eh=el.offsetHeight;
     const sw=ew*sc,sh=eh*sc;
-    // Auf Mobile: bei Scale > 1 vertikales Pan erlauben auch wenn
-    // Element kleiner als Wrap (sonst bleibt Karte in der Mitte gefangen).
-    // Das ist nötig weil das Kontinentbild 16:9 ist aber der Screen hochkant.
+    // map-image-area hat transform-origin: 0 0 (oben links)
+    // -> Element-Bounds nach Skalierung: (tx, ty) bis (tx+sw, ty+sh)
+    // -> Damit rechter Rand nicht innerhalb Wrap: tx >= ww - sw
+    // -> Damit linker Rand nicht rechts von Wrap-Start: tx <= 0
+    // Wenn Element kleiner als Wrap (sw <= ww), zentrieren mit (ww-sw)/2
     const isTouch = window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
     const isZoomed = sc > 1.05;
-    const allowExtraPan = isTouch && isZoomed;
-    const maxTx=Math.max(allowExtraPan?(sw/2):0,(sw-ww)/2);
-    const maxTy=Math.max(allowExtraPan?(sh/2):0,(sh-wh)/2);
-    if(sw<=ww && !allowExtraPan){tx=0;}else{tx=clamp(tx,-maxTx,maxTx);}
-    if(sh<=wh && !allowExtraPan){ty=0;}else{ty=clamp(ty,-maxTy,maxTy);}
+    // Wenn Element rein passt: zentrieren
+    if(sw <= ww){
+      tx = (ww - sw) / 2;
+    } else {
+      // Element groesser als Wrap: erlauben dass von ww-sw bis 0 panbar
+      tx = clamp(tx, ww - sw, 0);
+    }
+    if(sh <= wh){
+      // Touch-Devices: bei Zoom auch vertikales Pan erlauben fuer 16:9-Karten auf Hochformat
+      if(isTouch && isZoomed){
+        ty = clamp(ty, wh - sh, 0);
+      } else {
+        ty = (wh - sh) / 2;
+      }
+    } else {
+      ty = clamp(ty, wh - sh, 0);
+    }
   }
   function reset(){tx=0;ty=0;sc=1;apply();}
   wrap.addEventListener('touchstart',e=>{
@@ -4595,7 +4609,22 @@ function repositionTooltips(){
 setTimeout(repositionTooltips, 1000);
 
 document.querySelectorAll('.sheet').forEach(sheet=>{
-let sy=0;sheet.addEventListener('touchstart',e=>sy=e.touches[0].clientY,{passive:true});sheet.addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-sy>60)closeSheet();},{passive:true});});
+  let sy=0, startedOnHandle=false, startedAtTop=false;
+  sheet.addEventListener('touchstart', e=>{
+    sy = e.touches[0].clientY;
+    // Schliessen erlaubt wenn:
+    //  - Touch startet am Handle (visuell oben — User will Sheet "zumachen")
+    //  - ODER Sheet ist oben gescrollt UND User wischt von oben nach unten
+    startedOnHandle = !!e.target.closest('.sheet-handle');
+    startedAtTop = sheet.scrollTop <= 0;
+  }, {passive:true});
+  sheet.addEventListener('touchend', e=>{
+    const dy = e.changedTouches[0].clientY - sy;
+    if(dy <= 60) return; // nicht weit genug nach unten
+    // Nur schliessen wenn Handle gegriffen ODER von oben gepullt
+    if(startedOnHandle || startedAtTop) closeSheet();
+  }, {passive:true});
+});
 
 // ═══════════════════════════════════════════════════════════════════════
 //   ATLAS HIGHLIGHT (von Eve-Onboarding im Forum-Header gesteuert)
