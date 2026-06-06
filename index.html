@@ -6268,65 +6268,64 @@ window.atlasCustomRoutes=loadRoutes();
 <!-- ════════════════════════════════════════════════════════════════════════════
      CINEMATIC ENTER — START
      ----------------------------------------------------------------------------
-     Filmischer Welt-Eintritt: Zoom auf Dot + 45° Tilt am Ende.
+     Filmischer Welt-Eintritt: echte Karte (mit Dots) zoomt auf geklickten Dot + 45° Tilt.
      - Desktop-only (pointer:fine, prefers-reduced-motion respektiert)
-     - Welt-Bild Preload beim Klick (falls Sheet-Img verfügbar)
-     - Loading-Screen (Atlas-Kompass-Logo) falls Bild nach Animation noch lädt
-     - Andere UI-Elemente während Animation ausgeblendet
+     - Animiert direkt #map-image-area (kein Snapshot)
+     - Welt-Bild Preload beim Klick
+     - Loading-Screen (Atlas-Kompass-Logo) falls Bild noch lädt nach Animation
+     - Ablenkende UI ausgeblendet (Suche, Routenplaner, Portal, Event-Pille)
+     - Sidebars bleiben sichtbar
      - Wrappt window.enterWorld() — beim Rückbau einfach diesen ganzen Block entfernen
      ============================================================================ -->
 
 <style>
-/* @property: animierbare CSS-Variablen für flüssiges Zoom + Tilt */
 @property --cin-zoom { syntax: '<number>'; initial-value: 1; inherits: false; }
 @property --cin-tilt { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
 @property --cin-tx { syntax: '<length>'; initial-value: 0px; inherits: false; }
 @property --cin-ty { syntax: '<length>'; initial-value: 0px; inherits: false; }
 
-#cinematic-wrap{
-  position:absolute;inset:0;
-  pointer-events:none;
-  z-index:200;
-  display:none;
-  perspective:1000px;perspective-origin:50% 100%;
-}
-#cinematic-wrap.cin-active{display:block}
-#cinematic-snapshot{
-  position:absolute;inset:0;
-  transform-origin:50% 50%;
-  --cin-zoom: 1; --cin-tilt: 0deg; --cin-tx: 0px; --cin-ty: 0px;
-  transform: rotateX(var(--cin-tilt)) scale(var(--cin-zoom)) translate(var(--cin-tx), var(--cin-ty));
-  opacity:1;
-  background-size:cover;background-position:center;
-}
-#cinematic-snapshot.cin-zooming{
+/* Cinematic Phase: das echte map-image-area wird direkt animiert.
+   Variablen werden per JS gesetzt, Animation läuft via transition. */
+#map-image-area.cin-zooming {
   --cin-zoom: var(--cin-final-zoom, 5);
   --cin-tilt: var(--cin-final-tilt, 45deg);
   --cin-tx: var(--cin-final-tx, 0px);
   --cin-ty: var(--cin-final-ty, 0px);
-  opacity:0;
+  transform: rotateX(var(--cin-tilt)) scale(var(--cin-zoom)) translate(var(--cin-tx), var(--cin-ty)) !important;
   transition:
     --cin-zoom 1100ms cubic-bezier(0.5,0.05,0.3,1.0),
     --cin-tx 1100ms cubic-bezier(0.5,0.05,0.3,1.0),
     --cin-ty 1100ms cubic-bezier(0.5,0.05,0.3,1.0),
-    --cin-tilt 1100ms cubic-bezier(0.4,0.1,0.6,1.0),
-    opacity 600ms 350ms ease-out;
+    --cin-tilt 1100ms cubic-bezier(0.4,0.1,0.6,1.0) !important;
 }
-/* UI-Elemente die während Animation ausgeblendet werden */
-body.cin-during .hover-card,
+/* map-container braucht perspective für 3D-Tilt */
+#map-container.cin-perspective {
+  perspective: 1000px;
+  perspective-origin: 50% 100%;
+}
+/* Map fade-out am Ende der Animation */
+#map-image-area.cin-fadeout {
+  opacity: 0;
+  transition: opacity 500ms 600ms ease-out !important;
+}
+
+/* UI die während Animation ausgeblendet wird (nicht die Sidebars!) */
 body.cin-during #world-search-box,
 body.cin-during #map-legend,
 body.cin-during #navi-btn,
 body.cin-during #navi-panel,
 body.cin-during #atlasEventPill,
-body.cin-during #atlas-event-pill,
+body.cin-during #atlasEventPillHint,
 body.cin-during #otherworld-portal,
-body.cin-during #map-image-area .dot-char-tokens,
-body.cin-during #map-image-area .world-dot{
-  opacity:0 !important;
-  transition:opacity 250ms ease-out;
-  pointer-events:none !important;
+body.cin-during #world-rent-info,
+body.cin-during .legend-btn,
+body.cin-during .legend-box,
+body.cin-during .hover-card {
+  opacity: 0 !important;
+  transition: opacity 200ms ease-out !important;
+  pointer-events: none !important;
 }
+
 /* Atlas Loading-Screen (Kompass-Logo) */
 #atlas-loading-screen{
   position:fixed;inset:0;
@@ -6338,15 +6337,9 @@ body.cin-during #map-image-area .world-dot{
   transition:opacity 300ms ease-in;
 }
 #atlas-loading-screen.als-visible{display:flex;opacity:1}
-#atlas-loading-screen .als-inner{
-  position:relative;width:220px;height:220px;
-}
-#atlas-loading-screen .als-dust{
-  position:absolute;inset:0;pointer-events:none;z-index:1;
-}
-#atlas-loading-screen .als-compass{
-  position:relative;width:100%;height:100%;z-index:2;
-}
+#atlas-loading-screen .als-inner{position:relative;width:220px;height:220px}
+#atlas-loading-screen .als-dust{position:absolute;inset:0;pointer-events:none;z-index:1}
+#atlas-loading-screen .als-compass{position:relative;width:100%;height:100%;z-index:2}
 #atlas-loading-screen .als-label{
   position:absolute;bottom:-46px;left:0;right:0;text-align:center;
   font-size:10px;color:rgba(255,255,255,0.35);
@@ -6371,18 +6364,10 @@ body.cin-during #map-image-area .world-dot{
   box-shadow:0 0 4px rgba(168,212,184,0.7);
   margin:-1px 0 0 -1px;pointer-events:none;
 }
-/* Reduced motion: Animation komplett aus */
 @media (prefers-reduced-motion: reduce) {
-  #cinematic-snapshot.cin-zooming{
-    transition: opacity 200ms ease-out !important;
-  }
+  #map-image-area.cin-zooming { transition: opacity 200ms ease-out !important; }
 }
 </style>
-
-<!-- Cinematic-Snapshot-Wrap (sitzt über #center während Animation) -->
-<div id="cinematic-wrap">
-  <div id="cinematic-snapshot"></div>
-</div>
 
 <!-- Atlas Loading-Screen mit Kompass-Logo -->
 <div id="atlas-loading-screen" role="status" aria-live="polite">
@@ -6422,16 +6407,11 @@ body.cin-during #map-image-area .world-dot{
   function shouldUseCinematic(){
     if(!window.matchMedia) return false;
     if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
-    if(!window.matchMedia('(pointer:fine)').matches) return false; // Mobile = off
-    if(typeof CSS === 'undefined' || !CSS.registerProperty) {
-      // @property nicht unterstützt: Animation würde nicht laufen → Fallback
-      // Aber: @property kann auch über @property im CSS registriert sein.
-      // Wir versuchen es trotzdem — wenn der Browser es nicht kann, springt der Snapshot einfach instant.
-    }
+    if(!window.matchMedia('(pointer:fine)').matches) return false;
     return true;
   }
 
-  // ── Loading-Screen Logic ─────────────────────────────────────────────────
+  // ── Loading-Screen ───────────────────────────────────────────────────────
   var loadingScreen = document.getElementById('atlas-loading-screen');
   var dustWrap = document.getElementById('als-dust-wrap');
   var dustInterval = null;
@@ -6443,15 +6423,11 @@ body.cin-during #map-image-area .world-dot{
     var angle = Math.random() * Math.PI * 2;
     var startDist = 115 + Math.random() * 15;
     var endDist = 180 + Math.random() * 60;
-    var sx = Math.cos(angle) * startDist;
-    var sy = Math.sin(angle) * startDist;
-    var ex = Math.cos(angle) * endDist;
-    var ey = Math.sin(angle) * endDist;
+    p.style.setProperty('--sx', Math.cos(angle) * startDist + 'px');
+    p.style.setProperty('--sy', Math.sin(angle) * startDist + 'px');
+    p.style.setProperty('--ex', Math.cos(angle) * endDist + 'px');
+    p.style.setProperty('--ey', Math.sin(angle) * endDist + 'px');
     var duration = 1800 + Math.random() * 1200;
-    p.style.setProperty('--sx', sx + 'px');
-    p.style.setProperty('--sy', sy + 'px');
-    p.style.setProperty('--ex', ex + 'px');
-    p.style.setProperty('--ey', ey + 'px');
     p.style.animation = 'alsDustFly ' + duration + 'ms linear forwards';
     dustWrap.appendChild(p);
     setTimeout(function(){ p.remove(); }, duration + 100);
@@ -6460,9 +6436,7 @@ body.cin-during #map-image-area .world-dot{
   window.showAtlasLoading = function(){
     if(!loadingScreen) return;
     loadingScreen.classList.add('als-visible');
-    // Initial Partikel-Schwarm
     for(var i = 0; i < 6; i++) setTimeout(spawnDustParticle, i * 180);
-    // Dann fortlaufend
     if(dustInterval) clearInterval(dustInterval);
     dustInterval = setInterval(spawnDustParticle, 220);
   };
@@ -6471,149 +6445,114 @@ body.cin-during #map-image-area .world-dot{
     if(!loadingScreen) return;
     loadingScreen.classList.remove('als-visible');
     if(dustInterval){ clearInterval(dustInterval); dustInterval = null; }
-    // Existierende Partikel kurz noch lassen, dann wegräumen
-    setTimeout(function(){
-      if(dustWrap) dustWrap.innerHTML = '';
-    }, 400);
+    setTimeout(function(){ if(dustWrap) dustWrap.innerHTML = ''; }, 400);
   };
 
   // ── Welt-Bild Preload ────────────────────────────────────────────────────
-  // Promise das resolved sobald das Bild geladen ist (oder rejected bei Fehler)
   function preloadWorldImage(w){
-    return new Promise(function(resolve, reject){
+    return new Promise(function(resolve){
       try {
         var sheetImg = (window.sheetWorldMeta && window.sheetWorldMeta[w.name]) ? window.sheetWorldMeta[w.name].img : null;
         var imgUrl = sheetImg || w.img;
         if(!imgUrl){ resolve(null); return; }
         var img = new Image();
         img.onload = function(){ resolve(imgUrl); };
-        img.onerror = function(){ resolve(null); }; // null = Fallback auf Gradient
+        img.onerror = function(){ resolve(null); };
         img.src = imgUrl;
-        // Safety timeout: wenn nach 5s nichts passiert, weitermachen
         setTimeout(function(){ resolve(imgUrl); }, 5000);
       } catch(e){ resolve(null); }
     });
   }
 
-  // ── Snapshot generieren ──────────────────────────────────────────────────
-  // Wir können nicht den ganzen #map-container kopieren (zu komplex), aber
-  // wir können den aktuellen Map-Hintergrund als Background-Image fürs cin-snapshot nutzen
-  function setSnapshotFromMap(){
-    var snap = document.getElementById('cinematic-snapshot');
-    var mapBg = document.querySelector('#map-bg img');
-    if(snap && mapBg && mapBg.src){
-      snap.style.backgroundImage = 'url(' + mapBg.src + ')';
-    }
-  }
-
-  // ── Cinematic Enter ─────────────────────────────────────────────────────
-  // Wrappt enterWorld(). Wenn Desktop + Caps OK: Animation laufen lassen,
-  // dann das echte enterWorld() aufrufen.
+  // ── Cinematic Enter — wrappt enterWorld ──────────────────────────────────
   var originalEnterWorld = null;
   function installEnterWrap(){
     if(typeof window.enterWorld !== 'function'){
-      // enterWorld noch nicht definiert — Polling weil das Atlas-Script später kommt
       setTimeout(installEnterWrap, 100);
       return;
     }
-    if(originalEnterWorld) return; // schon installiert
+    if(originalEnterWorld) return;
     originalEnterWorld = window.enterWorld;
     window.enterWorld = function(w){
-      console.log('[CINEMA] enterWorld called for', w && w.name);
-      // Wenn keine Animation möglich, direkt durchreichen
-      if(!shouldUseCinematic()){
-        console.log('[CINEMA] shouldUseCinematic=false', {
-          hasMatchMedia: !!window.matchMedia,
-          reducedMotion: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-          pointerFine: window.matchMedia && window.matchMedia('(pointer:fine)').matches,
-          pointerCoarse: window.matchMedia && window.matchMedia('(pointer:coarse)').matches
-        });
-        return originalEnterWorld(w);
-      }
-      // Wenn aktuell nicht von Kontinent kommend (z.B. Reload-Restore), auch direkt
+      if(!shouldUseCinematic()) return originalEnterWorld(w);
       var mapC = document.getElementById('map-container');
-      if(!mapC || !mapC.classList.contains('active')){
-        console.log('[CINEMA] map-container not active', mapC && mapC.classList.toString());
-        return originalEnterWorld(w);
-      }
-      // Finde den geklickten Dot anhand des Welt-Namens
+      if(!mapC || !mapC.classList.contains('active')) return originalEnterWorld(w);
+      var mapIA = document.getElementById('map-image-area');
+      if(!mapIA) return originalEnterWorld(w);
       var dotEl = null;
       try {
         document.querySelectorAll('#map-image-area .world-dot').forEach(function(d){
           if(d.dataset && d.dataset.worldKey === w.name) dotEl = d;
         });
       } catch(e) {}
-      if(!dotEl){
-        console.log('[CINEMA] dot not found for', w.name);
-        // Dot nicht gefunden — Fallback direkt
-        return originalEnterWorld(w);
-      }
-      console.log('[CINEMA] starting animation for', w.name);
-      runCinematicEnter(w, dotEl);
+      if(!dotEl) return originalEnterWorld(w);
+      runCinematicEnter(w, dotEl, mapC, mapIA);
     };
   }
   installEnterWrap();
 
-  function runCinematicEnter(w, dotEl){
-    var wrap = document.getElementById('cinematic-wrap');
-    var snap = document.getElementById('cinematic-snapshot');
-    var mapIA = document.getElementById('map-image-area');
-    if(!wrap || !snap || !mapIA){
-      return originalEnterWorld(w);
-    }
-
-    // 1. Welt-Bild im Hintergrund schon preloaden
+  function runCinematicEnter(w, dotEl, mapC, mapIA){
+    // 1. Welt-Bild Preload starten (parallel)
     var preloadPromise = preloadWorldImage(w);
 
-    // 2. Snapshot aus aktuellem Map setzen
-    setSnapshotFromMap();
-
-    // 3. Dot-Position relativ zum Stage berechnen
-    var rect = mapIA.getBoundingClientRect();
+    // 2. Dot-Position relativ zur Karten-Mitte berechnen
+    var mapRect = mapIA.getBoundingClientRect();
     var dotRect = dotEl.getBoundingClientRect();
     var dotCenterX = dotRect.left + dotRect.width / 2;
     var dotCenterY = dotRect.top + dotRect.height / 2;
-    // Relativ zum mapIA in Prozent
-    var xPct = ((dotCenterX - rect.left) / rect.width) * 100;
-    var yPct = ((dotCenterY - rect.top) / rect.height) * 100;
-    // Translation in CSS-Pixeln damit Dot bei Mitte landet
-    var txCss = rect.width * (50 - xPct) / 100;
-    var tyCss = rect.height * (50 - yPct) / 100;
+    // Translation damit Dot zur Mitte des Containers wandert
+    // (in unskaliertem CSS-Koord-System, gilt bei transform-origin 50% 50%)
+    var mapCenterX = mapRect.left + mapRect.width / 2;
+    var mapCenterY = mapRect.top + mapRect.height / 2;
+    var txCss = mapCenterX - dotCenterX;
+    var tyCss = mapCenterY - dotCenterY;
 
-    // 4. UI ausblenden + Snapshot anzeigen
+    // 3. UI ausblenden + Perspektive aktivieren
     document.body.classList.add('cin-during');
-    wrap.classList.add('cin-active');
-    snap.style.removeProperty('--cin-final-zoom');
+    mapC.classList.add('cin-perspective');
 
-    // 5. CSS-Variablen setzen → Animation startet im nächsten Frame
-    snap.style.setProperty('--cin-final-zoom', 5);
-    snap.style.setProperty('--cin-final-tilt', '45deg');
-    snap.style.setProperty('--cin-final-tx', txCss + 'px');
-    snap.style.setProperty('--cin-final-ty', tyCss + 'px');
+    // 4. transform-origin sicherstellen
+    mapIA.style.transformOrigin = '50% 50%';
+
+    // 5. CSS-Variablen setzen, Klasse triggert Transition
+    mapIA.style.setProperty('--cin-final-zoom', 5);
+    mapIA.style.setProperty('--cin-final-tilt', '45deg');
+    mapIA.style.setProperty('--cin-final-tx', txCss + 'px');
+    mapIA.style.setProperty('--cin-final-ty', tyCss + 'px');
     requestAnimationFrame(function(){
-      snap.classList.add('cin-zooming');
+      mapIA.classList.add('cin-zooming');
+      // Fade-Out etwas vor Ende
+      setTimeout(function(){
+        mapIA.classList.add('cin-fadeout');
+      }, 350);
     });
 
-    // 6. Nach Animation: Welt-Container öffnen (echte enterWorld()) +
-    //    Loading-Screen zeigen falls Bild noch lädt
+    // 6. Nach Animation: cleanup + enterWorld
     var ANIM_DURATION = 1100;
     var animDone = false;
     var imgReady = false;
 
     setTimeout(function(){
       animDone = true;
-      // Echte enterWorld jetzt aufrufen — Welt-Container wird sichtbar
+
+      // Echte enterWorld aufrufen — Welt-Container wird sichtbar, Map versteckt
       try { originalEnterWorld(w); } catch(e){ console.warn('[CinematicEnter] enterWorld failed', e); }
 
-      // Snapshot ausblenden
-      wrap.classList.remove('cin-active');
-      snap.classList.remove('cin-zooming');
-      // UI wieder einblenden (mit kleinem Delay damit Welt-Container schon sichtbar ist)
+      // Cleanup: transform/Variablen zurücksetzen damit Karte beim Zurück wieder normal aussieht
+      mapIA.classList.remove('cin-zooming');
+      mapIA.classList.remove('cin-fadeout');
+      mapIA.style.removeProperty('--cin-final-zoom');
+      mapIA.style.removeProperty('--cin-final-tilt');
+      mapIA.style.removeProperty('--cin-final-tx');
+      mapIA.style.removeProperty('--cin-final-ty');
+      mapC.classList.remove('cin-perspective');
+
+      // UI wieder einblenden
       setTimeout(function(){
         document.body.classList.remove('cin-during');
       }, 100);
 
-      // Wenn Bild noch nicht geladen ist, Loading-Screen zeigen
+      // Loading-Screen wenn Bild noch lädt
       if(!imgReady){
         window.showAtlasLoading();
       }
@@ -6621,16 +6560,9 @@ body.cin-during #map-image-area .world-dot{
 
     preloadPromise.then(function(){
       imgReady = true;
-      if(animDone){
-        // Bild kam nach Animation-Ende — Loading-Screen ausblenden
-        window.hideAtlasLoading();
-      }
+      if(animDone) window.hideAtlasLoading();
     });
   }
-
-  // ── Public API für späteren Re-Use des Loading-Screens ──────────────────
-  // window.showAtlasLoading() / window.hideAtlasLoading() sind oben schon global.
-
 })();
 </script>
 <!-- ════════════════════════════════════════════════════════════════════════════
