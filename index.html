@@ -6266,67 +6266,14 @@ window.atlasCustomRoutes=loadRoutes();
      ============================================================================ -->
 
 <!-- ════════════════════════════════════════════════════════════════════════════
-     CINEMATIC ENTER — START
+     ATLAS LOADING SCREEN
      ----------------------------------------------------------------------------
-     Filmischer Welt-Eintritt: echte Karte (mit Dots) zoomt auf geklickten Dot + 45° Tilt.
-     - Desktop-only (pointer:fine, prefers-reduced-motion respektiert)
-     - Animiert direkt #map-image-area (kein Snapshot)
-     - Welt-Bild Preload beim Klick
-     - Loading-Screen (Atlas-Kompass-Logo) falls Bild noch lädt nach Animation
-     - Ablenkende UI ausgeblendet (Suche, Routenplaner, Portal, Event-Pille)
-     - Sidebars bleiben sichtbar
-     - Wrappt window.enterWorld() — beim Rückbau einfach diesen ganzen Block entfernen
+     Wiederverwendbares Lade-Overlay mit Atlas-Kompass-Logo.
+     Globale API: window.showAtlasLoading() / window.hideAtlasLoading()
+     Beim Rückbau: diesen ganzen Block entfernen.
      ============================================================================ -->
 
 <style>
-@property --cin-zoom { syntax: '<number>'; initial-value: 1; inherits: false; }
-@property --cin-tilt { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
-@property --cin-tx { syntax: '<length>'; initial-value: 0px; inherits: false; }
-@property --cin-ty { syntax: '<length>'; initial-value: 0px; inherits: false; }
-
-/* Cinematic Phase: das echte map-image-area wird direkt animiert.
-   Variablen werden per JS gesetzt, Animation läuft via transition. */
-#map-image-area.cin-zooming {
-  --cin-zoom: var(--cin-final-zoom, 5);
-  --cin-tilt: var(--cin-final-tilt, 45deg);
-  --cin-tx: var(--cin-final-tx, 0px);
-  --cin-ty: var(--cin-final-ty, 0px);
-  transform: rotateX(var(--cin-tilt)) scale(var(--cin-zoom)) translate(var(--cin-tx), var(--cin-ty)) !important;
-  transition:
-    --cin-zoom 1100ms cubic-bezier(0.5,0.05,0.3,1.0),
-    --cin-tx 1100ms cubic-bezier(0.5,0.05,0.3,1.0),
-    --cin-ty 1100ms cubic-bezier(0.5,0.05,0.3,1.0),
-    --cin-tilt 1100ms cubic-bezier(0.4,0.1,0.6,1.0) !important;
-}
-/* map-container braucht perspective für 3D-Tilt */
-#map-container.cin-perspective {
-  perspective: 1000px;
-  perspective-origin: 50% 100%;
-}
-/* Map fade-out am Ende der Animation */
-#map-image-area.cin-fadeout {
-  opacity: 0;
-  transition: opacity 500ms 600ms ease-out !important;
-}
-
-/* UI die während Animation ausgeblendet wird (nicht die Sidebars!) */
-body.cin-during #world-search-box,
-body.cin-during #map-legend,
-body.cin-during #navi-btn,
-body.cin-during #navi-panel,
-body.cin-during #atlasEventPill,
-body.cin-during #atlasEventPillHint,
-body.cin-during #otherworld-portal,
-body.cin-during #world-rent-info,
-body.cin-during .legend-btn,
-body.cin-during .legend-box,
-body.cin-during .hover-card {
-  opacity: 0 !important;
-  transition: opacity 200ms ease-out !important;
-  pointer-events: none !important;
-}
-
-/* Atlas Loading-Screen (Kompass-Logo) */
 #atlas-loading-screen{
   position:fixed;inset:0;
   background:#040d14;
@@ -6364,12 +6311,8 @@ body.cin-during .hover-card {
   box-shadow:0 0 4px rgba(168,212,184,0.7);
   margin:-1px 0 0 -1px;pointer-events:none;
 }
-@media (prefers-reduced-motion: reduce) {
-  #map-image-area.cin-zooming { transition: opacity 200ms ease-out !important; }
-}
 </style>
 
-<!-- Atlas Loading-Screen mit Kompass-Logo -->
 <div id="atlas-loading-screen" role="status" aria-live="polite">
   <div class="als-inner">
     <div class="als-dust" id="als-dust-wrap"></div>
@@ -6402,16 +6345,6 @@ body.cin-during .hover-card {
 <script>
 (function(){
   'use strict';
-
-  // ── Capability Check ─────────────────────────────────────────────────────
-  function shouldUseCinematic(){
-    if(!window.matchMedia) return false;
-    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
-    if(!window.matchMedia('(pointer:fine)').matches) return false;
-    return true;
-  }
-
-  // ── Loading-Screen ───────────────────────────────────────────────────────
   var loadingScreen = document.getElementById('atlas-loading-screen');
   var dustWrap = document.getElementById('als-dust-wrap');
   var dustInterval = null;
@@ -6433,140 +6366,37 @@ body.cin-during .hover-card {
     setTimeout(function(){ p.remove(); }, duration + 100);
   }
 
-  window.showAtlasLoading = function(){
+  /**
+   * Atlas Loading-Screen anzeigen.
+   * @param {string} [label] Optionaler Text statt "Lädt…"
+   */
+  window.showAtlasLoading = function(label){
     if(!loadingScreen) return;
+    if(label){
+      var lblEl = loadingScreen.querySelector('.als-label');
+      if(lblEl) lblEl.textContent = label;
+    }
     loadingScreen.classList.add('als-visible');
     for(var i = 0; i < 6; i++) setTimeout(spawnDustParticle, i * 180);
     if(dustInterval) clearInterval(dustInterval);
     dustInterval = setInterval(spawnDustParticle, 220);
   };
 
+  /** Atlas Loading-Screen verstecken. */
   window.hideAtlasLoading = function(){
     if(!loadingScreen) return;
     loadingScreen.classList.remove('als-visible');
     if(dustInterval){ clearInterval(dustInterval); dustInterval = null; }
-    setTimeout(function(){ if(dustWrap) dustWrap.innerHTML = ''; }, 400);
-  };
-
-  // ── Welt-Bild Preload ────────────────────────────────────────────────────
-  function preloadWorldImage(w){
-    return new Promise(function(resolve){
-      try {
-        var sheetImg = (window.sheetWorldMeta && window.sheetWorldMeta[w.name]) ? window.sheetWorldMeta[w.name].img : null;
-        var imgUrl = sheetImg || w.img;
-        if(!imgUrl){ resolve(null); return; }
-        var img = new Image();
-        img.onload = function(){ resolve(imgUrl); };
-        img.onerror = function(){ resolve(null); };
-        img.src = imgUrl;
-        setTimeout(function(){ resolve(imgUrl); }, 5000);
-      } catch(e){ resolve(null); }
-    });
-  }
-
-  // ── Cinematic Enter — wrappt enterWorld ──────────────────────────────────
-  var originalEnterWorld = null;
-  function installEnterWrap(){
-    if(typeof window.enterWorld !== 'function'){
-      setTimeout(installEnterWrap, 100);
-      return;
-    }
-    if(originalEnterWorld) return;
-    originalEnterWorld = window.enterWorld;
-    window.enterWorld = function(w){
-      if(!shouldUseCinematic()) return originalEnterWorld(w);
-      var mapC = document.getElementById('map-container');
-      if(!mapC || !mapC.classList.contains('active')) return originalEnterWorld(w);
-      var mapIA = document.getElementById('map-image-area');
-      if(!mapIA) return originalEnterWorld(w);
-      var dotEl = null;
-      try {
-        document.querySelectorAll('#map-image-area .world-dot').forEach(function(d){
-          if(d.dataset && d.dataset.worldKey === w.name) dotEl = d;
-        });
-      } catch(e) {}
-      if(!dotEl) return originalEnterWorld(w);
-      runCinematicEnter(w, dotEl, mapC, mapIA);
-    };
-  }
-  installEnterWrap();
-
-  function runCinematicEnter(w, dotEl, mapC, mapIA){
-    // 1. Welt-Bild Preload starten (parallel)
-    var preloadPromise = preloadWorldImage(w);
-
-    // 2. Dot-Position relativ zur Karten-Mitte berechnen
-    var mapRect = mapIA.getBoundingClientRect();
-    var dotRect = dotEl.getBoundingClientRect();
-    var dotCenterX = dotRect.left + dotRect.width / 2;
-    var dotCenterY = dotRect.top + dotRect.height / 2;
-    // Translation damit Dot zur Mitte des Containers wandert
-    // (in unskaliertem CSS-Koord-System, gilt bei transform-origin 50% 50%)
-    var mapCenterX = mapRect.left + mapRect.width / 2;
-    var mapCenterY = mapRect.top + mapRect.height / 2;
-    var txCss = mapCenterX - dotCenterX;
-    var tyCss = mapCenterY - dotCenterY;
-
-    // 3. UI ausblenden + Perspektive aktivieren
-    document.body.classList.add('cin-during');
-    mapC.classList.add('cin-perspective');
-
-    // 4. transform-origin sicherstellen
-    mapIA.style.transformOrigin = '50% 50%';
-
-    // 5. CSS-Variablen setzen, Klasse triggert Transition
-    mapIA.style.setProperty('--cin-final-zoom', 5);
-    mapIA.style.setProperty('--cin-final-tilt', '45deg');
-    mapIA.style.setProperty('--cin-final-tx', txCss + 'px');
-    mapIA.style.setProperty('--cin-final-ty', tyCss + 'px');
-    requestAnimationFrame(function(){
-      mapIA.classList.add('cin-zooming');
-      // Fade-Out etwas vor Ende
-      setTimeout(function(){
-        mapIA.classList.add('cin-fadeout');
-      }, 350);
-    });
-
-    // 6. Nach Animation: cleanup + enterWorld
-    var ANIM_DURATION = 1100;
-    var animDone = false;
-    var imgReady = false;
-
     setTimeout(function(){
-      animDone = true;
-
-      // Echte enterWorld aufrufen — Welt-Container wird sichtbar, Map versteckt
-      try { originalEnterWorld(w); } catch(e){ console.warn('[CinematicEnter] enterWorld failed', e); }
-
-      // Cleanup: transform/Variablen zurücksetzen damit Karte beim Zurück wieder normal aussieht
-      mapIA.classList.remove('cin-zooming');
-      mapIA.classList.remove('cin-fadeout');
-      mapIA.style.removeProperty('--cin-final-zoom');
-      mapIA.style.removeProperty('--cin-final-tilt');
-      mapIA.style.removeProperty('--cin-final-tx');
-      mapIA.style.removeProperty('--cin-final-ty');
-      mapC.classList.remove('cin-perspective');
-
-      // UI wieder einblenden
-      setTimeout(function(){
-        document.body.classList.remove('cin-during');
-      }, 100);
-
-      // Loading-Screen wenn Bild noch lädt
-      if(!imgReady){
-        window.showAtlasLoading();
-      }
-    }, ANIM_DURATION);
-
-    preloadPromise.then(function(){
-      imgReady = true;
-      if(animDone) window.hideAtlasLoading();
-    });
-  }
+      if(dustWrap) dustWrap.innerHTML = '';
+      var lblEl = loadingScreen.querySelector('.als-label');
+      if(lblEl) lblEl.textContent = 'Lädt…'; // Zurück zum Default
+    }, 400);
+  };
 })();
 </script>
 <!-- ════════════════════════════════════════════════════════════════════════════
-     CINEMATIC ENTER — END
+     ATLAS LOADING SCREEN — END
      ============================================================================ -->
 
 </body>
