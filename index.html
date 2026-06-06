@@ -158,6 +158,53 @@ html{overscroll-behavior:none}
 .world-dot:hover{z-index:201}
 /* Welten-Suche Overlay */
 #world-search-box{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:50;width:280px;max-width:calc(100% - 24px)}
+
+/* Event-Pille: oben links, kompakt, kein Verdecken anderer UI */
+#atlas-event-pill{
+  position:absolute;
+  top:12px;left:16px;
+  z-index:50;
+  display:none; /* erst sichtbar wenn Event geladen */
+  align-items:center;
+  gap:8px;
+  padding:6px 14px 6px 10px;
+  background:linear-gradient(135deg, rgba(255,150,80,0.12) 0%, rgba(255,100,60,0.08) 100%);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border:0.5px solid rgba(255,170,100,0.35);
+  border-radius:20px;
+  color:#fff;
+  cursor:pointer;
+  box-shadow:0 4px 16px rgba(0,0,0,0.3);
+  animation:aepPulse 3s ease-in-out infinite;
+  max-width:240px;
+  transition:transform 0.15s;
+}
+#atlas-event-pill.aep-visible{display:flex}
+#atlas-event-pill:hover{transform:scale(1.04)}
+#atlas-event-pill .aep-icon{font-size:14px;filter:drop-shadow(0 0 6px rgba(255,150,80,0.6))}
+#atlas-event-pill .aep-text{line-height:1.15;min-width:0}
+#atlas-event-pill .aep-label{font-size:8px;letter-spacing:1.8px;color:rgba(255,200,160,0.7);font-weight:600}
+#atlas-event-pill .aep-name{font-size:11px;font-weight:500;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
+@keyframes aepPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(255,150,80,0.3), 0 4px 16px rgba(0,0,0,0.3)}
+  50%{box-shadow:0 0 0 6px rgba(255,150,80,0), 0 4px 20px rgba(255,120,60,0.15)}
+}
+/* Mobile: unter die Topnav, links — Welt-Suche bleibt mittig oben */
+@media (max-width:768px){
+  #atlas-event-pill{
+    top:54px;left:8px;
+    max-width:calc(100% - 16px);
+    padding:5px 12px 5px 8px;
+  }
+  #atlas-event-pill .aep-name{max-width:60vw;font-size:10px}
+}
+/* Pille nur sichtbar wenn Kontinent- oder Welt-Karte aktiv ist —
+   NICHT in Char-View, Other-Worlds-View, Building-View, etc. */
+body:has(#char-container.open) #atlas-event-pill,
+body:has(#otherworlds-container.open) #atlas-event-pill,
+body:has(#building-container[style*="display: block"]) #atlas-event-pill,
+body:has(#building-container[style*="display:block"]) #atlas-event-pill{display:none !important}
 #world-search-input{width:100%;padding:8px 32px 8px 32px;background:rgba(5,12,22,0.92);border:0.5px solid rgba(255,255,255,0.18);border-radius:8px;color:#fff;font-size:12px;font-family:inherit;outline:none;backdrop-filter:blur(8px);transition:border-color 0.15s}
 #world-search-input:focus{border-color:rgba(100,180,120,0.5)}
 #world-search-input::placeholder{color:rgba(255,255,255,0.35)}
@@ -705,6 +752,14 @@ img.ow-portal-token{
   </div>
 
   <div id="center">
+    <!-- Event-Pille (zeigt aktuelles RPG-Event wenn vorhanden) -->
+    <div id="atlas-event-pill" title="Aktuelles Event">
+      <span class="aep-icon">📜</span>
+      <div class="aep-text">
+        <div class="aep-label">EVENT</div>
+        <div class="aep-name"></div>
+      </div>
+    </div>
     <div id="map-container" class="active">
       <div class="image-area-wrap">
         <div id="map-image-area">
@@ -5791,6 +5846,102 @@ window.atlasCustomRoutes=loadRoutes();
 
 })();
 
+// ═══ ATLAS EVENT-PILLE ═══════════════════════════════════════════════
+// Holt aktuelle Events vom Apps Script. Bei Treffer Pille einblenden.
+// Klick auf Pille → Modal mit Zusammenfassung.
+(function(){
+  var ATLAS_EVT_API = 'https://script.google.com/macros/s/AKfycbzJ_fMI1LBjmFAQDhjD1sr3hJtdUj4OOor_WiWX3asl_eX0FXDN1wr64cNON3odhHdX/exec';
+  var currentEvents = [];
+  var currentEventIdx = 0;
+
+  function init(){
+    if(window.__atlasEventPillInit) return;
+    window.__atlasEventPillInit = true;
+    fetch(ATLAS_EVT_API + '?action=events')
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        var all = (data && data.events) || [];
+        currentEvents = all.filter(function(e){
+          return e.summaries && e.summaries.all && e.summaries.all.trim().length > 0;
+        });
+        if(!currentEvents.length) return;
+        renderPill();
+      })
+      .catch(function(e){ console.warn('[Atlas Event-Pille] fetch failed', e); });
+  }
+
+  function renderPill(){
+    var pill = document.getElementById('atlas-event-pill');
+    if(!pill) return;
+    var evt = currentEvents[currentEventIdx];
+    if(!evt) return;
+    pill.querySelector('.aep-icon').textContent = evt.icon || '📜';
+    pill.querySelector('.aep-name').textContent = evt.name || 'Event';
+    pill.classList.add('aep-visible');
+    pill.addEventListener('click', openEventPanel);
+  }
+
+  function openEventPanel(){
+    var evt = currentEvents[currentEventIdx];
+    if(!evt) return;
+    // Existierendes Panel entfernen
+    var old = document.getElementById('atlas-event-panel');
+    if(old) old.remove();
+    var bd = document.getElementById('atlas-event-backdrop');
+    if(bd) bd.remove();
+
+    var backdrop = document.createElement('div');
+    backdrop.id = 'atlas-event-backdrop';
+    backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:9990;animation:aepFadeIn 0.2s ease';
+    backdrop.addEventListener('click', closePanel);
+
+    var panel = document.createElement('div');
+    panel.id = 'atlas-event-panel';
+    panel.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:min(560px,calc(100% - 32px));max-height:80vh;background:#0a1420;border:0.5px solid rgba(255,170,100,0.3);border-radius:14px;padding:24px;z-index:9991;overflow-y:auto;color:#fff;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 60px rgba(255,150,80,0.1)';
+
+    var summary = (evt.summaries && evt.summaries.all) || '';
+    var iconHtml = '<span style="font-size:24px;filter:drop-shadow(0 0 8px rgba(255,150,80,0.5))">' + (evt.icon || '📜') + '</span>';
+    var nameHtml = '<div style="font-size:18px;font-weight:600;color:#fff">' + escapeHtml(evt.name || 'Event') + '</div>';
+    var labelHtml = '<div style="font-size:9px;letter-spacing:2px;color:rgba(255,200,160,0.6);text-transform:uppercase">Laufendes Event</div>';
+    var closeBtn = '<button id="aep-close" style="position:absolute;top:14px;right:14px;background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:22px;cursor:pointer;line-height:1;padding:4px 8px">✕</button>';
+    var summaryHtml = '<div style="margin-top:18px;line-height:1.55;color:rgba(255,255,255,0.85);font-size:13px;white-space:pre-wrap">' + escapeHtml(summary) + '</div>';
+    var warnHtml = '<div style="margin-top:12px;font-size:10px;color:rgba(255,170,100,0.6);font-style:italic">⚠ Zusammenfassung kann Spoiler enthalten</div>';
+
+    panel.innerHTML = closeBtn +
+      '<div style="display:flex;align-items:center;gap:12px">' + iconHtml +
+        '<div>' + labelHtml + nameHtml + '</div>' +
+      '</div>' +
+      summaryHtml + warnHtml;
+
+    document.body.appendChild(backdrop);
+    document.body.appendChild(panel);
+    document.getElementById('aep-close').addEventListener('click', closePanel);
+  }
+
+  function closePanel(){
+    var panel = document.getElementById('atlas-event-panel');
+    var bd = document.getElementById('atlas-event-backdrop');
+    if(panel) panel.remove();
+    if(bd) bd.remove();
+  }
+
+  function escapeHtml(s){
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+// Fade-In für Backdrop
+(function(){
+  var s = document.createElement('style');
+  s.textContent = '@keyframes aepFadeIn{from{opacity:0}to{opacity:1}}';
+  document.head.appendChild(s);
+})();
 </script>
 
 <!-- Floating Close-Button — immer sichtbar (z-index ueber allen Views) -->
