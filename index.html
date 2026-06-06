@@ -292,6 +292,9 @@ body.admin-mode .calib-btn{display:block}
 .sheet.open{transform:translateY(0)}
 .sheet-handle{width:36px;height:3px;background:rgba(255,255,255,0.2);border-radius:2px;margin:0 auto 14px}
 .sheet-title{font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.sheet-section{margin-bottom:18px}
+.sheet-section:last-child{margin-bottom:0}
+.sheet-section .sec-label{font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:0.5px solid rgba(255,255,255,0.06)}
 @media(max-width:768px){
   #left,#right{display:none!important}
   #mob-bar{display:flex!important}
@@ -868,7 +871,7 @@ img.ow-portal-token{
   <button class="mob-btn" id="mob-back" onclick="goBack()" style="display:none"><span class="mob-icon">←</span><span>Zurück</span></button>
   <button class="mob-btn" onclick="window.open('https://www.simsforumrpg.de/member-data.php','_blank')"><span class="mob-icon">⚙️</span><span>Profil</span></button>
   <button class="mob-btn" onclick="openSheet('nav')"><span class="mob-icon">🗺️</span><span>Navigation</span></button>
-  <button class="mob-btn" onclick="openSheet('info')"><span class="mob-icon">📊</span><span>Stats</span></button>
+  <button class="mob-btn" onclick="openSheet('activity')"><span class="mob-icon">📡</span><span>Aktivität</span></button>
   <button class="mob-btn" onclick="window.open('https://discord.gg/FGB8Mfj','_blank')"><span class="mob-icon">💬</span><span>Discord</span></button>
 </div>
     <div id="otherworlds-container">
@@ -947,13 +950,21 @@ img.ow-portal-token{
   <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/t304f52202-aenderungen-fuer-das-gemeinsame-Save-File.html" target="_blank">💾 Save-File-Änderungen</a>
   <a class="nav-item" style="margin-bottom:6px" href="https://www.simsforumrpg.de/f15064-Support-Feedback.html" target="_blank">🆘 Support &amp; Feedback</a>
 </div>
-<div class="sheet" id="sheet-info">
-  <div class="sheet-handle"></div><div class="sheet-title">Online &amp; Stats</div>
-  <div class="online-item" style="margin-bottom:6px"><div style="width:8px;height:8px;border-radius:50%;background:#4aaa6a"></div>Ripzha</div>
-  <div class="online-item" style="margin-bottom:10px"><div style="width:8px;height:8px;border-radius:50%;background:#4aaa6a"></div>Murloc</div>
-  <div class="stat-row"><span class="stat-key">Posts</span><span>7270</span></div>
-  <div class="stat-row"><span class="stat-key">Themen</span><span>722</span></div>
-  <div class="stat-row"><span class="stat-key">Mitglieder</span><span>39</span></div>
+<div class="sheet" id="sheet-activity">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">Aktivität</div>
+  <div class="sheet-section">
+    <div class="sec-label">Zuletzt gesehen</div>
+    <div id="sidebar-activity-mob"><div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div></div>
+  </div>
+  <div class="sheet-section">
+    <div class="sec-label">Neue Charaktere</div>
+    <div id="sidebar-newchars-mob"><div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div></div>
+  </div>
+  <div class="sheet-section">
+    <div class="sec-label">Im Forum</div>
+    <div id="sidebar-forum-mob"><div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div></div>
+  </div>
 </div>
 
 <script>
@@ -2107,6 +2118,7 @@ function updateSidebarActivity(){
     item.addEventListener('click',function(){window.open(this.getAttribute('data-url'),'_blank');});
     attachActivityPreview(item);
   });
+  if(typeof syncMobileActivitySheet === 'function') syncMobileActivitySheet();
 }
 
 // Hover-Preview-System (zeigt erste Saetze des letzten Posts)
@@ -2330,6 +2342,7 @@ function updateSidebarNewChars(){
   el.querySelectorAll('[data-url]').forEach(function(item){
     item.addEventListener('click',function(){window.open(this.getAttribute('data-url'),'_blank');});
   });
+  if(typeof syncMobileActivitySheet === 'function') syncMobileActivitySheet();
 }
 
 // Forum-Aktivität ausserhalb RPG-Welten (Galerie, Blog, OOC-Bereiche)
@@ -2393,6 +2406,7 @@ function updateSidebarForum(){
         var url = item.getAttribute('data-url');
         item.addEventListener('click',function(){window.open(url,'_blank');});
       });
+      if(typeof syncMobileActivitySheet === 'function') syncMobileActivitySheet();
     })
     .catch(function(){
       el.innerHTML='<div style="font-size:10px;color:rgba(255,80,80,0.4)">Fehler</div>';
@@ -3839,8 +3853,45 @@ function clearAllCustom(){if(!confirm('Alle custom Lots löschen?'))return;custo
 // ═══════════════════════════════════════════
 // MOBILE SHEETS
 // ═══════════════════════════════════════════
-function openSheet(id){document.getElementById('sheet-overlay').classList.add('open');['nav','info'].forEach(s=>document.getElementById('sheet-'+s).classList.toggle('open',s===id));}
+function openSheet(id){
+  document.getElementById('sheet-overlay').classList.add('open');
+  ['nav','activity'].forEach(s=>document.getElementById('sheet-'+s).classList.toggle('open',s===id));
+  // Activity-Sheet: Inhalt + Click-Handler aus Desktop-Sidebar klonen.
+  // syncMobileActivitySheet uebernimmt das (greift nur wenn Sheet offen)
+  if(id === 'activity' && typeof syncMobileActivitySheet === 'function'){
+    syncMobileActivitySheet();
+  }
+}
 function closeSheet(){document.getElementById('sheet-overlay').classList.remove('open');document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('open'));}
+
+// Synct den Inhalt vom Desktop-Sidebar in das Mobile-Activity-Sheet wenn offen.
+// Wird nach jedem updateSidebar* aufgerufen damit das Sheet live mitupdatet.
+function syncMobileActivitySheet(){
+  var sheet = document.getElementById('sheet-activity');
+  if(!sheet || !sheet.classList.contains('open')) return;
+  try {
+    var pairs = [
+      ['sidebar-activity', 'sidebar-activity-mob'],
+      ['sidebar-newchars', 'sidebar-newchars-mob'],
+      ['sidebar-forum',    'sidebar-forum-mob']
+    ];
+    pairs.forEach(function(p){
+      var src = document.getElementById(p[0]);
+      var dst = document.getElementById(p[1]);
+      if(!src || !dst) return;
+      dst.innerHTML = src.innerHTML;
+      // Click-Handler nach innerHTML-Copy wieder dranhaengen (innerHTML kopiert keine Listener).
+      // Hover-Preview-Listener werden NICHT gesetzt — auf Touch nutzlos und macht Code unnoetig schwer.
+      // Auch data-tip Attribute entfernen — sind Desktop-Tooltips.
+      dst.querySelectorAll('[data-url]').forEach(function(item){
+        item.removeAttribute('data-tip');
+        var url = item.getAttribute('data-url');
+        if(!url) return;
+        item.addEventListener('click', function(){ window.open(url, '_blank'); });
+      });
+    });
+  } catch(_){}
+}
 let calibBuildingMode=false,calibBuildingData=[];
 
 function getBuildingCalibLots(){
