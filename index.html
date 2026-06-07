@@ -208,25 +208,27 @@ body:has(#world-container.active) #atlasEventPill{
   bottom:60px !important;
   left:12px !important;
 }
-/* Mobile: Pille sitzt unter Topnav quer über volle Breite */
+/* Mobile: Pille klein unten — Kontinent links, Welt rechts (Legend liegt links) */
 @media (max-width:768px){
   #atlasEventPill{
-    top:46px !important;
+    top:auto !important;
+    bottom:calc(70px + env(safe-area-inset-bottom)) !important;
     left:8px !important;
-    right:8px !important;
-    bottom:auto !important;
+    right:auto !important;
     transform:none !important;
-    padding:6px 14px !important;
-    max-width:none !important;
+    padding:5px 12px 5px 8px !important;
+    max-width:calc(100vw - 16px) !important;
     width:auto !important;
-    justify-content:center !important;
+    justify-content:flex-start !important;
   }
-  #atlasEventPill .atlas-pill-name{font-size:11px !important;max-width:60vw}
+  #atlasEventPill .atlas-pill-name{font-size:11px !important;max-width:55vw}
+  /* Welt-Karte: Pille rechts unten weil links die Map-Legend sitzt */
   body:has(#world-container.active) #atlasEventPill{
     top:auto !important;
-    bottom:calc(60px + env(safe-area-inset-bottom)) !important;
-    left:8px !important;
+    bottom:calc(70px + env(safe-area-inset-bottom)) !important;
+    left:auto !important;
     right:8px !important;
+    justify-content:flex-start !important;
   }
 }
 /* Pille NIEMALS sichtbar in Char-View / Other-Worlds / Building / Modale Views */
@@ -6285,46 +6287,22 @@ window.atlasCustomRoutes=loadRoutes();
     // Desktop: in den Anchor (Header) — da soll sie als Teil des Headers sitzen.
     const isMobile = window.innerWidth <= 768;
 
-    // DEBUG: Zeig Werte direkt auf der Seite an
-    var _dbg = document.createElement('div');
-    _dbg.id = 'pill-debug';
-    _dbg.style.cssText = 'position:fixed;top:0;left:0;z-index:99999;background:#000;color:#0f0;font:11px monospace;padding:6px 10px;max-width:100vw;white-space:pre-wrap;border:1px solid #0f0';
-    _dbg.textContent =
-      'innerWidth=' + window.innerWidth +
-      ' isMobile=' + isMobile +
-      ' anchor=' + (anchor ? anchor.tagName + '#' + anchor.id : 'null') +
-      ' parent=' + (pill.parentNode ? pill.parentNode.tagName : 'none');
-    document.body.appendChild(_dbg);
-    setTimeout(function(){
-      var cs = window.getComputedStyle(pill);
-      _dbg.textContent +=
-        ' | after-attach=' + (pill.parentNode ? pill.parentNode.tagName + '#' + (pill.parentNode.id || '?') : 'none') +
-        ' inline-top=' + pill.style.top +
-        ' inline-left=' + pill.style.left +
-        ' inline-right=' + pill.style.right +
-        ' | COMPUTED: pos=' + cs.position +
-        ' top=' + cs.top +
-        ' left=' + cs.left +
-        ' right=' + cs.right +
-        ' width=' + cs.width +
-        ' display=' + cs.display;
-    }, 500);
-
     if (isMobile) {
       document.body.appendChild(pill);
       document.body.appendChild(hint);
-      // Inline-Styles MIT !important damit kein CSS sie überschreiben kann.
+      // Pille klein unten links — auf Kontinent-Karte ist da nichts.
+      // Auf Welt-Karte greift später CSS-Override (body:has(#world-container.active)) → rechts unten.
       pill.style.setProperty('position', 'fixed', 'important');
-      pill.style.setProperty('top', '46px', 'important');
+      pill.style.setProperty('top', 'auto', 'important');
+      pill.style.setProperty('bottom', 'calc(70px + env(safe-area-inset-bottom))', 'important');
       pill.style.setProperty('left', '8px', 'important');
-      pill.style.setProperty('right', '8px', 'important');
-      pill.style.setProperty('bottom', 'auto', 'important');
+      pill.style.setProperty('right', 'auto', 'important');
       pill.style.setProperty('transform', 'none', 'important');
-      pill.style.setProperty('padding', '6px 14px', 'important');
-      pill.style.setProperty('max-width', 'none', 'important');
+      pill.style.setProperty('padding', '5px 12px 5px 8px', 'important');
+      pill.style.setProperty('max-width', 'calc(100vw - 16px)', 'important');
       pill.style.setProperty('width', 'auto', 'important');
       pill.style.setProperty('display', 'flex', 'important');
-      pill.style.setProperty('justify-content', 'center', 'important');
+      pill.style.setProperty('justify-content', 'flex-start', 'important');
     } else if (anchor) {
       const cs = window.getComputedStyle(anchor);
       if (cs.position === 'static') anchor.style.position = 'relative';
