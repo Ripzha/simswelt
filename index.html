@@ -213,6 +213,8 @@ body:has(#world-container.active) #atlasEventPill{
   #atlasEventPill{
     top:54px !important;
     left:8px !important;
+    right:auto !important;
+    bottom:auto !important;
     padding:5px 12px 5px 8px !important;
     max-width:calc(100vw - 150px) !important; /* Platz lassen für Routenplaner rechts */
   }
@@ -221,6 +223,7 @@ body:has(#world-container.active) #atlasEventPill{
     top:auto !important;
     bottom:calc(60px + env(safe-area-inset-bottom)) !important;
     left:8px !important;
+    right:auto !important;
     max-width:calc(100vw - 16px) !important; /* in Welt: voll breit weil Routenplaner oben ist */
   }
 }
@@ -6280,6 +6283,16 @@ window.atlasCustomRoutes=loadRoutes();
     // Desktop: in den Anchor (Header) — da soll sie als Teil des Headers sitzen.
     const isMobile = window.innerWidth <= 768;
     if (isMobile) {
+      // Inline-Styles damit garantiert keine CSS-Spezifitäts-Probleme entstehen.
+      pill.style.cssText +=
+        ';position:fixed' +
+        ';top:54px' +
+        ';left:8px' +
+        ';right:auto' +
+        ';bottom:auto' +
+        ';transform:none' +
+        ';padding:5px 12px 5px 8px' +
+        ';max-width:calc(100vw - 150px)';
       document.body.appendChild(pill);
       document.body.appendChild(hint);
     } else if (anchor) {
