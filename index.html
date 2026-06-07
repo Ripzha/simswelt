@@ -214,13 +214,14 @@ body:has(#world-container.active) #atlasEventPill{
     top:54px !important;
     left:8px !important;
     padding:5px 12px 5px 8px !important;
-    max-width:calc(100vw - 80px) !important;
+    max-width:calc(100vw - 150px) !important; /* Platz lassen für Routenplaner rechts */
   }
-  #atlasEventPill .atlas-pill-name{font-size:11px !important;max-width:55vw}
+  #atlasEventPill .atlas-pill-name{font-size:11px !important;max-width:45vw}
   body:has(#world-container.active) #atlasEventPill{
     top:auto !important;
     bottom:calc(60px + env(safe-area-inset-bottom)) !important;
     left:8px !important;
+    max-width:calc(100vw - 16px) !important; /* in Welt: voll breit weil Routenplaner oben ist */
   }
 }
 /* Pille NIEMALS sichtbar in Char-View / Other-Worlds / Building / Modale Views */
