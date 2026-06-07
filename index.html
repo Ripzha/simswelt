@@ -2442,9 +2442,15 @@ function updateSidebarNewChars(){
 function updateSidebarForum(){
   var el=document.getElementById('sidebar-forum');
   if(!el) return;
+  // Mini-Kompass beim ersten Laden zeigen (nicht bei Refresh — el hat dann schon Content)
+  if(!el.innerHTML.trim() || el.dataset.sidebarLoading === '1'){
+    el.dataset.sidebarLoading = '1';
+    el.innerHTML='<div class="activity-preview-loading" style="padding:8px 4px"><span class="mini-compass" aria-hidden="true"></span>Lade…</div>';
+  }
   fetch(SCRIPT_URL+'?action=forumActivity')
     .then(function(r){return r.json();})
     .then(function(events){
+      el.dataset.sidebarLoading = '0';
       if(!Array.isArray(events)||!events.length){
         el.innerHTML='<div style="font-size:10px;color:rgba(255,255,255,0.2)">Keine Aktivität</div>';
         return;
@@ -2502,6 +2508,7 @@ function updateSidebarForum(){
       if(typeof syncMobileActivitySheet === 'function') syncMobileActivitySheet();
     })
     .catch(function(){
+      el.dataset.sidebarLoading = '0';
       el.innerHTML='<div style="font-size:10px;color:rgba(255,80,80,0.4)">Fehler</div>';
     });
 }
@@ -4207,7 +4214,20 @@ function openCharView(type){
   var sub=document.getElementById('char-subtitle');
   if(grid)grid.innerHTML='<div style="color:rgba(255,255,255,0.3);font-size:22px;padding:60px;grid-column:1/-1;text-align:center">⏳</div>';
   if(sub)sub.textContent='Lade...';
-  fetchCharsFromScript();
+  // Loading-Screen nur wenn Chars noch nicht geladen wurden (erstes Öffnen der Session)
+  var _showLoader = (!charFetched && typeof window.showAtlasLoading === 'function');
+  if(_showLoader) window.showAtlasLoading('Charaktere laden…');
+  var p = fetchCharsFromScript();
+  if(_showLoader && p && typeof p.finally === 'function'){
+    p.finally(function(){
+      if(typeof window.hideAtlasLoading === 'function') window.hideAtlasLoading();
+    });
+  } else if(_showLoader){
+    // Fallback wenn fetchCharsFromScript synchron returnt
+    setTimeout(function(){
+      if(typeof window.hideAtlasLoading === 'function') window.hideAtlasLoading();
+    }, 100);
+  }
 }
 
 function fitCharGrid(){
@@ -4654,11 +4674,33 @@ function _prioritizeInitialImages(){
 }
 
 window.addEventListener('load',function(){
+  // Atlas-Loading-Screen beim Initial-Load — verstecken sobald Chars UND Lots da sind
+  var _initLoaderActive = false;
+  if(typeof window.showAtlasLoading === 'function'){
+    _initLoaderActive = true;
+    window.showAtlasLoading('ATLAS wird geladen…');
+  }
+  function _maybeHideInitLoader(){
+    // Hide nur wenn beide ready: charFetched (true wenn fetchCharsFromScript fertig ist)
+    // und sheetLotsLoaded (true wenn fetchSheetLots fertig ist)
+    if(_initLoaderActive && charFetched && sheetLotsLoaded){
+      _initLoaderActive = false;
+      if(typeof window.hideAtlasLoading === 'function') window.hideAtlasLoading();
+    }
+  }
+  // Safety-Timeout: nach 12s Loader spätestens weg (falls Netz tot ist)
+  setTimeout(function(){
+    if(_initLoaderActive){
+      _initLoaderActive = false;
+      if(typeof window.hideAtlasLoading === 'function') window.hideAtlasLoading();
+    }
+  }, 12000);
+
   updateSidebarStats();
-  fetchCharsFromScript();
+  fetchCharsFromScript().then(_maybeHideInitLoader).catch(_maybeHideInitLoader);
   updateSidebarForum();
   repositionTooltips();
-  fetchSheetLots();
+  fetchSheetLots(_maybeHideInitLoader);
   // Periodische Updates pausieren wenn Tab versteckt
   _smartInterval(updateSidebarForum, 5*60*1000);
   _smartInterval(updateSidebarStats, 2*60*1000);
