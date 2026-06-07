@@ -6296,30 +6296,35 @@ window.atlasCustomRoutes=loadRoutes();
       ' parent=' + (pill.parentNode ? pill.parentNode.tagName : 'none');
     document.body.appendChild(_dbg);
     setTimeout(function(){
+      var cs = window.getComputedStyle(pill);
       _dbg.textContent +=
         ' | after-attach=' + (pill.parentNode ? pill.parentNode.tagName + '#' + (pill.parentNode.id || '?') : 'none') +
-        ' top=' + pill.style.top +
-        ' left=' + pill.style.left +
-        ' right=' + pill.style.right +
-        ' pos=' + pill.style.position;
+        ' inline-top=' + pill.style.top +
+        ' inline-left=' + pill.style.left +
+        ' inline-right=' + pill.style.right +
+        ' | COMPUTED: pos=' + cs.position +
+        ' top=' + cs.top +
+        ' left=' + cs.left +
+        ' right=' + cs.right +
+        ' width=' + cs.width +
+        ' display=' + cs.display;
     }, 500);
 
     if (isMobile) {
-      // Inline-Styles damit garantiert keine CSS-Spezifitäts-Probleme entstehen.
-      // Pille sitzt unter der Topnav quer über volle Breite — kein Routenplaner-Konflikt möglich.
-      pill.style.cssText +=
-        ';position:fixed' +
-        ';top:46px' +
-        ';left:8px' +
-        ';right:8px' +
-        ';bottom:auto' +
-        ';transform:none' +
-        ';padding:6px 14px' +
-        ';max-width:none' +
-        ';width:auto' +
-        ';justify-content:center';
       document.body.appendChild(pill);
       document.body.appendChild(hint);
+      // Inline-Styles MIT !important damit kein CSS sie überschreiben kann.
+      pill.style.setProperty('position', 'fixed', 'important');
+      pill.style.setProperty('top', '46px', 'important');
+      pill.style.setProperty('left', '8px', 'important');
+      pill.style.setProperty('right', '8px', 'important');
+      pill.style.setProperty('bottom', 'auto', 'important');
+      pill.style.setProperty('transform', 'none', 'important');
+      pill.style.setProperty('padding', '6px 14px', 'important');
+      pill.style.setProperty('max-width', 'none', 'important');
+      pill.style.setProperty('width', 'auto', 'important');
+      pill.style.setProperty('display', 'flex', 'important');
+      pill.style.setProperty('justify-content', 'center', 'important');
     } else if (anchor) {
       const cs = window.getComputedStyle(anchor);
       if (cs.position === 'static') anchor.style.position = 'relative';
