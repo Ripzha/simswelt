@@ -761,7 +761,7 @@ img.ow-portal-token{
     <div style="margin-top:auto">
     <div class="sec-label" style="margin-top:14px">Index &amp; Statistik</div>
     <div style="font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.5px;margin-bottom:4px">ONLINE</div>
-    <div id="sidebar-online"><div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div></div>
+    <div id="sidebar-online"><div class="activity-preview-loading" style="padding:6px 4px;font-size:10px"><span class="mini-compass" aria-hidden="true"></span>Lade&hellip;</div></div>
     <div style="font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.5px;margin-top:10px;margin-bottom:4px">STATS</div>
     <div id="sidebar-stats">
       <div class="stat-row"><span class="stat-key">Posts</span><span>–</span></div>
@@ -934,11 +934,11 @@ img.ow-portal-token{
     </div>
     <div>
       <div class="sec-label">Neue Charaktere</div>
-      <div id="sidebar-newchars"><div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div></div>
+      <div id="sidebar-newchars"><div class="activity-preview-loading" style="padding:6px 4px;font-size:10px"><span class="mini-compass" aria-hidden="true"></span>Lade&hellip;</div></div>
     </div>
     <div>
       <div class="sec-label">Im Forum</div>
-      <div id="sidebar-forum"><div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div></div>
+      <div id="sidebar-forum"><div class="activity-preview-loading" style="padding:8px 4px"><span class="mini-compass" aria-hidden="true"></span>Lade&hellip;</div></div>
     </div>
   </div>
 </div>
@@ -1048,15 +1048,15 @@ img.ow-portal-token{
   <div class="sheet-title">Aktivität</div>
   <div class="sheet-section">
     <div class="sec-label">Zuletzt gesehen</div>
-    <div id="sidebar-activity-mob"><div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div></div>
+    <div id="sidebar-activity-mob"><div class="activity-preview-loading" style="padding:6px 4px;font-size:10px"><span class="mini-compass" aria-hidden="true"></span>Lade&hellip;</div></div>
   </div>
   <div class="sheet-section">
     <div class="sec-label">Neue Charaktere</div>
-    <div id="sidebar-newchars-mob"><div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div></div>
+    <div id="sidebar-newchars-mob"><div class="activity-preview-loading" style="padding:6px 4px;font-size:10px"><span class="mini-compass" aria-hidden="true"></span>Lade&hellip;</div></div>
   </div>
   <div class="sheet-section">
     <div class="sec-label">Im Forum</div>
-    <div id="sidebar-forum-mob"><div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div></div>
+    <div id="sidebar-forum-mob"><div class="activity-preview-loading" style="padding:6px 4px;font-size:10px"><span class="mini-compass" aria-hidden="true"></span>Lade&hellip;</div></div>
   </div>
 </div>
 
@@ -2193,7 +2193,7 @@ function updateSidebarActivity(){
       fseen.add(c.n);
       return true;
     });
-    top = top.concat(uniqueFiller.slice(0, 8 - top.length));
+    top = top.concat(uniqueFiller.slice(0, 6 - top.length));
   }
   el.innerHTML=top.map(function(c){
     var color=WORLD_COLORS[c.lastSeenName]||'#4a6a7a';
@@ -2401,7 +2401,7 @@ function updateSidebarNewChars(){
   var el=document.getElementById('sidebar-newchars');
   if(!el) return;
   if(!CHARS.length){
-    el.innerHTML='<div style="font-size:10px;color:rgba(255,255,255,0.2)">Lade...</div>';
+    el.innerHTML='<div class="activity-preview-loading" style="padding:6px 4px;font-size:10px"><span class="mini-compass" aria-hidden="true"></span>Lade&hellip;</div>';
     return;
   }
   var TYPE_LABELS={
