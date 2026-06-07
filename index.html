@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Simswelt — Projekt ATLAS</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -712,6 +712,53 @@ img.ow-portal-token{
   transform:none;
   display:flex !important;
   z-index:3;
+}
+/* ════════════════════════════════════════════════════════════════════════════
+   TABLET QUERFORMAT (769px - 1366px + touch)
+   ----------------------------------------------------------------------------
+   Nur Sidebars und Topnav vergrössert. Char-Grid, Karten-Pan/Zoom,
+   Welt-Container und Mobile-Layout sind explizit NICHT betroffen.
+   Hochformat-Tablets (≤768px) bekommen weiterhin das Mobile-Layout.
+   ============================================================================ */
+@media (min-width: 769px) and (max-width: 1366px) and (pointer: coarse) {
+  /* Sidebars breiter & mehr Padding für Touch */
+  #left, #right {
+    width: 220px;
+    padding: 16px 12px;
+  }
+  /* Activity-Items grösser für Touch-Bedienung */
+  .activity-item {
+    padding: 10px 10px;
+    gap: 10px;
+    margin-bottom: 6px;
+    font-size: 12px;
+  }
+  .activity-thumb, .activity-thumb img {
+    width: 36px;
+    height: 36px;
+  }
+  /* Nav-Items im linken Sidebar grösser */
+  #left .nav-item {
+    padding: 9px 10px;
+    font-size: 13px;
+  }
+  /* Topnav-Buttons grösser */
+  #topnav {
+    padding: 10px 18px;
+    padding-right: 60px;
+  }
+  #topnav a, #topnav button {
+    font-size: 13px;
+  }
+  /* Mini-Compass beim Lade-Pillen sichtbarer */
+  .activity-preview-loading {
+    font-size: 11px;
+    padding: 8px 4px;
+  }
+  /* Sidebar-Headings (h3 etc.) etwas grösser */
+  #left h3, #right h3, #left h4, #right h4 {
+    font-size: 11px;
+  }
 }
 </style>
 </head>
