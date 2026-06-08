@@ -45,21 +45,11 @@ html{overscroll-behavior:none}
 /* Tokens werden per JS in body verschoben damit sie nicht durch overflow:hidden clipped werden */
 .merged-tokens-popup{
   position:fixed;
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  opacity:0;
   pointer-events:none;
-  transform:translateX(8px);
-  transition:opacity 0.2s ease, transform 0.25s ease;
   z-index:9000;
 }
-.merged-tokens-popup.visible{
-  opacity:1;
-  transform:translateX(0);
-  pointer-events:auto;
-}
 .merged-tokens-popup .merged-token{
+  position:absolute;
   display:flex;
   align-items:center;
   gap:8px;
@@ -69,7 +59,26 @@ html{overscroll-behavior:none}
   border-radius:22px;
   backdrop-filter:blur(8px);
   white-space:nowrap;
-  box-shadow:0 2px 12px rgba(0,0,0,0.4);
+  box-shadow:0 2px 12px rgba(0,0,0,0.5);
+  opacity:0;
+  transform:translate(0,0) scale(0.6);
+  /* Default-Position: bei der Card (initial alle übereinander) */
+  left:var(--mt-init-x, 0);
+  top:var(--mt-init-y, 0);
+  transition:
+    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.25s ease,
+    left 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    top 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Verzögerter Start für Stagger-Effekt */
+  transition-delay: calc(var(--mt-idx) * 40ms);
+}
+.merged-tokens-popup.visible .merged-token{
+  opacity:1;
+  transform:scale(1);
+  /* Halbkreis-Position: per inline-style gesetzt */
+  left:var(--mt-x);
+  top:var(--mt-y);
 }
 .merged-tokens-popup .merged-token-name{
   font-size:11px;
@@ -2359,8 +2368,8 @@ function updateSidebarActivity(){
   el.querySelectorAll('.activity-merged').forEach(function(item){
     var tokensSrc = item.querySelector('.merged-tokens');
     if(!tokensSrc) return;
-    // Original-Container entfernen (war nur Datencontainer im Markup)
     var popupHtml = tokensSrc.innerHTML;
+    var tokenCount = tokensSrc.querySelectorAll('.merged-token').length;
     tokensSrc.remove();
     var popup = null;
     function showTokens(){
@@ -2368,16 +2377,45 @@ function updateSidebarActivity(){
       popup = document.createElement('div');
       popup.className = 'merged-tokens-popup';
       popup.innerHTML = popupHtml;
+      // Idx für stagger
+      popup.querySelectorAll('.merged-token').forEach(function(t, i){
+        t.style.setProperty('--mt-idx', i);
+      });
       document.body.appendChild(popup);
       var rect = item.getBoundingClientRect();
-      // Erst messen wenn im DOM
+      // Anchor-Punkt: linker Rand der Card, Mitte vertikal
+      var anchorX = rect.left - 12;
+      var anchorY = rect.top + rect.height/2;
+      // Halbkreis nach links: Tokens auf einem Bogen um (anchorX, anchorY) angeordnet
+      // Radius wächst leicht mit Anzahl, damit auch viele Tokens nicht überlappen
+      var radius = Math.max(70, tokenCount * 18);
+      // Winkelbereich: oberer Halbkreis nach links (von -150° bis -30°)
+      var startDeg = -150;
+      var endDeg = -30;
+      var stepDeg = tokenCount > 1 ? (endDeg - startDeg) / (tokenCount - 1) : 0;
       requestAnimationFrame(function(){
-        var pw = popup.offsetWidth;
-        var ph = popup.offsetHeight;
-        popup.style.left = (rect.left - pw - 8) + 'px';
-        // Vertikal zentriert auf die Card
-        popup.style.top = (rect.top + rect.height/2 - ph/2) + 'px';
-        popup.classList.add('visible');
+        popup.querySelectorAll('.merged-token').forEach(function(t, i){
+          // Token-Grösse zur Mitte-Justierung
+          var tw = t.offsetWidth;
+          var th = t.offsetHeight;
+          // Start: alle bei anchor (für scale-in animation)
+          t.style.setProperty('--mt-init-x', (anchorX - tw/2) + 'px');
+          t.style.setProperty('--mt-init-y', (anchorY - th/2) + 'px');
+          // Ziel: auf dem Halbkreis
+          var deg = startDeg + stepDeg * i;
+          var rad = deg * Math.PI / 180;
+          var tx = anchorX + Math.cos(rad) * radius - tw/2;
+          var ty = anchorY + Math.sin(rad) * radius - th/2;
+          // Clamp: Token muss komplett im Viewport bleiben
+          tx = Math.max(8, Math.min(window.innerWidth - tw - 8, tx));
+          ty = Math.max(8, Math.min(window.innerHeight - th - 8, ty));
+          t.style.setProperty('--mt-x', tx + 'px');
+          t.style.setProperty('--mt-y', ty + 'px');
+        });
+        // Trigger der Spread-Animation
+        requestAnimationFrame(function(){
+          if(popup) popup.classList.add('visible');
+        });
       });
     }
     function hideTokens(){
@@ -2385,7 +2423,7 @@ function updateSidebarActivity(){
       var p = popup;
       popup = null;
       p.classList.remove('visible');
-      setTimeout(function(){ if(p.parentNode) p.remove(); }, 250);
+      setTimeout(function(){ if(p.parentNode) p.remove(); }, 500);
     }
     item.addEventListener('mouseenter', showTokens);
     item.addEventListener('mouseleave', hideTokens);
