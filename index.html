@@ -33,6 +33,31 @@ html{overscroll-behavior:none}
 .nav-item{padding:6px 8px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.07);border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:11px;color:#fff;text-decoration:none}
 .nav-item:hover,.nav-item:active{background:rgba(255,255,255,0.08)}
 .activity-item{padding:5px 7px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.07);border-radius:5px;display:flex;align-items:center;gap:7px;margin-bottom:4px;position:relative}
+/* Merged Activity Card: mehrere Chars im selben Forum-Post */
+.activity-merged .merged-portraits{
+  position:relative;
+  display:flex;
+  align-items:center;
+  /* Breite: erstes Portrait voll + überlappende Stacks */
+  width:calc(26px + (var(--mp-count) - 1) * 9px);
+  flex-shrink:0;
+  height:26px;
+}
+.activity-merged .merged-portrait{
+  position:absolute;
+  top:0;
+  left:calc(var(--mp-idx) * 9px);
+  z-index:calc(10 - var(--mp-idx));
+  transition:left 0.25s ease;
+}
+.activity-merged:hover .merged-portrait{
+  /* Fan-out: jedes Portrait bekommt seinen vollen Platz */
+  left:calc(var(--mp-idx) * 28px);
+}
+.activity-merged:hover .merged-portraits{
+  width:calc(26px + (var(--mp-count) - 1) * 28px);
+}
+.activity-merged{transition:padding 0.25s ease}
 .activity-preview{position:fixed;background:rgba(5,12,22,0.97);border:0.5px solid rgba(74,170,106,0.3);border-radius:8px;padding:10px 12px;z-index:200;max-width:280px;font-size:11px;line-height:1.5;color:rgba(255,255,255,0.85);box-shadow:0 6px 24px rgba(0,0,0,0.85);pointer-events:none;font-style:italic}
 .activity-preview::before{content:"";position:absolute;width:8px;height:8px;background:rgba(5,12,22,0.97);border-left:0.5px solid rgba(74,170,106,0.3);border-bottom:0.5px solid rgba(74,170,106,0.3);transform:rotate(45deg)}
 .activity-preview.right::before{left:-5px;top:50%;margin-top:-4px}
@@ -2251,17 +2276,46 @@ function updateSidebarActivity(){
     });
     top = top.concat(uniqueFiller.slice(0, 6 - top.length));
   }
-  el.innerHTML=top.map(function(c){
-    var color=WORLD_COLORS[c.lastSeenName]||'#4a6a7a';
-    var nameShort=c.n.split(' ')[0];
-    var player=c.p?'<span style="color:rgba(255,255,255,0.35);font-weight:400;margin-left:4px">&middot; '+c.p+'</span>':'';
-    var portrait=c.img
-      ?'<img src="'+c.img+'" loading="lazy" decoding="async" style="width:26px;height:26px;border-radius:50%;object-fit:cover;object-position:50% 30%;flex-shrink:0;border:1.5px solid '+color+';box-shadow:0 0 4px '+color+'88">'
-      :'<div style="width:26px;height:26px;border-radius:50%;background:'+color+';display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:600;flex-shrink:0;box-shadow:0 0 4px '+color+'88">'+nameShort.charAt(0)+'</div>';
-    return '<div class="activity-item" style="cursor:pointer" data-url="'+c.lastSeenUrl+'">'
-      +portrait
-      +'<div style="min-width:0;flex:1"><div class="activity-name">'+nameShort+player+'</div><div class="activity-world">'+c.lastSeenName+'</div></div>'
-      +'</div>';
+  // Gruppieren nach lastSeenUrl — Chars im selben Forum-Post = gleicher Ort/Szene
+  function _portraitHtml(c, color){
+    var nameShort = c.n.split(' ')[0];
+    return c.img
+      ? '<img src="'+c.img+'" loading="lazy" decoding="async" style="width:26px;height:26px;border-radius:50%;object-fit:cover;object-position:50% 30%;flex-shrink:0;border:1.5px solid '+color+';box-shadow:0 0 4px '+color+'88">'
+      : '<div style="width:26px;height:26px;border-radius:50%;background:'+color+';display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:600;flex-shrink:0;box-shadow:0 0 4px '+color+'88">'+nameShort.charAt(0)+'</div>';
+  }
+  // Gruppen aufbauen (reihenfolge erhalten — neueste zuerst)
+  var groups = [];
+  var groupIdx = {};
+  top.forEach(function(c){
+    var key = c.lastSeenUrl || ('_solo_'+c.n);
+    if(groupIdx[key] === undefined){
+      groupIdx[key] = groups.length;
+      groups.push({url: c.lastSeenUrl, world: c.lastSeenName, chars: [c]});
+    } else {
+      groups[groupIdx[key]].chars.push(c);
+    }
+  });
+  el.innerHTML = groups.map(function(g){
+    var color = WORLD_COLORS[g.world] || '#4a6a7a';
+    if(g.chars.length === 1){
+      // Solo-Card wie bisher
+      var c = g.chars[0];
+      var nameShort = c.n.split(' ')[0];
+      var player = c.p?'<span style="color:rgba(255,255,255,0.35);font-weight:400;margin-left:4px">&middot; '+c.p+'</span>':'';
+      return '<div class="activity-item" style="cursor:pointer" data-url="'+c.lastSeenUrl+'">'
+        + _portraitHtml(c, color)
+        + '<div style="min-width:0;flex:1"><div class="activity-name">'+nameShort+player+'</div><div class="activity-world">'+g.world+'</div></div>'
+        + '</div>';
+    }
+    // Merged-Card: erstes Portrait sichtbar + fan-out beim Hover
+    var portraits = g.chars.map(function(c, i){
+      return '<span class="merged-portrait" style="--mp-idx:'+i+'">'+_portraitHtml(c, color)+'</span>';
+    }).join('');
+    var names = g.chars.map(function(c){return c.n.split(' ')[0];}).join(' &middot; ');
+    return '<div class="activity-item activity-merged" style="cursor:pointer" data-url="'+g.chars[0].lastSeenUrl+'" data-merged="1">'
+      + '<div class="merged-portraits" style="--mp-count:'+g.chars.length+'">'+portraits+'</div>'
+      + '<div style="min-width:0;flex:1"><div class="activity-name">'+names+'</div><div class="activity-world">'+g.world+'</div></div>'
+      + '</div>';
   }).join('');
   el.querySelectorAll('[data-url]').forEach(function(item){
     item.addEventListener('click',function(){window.open(this.getAttribute('data-url'),'_blank');});
