@@ -60,25 +60,15 @@ html{overscroll-behavior:none}
   backdrop-filter:blur(8px);
   white-space:nowrap;
   box-shadow:0 2px 12px rgba(0,0,0,0.5);
+  /* Position direkt am Zielort, kein Spring */
+  left:var(--mt-x);
+  top:var(--mt-y);
   opacity:0;
-  transform:translate(0,0) scale(0.6);
-  /* Default-Position: bei der Card (initial alle übereinander) */
-  left:var(--mt-init-x, 0);
-  top:var(--mt-init-y, 0);
-  transition:
-    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity 0.25s ease,
-    left 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
-    top 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
-  /* Verzögerter Start für Stagger-Effekt */
-  transition-delay: calc(var(--mt-idx) * 40ms);
+  transition: opacity 0.22s ease-out;
+  transition-delay: calc(var(--mt-idx) * 60ms);
 }
 .merged-tokens-popup.visible .merged-token{
   opacity:1;
-  transform:scale(1);
-  /* Halbkreis-Position: per inline-style gesetzt */
-  left:var(--mt-x);
-  top:var(--mt-y);
 }
 .merged-tokens-popup .merged-token-name{
   font-size:11px;
@@ -2377,42 +2367,42 @@ function updateSidebarActivity(){
       popup = document.createElement('div');
       popup.className = 'merged-tokens-popup';
       popup.innerHTML = popupHtml;
-      // Idx für stagger
       popup.querySelectorAll('.merged-token').forEach(function(t, i){
         t.style.setProperty('--mt-idx', i);
       });
       document.body.appendChild(popup);
       var rect = item.getBoundingClientRect();
-      // Anchor-Punkt: linker Rand der Card, Mitte vertikal
-      var anchorX = rect.left - 12;
+      // Vorschau-Bubble ist 280px breit und sitzt bei rect.left - 280 - 12.
+      // Tokens sollen ZWISCHEN Sidebar (rect.left) und Vorschau sitzen.
+      // Sidebar-Rand: rect.left, Vorschau-Rand: rect.left - 12. Spalte ~290px breit.
+      // Wir setzen die Tokens auf eine Spalte direkt neben der Card.
+      var anchorX = rect.left - 8; // 8px links der Card
       var anchorY = rect.top + rect.height/2;
-      // Halbkreis nach links: Tokens auf einem Bogen um (anchorX, anchorY) angeordnet
-      // Radius wächst leicht mit Anzahl, damit auch viele Tokens nicht überlappen
-      var radius = Math.max(70, tokenCount * 18);
-      // Winkelbereich: oberer Halbkreis nach links (von -150° bis -30°)
-      var startDeg = -150;
-      var endDeg = -30;
-      var stepDeg = tokenCount > 1 ? (endDeg - startDeg) / (tokenCount - 1) : 0;
       requestAnimationFrame(function(){
-        popup.querySelectorAll('.merged-token').forEach(function(t, i){
-          // Token-Grösse zur Mitte-Justierung
+        var tokens = popup.querySelectorAll('.merged-token');
+        var count = tokens.length;
+        // Vertikaler Halbkreis: Tokens vertikal gestapelt, leicht nach links gewölbt
+        // Vertikaler Spread basierend auf Token-Höhe + Spacing
+        var spacing = 38; // px Abstand vertikal
+        var totalHeight = (count - 1) * spacing;
+        var startY = anchorY - totalHeight/2;
+        // Wölbung: Tokens in der Mitte am weitesten links, oben/unten näher an der Card
+        var bulgeMax = 20; // wie weit die mittleren Tokens nach links rausstehen
+        tokens.forEach(function(t, i){
           var tw = t.offsetWidth;
           var th = t.offsetHeight;
-          // Start: alle bei anchor (für scale-in animation)
-          t.style.setProperty('--mt-init-x', (anchorX - tw/2) + 'px');
-          t.style.setProperty('--mt-init-y', (anchorY - th/2) + 'px');
-          // Ziel: auf dem Halbkreis
-          var deg = startDeg + stepDeg * i;
-          var rad = deg * Math.PI / 180;
-          var tx = anchorX + Math.cos(rad) * radius - tw/2;
-          var ty = anchorY + Math.sin(rad) * radius - th/2;
-          // Clamp: Token muss komplett im Viewport bleiben
+          // Normalisierter Position-Index: 0 = oben, 1 = unten
+          var pos = count > 1 ? i / (count - 1) : 0.5;
+          // sin(pi * pos) = 0 an Enden, 1 in der Mitte → schöne Wölbung
+          var bulge = Math.sin(Math.PI * pos) * bulgeMax;
+          var tx = anchorX - tw - bulge;
+          var ty = startY + spacing * i - th/2;
+          // Viewport-Clamping
           tx = Math.max(8, Math.min(window.innerWidth - tw - 8, tx));
           ty = Math.max(8, Math.min(window.innerHeight - th - 8, ty));
           t.style.setProperty('--mt-x', tx + 'px');
           t.style.setProperty('--mt-y', ty + 'px');
         });
-        // Trigger der Spread-Animation
         requestAnimationFrame(function(){
           if(popup) popup.classList.add('visible');
         });
@@ -2423,7 +2413,7 @@ function updateSidebarActivity(){
       var p = popup;
       popup = null;
       p.classList.remove('visible');
-      setTimeout(function(){ if(p.parentNode) p.remove(); }, 500);
+      setTimeout(function(){ if(p.parentNode) p.remove(); }, 350);
     }
     item.addEventListener('mouseenter', showTokens);
     item.addEventListener('mouseleave', hideTokens);
