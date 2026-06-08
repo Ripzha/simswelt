@@ -42,11 +42,9 @@ html{overscroll-behavior:none}
   border:1.5px solid rgba(168,212,184,0.5);
   display:flex;align-items:center;justify-content:center;
 }
-.activity-merged .merged-tokens{
-  position:absolute;
-  right:100%;
-  top:0;
-  margin-right:8px;
+/* Tokens werden per JS in body verschoben damit sie nicht durch overflow:hidden clipped werden */
+.merged-tokens-popup{
+  position:fixed;
   display:flex;
   flex-direction:column;
   gap:6px;
@@ -54,25 +52,26 @@ html{overscroll-behavior:none}
   pointer-events:none;
   transform:translateX(8px);
   transition:opacity 0.2s ease, transform 0.25s ease;
-  z-index:250;
+  z-index:9000;
 }
-.activity-merged:hover .merged-tokens{
+.merged-tokens-popup.visible{
   opacity:1;
   transform:translateX(0);
   pointer-events:auto;
 }
-.activity-merged .merged-token{
+.merged-tokens-popup .merged-token{
   display:flex;
   align-items:center;
   gap:8px;
-  padding:4px 8px 4px 4px;
+  padding:4px 10px 4px 4px;
   background:rgba(5,12,22,0.95);
-  border:0.5px solid rgba(255,255,255,0.1);
-  border-radius:20px;
+  border:0.5px solid rgba(255,255,255,0.12);
+  border-radius:22px;
   backdrop-filter:blur(8px);
   white-space:nowrap;
+  box-shadow:0 2px 12px rgba(0,0,0,0.4);
 }
-.activity-merged .merged-token-name{
+.merged-tokens-popup .merged-token-name{
   font-size:11px;
   color:#fff;
   font-weight:500;
@@ -2355,6 +2354,41 @@ function updateSidebarActivity(){
   el.querySelectorAll('[data-url]').forEach(function(item){
     item.addEventListener('click',function(){window.open(this.getAttribute('data-url'),'_blank');});
     attachActivityPreview(item);
+  });
+  // Merged Tokens als Popup ins body — verhindert overflow:hidden clipping
+  el.querySelectorAll('.activity-merged').forEach(function(item){
+    var tokensSrc = item.querySelector('.merged-tokens');
+    if(!tokensSrc) return;
+    // Original-Container entfernen (war nur Datencontainer im Markup)
+    var popupHtml = tokensSrc.innerHTML;
+    tokensSrc.remove();
+    var popup = null;
+    function showTokens(){
+      if(popup) return;
+      popup = document.createElement('div');
+      popup.className = 'merged-tokens-popup';
+      popup.innerHTML = popupHtml;
+      document.body.appendChild(popup);
+      var rect = item.getBoundingClientRect();
+      // Erst messen wenn im DOM
+      requestAnimationFrame(function(){
+        var pw = popup.offsetWidth;
+        var ph = popup.offsetHeight;
+        popup.style.left = (rect.left - pw - 8) + 'px';
+        // Vertikal zentriert auf die Card
+        popup.style.top = (rect.top + rect.height/2 - ph/2) + 'px';
+        popup.classList.add('visible');
+      });
+    }
+    function hideTokens(){
+      if(!popup) return;
+      var p = popup;
+      popup = null;
+      p.classList.remove('visible');
+      setTimeout(function(){ if(p.parentNode) p.remove(); }, 250);
+    }
+    item.addEventListener('mouseenter', showTokens);
+    item.addEventListener('mouseleave', hideTokens);
   });
   if(typeof syncMobileActivitySheet === 'function') syncMobileActivitySheet();
 }
