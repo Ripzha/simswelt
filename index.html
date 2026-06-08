@@ -2474,7 +2474,10 @@ function showActivityPreview(item, url){
 
   function position(){
     var w = 280;
-    var left = rect.left - w - 12;
+    // Vorschau-Bubble weiter nach links schieben damit gemergte Token-Popups
+    // (~150px breit, sitzen direkt neben der Sidebar) Platz haben.
+    var gap = item.classList.contains('activity-merged') ? 160 : 12;
+    var left = rect.left - w - gap;
     var side = 'left';
     if(left < 8){
       left = rect.right + 12;
