@@ -34,30 +34,49 @@ html{overscroll-behavior:none}
 .nav-item:hover,.nav-item:active{background:rgba(255,255,255,0.08)}
 .activity-item{padding:5px 7px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.07);border-radius:5px;display:flex;align-items:center;gap:7px;margin-bottom:4px;position:relative}
 /* Merged Activity Card: mehrere Chars im selben Forum-Post */
-.activity-merged .merged-portraits{
-  position:relative;
+.activity-merged .merged-icon{
+  width:26px;height:26px;
+  flex-shrink:0;
+  border-radius:50%;
+  background:rgba(168,212,184,0.08);
+  border:1.5px solid rgba(168,212,184,0.5);
+  display:flex;align-items:center;justify-content:center;
+}
+.activity-merged .merged-tokens{
+  position:absolute;
+  right:100%;
+  top:0;
+  margin-right:8px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  opacity:0;
+  pointer-events:none;
+  transform:translateX(8px);
+  transition:opacity 0.2s ease, transform 0.25s ease;
+  z-index:250;
+}
+.activity-merged:hover .merged-tokens{
+  opacity:1;
+  transform:translateX(0);
+  pointer-events:auto;
+}
+.activity-merged .merged-token{
   display:flex;
   align-items:center;
-  /* Breite: erstes Portrait voll + überlappende Stacks */
-  width:calc(26px + (var(--mp-count) - 1) * 9px);
-  flex-shrink:0;
-  height:26px;
+  gap:8px;
+  padding:4px 8px 4px 4px;
+  background:rgba(5,12,22,0.95);
+  border:0.5px solid rgba(255,255,255,0.1);
+  border-radius:20px;
+  backdrop-filter:blur(8px);
+  white-space:nowrap;
 }
-.activity-merged .merged-portrait{
-  position:absolute;
-  top:0;
-  left:calc(var(--mp-idx) * 9px);
-  z-index:calc(10 - var(--mp-idx));
-  transition:left 0.25s ease;
+.activity-merged .merged-token-name{
+  font-size:11px;
+  color:#fff;
+  font-weight:500;
 }
-.activity-merged:hover .merged-portrait{
-  /* Fan-out: jedes Portrait bekommt seinen vollen Platz */
-  left:calc(var(--mp-idx) * 28px);
-}
-.activity-merged:hover .merged-portraits{
-  width:calc(26px + (var(--mp-count) - 1) * 28px);
-}
-.activity-merged{transition:padding 0.25s ease}
 .activity-preview{position:fixed;background:rgba(5,12,22,0.97);border:0.5px solid rgba(74,170,106,0.3);border-radius:8px;padding:10px 12px;z-index:200;max-width:280px;font-size:11px;line-height:1.5;color:rgba(255,255,255,0.85);box-shadow:0 6px 24px rgba(0,0,0,0.85);pointer-events:none;font-style:italic}
 .activity-preview::before{content:"";position:absolute;width:8px;height:8px;background:rgba(5,12,22,0.97);border-left:0.5px solid rgba(74,170,106,0.3);border-bottom:0.5px solid rgba(74,170,106,0.3);transform:rotate(45deg)}
 .activity-preview.right::before{left:-5px;top:50%;margin-top:-4px}
@@ -2259,13 +2278,30 @@ function updateSidebarActivity(){
   // Deduplicate by name, keep first (= neuester)
   var seen=new Set();
   var unique=active.filter(function(c){if(seen.has(c.n))return false;seen.add(c.n);return true;});
-  var top=unique.slice(0,6);
 
-  // Auffüllen bis 8 mit Chars ohne Datum (Sheet-Reihenfolge) falls Platz
-  if(top.length < 6){
-    var already = new Set(top.map(function(c){return c.n;}));
+  // Erste Gruppierung nach lastSeenUrl — Chars im selben Forum-Post = eine Gruppe
+  function _buildGroups(charList){
+    var groups = [];
+    var groupIdx = {};
+    charList.forEach(function(c){
+      var key = c.lastSeenUrl || ('_solo_'+c.n);
+      if(groupIdx[key] === undefined){
+        groupIdx[key] = groups.length;
+        groups.push({url: c.lastSeenUrl, world: c.lastSeenName, chars: [c]});
+      } else {
+        groups[groupIdx[key]].chars.push(c);
+      }
+    });
+    return groups;
+  }
+  var groups = _buildGroups(unique).slice(0, 6);
+
+  // Auffüllen bis 6 Gruppen mit Chars ohne Datum (Sheet-Reihenfolge) falls Platz
+  if(groups.length < 6){
+    var usedChars = new Set();
+    groups.forEach(function(g){ g.chars.forEach(function(c){ usedChars.add(c.n); }); });
     var filler = CHARS.filter(function(c){
-      if(already.has(c.n)) return false;
+      if(usedChars.has(c.n)) return false;
       return c.lastSeenName && c.lastSeenUrl;
     });
     var fseen = new Set();
@@ -2274,27 +2310,17 @@ function updateSidebarActivity(){
       fseen.add(c.n);
       return true;
     });
-    top = top.concat(uniqueFiller.slice(0, 6 - top.length));
+    var fillerGroups = _buildGroups(uniqueFiller);
+    groups = groups.concat(fillerGroups.slice(0, 6 - groups.length));
   }
-  // Gruppieren nach lastSeenUrl — Chars im selben Forum-Post = gleicher Ort/Szene
+
   function _portraitHtml(c, color){
     var nameShort = c.n.split(' ')[0];
     return c.img
       ? '<img src="'+c.img+'" loading="lazy" decoding="async" style="width:26px;height:26px;border-radius:50%;object-fit:cover;object-position:50% 30%;flex-shrink:0;border:1.5px solid '+color+';box-shadow:0 0 4px '+color+'88">'
       : '<div style="width:26px;height:26px;border-radius:50%;background:'+color+';display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:600;flex-shrink:0;box-shadow:0 0 4px '+color+'88">'+nameShort.charAt(0)+'</div>';
   }
-  // Gruppen aufbauen (reihenfolge erhalten — neueste zuerst)
-  var groups = [];
-  var groupIdx = {};
-  top.forEach(function(c){
-    var key = c.lastSeenUrl || ('_solo_'+c.n);
-    if(groupIdx[key] === undefined){
-      groupIdx[key] = groups.length;
-      groups.push({url: c.lastSeenUrl, world: c.lastSeenName, chars: [c]});
-    } else {
-      groups[groupIdx[key]].chars.push(c);
-    }
-  });
+
   el.innerHTML = groups.map(function(g){
     var color = WORLD_COLORS[g.world] || '#4a6a7a';
     if(g.chars.length === 1){
@@ -2307,14 +2333,23 @@ function updateSidebarActivity(){
         + '<div style="min-width:0;flex:1"><div class="activity-name">'+nameShort+player+'</div><div class="activity-world">'+g.world+'</div></div>'
         + '</div>';
     }
-    // Merged-Card: erstes Portrait sichtbar + fan-out beim Hover
-    var portraits = g.chars.map(function(c, i){
-      return '<span class="merged-portrait" style="--mp-idx:'+i+'">'+_portraitHtml(c, color)+'</span>';
+    // Merged-Card: kompakt mit Merge-Symbol — Tokens klappen beim Hover links vertikal auf
+    var tokensHtml = g.chars.map(function(c, i){
+      var nm = c.n.split(' ')[0];
+      return '<div class="merged-token" style="--mt-idx:'+i+'">'
+        + _portraitHtml(c, color)
+        + '<div class="merged-token-name">'+nm+'</div>'
+        + '</div>';
     }).join('');
-    var names = g.chars.map(function(c){return c.n.split(' ')[0];}).join(' &middot; ');
+    var countLabel = g.chars.length + ' Charaktere';
     return '<div class="activity-item activity-merged" style="cursor:pointer" data-url="'+g.chars[0].lastSeenUrl+'" data-merged="1">'
-      + '<div class="merged-portraits" style="--mp-count:'+g.chars.length+'">'+portraits+'</div>'
-      + '<div style="min-width:0;flex:1"><div class="activity-name">'+names+'</div><div class="activity-world">'+g.world+'</div></div>'
+      + '<div class="merged-icon" title="'+g.chars.length+' Charaktere im selben Beitrag" style="border-color:'+color+'">'
+      +   '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="'+color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+      +     '<circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M3 19c0-3 2.5-5 5-5s5 2 5 5"/><path d="M11 19c0-3 2.5-5 5-5s5 2 5 5"/>'
+      +   '</svg>'
+      + '</div>'
+      + '<div style="min-width:0;flex:1"><div class="activity-name">'+countLabel+'</div><div class="activity-world">'+g.world+'</div></div>'
+      + '<div class="merged-tokens" style="--mt-count:'+g.chars.length+'">'+tokensHtml+'</div>'
       + '</div>';
   }).join('');
   el.querySelectorAll('[data-url]').forEach(function(item){
